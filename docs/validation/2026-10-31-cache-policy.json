@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-31",
+  "environment": "Darwin arm64",
+  "native_rpc_tensorflow": {
+    "passed": 19,
+    "total": 19,
+    "command": "ctest --test-dir build/tensorflow --output-on-failure"
+  },
+  "core_asan_ubsan": {
+    "passed": 9,
+    "total": 9,
+    "command": "ctest --test-dir build/asan --output-on-failure"
+  },
+  "automatic_policy_process_checks": {
+    "shards": 2,
+    "agents": 1,
+    "agent_backend": "host",
+    "gather_modes": [
+      "per_shard",
+      "coalesced"
+    ],
+    "fresh_and_optimizer_exact_restored": true,
+    "configuration_rejections_checked": [
+      "unknown_admission_mode",
+      "automatic_mode_without_agent_enable",
+      "zero_window_size"
+    ]
+  },
+  "native_policy_coverage": [
+    "decayed_request_reuse",
+    "bounded_lru_history",
+    "frequency_and_reuse_cost_modes",
+    "migration_cost_feedback",
+    "minimum_residence_and_generation_change",
+    "hot_set_replacement",
+    "in_flight_row_pins",
+    "duplicate_lookup_and_push",
+    "read_only_release",
+    "network_and_staging_budgets",
+    "shared_multi_agent_and_multi_table_budgets",
+    "per_window_migration_batch_cap",
+    "admission_failure_before_and_after_eviction",
+    "cpu_fallback",
+    "weights_moments_counters",
+    "save_restore_optimizer_trajectory",
+    "atomic_backend_slot_reserve"
+  ],
+  "cuda_policy_execution": "pending; CUDA-specific guard and process checks added, no new-device claim",
+  "source_sha256": {
+    "include/eps/cache_policy.hpp": "280bfe70e26854b508caba42d361fbe45832d9b3c41360bbff79f476ecfc0530",
+    "include/eps/runtime.hpp": "1d2568eb0b8570b6135003b3dc0d65bc60b1df25bfa591ae60d261cfecfdf7fd",
+    "include/eps/types.hpp": "10743a83832b80d68742ca3b10d0e2092e4f2ea5034d034c6620443a2bc8cf2f",
+    "src/cache/reuse_policy.hpp": "3501ef1f4faf72854d10c09622a4ed745315eef45a08b0d51229aa43250f8536",
+    "src/cache/reuse_policy.cpp": "2314af79d2973a9f061ad001c30bfd55b4bd7227aa66ebb4e06eb9ab1e5b34ae",
+    "src/cache/host_backend.cpp": "5661815aee06d397d899d6d2795d56a562769a68385e5b627dddba9fbadbc6e1",
+    "src/server/service.cpp": "1f5f86a34c95ac09b82380998d1425a5d9e583e1edded64d9a608b0da15abebe",
+    "src/server/main.cpp": "a197458b73ae0791c2ed283a6ae2049802f0960f2caa9ff422bbe893d14d2fd2",
+    "src/transport/codec.hpp": "bbba4c6418f71802fab7f51b64a160edeaf7ebeaa05c54ba4894c711cabce96b",
+    "src/transport/brpc_client.cpp": "3e44bb8fa8122d61ac9d74e9a86732d86fc46736ee98cd8fa85df7a3fad8ad09",
+    "src/transport/brpc_server.cpp": "92d80fcb4328514bd274025eae3ab7573140ca35994c13681c09fe54e0bde254",
+    "src/cuda/cache_backend.cu": "8687a15a88d341d17d610aa2b33883e35b5a42e0ce3fd7eb0ead59a787e93581",
+    "proto/embedding_service.proto": "84e01bc8390ae491264925bc0161a03656ef2807f530b7c74f36766d1e47f137",
+    "tests/cache_policy_tests.cpp": "39b04ea92380d8a9bf8b2d4dd3cdda199183635673822083f24fb9ba5d1b6917",
+    "tests/cache_policy_rpc_checks.cpp": "94d1777fba475f094bab7896b96a42f8b401ffb28b389f74f22a204ca4693dbd",
+    "tests/cache_policy_processes.py": "a8fff4b2ee99fce98de569529848cef5c2081d67e4f66f25f48df242fb9333df",
+    "tests/cuda_tests.cpp": "8ce3b09a29bc1da36eff9e4f833ff38a4eef9309849c1c315dd6b5cabce2d75d",
+    "CMakeLists.txt": "3b46880fefd2e9b1c5cb712f2491ad09cd122f280a211c0ec44c22037b0ecd32",
+    "adapters/entropy/python_bindings.cpp": "16dd844710d3089fab83f38d22a1e0d9561ac3a75553b7b5900c18d970dd1970",
+    "adapters/entropy/eps_backend.py": "cafb73fc0ef987e52f6e5d153257372c41eb78f5cef3e51ba095184e19839cab",
+    "adapters/entropy/eps_backend_worker.py": "503551add86d69556c81cbc4920f0286ee8148d884264392bdd6a2a84a3f5e1b",
+    "adapters/entropy/eps_tensorflow.py": "6dfb308075945a46115116e89e625c038a843eeda6f55cb19d04a4d75b89d482",
+    "tests/tensorflow_processes.py": "fbd37c9aaf0e618631bcb04e8ba35df9fa7bb492b25a1b47b4d6359eb6c4da84"
+  },
+  "source_log_sha256": {
+    "native": "3491eb466b0dec68a6ab0b0c242c5bcf1ddbbd7c7ab5540892473a9919e41dfb",
+    "asan": "02c6ffe3017efcd2bdd15bf6909e86ea08c4e6418e53a9bee4dc88b94f28e5dc"
+  },
+  "tensorflow_automatic_cache": {
+    "gather_modes": [
+      "per_shard",
+      "coalesced"
+    ],
+    "external_ps_shards": 2,
+    "agent_backend": "host",
+    "dense_and_sparse_train_steps": 5,
+    "loss_decreases": true,
+    "graph_retraces": 0,
+    "automatically_resident_rows": 2,
+    "save_drains_cache": true,
+    "python_stats_ipc_checked": true
+  }
+}

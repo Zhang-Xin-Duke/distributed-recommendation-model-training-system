@@ -190,6 +190,8 @@ struct MigrationPlan {
   std::vector<LocatedRow> rows;
   Placement destination;
   std::uint64_t estimated_bytes;
+  // Enforced atomically by the destination backend when slots are allocated.
+  std::uint64_t reserve_slots = 0;
 };
 
 struct MigrationCompletion {

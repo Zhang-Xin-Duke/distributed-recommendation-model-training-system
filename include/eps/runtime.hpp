@@ -7,6 +7,7 @@
 #include "eps/parameter_service.hpp"
 #include "eps/cache_backend.hpp"
 #include "eps/access_planner.hpp"
+#include "eps/cache_policy.hpp"
 
 namespace eps {
 
@@ -46,6 +47,15 @@ struct RuntimeStats {
   std::uint64_t expanded_gradient_bytes = 0;
   std::uint64_t transferred_gradient_bytes = 0;
   std::uint64_t compact_update_commands = 0;
+  std::uint64_t policy_windows = 0;
+  std::uint64_t policy_tracked_rows = 0;
+  std::uint64_t policy_admitted_rows = 0;
+  std::uint64_t policy_evicted_rows = 0;
+  std::uint64_t policy_pinned_skips = 0;
+  std::uint64_t policy_budget_skips = 0;
+  std::uint64_t policy_migration_batches = 0;
+  std::uint64_t policy_migration_bytes = 0;
+  std::uint64_t policy_failures = 0;
 };
 
 // A bounded asynchronous shard sequencer. Transport callbacks never execute
@@ -76,6 +86,7 @@ class CpuParameterService final : public ParameterService {
   std::future<Result<Ack>> AttachAgent(AgentId id,std::shared_ptr<CacheBackend> backend);
   std::future<Result<Ack>> ConfigureAccess(AgentId agent,AccessRoute fallback,
                                          std::shared_ptr<AccessPlanner> planner={});
+  std::future<Result<Ack>> ConfigureCachePolicy(CachePolicyOptions options);
   std::future<Result<std::vector<LocatedRow>>> Locations(std::vector<RowKey> rows);
   std::future<Result<std::vector<LocatedRow>>> MoveRows(MoveRowsRequest request);
 

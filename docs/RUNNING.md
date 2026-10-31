@@ -162,3 +162,32 @@ and resource deletion remain with the experiment controller.
 
 See [the TensorFlow adapter guide](../adapters/entropy/README.md) for its build
 and graph integration example.
+
+
+## Automatic cache policy
+
+The cache example enables reuse-cost placement; set its run ID and agent
+endpoint to match the agent. With a CUDA-enabled build:
+
+```sh
+./build/cuda/eps_cache_agent --run example-cache-training-run --backend cuda \
+  --listen 127.0.0.1:9101 --rows-per-table 1024 --state-bytes 4194304
+# In another terminal:
+./build/cuda/eps_server --config configs/service.cache.example.json
+```
+
+A client must register that agent endpoint to resolve resident feature work.
+Use `cache.admission=frequency` for the decayed-frequency baseline, or `manual`
+to leave placement to explicit Move calls. Example cost priors need tuning for
+the actual workload; [CACHE_POLICY.md](CACHE_POLICY.md) defines their units.
+
+The automatic two-shard lifecycle check can use a CUDA agent on a GPU machine:
+
+```sh
+EPS_CACHE_BACKEND=cuda ctest --test-dir build/cuda \
+  -R 'automatic_cache_.*external_shards' --output-on-failure
+```
+
+Without that environment setting the same tests use the Host reference backend.
+Both checks include fresh and restored processes, policy metrics and state
+comparisons. `cuda_state_and_device_results` also checks destination slot reserves.

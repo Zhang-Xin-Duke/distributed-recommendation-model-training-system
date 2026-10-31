@@ -33,6 +33,11 @@ int main(int argc,char** argv) {
     const bool caching=j.contains("cache") && j["cache"].value("enabled",false);
     if(caching && (!j.contains("agents") || j["agents"].empty()))
       throw std::runtime_error("cache.enabled requires an agents list");
+    const auto admission=j.value("cache",nlohmann::json::object()).value("admission",std::string("manual"));
+    if(admission!="manual" && admission!="frequency" && admission!="reuse_cost")
+      throw std::runtime_error("cache.admission must be manual, frequency or reuse_cost");
+    if(admission!="manual" && !caching)
+      throw std::runtime_error("automatic cache admission requires cache.enabled");
     const auto policy=j.value("access",nlohmann::json::object()).value("policy",std::string("cpu_only"));
     if(policy!="cpu_only" && policy!="transfer_unique" && policy!="cost")
       throw std::runtime_error("access.policy must be cpu_only, transfer_unique or cost");
@@ -90,6 +95,29 @@ int main(int argc,char** argv) {
       }
       Value(service.ConfigureAccess(agent,policy=="transfer_unique"?AccessRoute::transfer_unique:
         AccessRoute::cpu_pool,planner));
+    }
+    if(admission!="manual") {
+      const auto& cache=j.at("cache");CachePolicyOptions co;
+      co.mode=admission=="frequency"?CacheAdmissionMode::frequency:CacheAdmissionMode::reuse_cost;
+      if(cache.contains("policy_agents"))co.agents=cache.at("policy_agents").get<std::vector<AgentId>>();
+      else for(const auto& agent:j.at("agents"))co.agents.push_back(agent.at("id"));
+      co.window_requests=cache.value("decision_window_requests",co.window_requests);
+      co.max_tracked_rows=cache.value("max_tracked_rows",co.max_tracked_rows);
+      co.window_decay=cache.value("window_decay",co.window_decay);
+      co.minimum_accesses=cache.value("minimum_accesses",co.minimum_accesses);
+      co.minimum_residence_windows=cache.value("minimum_residence_windows",co.minimum_residence_windows);
+      co.replacement_margin=cache.value("replacement_margin",co.replacement_margin);
+      co.max_rows_per_batch=cache.value("max_rows_per_batch",co.max_rows_per_batch);
+      co.saved_microseconds_per_access=cache.value("saved_microseconds_per_access",co.saved_microseconds_per_access);
+      co.load_microseconds_per_byte=cache.value("load_microseconds_per_byte",co.load_microseconds_per_byte);
+      co.writeback_microseconds_per_byte=cache.value("writeback_microseconds_per_byte",co.writeback_microseconds_per_byte);
+      co.cost_average_alpha=cache.value("cost_average_alpha",co.cost_average_alpha);
+      co.learn_migration_costs=cache.value("learn_migration_costs",co.learn_migration_costs);
+      co.budget.network_bytes=cache.value("network_bytes_per_window",co.budget.network_bytes);
+      co.budget.staging_bytes=cache.value("staging_bytes_limit",co.budget.staging_bytes);
+      co.budget.max_inflight_batches=cache.value("max_inflight_batches",co.budget.max_inflight_batches);
+      co.budget.reserve_slots=cache.value("reserve_slots",co.budget.reserve_slots);
+      Value(service.ConfigureCachePolicy(std::move(co)));
     }
     transport::BrpcServer rpc(service,options.shard_id);brpc::Server server;
     if(server.AddService(&rpc,brpc::SERVER_DOESNT_OWN_SERVICE)!=0)

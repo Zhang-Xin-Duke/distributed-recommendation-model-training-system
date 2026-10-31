@@ -20,7 +20,7 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
 | 3. Framework integration | C++ Pull/Push/Join adapter and portable TensorFlow host bridge implemented; real graph/external-shard check passed; native original-application build and device interop pending |
 | 4. GPU cache agent | CUDA resident gather/Adam, full-state loading/writeback, generation fencing and cache-draining restore verified on L40; individual A6000 checks also passed |
-| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; reuse scoring and bounded admission proposals checked; automatic window/controller integration and asynchronous preparation pending |
+| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic windowed frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; native/external reference lifecycle checked; new controller GPU validation and asynchronous preparation pending |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
@@ -145,3 +145,20 @@ Current native/TensorFlow checks pass 14/14, core ASan/UBSan 8/8, Linux CPU
 11/11, and real CUDA migration/save/restore passes with both gather modes.
 [The capacity report](../BENCHMARKS.md) links source revisions and all raw data.
 All three instances were deleted after results were fetched and audited.
+
+## Automatic placement integration — October 31
+
+Implemented bounded decayed request reuse, manual/frequency/reuse-cost modes,
+minimum residence and replacement margin, live-ticket exclusion, shared migration
+budgets, migration-cost feedback and atomic Agent-side reserved-slot enforcement.
+The server JSON launcher and RPC Stats expose the controller. Completed requests
+trigger coarse decisions on the existing sequencer; cache ownership and optimizer
+updates retain their existing lifecycle. Save drains residency; restore rebuilds
+performance history from new requests.
+
+Native/RPC/TensorFlow checks pass 19/19 and core ASan/UBSan 9/9, including
+two-shard external reference-agent replacement and exact restart in both gather
+modes. [Policy details](../CACHE_POLICY.md) and [source-hashed validation](../validation/2026-10-31-cache-policy.json)
+record the scope. New CUDA-controller execution and changing-hot-set performance
+remain separate checks, alongside asynchronous preparation and native original
+framework integration.

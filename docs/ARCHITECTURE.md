@@ -146,3 +146,14 @@ remain the framework's responsibility.
 An owner or agent failure ends the affected training run and uses the existing
 restart/save lifecycle. Initial extraction focuses on parameter access and update
 performance, with static shard membership during a run.
+
+
+## Windowed placement controller
+
+The implemented controller observes distinct-row reuse on fresh lookups and
+runs at completed Push/Release windows. It combines bounded decayed history,
+cost/frequency admission, minimum residence, live-ticket exclusion, shared
+migration budgets and atomic destination slot reserves. A rejected admission
+keeps CPU fallback; save drains placement and restore rebuilds history.
+[Automatic cache policy](CACHE_POLICY.md) documents decisions, configuration,
+metrics and execution cost on the existing sequencer.

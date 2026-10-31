@@ -14,6 +14,7 @@
 #include <unordered_set>
 
 #include "access/batch_access.hpp"
+#include "cache/reuse_policy.hpp"
 #include "common/error.hpp"
 #include "common/executor.hpp"
 #include "eps/compact_gradients.hpp"
@@ -203,6 +204,14 @@ class CpuParameterService::Impl {
       tickets_.emplace(name, std::move(ticket));
       ticket_payload_bytes_ += ticket_bytes;
       ++stats_.lookups;
+      if(cache_policy_) {
+        try {
+          std::vector<RowKey> rows;
+          for(const auto& f:tickets_.at(name).features)
+            for(auto key:f.input.keys)rows.push_back({f.input.table,key});
+          cache_policy_->Observe(rows);
+        } catch(const std::bad_alloc&) { ++stats_.policy_failures; }
+      }
       return reply;
     } catch (...) { tracker_.Abort(request.id); throw; }
   }
@@ -287,6 +296,7 @@ class CpuParameterService::Impl {
       tracker_.Complete(request.id);
       ticket_payload_bytes_ -= ticket.payload_bytes;
       tickets_.erase(it); ++stats_.updates;
+      MaybeMaintainCache();
       return {};
   }
 
@@ -300,7 +310,7 @@ class CpuParameterService::Impl {
               "release does not match a live ticket");
       tracker_.Complete(request.id);
       ticket_payload_bytes_ -= it->second.payload_bytes;
-      tickets_.erase(it); return {};
+      tickets_.erase(it); MaybeMaintainCache();return {};
   }
 
   std::vector<RowState> ReadState(const std::vector<LocatedRow>& rows) {
@@ -355,6 +365,7 @@ class CpuParameterService::Impl {
     }
     MigrationPlan plan{options_.run_id+"/"+std::to_string(options_.shard_id)+"/"+
       std::to_string(next_move_++),request.agent,{},request.destination,bytes};
+    plan.reserve_slots=request.destination==Placement::gpu?request.budget.reserve_slots:0;
     std::vector<RowState> states;
     for(auto row:request.rows){
       auto location=Location(row);locations_.try_emplace(RowId(row),location);
@@ -395,6 +406,120 @@ class CpuParameterService::Impl {
     std::vector<LocatedRow> result;result.reserve(request.rows.size());
     for(auto row:request.rows)result.push_back(Location(row));
     return result;
+  }
+
+  void MaintainCache() {
+    const auto& o=cache_policy_->options();
+    using Id=std::pair<TableId,Key>;
+    std::set<Id> pinned;
+    for(const auto& [name,ticket]:tickets_)for(const auto& feature:ticket.features)
+      for(auto key:feature.input.keys)pinned.emplace(feature.input.table,key);
+    std::vector<LocatedRow> resident;
+    for(const auto& [id,location]:locations_)
+      if(location.placement==Placement::gpu)resident.push_back(location);
+    cache_policy_->SynchronizeResidents(resident);
+    using Group=std::pair<AgentId,TableId>;
+    std::map<Group,std::vector<RowKey>> candidates;
+    for(auto row:cache_policy_->TrackedRows()) {
+      if(Location(row).placement!=Placement::cpu)continue;
+      if(pinned.contains(RowId(row))) { ++stats_.policy_pinned_skips;continue; }
+      const auto bytes=std::uint64_t(store_->Table(row.table).definition.dimension)*12+8;
+      if(cache_policy_->AdmissionValue(row,bytes)<=0)continue;
+      const auto agent=o.agents[(row.key/options_.shard_count)%o.agents.size()];
+      candidates[{agent,row.table}].push_back(row);
+    }
+    auto remaining=std::min(o.budget.network_bytes,o.budget.staging_bytes);
+    auto batches=o.budget.max_inflight_batches;
+    const auto migrate=[&](AgentId agent,std::vector<RowKey> rows,Placement destination,
+                           std::uint64_t row_bytes) {
+      const auto bytes=rows.size()*row_bytes;
+      Require(bytes<=remaining && batches>0,"cache policy exhausted migration budget");
+      const auto begin=std::chrono::steady_clock::now();
+      auto moved=Move({options_.run_id,std::move(rows),agent,destination,
+        {remaining,remaining,1,destination==Placement::gpu?o.budget.reserve_slots:0}});
+      remaining-=bytes;--batches;
+      ++stats_.policy_migration_batches;stats_.policy_migration_bytes+=bytes;
+      if(destination==Placement::gpu)stats_.policy_admitted_rows+=moved.size();
+      else stats_.policy_evicted_rows+=moved.size();
+      cache_policy_->ObserveMigration(destination,bytes,
+        std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-begin).count());
+      if(destination==Placement::gpu)for(const auto& row:moved)cache_policy_->Admitted(row);
+    };
+    for(auto& [group,rows]:candidates) {
+      const auto [agent,table]=group;
+      const auto row_bytes=std::uint64_t(store_->Table(table).definition.dimension)*12+8;
+      const auto max_rows=std::min<std::uint64_t>(o.max_rows_per_batch,options_.max_request_bytes/row_bytes);
+      std::sort(rows.begin(),rows.end(),[&](auto a,auto b) {
+        const auto av=cache_policy_->AdmissionValue(a,row_bytes),bv=cache_policy_->AdmissionValue(b,row_bytes);
+        return av==bv?RowId(a)<RowId(b):av>bv;
+      });
+      std::size_t next=0;
+      while(next<rows.size()) {
+        if(!batches || remaining<row_bytes || !max_rows) {
+          stats_.policy_budget_skips+=rows.size()-next;break;
+        }
+        if(cache_policy_->AdmissionValue(rows[next],row_bytes)<=0)break;
+        const auto free=AgentResult(agents_.at(agent)->FreeSlots(table));
+        const auto usable=free>o.budget.reserve_slots?free-o.budget.reserve_slots:0;
+        if(usable) {
+          const auto count=std::min<std::uint64_t>({usable,remaining/row_bytes,
+            max_rows,rows.size()-next});
+          std::vector<RowKey> admit;
+          for(std::size_t n=0;n<count && cache_policy_->AdmissionValue(rows[next+n],row_bytes)>0;++n)
+            admit.push_back(rows[next+n]);
+          if(admit.empty())break;
+          const auto moved=admit.size();migrate(agent,std::move(admit),Placement::gpu,row_bytes);
+          next+=moved;continue;
+        }
+        if(batches<2) { stats_.policy_budget_skips+=rows.size()-next;break; }
+        std::vector<LocatedRow> victims;
+        for(const auto& row:resident) {
+          const auto current=Location(row.row);
+          if(current.placement!=Placement::gpu || current.generation!=row.generation ||
+            row.agent!=agent || row.row.table!=table)continue;
+          if(pinned.contains(RowId(row.row))) { ++stats_.policy_pinned_skips;continue; }
+          if(cache_policy_->CanReplace(row))victims.push_back(row);
+        }
+        std::sort(victims.begin(),victims.end(),[&](const auto& a,const auto& b) {
+          const auto av=cache_policy_->RetainedValue(a.row),bv=cache_policy_->RetainedValue(b.row);
+          return av==bv?RowId(a.row)<RowId(b.row):av<bv;
+        });
+        const auto deficit=o.budget.reserve_slots>free?o.budget.reserve_slots-free:0;
+        if(deficit>=victims.size() || deficit>=max_rows)break;
+        const auto limit=std::min<std::uint64_t>({rows.size()-next,
+          max_rows-deficit,victims.size()-deficit});
+        if(deficit+2>remaining/row_bytes) {
+          stats_.policy_budget_skips+=rows.size()-next;break;
+        }
+        std::size_t replace=0;double saved=0,cost=0;
+        for(std::size_t n=0;n<deficit;++n)
+          cost+=cache_policy_->RetainedValue(victims[n].row)+cache_policy_->WritebackCost(row_bytes);
+        for(std::size_t n=1;n<=limit;++n) {
+          if(deficit+2*n>remaining/row_bytes)break;
+          const auto value=cache_policy_->AdmissionValue(rows[next+n-1],row_bytes);
+          if(value<=0)break;
+          saved+=value;
+          cost+=cache_policy_->RetainedValue(victims[deficit+n-1].row)+cache_policy_->WritebackCost(row_bytes);
+          if(saved>cost*(1+o.replacement_margin))replace=n;
+        }
+        if(!replace)break;
+        std::vector<RowKey> evict;
+        for(std::size_t n=0;n<deficit+replace;++n)evict.push_back(victims[n].row);
+        migrate(agent,std::move(evict),Placement::cpu,row_bytes);
+        // Requery free slots and revalidate the reserve in Move. Another home
+        // shard may have claimed capacity; these rows safely remain CPU-owned.
+      }
+    }
+  }
+  void MaybeMaintainCache() {
+    if(!cache_policy_ || draining_ || !fatal_.empty() || !cache_policy_->CompleteRequest())return;
+    ++stats_.policy_windows;
+    try { MaintainCache(); }
+    catch(const detail::Failure& e) {
+      ++stats_.policy_failures;
+      if(!fatal_.empty() || e.error().code==Error::Code::run_failed)throw;
+    }
+    catch(const std::bad_alloc&) { ++stats_.policy_failures; }
   }
 
   SnapshotMetadata Save(const std::string& id) {
@@ -448,6 +573,7 @@ class CpuParameterService::Impl {
   AgentId fallback_agent_=0;
   AccessRoute fallback_route_=AccessRoute::cpu_pool;
   std::shared_ptr<AccessPlanner> planner_;
+  std::unique_ptr<detail::ReusePolicy> cache_policy_;
   std::map<std::pair<TableId,Key>,LocatedRow> locations_;
   std::uint64_t next_move_=0;
   std::string fatal_;
@@ -525,6 +651,7 @@ std::future<Result<RuntimeStats>> CpuParameterService::Stats() {
     s.rows = impl_->store_->rows(); s.state_bytes = impl_->store_->bytes();
     s.live_tickets = impl_->tickets_.size();
     s.ticket_payload_bytes = impl_->ticket_payload_bytes_;
+    s.policy_tracked_rows=impl_->cache_policy_?impl_->cache_policy_->tracked_rows():0;
     for(const auto& [key,loc]:impl_->locations_)if(loc.placement==Placement::gpu)++s.cached_rows;
     { std::lock_guard lock(impl_->mutex_); s.queued_payload_bytes = impl_->queued_payload_bytes_;
       s.rejected_operations=impl_->rejected_operations_;s.peak_queued_operations=impl_->peak_queued_operations_; }
@@ -544,6 +671,15 @@ std::future<Result<Ack>> CpuParameterService::ConfigureAccess(AgentId agent,Acce
     impl_->Ready();Require(route==AccessRoute::cpu_pool || route==AccessRoute::transfer_unique,"invalid fallback route");
     Require((!planner && route==AccessRoute::cpu_pool) || impl_->agents_.contains(agent),"fallback GPU agent is not attached");
     impl_->fallback_agent_=agent;impl_->fallback_route_=route;impl_->planner_=planner;return Ack{};
+  });
+}
+std::future<Result<Ack>> CpuParameterService::ConfigureCachePolicy(CachePolicyOptions options) {
+  return impl_->Submit<Ack>([this,options=std::move(options)]() mutable {
+    impl_->Ready();auto policy=std::make_unique<detail::ReusePolicy>(std::move(options));
+    for(auto agent:policy->options().agents)
+      Require(impl_->agents_.contains(agent),"cache policy agent is not attached");
+    if(policy->options().mode==CacheAdmissionMode::manual)policy.reset();
+    impl_->cache_policy_=std::move(policy);return Ack{};
   });
 }
 std::future<Result<std::vector<LocatedRow>>> CpuParameterService::Locations(std::vector<RowKey> rows){

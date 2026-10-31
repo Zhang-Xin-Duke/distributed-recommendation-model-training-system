@@ -388,7 +388,8 @@ std::future<Result<std::vector<LocatedRow>>> CudaCacheBackend::Load(
     impl_->Limit(bytes); impl_->Limit(states.size() * 8);
     for (const auto& [id, rows] : groups) {
       auto& t = impl_->Get(id);
-      detail::Require(rows.size() <= t.free.size(), "CUDA cache slots exhausted",
+      detail::Require(plan.reserve_slots<=t.free.size() && rows.size()<=t.free.size()-plan.reserve_slots,
+                      "CUDA cache slots or reserve exhausted",
                       Error::Code::capacity_exceeded);
       t.rows.reserve(t.rows.size() + rows.size());
     }

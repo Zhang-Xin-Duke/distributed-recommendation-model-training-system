@@ -52,9 +52,25 @@ void CompareStates(const std::vector<RowState>& a,const std::vector<RowState>& b
     for(std::size_t j=0;j<a[i].weights.size();++j){Near(a[i].weights[j],b[i].weights[j]);
       Near(a[i].first_moment[j],b[i].first_moment[j]);Near(a[i].second_moment[j],b[i].second_moment[j]);}}
 }
+void AtomicReserve(){
+  CudaCacheOptions options;options.rows_per_table=3;options.state_bytes=96;
+  options.transfer_bytes=1<<20;options.outstanding_output_bytes=1<<20;
+  CudaCacheBackend gpu(options);Take(gpu.Define(Table(99,2)));
+  const auto load=[&](Key first,std::size_t count){
+    std::vector<RowState> states;
+    for(std::size_t n=0;n<count;++n)states.push_back({{99,first+n},{0.1f,0.2f},{0,0},{0,0},0});
+    auto plan=Plan(states);plan.reserve_slots=1;
+    return gpu.Load(std::move(plan),std::move(states));
+  };
+  auto first=load(1,2),second=load(3,1);Take(std::move(first));auto rejected=second.get();
+  Check(std::holds_alternative<Error>(rejected) &&
+    std::get<Error>(rejected).code==Error::Code::capacity_exceeded && Take(gpu.FreeSlots(99))==1,
+    "CUDA concurrent load consumed slot reserve");
+}
 }
 int main(){
   try{
+    AtomicReserve();
     CudaCacheOptions options;options.rows_per_table=8;options.state_bytes=1<<20;
     options.transfer_bytes=1<<20;options.outstanding_output_bytes=1<<20;
     auto gpu=std::make_shared<CudaCacheBackend>(options);

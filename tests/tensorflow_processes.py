@@ -63,10 +63,19 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     values = evaluate().numpy()
     np.testing.assert_array_equal(values[[0, 3]], np.zeros((2, 2)))
     assert (values[[1, 2]] > 0.25).all()
+    metrics = backend.stats()
+    assert len(metrics) == 2 and all(m["updates"] == 5 and m["live_tickets"] == 0 for m in metrics), metrics
+    automatic = os.environ.get("EPS_TEST_AUTO_CACHE") == "1"
+    if automatic:
+        assert sum(m["policy_admitted_rows"] for m in metrics) == 2, metrics
+        assert sum(m["cached_rows"] for m in metrics) == 2, metrics
+        assert all(m["policy_windows"] == 6 and m["policy_tracked_rows"] == 1 and m["policy_failures"] == 0 for m in metrics), metrics
     files = backend.save("tf-checkpoint")
     assert len(files) == 2 and all(pathlib.Path(f).is_file() for f in files)
+    assert all(m["cached_rows"] == 0 for m in backend.stats())
     print(json.dumps(dict(test="tensorflow_graph_pull_push_join", tensorflow=tf.__version__,
-                          cache_route="transfer_unique_host_reference" if agent_endpoint else "cpu_pool",
+                          cache_route=("automatic_resident_" if automatic else "transfer_unique_")+
+                                      os.environ.get("EPS_CACHE_BACKEND", "host") if agent_endpoint else "cpu_pool",
                           train_steps=5, loss_before=losses[0], loss_after=losses[-1],
                           checkpoint_shards=len(files), retraces=0)), flush=True)
     backend.close()
@@ -86,15 +95,23 @@ def main():
                 log = open(root / "agent.log", "w+")
                 logs.append(log)
                 agent = subprocess.Popen([sys.argv[2], "--run", "tensorflow-check",
-                    "--backend", "host", "--listen", "127.0.0.1:0"],
+                    "--backend", os.environ.get("EPS_CACHE_BACKEND", "host"), "--listen", "127.0.0.1:0"],
                     stdout=subprocess.PIPE, stderr=log, text=True)
                 processes.append(agent)
                 agent_endpoint = ready(agent)
             for shard in range(2):
                 config = root / f"shard-{shard}.json"
+                cache = dict(enabled=bool(agent_endpoint))
+                if os.environ.get("EPS_TEST_AUTO_CACHE") == "1":
+                    assert agent_endpoint, "automatic graph check requires an agent"
+                    cache.update(admission="reuse_cost", decision_window_requests=1,
+                        max_tracked_rows=16, minimum_accesses=1,
+                        saved_microseconds_per_access=100,
+                        load_microseconds_per_byte=0, writeback_microseconds_per_byte=0,
+                        learn_migration_costs=False, reserve_slots=1)
                 config.write_text(json.dumps(dict(schema_version=1, run_id="tensorflow-check",
                     listen="127.0.0.1:0", partition=dict(shard_id=shard, shard_count=2, epoch=1),
-                    tables=[], cache=dict(enabled=bool(agent_endpoint)),
+                    tables=[], cache=cache,
                     access=dict(policy="transfer_unique" if agent_endpoint else "cpu_only", agent_id=0),
                     agents=[dict(id=0, endpoint=agent_endpoint)] if agent_endpoint else [],
                     snapshot_directory=str(root / "snapshots"))))

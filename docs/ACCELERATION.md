@@ -73,7 +73,7 @@ Coalescing reduces per-shard GPU calls without combining independent Learner req
 or reading future parameter versions during ID preparation. The two-shard,
 three-agent check proves a single gather per destination, concurrent dispatch,
 layout/optimizer equivalence and known-ticket cleanup on failed lookups. GPU
-throughput curves remain associated with the earlier measured source revision.
+throughput curves retain their explicit source revisions in the benchmark report.
 
 Prepare key routing, unique mappings, buffer sizes and migration candidates ahead
 of demand. Parameter reads still respect the required update and ownership
@@ -120,3 +120,19 @@ caching and these policies using the same training computation. Metrics include
 end-to-end throughput, phase time, transfer bytes, cache churn, slot wait and
 validation quality. Correctness and capacity evidence is recorded in
 [VALIDATION.md](VALIDATION.md).
+
+
+## Executable automatic placement
+
+The [windowed controller](CACHE_POLICY.md) now connects bounded, decayed request
+observations to frequency/reuse-cost admission and replacement. It uses the
+existing migration lifecycle, excludes active-ticket rows, enforces shared byte
+and batch budgets, and carries a reserve to the Agent's atomic allocation.
+Acknowledged migration time updates load/writeback cost priors. Configuration and
+RPC metrics expose each decision stage. Native/reference-process checks cover
+hot-set shifts, capacity races, failure fallback and exact optimizer restart.
+
+Decisions currently execute on the shard sequencer, so migrations contribute to
+the completing request's latency. New-controller GPU execution and a fixed-trace
+hot-set performance comparison remain to be run. The published capacity curves
+measure earlier manual-placement revisions.

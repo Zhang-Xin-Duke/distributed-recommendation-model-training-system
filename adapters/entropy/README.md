@@ -97,3 +97,20 @@ continue through the portable adapter.
 
 The private Entropy source collection is used to study this boundary. The full
 original training application has not been rebuilt or run by this repository.
+
+
+## Runtime metrics and automatic placement
+
+`ParameterServer.stats()` returns a list of runtime-metric dictionaries in
+configured shard order. It uses the same isolated native client IPC as the
+training operations and can be called outside the TensorFlow graph. It includes
+cached rows, live tickets, completed updates, migration bytes and the
+`policy_*` counters for automatic placement.
+
+Enable automatic placement in each PS configuration with `cache.admission`;
+register cache endpoints on the existing adapter so later Pull calls resolve
+resident rows. The service keeps original update/ticket boundaries through
+migration. [The cache policy guide](../../docs/CACHE_POLICY.md) describes
+configuration, costs, bounds and saved-state behavior. The automatic-cache graph
+checks verify five dense/sparse updates, resident placement, metrics and cache
+drain at save with both per-shard and coalesced gathers.

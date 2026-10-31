@@ -38,11 +38,11 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the current macOS native and TensorFlow suite passes 14/14,
-and the core ASan/UBSan suite passes 8/8. Both gather policies pass the real CUDA
-process save/restore check. This round completes 253 capacity trials and 153,703
-updates with zero reported errors. Coverage includes mixed CPU/GPU updates, migration, restart, numerical state,
-buffer ownership and configured overload rejection. See the
+**Validation:** the current macOS native/RPC/TensorFlow suite passes **19/19**,
+and the core ASan/UBSan suite passes **9/9**. Automatic replacement, reserved
+capacity, pins, failure fallback and optimizer-exact restart are covered by
+native and external-process reference checks. CUDA state, migration and restore
+were verified on L40/A6000 at the GPU benchmark revisions. See the
 [validation record](docs/VALIDATION.md).
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
@@ -89,12 +89,19 @@ flowchart LR
 - **Sparse updates:** merge repeated-key contributions within the original update
   request and apply its configured sparse optimizer at the current parameter location.
 - **Cache management:** coordinate CPU/GPU placement, acknowledged state transfer,
-  generation checks and slot reclamation; expose admission and migration policies.
+  generation checks and slot reclamation; automatically admit and replace rows
+  within configured migration budgets.
 - **Framework integration:** return the tensor layouts expected by the existing
   training graph and expose a drain/flush operation for its save lifecycle.
 
 ## Implemented optimizations
 
+- **Automatic reuse-aware placement:** track bounded, decayed per-row request
+  reuse, admit rows whose predicted savings cover full-state migration, and
+  replace lower-benefit residents after a minimum residence interval. Skip rows
+  held by live tickets; enforce shared migration budgets and destination-side
+  slot reserves. Manual and frequency-window baselines remain selectable.
+  [Policy flow, costs and configuration](docs/CACHE_POLICY.md).
 - **Destination-aware gathers:** send only the ID positions each destination
   reads and restore sequence positions on return. The default processes replies
   in shard order, starting each shard's cache work before waiting for the next
@@ -132,9 +139,11 @@ See [benchmark definitions](docs/BENCHMARKS.md#gradient-payload).
 | Migration budgets and slot reserve | Bound in-flight transfer work and prepare reusable capacity early | Reduce bursts and waits for old rows to finish writing back |
 | Batched preparation and transfer | Prepare ID routing ahead and coalesce compatible payloads | Reduce allocation, scheduling and small-message overhead |
 
-The standalone cost planner and migration controls are implemented. Automatic
-reuse-aware admission and asynchronous preparation remain integration work.
-The [acceleration design](docs/ACCELERATION.md) explains their decision model.
+The access planner, automatic admission/replacement controller and migration
+budgets are implemented. Decisions currently execute in coarse windows on the
+shard sequencer; asynchronous preparation and nonblocking agent waits remain
+scheduling work. The [acceleration design](docs/ACCELERATION.md) explains the
+choices and costs.
 
 ## Design and code map
 
@@ -174,8 +183,8 @@ native callers. Clients use the same table/key/gradient contract across tasks.
 
 The [adapter guide](adapters/entropy/README.md) describes integration and gradient
 conventions. The [implementation plan](docs/plans/2026-10-31-implementation.md)
-tracks automatic admission, asynchronous preparation and integrated workload
-evaluation.
+tracks automatic-policy GPU validation, asynchronous preparation and integrated
+workload evaluation.
 
 ## References
 

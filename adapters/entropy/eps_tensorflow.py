@@ -97,3 +97,7 @@ class ParameterServer:
 
     def close(self):
         self.backend.close()
+
+    def stats(self):
+        """Return runtime metrics in configured shard order outside the graph."""
+        return self.backend.stats()

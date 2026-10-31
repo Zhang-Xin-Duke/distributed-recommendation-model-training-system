@@ -212,6 +212,11 @@ message StatsReply {
   uint64 peak_queued_operations = 16;
   uint64 expanded_gradient_bytes = 17; uint64 transferred_gradient_bytes = 18;
   uint64 compact_update_commands = 19;
+  uint64 policy_windows = 20; uint64 policy_tracked_rows = 21;
+  uint64 policy_admitted_rows = 22; uint64 policy_evicted_rows = 23;
+  uint64 policy_pinned_skips = 24; uint64 policy_budget_skips = 25;
+  uint64 policy_migration_batches = 26; uint64 policy_migration_bytes = 27;
+  uint64 policy_failures = 28;
 }
 
 message RowKey { uint32 table_id = 1; uint64 key = 2; }
@@ -235,6 +240,7 @@ message AgentCapacityReply { Status status = 1; uint64 free_slots = 2; }
 message MigrationPlan {
   string id = 1; uint32 agent_id = 2; repeated LocatedRow rows = 3;
   Placement destination = 4; uint64 estimated_bytes = 5;
+  uint64 reserve_slots = 6;
 }
 message AgentLoadRequest {
   AgentIdentity identity = 1; MigrationPlan plan = 2; repeated RowState states = 3;

@@ -136,3 +136,18 @@ weights, moments, row counters, table definitions and optimizer globals.
 `CpuParameterService::Resume` reopens a local service after coordinated saving.
 The standalone server restores with `--restore FILE --run NEW_RUN`; remote resume
 control and the Entropy save hook remain integration work.
+
+
+## Automatic cache placement
+
+After attaching agents, local callers can configure `CachePolicyOptions` with
+`CpuParameterService::ConfigureCachePolicy`. The standalone launcher maps the
+same settings from `cache.admission` and related JSON fields. Manual is the
+default; frequency and reuse-cost modes observe successful distinct-row lookups
+and decide after configured completion windows.
+
+`MigrationPlan.reserve_slots` is transported to the destination and checked in
+its ordered Load allocation before publishing any row. Updated PS/Agent binaries
+are required for this reserve guarantee. Policy byte/batch budgets, read-only
+completion behavior and Stats counters are defined in
+[CACHE_POLICY.md](CACHE_POLICY.md).

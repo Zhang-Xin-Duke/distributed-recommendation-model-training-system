@@ -1,6 +1,7 @@
 # 003: Choose access and placement by cost
 
-**Status:** Proposed for implementation, 2026-10-31.
+**Status:** Implemented with native/reference-process validation, 2026-10-31.
+Real-device execution/performance of the automatic controller remains to be checked.
 
 ## Context
 
@@ -26,3 +27,12 @@ metric. Statistics and planning consume CPU time; sampled observations and coars
 decision windows keep that overhead bounded. Reserving slots lowers usable cache
 capacity in exchange for shorter reclamation waits. Policy benefits require later
 end-to-end measurement under fixed model and optimizer settings.
+
+
+## Implementation
+
+`src/cache/reuse_policy.cpp` maintains bounded observations and cost/residence
+state; the service executes windowed decisions through acknowledged Move calls.
+`cache.admission` selects manual/frequency/reuse-cost modes. Agent allocation
+atomically enforces the free-slot reserve. See [the policy design](../CACHE_POLICY.md)
+for lifecycle, budgets, costs, metrics and the current sequencer trade-off.

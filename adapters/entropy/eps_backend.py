@@ -82,6 +82,9 @@ class Backend:
     def cache_endpoints(self, endpoints, coalesce=False):
         return self._call("cache_endpoints", endpoints, bool(coalesce))
 
+    def stats(self):
+        return self._call("stats")
+
     def close(self):
         with self._mutex:
             self._closed = True

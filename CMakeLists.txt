@@ -16,6 +16,7 @@ add_library(eps_core
   src/client/distributed_client.cpp
   src/client/cache_resolver.cpp
   src/cache/access_cost_model.cpp
+  src/cache/reuse_policy.cpp
   src/cache/host_backend.cpp
   src/cache/agent_runtime.cpp
   adapters/entropy/table_adapter.cpp
@@ -113,6 +114,16 @@ if(EPS_BUILD_BRPC)
     add_executable(eps_rpc_checks tests/rpc_checks.cpp)
     target_link_libraries(eps_rpc_checks PRIVATE eps_brpc)
     target_include_directories(eps_rpc_checks PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    add_executable(eps_cache_policy_rpc_checks tests/cache_policy_rpc_checks.cpp)
+    target_link_libraries(eps_cache_policy_rpc_checks PRIVATE eps_brpc)
+    add_test(NAME automatic_cache_external_shards
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/cache_policy_processes.py"
+        $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_policy_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
+    add_test(NAME automatic_cache_coalesced_external_shards
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/cache_policy_processes.py"
+        $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_policy_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
+    set_tests_properties(automatic_cache_external_shards automatic_cache_coalesced_external_shards PROPERTIES TIMEOUT 120)
+    set_tests_properties(automatic_cache_coalesced_external_shards PROPERTIES ENVIRONMENT "EPS_COALESCE_GATHERS=1")
     add_executable(eps_overload_checks tests/overload_checks.cpp)
     target_link_libraries(eps_overload_checks PRIVATE eps_brpc)
     add_test(NAME rpc_cache_backpressure
@@ -136,8 +147,18 @@ if(EPS_BUILD_BRPC)
         add_test(NAME tensorflow_graph_cache_external_shards
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        add_test(NAME tensorflow_graph_automatic_cache
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        add_test(NAME tensorflow_graph_automatic_coalesced_cache
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
         set_tests_properties(tensorflow_graph_external_shards tensorflow_graph_cache_external_shards PROPERTIES TIMEOUT 120
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        set_tests_properties(tensorflow_graph_automatic_cache PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_AUTO_CACHE=1")
+        set_tests_properties(tensorflow_graph_automatic_coalesced_cache PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_AUTO_CACHE=1;EPS_TEST_COALESCE=1")
         add_test(NAME tensorflow_graph_coalesced_cache
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
@@ -162,6 +183,11 @@ if(EPS_BUILD_TESTS)
   add_executable(eps_cache_tests tests/cache_tests.cpp)
   target_link_libraries(eps_cache_tests PRIVATE eps_core)
   add_test(NAME cache_ownership_and_updates COMMAND eps_cache_tests)
+  add_executable(eps_cache_policy_tests tests/cache_policy_tests.cpp)
+  target_link_libraries(eps_cache_policy_tests PRIVATE eps_core)
+  target_include_directories(eps_cache_policy_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  add_test(NAME automatic_cache_policy_lifecycle COMMAND eps_cache_policy_tests)
+  set_tests_properties(automatic_cache_policy_lifecycle PROPERTIES TIMEOUT 30)
   add_executable(eps_agent_tests tests/agent_tests.cpp)
   target_link_libraries(eps_agent_tests PRIVATE eps_core)
   add_test(NAME agent_control_replay COMMAND eps_agent_tests)

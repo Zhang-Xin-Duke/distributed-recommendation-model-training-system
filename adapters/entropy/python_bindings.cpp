@@ -20,7 +20,10 @@ class Backend {
           std::uint64_t epoch,std::size_t max_live)
       : run_(std::move(run)),epoch_(epoch),count_(endpoints.size()) {
     std::vector<std::shared_ptr<ParameterService>> shards;
-    for(auto& e:endpoints)shards.push_back(std::make_shared<BrpcParameterService>(e));
+    for(auto& e:endpoints){
+      auto connection=std::make_shared<BrpcParameterService>(e);
+      connections_.push_back(connection);shards.push_back(std::move(connection));
+    }
     adapter_=std::make_unique<entropy::TableAdapter>(entropy::AdapterOptions{
       run_,learner,epoch,max_live,4096},std::move(shards));
   }
@@ -83,8 +86,31 @@ class Backend {
     for(auto& [id,endpoint]:endpoints)agents[id]=std::make_shared<BrpcCacheBackend>(endpoint,run_,0,id);
     adapter_->SetCacheResolver(MakeCacheResolver(std::move(agents)),coalesce);
   }
+  std::vector<std::map<std::string,std::uint64_t>> Stats() {
+    py::gil_scoped_release release;
+    std::vector<std::future<Result<RuntimeStats>>> pending;
+    for(const auto& connection:connections_)pending.push_back(connection->Stats());
+    std::vector<std::map<std::string,std::uint64_t>> result;
+    for(auto& future:pending) {
+      const auto s=Take(future.get());std::map<std::string,std::uint64_t> row;
+#define EPS_STAT(name) row[#name]=s.name;
+      EPS_STAT(lookups) EPS_STAT(updates) EPS_STAT(duplicate_requests) EPS_STAT(rows)
+      EPS_STAT(state_bytes) EPS_STAT(live_tickets) EPS_STAT(ticket_payload_bytes)
+      EPS_STAT(queued_payload_bytes) EPS_STAT(cached_rows) EPS_STAT(migration_bytes)
+      EPS_STAT(executed_operations) EPS_STAT(queue_wait_nanoseconds) EPS_STAT(executor_busy_nanoseconds)
+      EPS_STAT(rejected_operations) EPS_STAT(peak_queued_operations)
+      EPS_STAT(expanded_gradient_bytes) EPS_STAT(transferred_gradient_bytes) EPS_STAT(compact_update_commands)
+      EPS_STAT(policy_windows) EPS_STAT(policy_tracked_rows) EPS_STAT(policy_admitted_rows)
+      EPS_STAT(policy_evicted_rows) EPS_STAT(policy_pinned_skips) EPS_STAT(policy_budget_skips)
+      EPS_STAT(policy_migration_batches) EPS_STAT(policy_migration_bytes) EPS_STAT(policy_failures)
+#undef EPS_STAT
+      result.push_back(std::move(row));
+    }
+    return result;
+  }
  private:
   std::string run_;std::uint64_t epoch_;std::uint32_t count_;
+  std::vector<std::shared_ptr<BrpcParameterService>> connections_;
   std::unique_ptr<entropy::TableAdapter> adapter_;
 };
 }
@@ -94,5 +120,6 @@ PYBIND11_MODULE(_eps_native,m) {
       py::arg("endpoints"),py::arg("run"),py::arg("learner")=0,py::arg("epoch")=1,py::arg("max_live")=128)
     .def("create_table",&Backend::Create).def("pull",&Backend::Pull,py::arg("features"),py::arg("read_only")=false)
     .def("push",&Backend::Push).def("release",&Backend::Release).def("join",&Backend::Join)
-    .def("save",&Backend::Save).def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);
+    .def("save",&Backend::Save).def("stats",&Backend::Stats)
+    .def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);
 }

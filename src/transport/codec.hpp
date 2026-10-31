@@ -132,12 +132,14 @@ inline void Encode(const AgentCommand& x,wire::AgentIdentity* y){
 inline AgentCommand Decode(const wire::AgentIdentity& x){return {x.run(),x.home_shard(),x.sequence()};}
 inline void Encode(const MigrationPlan& x,wire::MigrationPlan* y){
   y->set_id(x.id);y->set_agent_id(x.agent);y->set_estimated_bytes(x.estimated_bytes);
+  y->set_reserve_slots(x.reserve_slots);
   y->set_destination(static_cast<wire::Placement>(static_cast<int>(x.destination)+1));
   for(const auto& row:x.rows)Encode(row,y->add_rows());
 }
 inline MigrationPlan Decode(const wire::MigrationPlan& x){
   detail::Require(x.destination()>=wire::CPU && x.destination()<=wire::DRAINING,"invalid migration placement");
   MigrationPlan out{x.id(),x.agent_id(),{},static_cast<Placement>(x.destination()-1),x.estimated_bytes()};
+  out.reserve_slots=x.reserve_slots();
   for(const auto& row:x.rows())out.rows.push_back(Decode(row));return out;
 }
 inline void Encode(const UpdateContext& x,wire::UpdateContext* y){

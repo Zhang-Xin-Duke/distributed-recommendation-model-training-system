@@ -8,7 +8,10 @@ Implemented:
 - Sparse LazyAdam, bounded lifecycle retry history and explicit release/drain.
 - Checksummed, durable snapshots and optimizer-exact restore.
 - BRPC server/client, typed attachment codec and cross-shard client reconstruction.
-- Standalone cost/hysteresis/admission/migration-budget policy implementation.
+- Cost/hysteresis route planner and automatic frequency/reuse-cost cache controller.
+- Bounded decayed request history, minimum residence, pinned-row exclusion and hot-set replacement.
+- Shared window byte/batch budgets and atomic destination-side slot reserves.
+- Policy configuration, RPC metrics and CPU fallback after rejected admissions.
 - Worker cache control replay, acknowledged full-state migration and generations.
 - CUDA pooling, sparse LazyAdam, batched transfers and owned device results.
 - CPU pooling / unique-vector transfer paths with pluggable route selection.
@@ -19,9 +22,11 @@ Implemented:
 - Known-ticket cleanup after failed lookup/reconstruction and collected read completions.
 - Real-process/fleet capacity probes with latency and sequencer queue metrics.
 
-Validation: current macOS native/RPC/TensorFlow checks 14/14; core ASan/UBSan
-8/8; Ubuntu CPU checks 11/11; initial A6000 CPU/CUDA checks 13/13. Both current
-gather policies pass real-process CUDA migration and optimizer-exact restore.
+Validation: current macOS native/RPC/TensorFlow checks 19/19; core ASan/UBSan
+9/9. Automatic cache modes pass native and two-shard external Host-agent
+replacement/optimizer-restore checks. Prior GPU revisions passed Ubuntu CPU
+11/11 and initial A6000 CPU/CUDA 13/13; both gather policies passed real-process
+CUDA migration and optimizer-exact restore at those source revisions.
 Three distinct A6000 devices passed CUDA state/device-result checks.
 Completed 253 new capacity trials and 153,703 updates, with zero reported errors;
 460 capacity trials are retained including the initial deployment. Sweeps cover
@@ -32,6 +37,7 @@ Additional shards or concurrency expose coordination/communication limits.
 See docs/BENCHMARKS.md and docs/VALIDATION.md.
 All three rented instances for this round were deleted and verified absent.
 
-Remaining: automatic admission/eviction controller integration, asynchronous
-preparation/overlap, original Entropy application/native device integration, and
+Remaining: real CUDA validation and hot-set performance evaluation of the new
+automatic controller; asynchronous preparation/overlap; original Entropy
+application/native device integration; and
 end-to-end model performance/quality evaluation.

@@ -4,12 +4,12 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, both gather policies and TensorFlow graphs | 14/14 passed |
-| macOS arm64, core-only ASan/UBSan | Current core, policies, ownership, control replay, adapter and coalesced gathers | 8/8 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, automatic cache policy, both gather policies and TensorFlow graphs | 19/19 passed |
+| macOS arm64, core-only ASan/UBSan | Current core, policies, ownership, control replay, adapter, automatic cache policy and coalesced gathers | 9/9 passed |
 | Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | CPU/CUDA suite before cross-shard gather coalescing | 12/12 passed |
 | Ubuntu 22.04, A6000 coordinator, shared server/agent at `5a4cdcb` | Initial native CPU/CUDA checks | 13/13 passed |
-| Ubuntu 22.04, current client at `9f36ca3` | Native CPU checks | 11/11 passed |
-| Ubuntu 22.04, current client, CUDA agents | Two-shard process lifecycle, both gather policies; fresh and optimizer-exact restored state | Both modes passed |
+| Ubuntu 22.04, client at `9f36ca3` | Native CPU checks | 11/11 passed |
+| Ubuntu 22.04, client at `9f36ca3`, CUDA agents | Two-shard process lifecycle, both gather policies; fresh and optimizer-exact restored state | Both modes passed |
 | Three separately rented RTX A6000 48 GB devices, compute capability 8.6 | CUDA state/device-result check on each device | All three passed; distinct GPU UUIDs verified |
 
 The L40 driver was 610.43.02, compute capability 8.9. CUDA code was subsequently
@@ -18,6 +18,19 @@ image lacked a compiler toolkit; project-local NVIDIA pip components supplied it
 The provider driver and preload library were retained. BRPC's optional pthread
 contention-profiler hook was disabled because its bootstrap conflicted with that
 preload library.
+
+The new automatic-controller checks are recorded in the
+[policy validation artifact](validation/2026-10-31-cache-policy.json), with
+source/log hashes. Two external PS processes and one Host reference agent cover
+both gather modes, changing hot sets, RPC metrics, configuration rejection and
+continued optimizer state after restart. Native checks additionally cover
+multiple agents/tables, bounded history, generation age, pin protection, byte and
+batch budgets, atomic reserve enforcement, and failed admission after eviction.
+Two additional TensorFlow graph checks train five dense/sparse steps while
+parameters migrate automatically, verify policy metrics through Python IPC,
+assert decreasing loss without retracing, and drain cache at save.
+The new controller/CUDA reserve changes still require real-device execution;
+the CUDA results below refer to their recorded earlier revisions.
 
 ## What the checks establish
 
@@ -36,6 +49,7 @@ preload library.
 | CUDA execution | Multi-table gather, mean partials and sequences, complete optimizer state, overflow rejection, eviction/reload generations and device results that outlive staging/backend reuse |
 | Compact gradient updates | Ordered GPU reduction of feature-gradient references, cross-feature and mean semantics, overflow rejection, duplicate command replay and optimizer trajectory through RPC save/restore |
 | Cold access route | Unique CPU-owned weights can be transferred for GPU pooling without admitting full optimizer state; compared with the host reference |
+| Automatic placement | Bounded decayed request reuse, frequency/reuse-cost modes, cost feedback, minimum residence, hot-set replacement, pins, reserved slots, shared multi-agent/table budgets, read-only completions and rejected-admission fallback before/after eviction |
 | CUDA process lifecycle | Two PS processes plus a CUDA cache process exercise mixed reads/updates, two-way migration, cache-draining snapshot and restore |
 | Embedding adapter | Padding exclusion, valid mean denominators, sequence scatter/gather, completed-handle replay and Join ordering |
 | TensorFlow graph | TensorFlow 2.20.0 graph with two external PS processes, dense variable/optimizer, five sparse updates, evaluation and two-shard save; loss decreases without retracing; separate CPU-only and transferred-vector/cache-RPC host-reference routes |

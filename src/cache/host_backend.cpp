@@ -51,12 +51,13 @@ std::future<Result<std::vector<LocatedRow>>> HostCacheBackend::Load(MigrationPla
   return impl_->executor.Submit<std::vector<LocatedRow>>([this,plan=std::move(plan),states=std::move(states)]{
     detail::Require(plan.agent==impl_->agent && plan.rows.size()==states.size() &&
       plan.destination==Placement::gpu,"invalid cache load plan");
-    std::uint64_t required=0;std::set<RowId> unique;
+    std::uint64_t required=0;std::set<RowId> unique;std::set<TableId> tables;
     for(std::size_t i=0;i<states.size();++i){
       const auto& state=states[i];const auto& loc=plan.rows[i];
       detail::Require(state.row==loc.row && unique.insert(Id(state.row)).second &&
         !impl_->rows.contains(Id(state.row)),"cache load contains an existing/duplicate row");
       const auto dim=impl_->tables.at(state.row.table).dimension;
+      tables.insert(state.row.table);
       detail::Require(state.weights.size()==dim && state.first_moment.size()==dim && state.second_moment.size()==dim,
                       "cache state dimension mismatch");
       for(auto* values:{&state.weights,&state.first_moment,&state.second_moment})
@@ -65,6 +66,11 @@ std::future<Result<std::vector<LocatedRow>>> HostCacheBackend::Load(MigrationPla
       required+=std::uint64_t(dim)*12+8;
     }
     detail::Require(required<=impl_->budget-impl_->bytes,"cache state budget exhausted",Error::Code::capacity_exceeded);
+    for(auto table:tables) {
+      const auto bytes=std::uint64_t(impl_->tables.at(table).dimension)*12+8;
+      detail::Require((impl_->budget-impl_->bytes-required)/bytes>=plan.reserve_slots,
+        "cache load would consume reserved slots",Error::Code::capacity_exceeded);
+    }
     auto next=impl_->rows; // Reference backend provides atomic publication on allocation failure.
     std::vector<LocatedRow> locations;locations.reserve(states.size());
     for(std::size_t i=0;i<states.size();++i){

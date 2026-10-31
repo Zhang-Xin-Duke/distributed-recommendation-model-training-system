@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "run_id": "example-cache-training-run",
+  "listen": "127.0.0.1:9100",
+  "partition": {
+    "shard_id": 0,
+    "shard_count": 1,
+    "epoch": 1
+  },
+  "tables": [
+    {
+      "id": 1,
+      "dimension": 128,
+      "dtype": "float32",
+      "optimizer": {
+        "kind": "sparse_lazy_adam",
+        "learning_rate": 0.001,
+        "beta1": 0.9,
+        "beta2": 0.999,
+        "epsilon": 1e-08,
+        "initial_beta1_power": 0.9,
+        "initial_beta2_power": 0.999
+      },
+      "initialization": {
+        "min": -0.01,
+        "max": 0.01,
+        "seed": 1
+      }
+    }
+  ],
+  "access": {
+    "policy": "cpu_only",
+    "switch_margin": 0.15
+  },
+  "cache": {
+    "enabled": true,
+    "admission": "reuse_cost",
+    "policy_agents": [
+      0
+    ],
+    "decision_window_requests": 128,
+    "max_tracked_rows": 65536,
+    "window_decay": 0.5,
+    "minimum_accesses": 2,
+    "minimum_residence_windows": 2,
+    "replacement_margin": 0.25,
+    "max_rows_per_batch": 64,
+    "saved_microseconds_per_access": 1.0,
+    "load_microseconds_per_byte": 0.001,
+    "writeback_microseconds_per_byte": 0.001,
+    "cost_average_alpha": 0.2,
+    "learn_migration_costs": true,
+    "network_bytes_per_window": 16777216,
+    "staging_bytes_limit": 33554432,
+    "max_inflight_batches": 4,
+    "reserve_slots": 16,
+    "concurrent_agent_updates": true,
+    "compact_gradients": true
+  },
+  "limits": {
+    "max_request_bytes": 16777216,
+    "max_live_tickets": 1024,
+    "cpu_state_bytes": 1073741824,
+    "ticket_payload_bytes": 67108864,
+    "queue_payload_bytes": 67108864
+  },
+  "snapshot_directory": "./snapshots",
+  "agents": [
+    {
+      "id": 0,
+      "endpoint": "127.0.0.1:9101"
+    }
+  ]
+}
