@@ -1,0 +1,8 @@
+/references/private/
+/build/
+/snapshots/
+/compile_commands.json
+__pycache__/
+*.pyc
+.DS_Store
+.env

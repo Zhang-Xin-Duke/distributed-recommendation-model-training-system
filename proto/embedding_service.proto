@@ -1,0 +1,198 @@
+syntax = "proto3";
+
+package eps.v1;
+option cc_generic_services = true;
+
+// Original transport contract; BRPC attachments contain the bulk arrays.
+// Offsets are byte offsets within this RPC's request/response attachment.
+enum ElementType {
+  ELEMENT_UNSPECIFIED = 0;
+  ELEMENT_FLOAT32 = 1;
+  ELEMENT_UINT64 = 2;
+}
+
+message PayloadSlice {
+  uint64 byte_offset = 1;
+  uint64 byte_length = 2;
+  uint64 element_count = 3;
+  ElementType element_type = 4;
+}
+
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  LOOKUP = 1;
+  PUSH = 2;
+  RELEASE = 3;
+  MAINTENANCE = 4;
+}
+
+message RequestIdentity {
+  string run = 1;
+  uint32 learner = 2;
+  uint64 sequence = 3;
+  Phase phase = 4;
+}
+
+message Status {
+  enum Code {
+    OK = 0;
+    INVALID_ARGUMENT = 1;
+    UNAVAILABLE = 2;
+    STALE_GENERATION = 3;
+    RETIRED_REQUEST = 4;
+    CAPACITY_EXCEEDED = 5;
+    RUN_FAILED = 6;
+  }
+  Code code = 1;
+  string message = 2;
+}
+
+message OptimizerConfig {
+  float learning_rate = 1;
+  float beta1 = 2;
+  float beta2 = 3;
+  float epsilon = 4;
+  float initial_beta1_power = 5;
+  float initial_beta2_power = 6;
+}
+
+message TableDefinition {
+  uint32 table_id = 1;
+  uint32 dimension = 2;
+  uint32 shard_count = 3;
+  uint64 partition_epoch = 4;
+  OptimizerConfig optimizer = 5;
+  float initialization_min = 6;
+  float initialization_max = 7;
+  uint64 initialization_seed = 8;
+}
+
+enum Pooling {
+  POOLING_UNSPECIFIED = 0;
+  SUM = 1;
+  MEAN = 2;
+  SEQUENCE = 3;
+}
+
+message FeatureInput {
+  uint32 table_id = 1;
+  uint32 feature_id = 2;
+  Pooling pooling = 3;
+  PayloadSlice keys = 4;
+  PayloadSlice offsets = 5;
+  PayloadSlice original_valid_lengths = 6;
+}
+
+message TensorBlock {
+  uint32 feature_id = 1;
+  repeated uint64 shape = 2;
+  PayloadSlice values = 3;
+}
+
+enum Placement {
+  PLACEMENT_UNSPECIFIED = 0;
+  CPU = 1;
+  LOADING = 2;
+  GPU = 3;
+  DRAINING = 4;
+}
+
+message LocatedRow {
+  uint32 table_id = 1;
+  uint64 key = 2;
+  uint32 home_shard = 3;
+  Placement placement = 4;
+  uint32 agent_id = 5;
+  uint64 generation = 6;
+  uint64 slot = 7;
+}
+
+message AgentWork {
+  enum Route {
+    ROUTE_UNSPECIFIED = 0;
+    CPU_POOL = 1;
+    TRANSFER_UNIQUE = 2;
+    RESIDENT_GPU = 3;
+  }
+  uint32 feature_id = 1;
+  Route route = 2;
+  uint32 agent_id = 3;
+  repeated LocatedRow rows = 4;
+  PayloadSlice occurrence_to_unique = 5;
+  PayloadSlice transferred_weights = 6;
+}
+
+message CreateTableRequest { TableDefinition table = 1; }
+message Ack { Status status = 1; }
+
+message LookupRequest {
+  RequestIdentity identity = 1;
+  uint64 partition_epoch = 2;
+  bool read_only = 3;
+  repeated FeatureInput features = 4;
+}
+
+message LookupReply {
+  Status status = 1;
+  string ticket = 2;
+  repeated TensorBlock cpu_contributions = 3;
+  repeated AgentWork agent_work = 4;
+}
+
+message PushRequest {
+  RequestIdentity identity = 1;
+  string ticket = 2;
+  repeated TensorBlock feature_gradients = 3;
+}
+
+message ReleaseRequest {
+  RequestIdentity identity = 1;
+  string ticket = 2;
+}
+
+message RowState {
+  LocatedRow row = 1;
+  PayloadSlice weights = 2;
+  PayloadSlice first_moment = 3;
+  PayloadSlice second_moment = 4;
+  uint64 row_updates = 5;
+}
+
+message ReadStateRequest { repeated LocatedRow rows = 1; }
+message ReadStateReply {
+  Status status = 1;
+  repeated RowState states = 2;
+}
+
+message MigrationCompletion {
+  string plan_id = 1;
+  repeated LocatedRow rows = 2;
+  bool completed = 3;
+}
+
+message DrainRequest { string snapshot_id = 1; }
+message OptimizerContext {
+  uint32 table_id = 1;
+  uint64 optimizer_sequence = 2;
+  float learning_rate = 3;
+  float beta1_power = 4;
+  float beta2_power = 5;
+}
+message SnapshotReply {
+  Status status = 1;
+  string snapshot_id = 2;
+  uint32 shard_id = 3;
+  uint64 partition_epoch = 4;
+  repeated string state_files = 5;
+  repeated OptimizerContext optimizer_contexts = 6;
+}
+
+service EmbeddingService {
+  rpc CreateTable(CreateTableRequest) returns (Ack);
+  rpc Lookup(LookupRequest) returns (LookupReply);
+  rpc Push(PushRequest) returns (Ack);
+  rpc Release(ReleaseRequest) returns (Ack);
+  rpc ReadState(ReadStateRequest) returns (ReadStateReply);
+  rpc CompleteMigration(MigrationCompletion) returns (Ack);
+  rpc DrainAndFlush(DrainRequest) returns (SnapshotReply);
+}

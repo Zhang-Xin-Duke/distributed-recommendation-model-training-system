@@ -1,0 +1,122 @@
+# Embedding Parameter Service implementation plan
+
+**Goal:** Extract a complete embedding parameter service from the reference
+training lifecycle, then optimize CPU/GPU access and migration without replacing
+the training framework.
+
+**Architecture:** Independent CPU parameter-service shards own row routing,
+storage, update sequencing and cache decisions. A thin Entropy adapter preserves
+the existing graph; an agent in each existing GPU worker executes device work.
+
+**Tech stack:** C++20, BRPC/Protobuf, TensorFlow custom-operation adapter and CUDA
+in the GPU agent. Initial row layout is FP32 weights and unshared LazyAdam moments.
+
+The current delivery is design and interface code. Runtime implementation and all
+validation below are future phases; no tests or benchmarks are run in this stage.
+
+## 1. Build a standalone CPU parameter service
+
+**Create:** `src/store/shard_store.{hpp,cpp}`,
+`src/access/batch_access.{hpp,cpp}`, `src/server/service.{hpp,cpp}`,
+`src/server/main.cpp`.
+
+- Implement fixed `(table,key)` routing, the key-to-row index and contiguous
+  weights/moment arrays. Grow in chunks within an explicit memory limit.
+- Apply table definitions and seeded missing-ID initialization. Reject unsupported
+  optimizer and feature-creation settings.
+- Implement unique-key lookup and retain occurrence maps in bounded lookup tickets.
+- Produce sum, mean and ordered sequence features. Combine partial sums across
+  shards before applying the original mean denominator.
+- Map the original `proto/embedding_service.proto` to BRPC attachment slices;
+  validate types, lengths, offsets and allocation bounds.
+- Add a launcher that parses `configs/service.example.json`.
+
+**Exit condition:** an external client can create a table and obtain feature
+tensors from separately running CPU shards through the documented API.
+
+## 2. Complete sparse updates and saving
+
+**Create:** `src/update/update_engine.{hpp,cpp}`,
+`src/update/lazy_adam.{hpp,cpp}`, `src/server/request_tracker.{hpp,cpp}`,
+`src/store/snapshot.{hpp,cpp}`.
+
+- Unpool feature gradients with the retained layouts; merge repeated IDs within
+  their original update request.
+- Sequence each table's updates and advance its beta powers exactly once at the
+  configured original-update boundary. Keep row-local update counters separate.
+- Track accepted/completed requests, contiguous retired watermarks and out-of-order
+  gaps; keep retry identity stable. A completion ack follows optimizer completion.
+- Implement read-only ticket release and coordinated abort. A cancelled RPC alone
+  cannot release rows still used by model backward or GPU operations.
+- Implement run drain, full-state snapshot metadata and restore with partition
+  epoch, table configuration and optimizer globals.
+
+**Exit condition:** the service provides the complete lookup → gradient → update →
+release → save lifecycle. It can be integrated without a GPU cache.
+
+## 3. Connect the existing training framework
+
+**Create:** `adapters/entropy/table_adapter.{hpp,cpp}`,
+`adapters/entropy/completion_bridge.{hpp,cpp}`,
+`adapters/entropy/README.md`.
+
+- Map supported table configuration and feature layouts at Pull/Push/Join.
+- Batch by destination shard; retain original bag lengths and sequence positions.
+- Reuse the existing tensor transport and graph completion dependencies.
+- Preserve loss/gradient scaling, dense collectives and independent Learner updates.
+- Connect existing checkpoint control to service drain/save/restore.
+
+**Exit condition:** an existing model can select this embedding backend through
+configuration while retaining its data, model and job-control paths.
+
+## 4. Add the in-process GPU cache agent
+
+**Create:** `adapters/entropy/gpu/cache_agent.{hpp,cpp}`,
+`adapters/entropy/gpu/embedding_kernels.cu`,
+`src/cache/placement_directory.{hpp,cpp}`,
+`src/cache/migration_coordinator.{hpp,cpp}`.
+
+- Allocate complete row states in the existing GPU worker.
+- Implement resident gather/pooling and unique-key sparse updates using the
+  service-issued optimizer context.
+- Implement CPU → Loading → GPU → Draining → CPU transitions. Close references
+  during both move directions; publish generations after acknowledged transfer.
+- Batch state copies and return current weights/moments before reclaiming slots.
+- Add static placement and frequency/window cache modes as comparison baselines.
+
+**Exit condition:** cached and uncached rows follow one parameter lifecycle;
+placement does not alter which IDs train or the number of optimizer updates.
+
+## 5. Implement the independent optimizations
+
+**Create:** `src/cache/access_cost_model.{hpp,cpp}`,
+`src/cache/reuse_admission.{hpp,cpp}`, `src/cache/migration_budget.{hpp,cpp}`,
+`src/access/prepare_queue.{hpp,cpp}`.
+
+- Record phase times, occurrence/unique/pooled counts and actual transfer bytes.
+- Choose CPU pooling or unique-vector transfer for CPU-backed contributions using
+  moving estimates, minimum observation counts and a switching margin.
+- Score admission by expected saved access cost minus state load/writeback cost.
+- Enforce network/staging/in-flight budgets and free-slot reserves by row layout.
+- Prepare routing and mappings ahead; coalesce compatible transfers. Keep current
+  parameter reads behind the existing ownership/update boundary.
+- Expose policy metrics and configuration without changing model semantics.
+
+**Exit condition:** each policy can be enabled independently against the same
+CPU-only, static and frequency/window baselines.
+
+## Later validation, after the user resumes testing
+
+| Question | Proposed evidence |
+|---|---|
+| Do lookup and backward preserve layouts? | Small reference cases for sum/mean/sequence, repeated IDs, empty bags and multi-shard contributions |
+| Is the optimizer preserved? | Fixed input/update trace comparing weights, moments and counters across CPU and GPU placements |
+| Can a retry duplicate an update? | Reordered replies and duplicate Push requests within a live run |
+| Is migration complete? | In-flight backward, two-way moves, delayed writeback, generation mismatch and drain/restore cases |
+| Does the policy save useful work? | Same model/data/batch size/optimizer across baseline and independently enabled policies |
+| Does it scale? | Per-shard CPU, network, PCIe and GPU phase time alongside end-to-end throughput and validation quality |
+
+Stress later workloads with long pooled bags, short bags, repeated IDs, cold IDs,
+changing hot sets, constrained cache capacity and multiple Learners. Report
+metadata/planning overhead and peak state memory alongside throughput. No speedup
+target is used as a substitute for measured results.

@@ -1,0 +1,11 @@
+Embedding Parameter Service
+Required Notice: Copyright 2026 Xin Zhang
+
+Original project documents and interface contracts are provided under the
+PolyForm Noncommercial License 1.0.0 in LICENSE.
+
+The design draws on research into an existing training framework and the public
+works listed in README.md and docs/APPLICATIONS.md. Upstream framework source,
+internal documents and historical measurements are held separately in a local
+reference collection and are not distributed in this repository. Their ownership
+and licensing are unchanged.

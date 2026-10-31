@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "parameter_service_endpoints": ["127.0.0.1:9100"],
+  "partition_epoch": 1,
+  "learner_id": 0,
+  "integration_boundary": "embedding_pull_push_join",
+  "gpu_agent": {"enabled": false, "agent_id": 0, "device_ordinal": 0},
+  "preserve_framework_gradient_scaling": true,
+  "preserve_framework_dense_collectives": true
+}
