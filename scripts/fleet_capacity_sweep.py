@@ -25,18 +25,20 @@ def remote(node, script, timeout=120):
     return result.stdout
 
 
-def start_worker(node, agent, run, rows, dimension):
-    options = dict(root=node["root"], agent=agent, run=run, rows=rows, dimension=dimension)
+def start_worker(node, agent, run, rows, dimension, host_reference=False):
+    options = dict(root=node["root"], agent=agent, run=run, rows=rows, dimension=dimension,host_reference=host_reference)
     script = "options="+repr(options)+"\n"+r'''
 import os,pathlib,subprocess,json,time
 o=options;root=pathlib.Path(o['root']);out=root/'results'/o['run'];out.mkdir(parents=True,exist_ok=True)
 env=os.environ.copy();env['LD_LIBRARY_PATH']=str(root/'agent-bundle/lib')+':'+env.get('LD_LIBRARY_PATH','')
 stdout=open(out/'agent.stdout','w');stderr=open(out/'agent.stderr','w')
 slots=o['rows']//2+1024
-p=subprocess.Popen([str(root/'agent-bundle/bin/eps_cache_agent'),'--run',o['run'],'--backend','cuda',
+p=subprocess.Popen([str(root/'agent-bundle/bin/eps_cache_agent'),'--run',o['run'],'--backend','host' if o['host_reference'] else 'cuda',
  '--device','0','--agent',str(o['agent']),'--rows-per-table',str(slots),
  '--state-bytes',str(slots*(o['dimension']*12+8)+4096),'--listen','127.0.0.1:19200'],
  stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,env=env,start_new_session=True)
+record=dict(agent=p.pid,monitor=None,cpu_monitor=None,run=o['run'])
+(out/'processes.json').write_text(json.dumps(record))
 hardware=subprocess.check_output(['nvidia-smi','--query-gpu=uuid,name,compute_cap,driver_version,memory.total','--format=csv,noheader'],text=True)
 (out/'hardware.csv').write_text(hardware)
 for i in range(300):
@@ -47,7 +49,10 @@ else:raise RuntimeError('GPU agent did not become ready')
 gpu_log=open(out/'gpu-telemetry.csv','w')
 monitor=subprocess.Popen(['nvidia-smi','--query-gpu=timestamp,index,utilization.gpu,utilization.memory,memory.used,power.draw',
  '--format=csv','-l','1'],stdin=subprocess.DEVNULL,stdout=gpu_log,stderr=subprocess.DEVNULL,start_new_session=True)
-record=dict(agent=p.pid,monitor=monitor.pid,run=o['run'],hardware=hardware)
+sampler="import pathlib,time,os,json,sys\npid=int(sys.argv[1]);out=open(sys.argv[2],'w');ticks=os.sysconf('SC_CLK_TCK');page=os.sysconf('SC_PAGE_SIZE')\nwhile pathlib.Path('/proc/'+str(pid)+'/stat').exists():\n try:\n  f=pathlib.Path('/proc/'+str(pid)+'/stat').read_text().split();out.write(json.dumps(dict(monotonic=time.monotonic(),cpu_seconds=(int(f[13])+int(f[14]))/ticks,rss_bytes=int(f[23])*page))+'\\n');out.flush()\n except FileNotFoundError:break\n time.sleep(.5)\n"
+cpu_monitor=subprocess.Popen(['python3','-c',sampler,str(p.pid),str(out/'agent-cpu.jsonl')],
+ stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=stderr,start_new_session=True)
+record.update(monitor=monitor.pid,cpu_monitor=cpu_monitor.pid,hardware=hardware)
 (out/'processes.json').write_text(json.dumps(record))
 print(json.dumps(record))
 '''
@@ -61,11 +66,12 @@ out=pathlib.Path(root)/'results'/run
 record=out/'processes.json'
 if record.exists():
  p=json.loads(record.read_text())
- for field in ('agent','monitor'):
-  pid=p[field]
+ for field in ('agent','monitor','cpu_monitor'):
+  pid=p.get(field)
+  if pid is None:continue
   try:
    cmd=pathlib.Path('/proc/'+str(pid)+'/cmdline').read_bytes().decode(errors='replace')
-   if (field=='agent' and run in cmd and 'eps_cache_agent' in cmd) or (field=='monitor' and 'nvidia-smi' in cmd):
+   if (field=='agent' and run in cmd and 'eps_cache_agent' in cmd) or (field=='monitor' and 'nvidia-smi' in cmd) or (field=='cpu_monitor' and str(out/'agent-cpu.jsonl') in cmd):
     os.killpg(pid,signal.SIGTERM)
   except (FileNotFoundError,ProcessLookupError):pass
 print('stopped '+run)
@@ -88,6 +94,7 @@ def main():
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--serial-agent-updates", action="store_true")
     p.add_argument("--expanded-gradients", action="store_true")
+    p.add_argument("--host-reference", action="store_true",help="CPU cache backend control on the same transport; no GPU-throughput claim")
     a = p.parse_args()
     if not a.out_name.replace("-", "").replace("_", "").isalnum():
         p.error("out-name must contain letters, digits, underscores or dashes")
@@ -99,7 +106,7 @@ def main():
         run="fleet-"+uuid.uuid4().hex[:12]
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=count) as pool:
-                records=list(pool.map(lambda pair:start_worker(pair[1],pair[0],run,a.rows,a.dimension),enumerate(workers)))
+                records=list(pool.map(lambda pair:start_worker(pair[1],pair[0],run,a.rows,a.dimension,a.host_reference),enumerate(workers)))
             hardware="".join(record["hardware"] for record in records)
             identities=[line.split(",")[0] for line in hardware.splitlines() if line]
             if len(set(identities))!=count:
@@ -118,6 +125,8 @@ def main():
                 command.append("--serial-agent-updates")
             if a.expanded_gradients:
                 command.append("--expanded-gradients")
+            if a.host_reference:
+                command.append("--host-reference")
             script="hardware="+repr(hardware)+"\ncommand="+repr(command)+"\n"+r'''
 import pathlib,subprocess
 pathlib.Path(command[command.index('--external-hardware')+1]).write_text(hardware)

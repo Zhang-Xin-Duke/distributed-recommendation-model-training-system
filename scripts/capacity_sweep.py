@@ -23,6 +23,7 @@ def sample_processes(processes, output, stopped):
                 try:
                     fields = pathlib.Path(f"/proc/{process.pid}/stat").read_text().split()
                     stream.write(json.dumps(dict(monotonic=time.monotonic(), pid=process.pid,
+                        role=pathlib.Path(process.args[0]).name,
                         cpu_seconds=(int(fields[13])+int(fields[14]))/ticks,
                         rss_bytes=int(fields[23])*page)) + "\n")
                 except (OSError, ValueError):
@@ -83,8 +84,11 @@ def run_topology(args, count, root):
                    str(args.seconds), str(args.repeats)]
         (output / "command.json").write_text(json.dumps(command, indent=2)+"\n")
         with (output / "raw.jsonl").open("w") as result, (output / "probe.log").open("w+") as log:
-            subprocess.run(command, stdout=result, stderr=log, check=True,
-                timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
+            probe = subprocess.Popen(command, stdout=result, stderr=log)
+            processes.append(probe)
+            code = probe.wait(timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
+            if code:
+                raise subprocess.CalledProcessError(code, command)
         return [json.loads(line) for line in (output / "raw.jsonl").read_text().splitlines()]
     except Exception:
         for path in output.glob("*.log"):

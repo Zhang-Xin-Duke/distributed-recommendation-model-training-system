@@ -112,6 +112,12 @@ if(EPS_BUILD_BRPC)
     add_executable(eps_rpc_checks tests/rpc_checks.cpp)
     target_link_libraries(eps_rpc_checks PRIVATE eps_brpc)
     target_include_directories(eps_rpc_checks PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    add_executable(eps_overload_checks tests/overload_checks.cpp)
+    target_link_libraries(eps_overload_checks PRIVATE eps_brpc)
+    add_test(NAME rpc_cache_backpressure
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/overload_processes.py"
+        $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent> $<TARGET_FILE:eps_overload_checks>)
+    set_tests_properties(rpc_cache_backpressure PROPERTIES TIMEOUT 60)
     add_test(NAME two_process_rpc_and_restore
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/rpc_processes.py"
               $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_rpc_checks>)
@@ -132,6 +138,7 @@ if(EPS_BUILD_BRPC)
     endif()
     if(EPS_BUILD_CUDA)
       set_tests_properties(cache_agent_process_lifecycle PROPERTIES ENVIRONMENT "EPS_CACHE_BACKEND=cuda")
+      set_tests_properties(rpc_cache_backpressure PROPERTIES ENVIRONMENT "EPS_CACHE_BACKEND=cuda")
     endif()
   endif()
 endif()

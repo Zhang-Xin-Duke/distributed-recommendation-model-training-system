@@ -4,9 +4,9 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Native core, RPC, cache protocol, adapter and TensorFlow graph | 10/10 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Native core, RPC, cache protocol, adapter and TensorFlow graph | 11/11 passed |
 | macOS arm64, core-only ASan/UBSan | Core, policies, ownership, control replay and adapter | 7/7 passed |
-| Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | Native CPU/CUDA suite | 11/11 passed |
+| Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | Native CPU/CUDA suite | 12/12 passed |
 | Three separately rented RTX A6000 48 GB devices, compute capability 8.6 | CUDA state/device-result check on each device | All three passed; distinct GPU UUIDs verified |
 
 The L40 driver was 610.43.02, compute capability 8.9. CUDA code was subsequently
@@ -24,6 +24,7 @@ preload library.
 | Optimizer and storage | Numerical preflight before mutation, weights/moments/counters, bounded state/tickets, corrupt snapshot rejection and continued optimizer trajectory after restore |
 | Concurrent Learners | Eight caller threads alternate training/evaluation and retry Push; shared rows receive the expected 192 updates |
 | Real PS processes | Two BRPC shard processes reconstruct features and updates against a single-shard reference; restart under a new run rejects old-run requests |
+| Configured backpressure | With a live-ticket limit of 32, 64 concurrent Learners admit 32 and reject 32; cached reads and row pins remain valid, and a rejected Learner retries successfully after releases |
 | Cache control | Original command replay, retired-command fencing, slot reclamation after acknowledged writeback and ownership generation checks |
 | Mixed placement | CPU and cache-owned portions of one Push share the same original optimizer context; moving a referenced row is rejected |
 | CUDA execution | Multi-table gather, mean partials and sequences, complete optimizer state, overflow rejection, eviction/reload generations and device results that outlive staging/backend reuse |

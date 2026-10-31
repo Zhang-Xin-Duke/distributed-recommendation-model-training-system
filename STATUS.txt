@@ -17,7 +17,7 @@ Implemented:
 - Concurrent independent GPU-owner update dispatch.
 - Real-process/fleet capacity probes with latency and sequencer queue metrics.
 
-Validation: eleven native CUDA checks on L40; ten native/TensorFlow checks on
+Validation: twelve native CUDA checks on L40; eleven native/TensorFlow checks on
 macOS; seven core ASan/UBSan checks. Three separate A6000 devices each passed the
 CUDA state/device-result check. Distributed capacity measurements are in progress.
 See docs/VALIDATION.md.
