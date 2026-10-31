@@ -12,11 +12,20 @@ touches only a small fraction of a large table. This pattern appears in
 recommendation, advertising, knowledge graphs, graph learning and word-embedding
 models.
 
-The first integration retains **Entropy's training framework**: dataset readers,
-model graphs, GPU forward/backward, dense gradient synchronization and training
-orchestration continue to run there. A Pull/Push/Join adapter connects embedding
-operations to the service; its portable TensorFlow bridge uses stateful host
-callbacks and an isolated native RPC client.
+A Pull/Push/Join adapter connects embedding operations to an existing training
+framework. The supplied TensorFlow bridge uses stateful host callbacks and an
+isolated native RPC client. Dataset readers, model computation and dense gradient
+synchronization remain the training framework's responsibility.
+
+![Measured capacity on one, two and three GPU workers](docs/assets/capacity.svg)
+
+**Measured capacity:** with three RTX A6000 workers and two parameter shards,
+three 30-second trials completed **5,754 sparse update steps** with no errors:
+**61.8 steps/s** median, **246.7 ms** median trial P99. Short-window sweeps peak
+near 70 steps/s for one, two and three GPUs; higher concurrency increases tail
+latency. A larger-batch control reaches **573,010 input ID occurrences/s**, including
+acknowledged updates. These measurements cover the sparse parameter subsystem
+over SSH-forwarded BRPC. [Results, methodology and raw records](docs/BENCHMARKS.md).
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam, CUDA-resident weights and optimizer states, CPU/GPU migration,
@@ -27,12 +36,11 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**GPU validation:** real L40 checks cover mixed CPU/GPU updates, migration and
-restart. A checked-read stress run used 1,048,576 rows of dimension 128 and
-8,388,608 ID occurrences across 16 callers, with zero maximum absolute error
-against its CPU reference and no additional backend output allocations during
-reads. This measures parameter-access correctness under load, rather than model
-training speedup. See the [validation record](docs/VALIDATION.md).
+**Validation:** the native L40 suite passes 12/12 checks, the macOS native and
+TensorFlow suite passes 11/11, and the core ASan/UBSan suite passes 7/7.
+Coverage includes mixed CPU/GPU updates, migration, restart, numerical state,
+buffer ownership and configured overload rejection. See the
+[validation record](docs/VALIDATION.md).
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
 [Implementation progress](docs/plans/2026-10-31-implementation.md)
@@ -54,21 +62,20 @@ sequenceDiagram
     B-->>W: Update completed
 ```
 
-## Target integration
+## Runtime structure
 
 ```mermaid
 flowchart LR
-    subgraph Entropy[Existing training framework]
-        L[Dataset and Learners] --> G["Model graph<br/>GPU forward / backward"]
-        G --> D[Dense updates and orchestration]
-        A[Embedding adapter] <--> G
-        C["GPU cache agent<br/>Existing tensors and CUDA execution"] <--> G
+    subgraph Framework[Training framework]
+        G[Model forward / backward] <--> A[Pull / Push / Join adapter]
+        A <--> H[TensorFlow host bridge]
     end
-    A <-->|Batched lookup and sparse gradients| S[Distributed Parameter Server]
-    S --> T[Sharded parameter storage]
-    S --> U[Sparse gradient reduction and optimizer]
-    S --> P[Access and cache planner]
-    P <-->|Cache plans and completion| C
+    H <-->|Local process boundary| C[Native distributed client]
+    C <-->|Batched IDs and gradients| S[Parameter shards]
+    C <-->|Resident feature gather| W[CUDA cache agents]
+    S <-->|Updates and full-state migration| W
+    S --- T[CPU weights + Adam state]
+    W --- V[GPU weights + Adam state]
 ```
 
 ## Service responsibilities
@@ -78,12 +85,34 @@ flowchart LR
   support sum, mean and ordered sequence features.
 - **Sparse updates:** merge repeated-key contributions within the original update
   request and apply its configured sparse optimizer at the current parameter location.
-- **Cache management:** choose reusable rows, coordinate CPU/GPU placement and batch
-  transfers within memory and bandwidth budgets.
+- **Cache management:** coordinate CPU/GPU placement, acknowledged state transfer,
+  generation checks and slot reclamation; expose admission and migration policies.
 - **Framework integration:** return the tensor layouts expected by the existing
   training graph and expose a drain/flush operation for its save lifecycle.
 
-## Independent optimization focus
+## Implemented optimizations
+
+- **Compact sparse-gradient transfer:** send each pooled feature gradient with
+  ordered row references and mean scales. The destination GPU reduces those
+  contributions into row gradients before Adam. Use expanded gradients when they
+  are smaller. The measured numeric gradient payload is **4.3–9.7× smaller** than
+  the expanded representation of the same updates at eight Learners.
+- **Concurrent owner updates:** dispatch to independent GPU owners concurrently
+  while retaining control-command ordering at each owner and the original
+  request's optimizer context.
+- **Bounded completion waiting:** reserve completion capacity before mutation;
+  dedicated waiter threads notify BRPC callbacks when native futures finish.
+  Requests no longer poll for completion on a timer.
+- **Contiguous state and reusable staging:** preallocate CUDA parameter state and
+  staging buffers, batch state transfers and return owning device results.
+
+![Paired numeric gradient-payload comparison](docs/assets/gradient-payload.svg)
+
+The payload comparison excludes protocol row identities and headers. CPU-side
+validation still runs before the destination GPU reduces the compact payload.
+See [benchmark definitions](docs/BENCHMARKS.md#gradient-payload).
+
+## Access and cache policy design
 
 | Optimization | What changes | Why it can accelerate training |
 |---|---|---|
@@ -92,9 +121,9 @@ flowchart LR
 | Migration budgets and slot reserve | Bound in-flight transfer work and prepare reusable capacity early | Reduce bursts and waits for old rows to finish writing back |
 | Batched preparation and transfer | Prepare ID routing ahead and coalesce compatible payloads | Reduce allocation, scheduling and small-message overhead |
 
-These extend a baseline that already has partitioning, pooling, sparse updates,
-cache management and asynchronous transfers. The [acceleration design](docs/ACCELERATION.md)
-explains the decision model and expected workload benefits.
+The standalone cost planner and migration controls are implemented. Automatic
+reuse-aware admission and asynchronous preparation remain integration work.
+The [acceleration design](docs/ACCELERATION.md) explains their decision model.
 
 ## Design and code map
 

@@ -79,8 +79,17 @@ and admission are outside timing; each load level is repeated.
 The current fleet uses one A6000 per instance and direct host-to-host SSH
 forwarding for BRPC. Measurements therefore include that transport and the
 coordinator's CPU allocation. A measured plateau establishes the capacity of
-this software/configuration/workload combination. Additional shape, CPU-shard
-and transport controls are needed before attributing it to GPU compute.
+this software/configuration/workload combination. Completed shard, batch-size
+and CPU-only transport controls expose the communication/coordinator path as the
+next scaling target.
 
-Commands are documented in [RUNNING.md](RUNNING.md). Raw capacity records and
-the resulting figures are added after the complete sweep is checked.
+All 207 published trials completed without reported errors. The three-GPU,
+two-shard, eight-Learner configuration completed 5,754 updates across three
+30-second trials, at median 61.8 steps/s and median trial P99 246.7 ms. The large
+batch control reached 573,010 input ID occurrences/s with acknowledged updates.
+
+The [benchmark report](BENCHMARKS.md) includes the final 1/2/3-GPU curves,
+overload behavior, shard/batch/transport controls and source provenance.
+The [raw manifest](benchmarks/2026-10-31/manifest.json) and
+[summary](benchmarks/2026-10-31/summary.json) make each reported result inspectable.
+Commands are documented in [RUNNING.md](RUNNING.md).

@@ -19,8 +19,11 @@ Implemented:
 
 Validation: twelve native CUDA checks on L40; eleven native/TensorFlow checks on
 macOS; seven core ASan/UBSan checks. Three separate A6000 devices each passed the
-CUDA state/device-result check. Distributed capacity measurements are in progress.
-See docs/VALIDATION.md.
+CUDA state/device-result check. Completed 207 capacity trials across one, two and
+three GPUs, 1-64 Learners, shard/batch controls and three 30-second trials.
+The longer three-GPU control completed 5,754 updates with zero errors at median
+61.8 steps/s; large batches reached 573,010 input ID occurrences/s.
+See docs/BENCHMARKS.md and docs/VALIDATION.md.
 
 Remaining: automatic admission/eviction controller integration, asynchronous
 preparation/overlap, original Entropy application/native device integration, and

@@ -27,7 +27,9 @@ def group(rows,field):
 
 
 def save(fig,root,name):
-    fig.savefig(root/(name+".svg"),bbox_inches="tight",facecolor="white")
+    svg=root/(name+".svg")
+    fig.savefig(svg,bbox_inches="tight",facecolor="white",metadata={"Date":None})
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines())+"\n")
     fig.savefig(root/(name+".png"),bbox_inches="tight",facecolor="white",dpi=170)
     plt.close(fig)
 
@@ -41,7 +43,8 @@ def main():
     experiments=manifest["experiments"]
     plt.rcParams.update({"font.family":"DejaVu Sans","font.size":10,"axes.spines.top":False,
         "axes.spines.right":False,"axes.edgecolor":"#cbd5e1","axes.labelcolor":"#334155",
-        "text.color":"#0f172a","xtick.color":"#475569","ytick.color":"#475569","svg.fonttype":"none"})
+        "text.color":"#0f172a","xtick.color":"#475569","ytick.color":"#475569","svg.fonttype":"none",
+        "svg.hashsalt":"embedding-parameter-service-capacity"})
     curves=[e for e in experiments if e["variant"]=="concurrent_compact" and e["suite"]=="scaling"]
     fig,axes=plt.subplots(1,2,figsize=(11.4,4.4),layout="constrained")
     for e in curves:
@@ -72,9 +75,9 @@ def main():
         bars=ax.bar(locations,values,width=.34,color=color,label=label)
         ax.bar_label(bars,fmt="%.1f",padding=3,fontsize=9)
     ax.set_xticks(range(3),labels=["1 GPU","2 GPUs","3 GPUs"])
-    ax.set_ylabel("Numeric gradient payload per step (KiB)");ax.set_ylim(bottom=0)
+    ax.set_ylabel("Numeric gradient payload per step (KiB)");ax.set_ylim(0,700)
     ax.set_title("Avoid repeated pooled-gradient transfers",fontweight="bold",pad=14)
-    ax.legend(frameon=False);ax.grid(axis="y",color="#e2e8f0");ax.set_axisbelow(True)
+    ax.legend(frameon=False,loc="upper right");ax.grid(axis="y",color="#e2e8f0");ax.set_axisbelow(True)
     fig.supxlabel("8 Learners · 1,024 IDs/step · measured GPU-update attachments; protocol row identities excluded",fontsize=9)
     save(fig,args.out,"gradient-payload")
 
