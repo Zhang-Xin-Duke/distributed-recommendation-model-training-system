@@ -138,6 +138,11 @@ if(EPS_BUILD_BRPC)
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
         set_tests_properties(tensorflow_graph_external_shards tensorflow_graph_cache_external_shards PROPERTIES TIMEOUT 120
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_graph_coalesced_cache
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        set_tests_properties(tensorflow_graph_coalesced_cache PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_COALESCE=1")
       endif()
     endif()
     if(EPS_BUILD_CUDA)

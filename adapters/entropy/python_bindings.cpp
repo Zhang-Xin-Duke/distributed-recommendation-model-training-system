@@ -78,10 +78,10 @@ class Backend {
     std::vector<std::string> files;
     for(auto& m:metadata)files.insert(files.end(),m.state_files.begin(),m.state_files.end());return files;
   }
-  void Cache(std::vector<std::pair<AgentId,std::string>> endpoints) {
+  void Cache(std::vector<std::pair<AgentId,std::string>> endpoints,bool coalesce) {
     std::map<AgentId,std::shared_ptr<CacheBackend>> agents;
     for(auto& [id,endpoint]:endpoints)agents[id]=std::make_shared<BrpcCacheBackend>(endpoint,run_,0,id);
-    adapter_->SetCacheResolver(MakeCacheResolver(std::move(agents)));
+    adapter_->SetCacheResolver(MakeCacheResolver(std::move(agents)),coalesce);
   }
  private:
   std::string run_;std::uint64_t epoch_;std::uint32_t count_;
@@ -94,5 +94,5 @@ PYBIND11_MODULE(_eps_native,m) {
       py::arg("endpoints"),py::arg("run"),py::arg("learner")=0,py::arg("epoch")=1,py::arg("max_live")=128)
     .def("create_table",&Backend::Create).def("pull",&Backend::Pull,py::arg("features"),py::arg("read_only")=false)
     .def("push",&Backend::Push).def("release",&Backend::Release).def("join",&Backend::Join)
-    .def("save",&Backend::Save).def("cache_endpoints",&Backend::Cache);
+    .def("save",&Backend::Save).def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);
 }

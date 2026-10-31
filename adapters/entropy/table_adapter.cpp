@@ -49,8 +49,8 @@ TableAdapter::~TableAdapter()=default;
 Result<Ack> TableAdapter::CreateTable(TableDefinition table) {
   return impl_->client.CreateTable(table);
 }
-void TableAdapter::SetCacheResolver(DistributedClient::CacheResolver resolver) {
-  impl_->client.SetCacheResolver(std::move(resolver));
+void TableAdapter::SetCacheResolver(DistributedClient::CacheResolver resolver,bool coalesce) {
+  impl_->client.SetCacheResolver(std::move(resolver),coalesce);
 }
 Result<PullResult> TableAdapter::Pull(std::vector<Feature> features,bool read_only) {
   std::lock_guard lock(impl_->mutex);

@@ -79,8 +79,8 @@ class Backend:
     def save(self, snapshot_id):
         return self._call("save", snapshot_id)
 
-    def cache_endpoints(self, endpoints):
-        return self._call("cache_endpoints", endpoints)
+    def cache_endpoints(self, endpoints, coalesce=False):
+        return self._call("cache_endpoints", endpoints, bool(coalesce))
 
     def close(self):
         with self._mutex:

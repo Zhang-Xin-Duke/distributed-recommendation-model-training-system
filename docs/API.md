@@ -40,12 +40,19 @@ completes. Read-only evaluation requests release after feature consumption.
 Cancellation alone does not release a training ticket: the framework must first
 finish or abandon dependent forward/backward and GPU work.
 
-`DistributedClient` collects shard replies before resolving cached features.
-It merges work by `(agent, feature, access route)` and remaps shard-local
-occurrences into original input positions. A `CacheResolver` receives these
-merged tasks with the original feature layouts; sequence outputs therefore use
-original positions, while sum/mean outputs remain unnormalized contributions.
-Resident and transferred vectors retain separate task payloads.
+`DistributedClient` submits parameter lookups concurrently. By default it
+processes replies in shard order and starts a shard's cache work before waiting
+for the next reply. The resolver receives shard-local work and layouts.
+`SetCacheResolver(resolver, true)` enables cross-shard coalescing: collect all
+replies, merge work by `(agent, feature, access route)` and remap occurrences into
+original input positions. In either mode, resolver outputs match the supplied
+layout and sum/mean contributions remain unnormalized. Resident and transferred
+vectors retain separate task payloads.
+
+The default avoids an additional all-shard barrier before cached reads. Coalescing
+reduces calls when that saving offsets waiting for the slowest shard. The portable
+Python/TensorFlow bridge exposes the same choice through
+`cache_endpoints(agents, coalesce=True)`; its default is also per-shard execution.
 
 `MakeCacheResolver` validates destination endpoints, dispatches one gather per
 destination and collects every returned future before reporting an error.

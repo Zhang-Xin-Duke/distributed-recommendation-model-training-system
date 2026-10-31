@@ -103,6 +103,14 @@ to each PS config. Clients install a cache resolver with
 `DistributedClient::SetCacheResolver`; the TensorFlow bridge exposes
 `cache_endpoints([(0, "127.0.0.1:9200")])`.
 
+The default resolves cache work per shard while other shard replies remain in
+flight. Use `SetCacheResolver(resolver, true)` or
+`cache_endpoints(agents, coalesce=True)` to merge work across all shard replies.
+Both paths project input IDs onto each destination and restore sequence positions.
+For a local capacity probe, set `EPS_COALESCE_GATHERS=1` to compare coalescing with
+the default `0`. The fleet wrapper exposes `--coalesce-gathers 0|1` for prepared
+probe builds that support this setting.
+
 `access.policy` selects `cpu_only`, `transfer_unique`, or `cost`.
 These choices concern CPU-backed rows. Resident rows always use their current
 agent. `cost` uses paired workload measurements supplied through

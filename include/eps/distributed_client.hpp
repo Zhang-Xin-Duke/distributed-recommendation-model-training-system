@@ -31,13 +31,13 @@ class DistributedClient {
   Result<DistributedBatch> Lookup(LookupRequest request);
   Result<Ack> Push(const DistributedBatch& batch, std::vector<TensorBlock> gradients);
   Result<Ack> Release(const DistributedBatch& batch);
-  // Receives coalesced work from all shards with ORIGINAL feature layouts and
-  // occurrence positions. Returns unnormalized partial sums or full-position
-  // sequence contributions. It must finish all submitted reads before returning
+  // Receives shard-local work/layouts by default. With coalesce=true it receives
+  // all shards' work remapped to ORIGINAL layouts and occurrence positions.
+  // Returns unnormalized sums or sequence contributions in the supplied layout. It must finish all submitted reads before returning
   // (including errors), so lookup-failure cleanup may safely release row pins.
   using CacheResolver=std::function<Result<std::vector<TensorBlock>>(
       std::vector<AgentWork>,std::vector<FeatureInput>)>;
-  void SetCacheResolver(CacheResolver resolver);
+  void SetCacheResolver(CacheResolver resolver,bool coalesce=false);
  private:
   std::vector<std::shared_ptr<ParameterService>> shards_;
   std::unordered_map<TableId, TableDefinition> tables_;
@@ -45,6 +45,7 @@ class DistributedClient {
   // asynchronous across shards; this lock protects its metadata and failure state.
   std::mutex mutex_;
   bool failed_ = false;
+  bool coalesce_cache_ = false;
   CacheResolver resolver_;
 };
 }  // namespace eps

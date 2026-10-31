@@ -4,7 +4,7 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, coalesced gathers and TensorFlow graph | 13/13 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, both gather policies and TensorFlow graphs | 14/14 passed |
 | macOS arm64, core-only ASan/UBSan | Current core, policies, ownership, control replay, adapter and coalesced gathers | 8/8 passed |
 | Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | CPU/CUDA suite before cross-shard gather coalescing | 12/12 passed |
 | Three separately rented RTX A6000 48 GB devices, compute capability 8.6 | CUDA state/device-result check on each device | All three passed; distinct GPU UUIDs verified |
@@ -26,6 +26,7 @@ preload library.
 | Real PS processes | Two BRPC shard processes reconstruct features and updates against a single-shard reference; restart under a new run rejects old-run requests |
 | Cross-shard cache gathers | Two shards and three reference agents cover mixed resident/transfer/CPU routes, repeated IDs, empty bags, sum/mean/sequence, one gather per destination, concurrent dispatch and matching weights/moments/counters; 23 input occurrences with four CPU-only positions send exactly 19 keys across all destination layouts |
 | Gather failure cleanup | Missing/malformed/failing resolvers and partial shard capacity rejection release known successful tickets; a promise-backed completion proves a fast destination failure waits for other gather futures |
+| Per-shard overlap | A deliberately delayed second shard cannot reply until the first shard's gather starts; the default path completes and matches CPU features, while explicit coalescing separately retains one gather per destination |
 | Configured backpressure | With a live-ticket limit of 32, 64 concurrent Learners admit 32 and reject 32; cached reads and row pins remain valid, and a rejected Learner retries successfully after releases |
 | Cache control | Original command replay, retired-command fencing, slot reclamation after acknowledged writeback and ownership generation checks |
 | Mixed placement | CPU and cache-owned portions of one Push share the same original optimizer context; moving a referenced row is rejected |

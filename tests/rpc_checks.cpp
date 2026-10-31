@@ -7,6 +7,7 @@
 #include <brpc/channel.h>
 #include <brpc/controller.h>
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 
@@ -113,7 +114,8 @@ int main(int argc,char** argv){
     DistributedClient client(remote);Take(client.CreateTable(Table(2)));
     if(caching){
       auto reader=std::make_shared<BrpcCacheBackend>(argv[4],run,0,0);
-      client.SetCacheResolver(MakeCacheResolver({{0,reader}}));
+      const auto mode=std::getenv("EPS_COALESCE_GATHERS");
+      client.SetCacheResolver(MakeCacheResolver({{0,reader}}),mode && std::string(mode)=="1");
     }
     if(resumed){
       auto packet=Request("wire-test",0,true);

@@ -16,7 +16,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
 
     backend = ParameterServer(endpoints, "tensorflow-check")
     if agent_endpoint:
-        backend.cache_endpoints([(0, agent_endpoint)])
+        backend.cache_endpoints([(0, agent_endpoint)], coalesce=os.environ.get("EPS_TEST_COALESCE") == "1")
     backend.create_table(dict(id=1, dimension=2, dtype="float32",
                              optimizer=dict(kind="sparse_lazy_adam", learning_rate=0.01,
                                             beta1=0.9, beta2=0.999, epsilon=1e-8,

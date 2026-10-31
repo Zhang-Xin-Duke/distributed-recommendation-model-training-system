@@ -56,7 +56,7 @@ The reserve sacrifices some resident capacity in exchange for smoother admission
 
 ## Prepare and coalesce
 
-The client now coalesces cached work across parameter shards. It maps local
+The client can coalesce cached work across parameter shards. It maps local
 occurrences back to original feature positions and combines tasks with the same
 destination, feature and access route. The shared resolver dispatches one gather
 per destination before collecting results, including all outstanding completions
@@ -64,7 +64,12 @@ when a destination fails. Mean normalization still happens once after all
 CPU/cache contributions are combined. Per-shard lookup tickets remain separate
 for the original backward/update lifecycle.
 
-This reduces per-shard GPU calls without combining independent Learner requests
+The default processes replies in shard order and starts cached work before
+waiting for the next reply. Coalescing is explicit: it reduces calls in exchange
+for waiting until every shard reply has arrived. Both policies send only a
+destination's referenced input positions and restore sequence positions on return.
+
+Coalescing reduces per-shard GPU calls without combining independent Learner requests
 or reading future parameter versions during ID preparation. The two-shard,
 three-agent check proves a single gather per destination, concurrent dispatch,
 layout/optimizer equivalence and known-ticket cleanup on failed lookups. GPU

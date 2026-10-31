@@ -7,6 +7,7 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <latch>
 #include <map>
@@ -31,6 +32,9 @@ int main(int argc,char** argv){
     if(argc!=11)throw std::runtime_error("usage: eps_capacity_probe SHARDS AGENTS RUN ROWS DIM KEYS BAG LEARNER_LIST SECONDS REPEATS");
     const auto endpoints=Split(argv[1]),agent_endpoints=Split(argv[2]);const std::string run=argv[3];
     const std::uint64_t rows=std::stoull(argv[4]);const std::uint32_t dim=std::stoul(argv[5]),keys=std::stoul(argv[6]),bag=std::stoul(argv[7]);
+    const char* gather_mode=std::getenv("EPS_COALESCE_GATHERS");
+    if(gather_mode && std::string(gather_mode)!="0" && std::string(gather_mode)!="1")throw std::runtime_error("EPS_COALESCE_GATHERS must be 0 or 1");
+    const bool coalesce=gather_mode && std::string(gather_mode)=="1";
     const auto levels=Split(argv[8]);const double duration=std::stod(argv[9]);const int repeats=std::stoi(argv[10]);
     if(rows<1024 || rows>1048576 || !dim || dim>512 || !keys || keys>8192 || !bag || keys%bag || duration<=0 || duration>60 || repeats<1 || repeats>10)
       throw std::runtime_error("invalid capacity workload dimensions");
@@ -41,7 +45,7 @@ int main(int argc,char** argv){
     for(AgentId id=0;id<agent_endpoints.size();++id)
       agents[id]=std::make_shared<BrpcCacheBackend>(agent_endpoints[id],run,0,id,30000);
     auto resolve=MakeCacheResolver(agents);
-    DistributedClient setup(shards);setup.SetCacheResolver(resolve);
+    DistributedClient setup(shards);setup.SetCacheResolver(resolve,coalesce);
     Take(setup.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));
     std::uint64_t sequence=0;
     for(std::uint64_t begin=0;begin<rows;begin+=1024){
@@ -116,7 +120,7 @@ int main(int argc,char** argv){
       std::mutex mutex;std::vector<double> latencies,lookups,pushes;std::uint64_t completed=0,failures=0;std::string error;
       std::vector<std::thread> threads;
       for(int learner=0;learner<learners;++learner)threads.emplace_back([&,learner]{
-        DistributedClient client(shards);client.SetCacheResolver(resolve);
+        DistributedClient client(shards);client.SetCacheResolver(resolve,coalesce);
         try{Take(client.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));}
         catch(const std::exception& e){std::lock_guard lock(mutex);error=e.what();++failures;ready.count_down();return;}
         ready.count_down();start.wait();
@@ -179,6 +183,7 @@ int main(int argc,char** argv){
       result["rejected_admissions"]=admission_failures;
       result["expanded_gradient_bytes"]=expanded_bytes;result["transferred_gradient_bytes"]=transferred_bytes;
       result["compact_update_commands"]=compact_commands;
+      result["coalesced_gathers"]=coalesce;
       result["preflight_values_checked"]=preflight_values;
       result["preflight_max_absolute_error"]=preflight_error;
       result["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();

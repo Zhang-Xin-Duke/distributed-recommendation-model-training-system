@@ -31,6 +31,26 @@ struct Gate {
   }
   std::mutex mutex;std::condition_variable ready;int arrived=0;
 };
+class DelayedLookup final : public ParameterService {
+ public:
+  DelayedLookup(std::shared_ptr<ParameterService> target,std::shared_future<void> signal)
+      :target_(std::move(target)),signal_(std::move(signal)){}
+  std::future<Result<Ack>> CreateTable(TableDefinition t)override{return target_->CreateTable(t);}
+  std::future<Result<LookupReply>> Lookup(LookupRequest r)override {
+    return std::async(std::launch::async,[target=target_,signal=signal_,r=std::move(r)]()mutable->Result<LookupReply> {
+      if(signal.wait_for(std::chrono::seconds(3))!=std::future_status::ready)
+        return Error{Error::Code::unavailable,"client waited for slow shard before starting ready-shard gather"};
+      return target->Lookup(std::move(r)).get();
+    });
+  }
+  std::future<Result<Ack>> Push(PushRequest r)override{return target_->Push(std::move(r));}
+  std::future<Result<Ack>> Release(ReleaseRequest r)override{return target_->Release(std::move(r));}
+  std::future<Result<std::vector<RowState>>> ReadState(std::vector<LocatedRow> r)override{return target_->ReadState(std::move(r));}
+  std::future<Result<Ack>> CompleteMigration(MigrationCompletion r)override{return target_->CompleteMigration(std::move(r));}
+  std::future<Result<SnapshotMetadata>> DrainAndFlush(std::string r)override{return target_->DrainAndFlush(std::move(r));}
+ private:
+  std::shared_ptr<ParameterService> target_;std::shared_future<void> signal_;
+};
 class ObservedBackend final : public CacheBackend {
  public:
   explicit ObservedBackend(AgentId id):backend(id,1<<20){}
@@ -42,6 +62,7 @@ class ObservedBackend final : public CacheBackend {
   std::future<Result<std::vector<TensorBlock>>> GatherHost(
       std::vector<AgentWork> work,std::vector<FeatureInput> layouts)override {
     ++calls;
+    if(on_gather){auto signal=std::move(on_gather);signal->set_value();}
     if(held) {
       auto future=held->get_future();dispatched->set_value();return future;
     }
@@ -83,6 +104,7 @@ class ObservedBackend final : public CacheBackend {
   bool fail=false;
   std::shared_ptr<std::promise<Result<std::vector<TensorBlock>>>> held;
   std::shared_ptr<std::promise<void>> dispatched;
+  std::shared_ptr<std::promise<void>> on_gather;
 };
 TableDefinition Table(TableId id,std::uint32_t shards) {
   return {id,id==1?3U:5U,shards,1,{0.01f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.5f,0.5f,42};
@@ -122,7 +144,7 @@ int main() {
     RuntimeOptions ref_options;ref_options.run_id="coalesced";
     auto reference=std::make_shared<CpuParameterService>(ref_options);
     DistributedClient actual(shards),baseline({reference});
-    auto resolver=MakeCacheResolver(endpoints);actual.SetCacheResolver(resolver);
+    auto resolver=MakeCacheResolver(endpoints);actual.SetCacheResolver(resolver,true);
     for(TableId t:{1,2}){Take(actual.CreateTable(Table(t,2)));Take(baseline.CreateTable(Table(t,1)));}
     for(auto& home:homes)Take(home->ConfigureAccess(0,AccessRoute::transfer_unique));
     auto warm=Take(actual.Lookup(Request(0,0,true)));Take(actual.Release(warm));
@@ -170,6 +192,18 @@ int main() {
         Near(x.weights[d],y.weights[d]);Near(x.first_moment[d],y.first_moment[d]);Near(x.second_moment[d],y.second_moment[d]);
       }
     }
+    auto signal=std::make_shared<std::promise<void>>();
+    auto delayed=std::make_shared<DelayedLookup>(homes[1],signal->get_future().share());
+    DistributedClient streamed({homes[0],delayed});
+    for(TableId t:{1,2})Take(streamed.CreateTable(Table(t,2)));
+    streamed.SetCacheResolver(resolver); // Default: process a ready shard before waiting for the next.
+    workers[0]->on_gather=signal;
+    std::vector<int> before_stream;for(auto& worker:workers)before_stream.push_back(worker->calls);
+    auto streaming=Take(streamed.Lookup(Request(50,0,true)));
+    auto streaming_reference=Take(baseline.Lookup(Request(50,0,true)));Same(streaming,streaming_reference);
+    for(std::size_t i=0;i<workers.size();++i)
+      Check(workers[i]->calls==before_stream[i]+2,"streaming mode did not retain per-shard gathers");
+    Take(streamed.Release(streaming));Take(baseline.Release(streaming_reference));
     auto clean=[&]{for(auto& home:homes)Check(Take(home->Stats()).live_tickets==0,"failed lookup leaked a ticket");};
     for(int mode=0;mode<3;++mode) {
       DistributedClient failing(shards);for(TableId t:{1,2})Take(failing.CreateTable(Table(t,2)));

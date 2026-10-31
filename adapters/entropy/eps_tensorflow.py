@@ -28,8 +28,8 @@ class ParameterServer:
     def create_table(self, definition):
         self.backend.create_table(json.dumps(definition))
 
-    def cache_endpoints(self, agents):
-        self.backend.cache_endpoints(agents)
+    def cache_endpoints(self, agents, coalesce=False):
+        self.backend.cache_endpoints(agents, coalesce=coalesce)
 
     def pull(self, features, read_only=False):
         """Return (lifecycle handle, feature tensors); each handle needs Push/Release."""

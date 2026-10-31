@@ -36,7 +36,7 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the current macOS native and TensorFlow suite passes 13/13,
+**Validation:** the current macOS native and TensorFlow suite passes 14/14,
 and the core ASan/UBSan suite passes 8/8. The measured L40 revision passed 12/12.
 Coverage includes mixed CPU/GPU updates, migration, restart, numerical state,
 buffer ownership and configured overload rejection. See the
@@ -92,13 +92,14 @@ flowchart LR
 
 ## Implemented optimizations
 
-- **Cross-shard gather coalescing:** remap each shard's cached work to original
-  input positions and merge it by destination, feature and route. The shared
-  resolver sends only the positions each destination reads and restores sequence
-  results to their original positions. It issues one asynchronous gather per destination, reducing up to
-  `shards × GPUs` calls to `GPUs` calls for a lookup. Original shard tickets and
-  sparse-update boundaries remain independent. This path has native, real-BRPC
-  and TensorFlow correctness coverage; the plotted GPU measurements predate it.
+- **Destination-aware gathers:** send only the ID positions each destination
+  reads and restore sequence positions on return. The default processes replies
+  in shard order, starting each shard's cache work before waiting for the next
+  reply. Optional cross-shard coalescing merges compatible work and reduces up
+  to `shards × GPUs` calls to `GPUs` calls. This trades waiting for every shard
+  against fewer calls. Original tickets and update boundaries remain independent.
+  Both policies have native and TensorFlow correctness coverage; the plotted
+  GPU measurements remain attached to their source revision.
 - **Compact sparse-gradient transfer:** send each pooled feature gradient with
   ordered row references and mean scales. The destination GPU reduces those
   contributions into row gradients before Adam. Use expanded gradients when they

@@ -31,7 +31,7 @@ class TableAdapter {
   TableAdapter(AdapterOptions options, std::vector<std::shared_ptr<ParameterService>> shards);
   ~TableAdapter();
   Result<Ack> CreateTable(TableDefinition table);
-  void SetCacheResolver(DistributedClient::CacheResolver resolver);
+  void SetCacheResolver(DistributedClient::CacheResolver resolver,bool coalesce=false);
   Result<PullResult> Pull(std::vector<Feature> features, bool read_only = false);
   // Gradients are dL/d(completed feature), before mean-pooling unnormalization.
   Result<Ack> Push(std::uint64_t handle, std::vector<TensorBlock> gradients);

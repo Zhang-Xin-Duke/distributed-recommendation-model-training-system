@@ -43,8 +43,8 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
   std::vector<LookupReply> replies(shards_.size());
   std::size_t collected=0;
   std::optional<Error> lookup_failure;
-  auto collect=[&] {
-    for(;collected<futures.size();++collected) {
+  auto collect=[&](std::size_t until) {
+    for(;collected<std::min(until,futures.size());++collected) {
       try {
         auto result=futures[collected].get();
         if(auto error=std::get_if<Error>(&result)) {
@@ -59,7 +59,7 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
     }
   };
   auto cleanup=[&] {
-    collect();
+    collect(futures.size());
     // Resolve/gather completions have finished before we can reach cleanup.
     // Unknown tickets after transport failure remain the run controller's job.
     std::vector<std::future<Result<Ack>>> releases;
@@ -108,7 +108,7 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
     futures.reserve(shards_.size());
     sent=true;
     for(std::size_t i=0;i<shards_.size();++i)futures.push_back(shards_[i]->Lookup(requests[i]));
-    collect();
+    if(coalesce_cache_)collect(futures.size());
     if(lookup_failure)throw detail::Failure(*lookup_failure);
     using Group=std::tuple<AgentId,std::uint32_t,AccessRoute>;
     std::map<Group,AgentWork> work;
@@ -116,10 +116,12 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
     for(std::size_t fi=0;fi<request.features.size();++fi)
       feature_indices.emplace(request.features[fi].feature,fi);
     for(std::size_t shard=0;shard<shards_.size();++shard) {
+      if(!coalesce_cache_)collect(shard+1);
+      if(lookup_failure)throw detail::Failure(*lookup_failure);
       auto& reply=replies[shard];
       detail::Require(!reply.ticket.empty(),"server returned an empty lookup ticket");
       detail::Require(reply.cpu_contributions.size()==request.features.size(),"server feature count mismatch");
-      for(auto& task:reply.agent_work) {
+      if(coalesce_cache_)for(auto& task:reply.agent_work) {
         auto found=feature_indices.find(task.feature);
         detail::Require(found!=feature_indices.end(),"unknown cached feature");
         const auto fi=found->second;
@@ -147,6 +149,17 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
           detail::Require(unique<task.rows.size() &&
             merged.occurrence_to_unique[positions[i]]==UINT64_MAX,"invalid/duplicate cached occurrence");
           merged.occurrence_to_unique[positions[i]]=base+unique;
+        }
+      }
+      if(!coalesce_cache_ && !reply.agent_work.empty()) {
+        detail::Require(bool(resolver_),"cached rows require a cache resolver");
+        auto parts=Take(resolver_(std::move(reply.agent_work),requests[shard].features));
+        for(const auto& part:parts) {
+          auto target=std::find_if(reply.cpu_contributions.begin(),reply.cpu_contributions.end(),
+              [&](const auto& value){return value.feature==part.feature;});
+          detail::Require(target!=reply.cpu_contributions.end() && target->shape==part.shape &&
+              target->values.size()==part.values.size(),"cached shard contribution layout mismatch");
+          for(std::size_t i=0;i<part.values.size();++i)target->values[i]+=part.values[i];
         }
       }
       reply.agent_work.clear();
@@ -240,7 +253,7 @@ Result<Ack> DistributedClient::Release(const DistributedBatch& batch) {
     return Ack{};
   }catch(const detail::Failure& e){failed_=true;return e.error();}
 }
-void DistributedClient::SetCacheResolver(CacheResolver resolver){
-  std::lock_guard lock(mutex_);resolver_=std::move(resolver);
+void DistributedClient::SetCacheResolver(CacheResolver resolver,bool coalesce){
+  std::lock_guard lock(mutex_);resolver_=std::move(resolver);coalesce_cache_=coalesce;
 }
 }  // namespace eps

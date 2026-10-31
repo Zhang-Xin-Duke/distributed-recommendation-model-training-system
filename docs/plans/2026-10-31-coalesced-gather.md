@@ -79,3 +79,16 @@ exactly 19 destination keys for 23 input occurrences, with four CPU-only
 occurrences retained at the parameter shards. Parameter and optimizer state
 still matches the CPU reference. The fixed-fleet GPU comparison remains separate
 from these correctness checks.
+
+## Selectable execution policy
+
+The paired results expose the cost of the all-shard barrier. Keep destination
+projection for both policies. Default to resolving each reply in shard order,
+beginning its gathers before waiting for the next shard; explicit coalescing
+continues to merge all replies by destination. Expose the choice through the
+C++ adapter and Python/TensorFlow cache endpoint configuration.
+
+A delayed-shard test now gates the second reply on the first shard's gather,
+proving the default retains that overlap. The coalesced path still proves one
+gather per destination. Native/TensorFlow checks pass 14/14 and core ASan/UBSan
+checks pass 8/8. A separate TensorFlow graph exercises each cache policy.
