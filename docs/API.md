@@ -40,6 +40,21 @@ completes. Read-only evaluation requests release after feature consumption.
 Cancellation alone does not release a training ticket: the framework must first
 finish or abandon dependent forward/backward and GPU work.
 
+`DistributedClient` collects shard replies before resolving cached features.
+It merges work by `(agent, feature, access route)` and remaps shard-local
+occurrences into original input positions. A `CacheResolver` receives these
+merged tasks with the original feature layouts; sequence outputs therefore use
+original positions, while sum/mean outputs remain unnormalized contributions.
+Resident and transferred vectors retain separate task payloads.
+
+`MakeCacheResolver` validates destination endpoints, dispatches one gather per
+destination and collects every returned future before reporting an error.
+Custom resolvers must also collect all submitted read completions before returning.
+If lookup, reconstruction or cache resolution fails, the client collects any
+already-submitted shard replies and releases every known successful ticket.
+The client then remains failed. Unconfirmed remote operations or unknown tickets
+after transport failure belong to the run controller's restart boundary.
+
 ## Update contract
 
 Push carries the gradients of the returned features. The adapter keeps existing

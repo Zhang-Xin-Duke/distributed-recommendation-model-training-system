@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <optional>
+#include <map>
+#include <tuple>
 #include <unordered_set>
 #include "common/error.hpp"
 
@@ -36,6 +38,40 @@ Result<Ack> DistributedClient::CreateTable(TableDefinition table) {
 Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
   std::lock_guard lock(mutex_);
   bool sent=false;
+  DistributedBatch out;
+  std::vector<std::future<Result<LookupReply>>> futures;
+  std::vector<LookupReply> replies(shards_.size());
+  std::size_t collected=0;
+  std::optional<Error> lookup_failure;
+  auto collect=[&] {
+    for(;collected<futures.size();++collected) {
+      try {
+        auto result=futures[collected].get();
+        if(auto error=std::get_if<Error>(&result)) {
+          if(!lookup_failure)lookup_failure=*error;
+        }else {
+          replies[collected]=std::get<LookupReply>(std::move(result));
+          out.shards_[collected].ticket=replies[collected].ticket;
+        }
+      }catch(const std::exception& e) {
+        if(!lookup_failure)lookup_failure=Error{Error::Code::unavailable,e.what()};
+      }
+    }
+  };
+  auto cleanup=[&] {
+    collect();
+    // Resolve/gather completions have finished before we can reach cleanup.
+    // Unknown tickets after transport failure remain the run controller's job.
+    std::vector<std::future<Result<Ack>>> releases;
+    for(std::size_t i=0;i<out.shards_.size();++i)if(!out.shards_[i].ticket.empty()) {
+      try {
+        auto id=request.id;id.phase=Phase::release;
+        releases.push_back(shards_[i]->Release({id,out.shards_[i].ticket}));
+      }catch(const std::exception&) {}
+    }
+    for(auto& release:releases)try{(void)release.get();}catch(const std::exception&){}
+    if(sent)failed_=true;
+  };
   try {
     detail::Require(!failed_,"client run has failed",Error::Code::run_failed);
     detail::Require(request.id.phase==Phase::lookup && !request.features.empty(),"invalid lookup");
@@ -48,7 +84,7 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
       for(std::size_t b=0;b<f.valid_lengths.size();++b)
         detail::Require(f.valid_lengths[b]==f.offsets[b+1]-f.offsets[b],"client requires original unpadded bag lengths");
     }
-    DistributedBatch out;out.original_=request;out.shards_.resize(shards_.size());
+    out.original_=request;out.shards_.resize(shards_.size());
     std::vector<LookupRequest> requests(shards_.size(),request);
     for(std::size_t shard=0;shard<shards_.size();++shard) {
       auto& part=out.shards_[shard];part.positions.resize(request.features.size());
@@ -69,33 +105,59 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
       detail::Require(rows <= (64ULL<<20)/(sizeof(float)*dim),"client feature output exceeds limit");
       out.features_.push_back({f.feature,{rows,dim},std::vector<float>(rows*dim,0)});
     }
-    std::vector<std::future<Result<LookupReply>>> futures;futures.reserve(shards_.size());
+    futures.reserve(shards_.size());
     sent=true;
     for(std::size_t i=0;i<shards_.size();++i)futures.push_back(shards_[i]->Lookup(requests[i]));
-    std::optional<Error> failure;
+    collect();
+    if(lookup_failure)throw detail::Failure(*lookup_failure);
+    using Group=std::tuple<AgentId,std::uint32_t,AccessRoute>;
+    std::map<Group,AgentWork> work;
+    std::unordered_map<std::uint32_t,std::size_t> feature_indices;
+    for(std::size_t fi=0;fi<request.features.size();++fi)
+      feature_indices.emplace(request.features[fi].feature,fi);
     for(std::size_t shard=0;shard<shards_.size();++shard) {
-      auto result=futures[shard].get();
-      if(auto error=std::get_if<Error>(&result)){failure=*error;continue;}
-      auto reply=std::get<LookupReply>(std::move(result));out.shards_[shard].ticket=reply.ticket;
-      if(!reply.agent_work.empty()){
-        detail::Require(bool(resolver_),"cached rows require a cache resolver");
-        auto parts=Take(resolver_(std::move(reply.agent_work),requests[shard].features));
-        for(const auto& part:parts){
-          auto it=std::find_if(reply.cpu_contributions.begin(),reply.cpu_contributions.end(),
-            [&](const auto& f){return f.feature==part.feature;});
-          detail::Require(it!=reply.cpu_contributions.end() && it->shape==part.shape &&
-            it->values.size()==part.values.size(),"cached contribution layout mismatch");
-          for(std::size_t i=0;i<part.values.size();++i)it->values[i]+=part.values[i];
+      auto& reply=replies[shard];
+      detail::Require(!reply.ticket.empty(),"server returned an empty lookup ticket");
+      detail::Require(reply.cpu_contributions.size()==request.features.size(),"server feature count mismatch");
+      for(auto& task:reply.agent_work) {
+        auto found=feature_indices.find(task.feature);
+        detail::Require(found!=feature_indices.end(),"unknown cached feature");
+        const auto fi=found->second;
+        const auto& positions=out.shards_[shard].positions[fi];
+        const auto dim=tables_.at(request.features[fi].table).dimension;
+        detail::Require(task.occurrence_to_unique.size()==positions.size(),"cached occurrence map size mismatch");
+        detail::Require(task.route==AccessRoute::resident_gpu || task.route==AccessRoute::transfer_unique,
+                        "invalid cached access route");
+        detail::Require(task.route==AccessRoute::transfer_unique ?
+          task.transferred_weights.size()==task.rows.size()*dim : task.transferred_weights.empty(),
+          "cached transferred weight size mismatch");
+        auto [it,inserted]=work.try_emplace({task.agent,task.feature,task.route});
+        auto& merged=it->second;
+        if(inserted) {
+          merged.feature=task.feature;merged.route=task.route;merged.agent=task.agent;
+          merged.occurrence_to_unique.assign(request.features[fi].keys.size(),UINT64_MAX);
+        }
+        const auto base=merged.rows.size();
+        merged.rows.insert(merged.rows.end(),task.rows.begin(),task.rows.end());
+        merged.transferred_weights.insert(merged.transferred_weights.end(),
+          task.transferred_weights.begin(),task.transferred_weights.end());
+        for(std::size_t i=0;i<positions.size();++i) {
+          const auto unique=task.occurrence_to_unique[i];
+          if(unique==UINT64_MAX)continue;
+          detail::Require(unique<task.rows.size() &&
+            merged.occurrence_to_unique[positions[i]]==UINT64_MAX,"invalid/duplicate cached occurrence");
+          merged.occurrence_to_unique[positions[i]]=base+unique;
         }
       }
-      detail::Require(reply.cpu_contributions.size()==request.features.size(),"server feature count mismatch");
+      reply.agent_work.clear();
       for(std::size_t fi=0;fi<request.features.size();++fi) {
         const auto& f=request.features[fi];const auto dim=tables_.at(f.table).dimension;
         const auto& src=reply.cpu_contributions[fi];auto& dst=out.features_[fi];
         detail::Require(src.feature==dst.feature,"server feature order mismatch");
         if(f.pooling==Pooling::sequence) {
           const auto& positions=out.shards_[shard].positions[fi];
-          detail::Require(src.values.size()==positions.size()*dim,"server sequence layout mismatch");
+          detail::Require(src.shape==std::vector<std::uint64_t>({positions.size(),dim}) &&
+            src.values.size()==positions.size()*dim,"server sequence layout mismatch");
           for(std::size_t i=0;i<positions.size();++i)
             std::copy_n(src.values.data()+i*dim,dim,dst.values.data()+positions[i]*dim);
         }else {
@@ -103,13 +165,21 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
           for(std::size_t i=0;i<dst.values.size();++i)dst.values[i]+=src.values[i];
         }
       }
+      reply.cpu_contributions.clear();
     }
-    if(failure) {
-      for(std::size_t i=0;i<shards_.size();++i)if(!out.shards_[i].ticket.empty()) {
-        auto id=request.id;id.phase=Phase::release;
-        auto released=shards_[i]->Release({id,out.shards_[i].ticket});released.wait();
+    if(!work.empty()) {
+      detail::Require(bool(resolver_),"cached rows require a cache resolver");
+      std::vector<AgentWork> tasks;tasks.reserve(work.size());
+      for(auto& [group,task]:work)tasks.push_back(std::move(task));
+      auto parts=Take(resolver_(std::move(tasks),request.features));
+      for(const auto& part:parts) {
+        auto found=feature_indices.find(part.feature);
+        detail::Require(found!=feature_indices.end(),"unknown cached contribution");
+        auto& dst=out.features_[found->second];
+        detail::Require(part.shape==dst.shape && part.values.size()==dst.values.size(),
+                        "cached contribution layout mismatch");
+        for(std::size_t i=0;i<dst.values.size();++i)dst.values[i]+=part.values[i];
       }
-      throw detail::Failure(*failure);
     }
     for(std::size_t fi=0;fi<request.features.size();++fi) {
       const auto& f=request.features[fi];auto& tensor=out.features_[fi];
@@ -118,7 +188,9 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
           tensor.values[b*tensor.shape[1]+d]/=f.valid_lengths[b];
     }
     return out;
-  }catch(const detail::Failure& e){if(sent)failed_=true;return e.error();}
+  }catch(const detail::Failure& e){cleanup();return e.error();}
+  catch(const std::bad_alloc&){cleanup();return Error{Error::Code::capacity_exceeded,"client lookup allocation failed"};}
+  catch(const std::exception& e){cleanup();return Error{Error::Code::unavailable,e.what()};}
 }
 Result<Ack> DistributedClient::Push(const DistributedBatch& batch,std::vector<TensorBlock> gradients) {
   std::lock_guard lock(mutex_);bool sent=false;

@@ -56,6 +56,20 @@ The reserve sacrifices some resident capacity in exchange for smoother admission
 
 ## Prepare and coalesce
 
+The client now coalesces cached work across parameter shards. It maps local
+occurrences back to original feature positions and combines tasks with the same
+destination, feature and access route. The shared resolver dispatches one gather
+per destination before collecting results, including all outstanding completions
+when a destination fails. Mean normalization still happens once after all
+CPU/cache contributions are combined. Per-shard lookup tickets remain separate
+for the original backward/update lifecycle.
+
+This reduces per-shard GPU calls without combining independent Learner requests
+or reading future parameter versions during ID preparation. The two-shard,
+three-agent check proves a single gather per destination, concurrent dispatch,
+layout/optimizer equivalence and known-ticket cleanup on failed lookups. GPU
+throughput curves remain associated with the earlier measured source revision.
+
 Prepare key routing, unique mappings, buffer sizes and migration candidates ahead
 of demand. Parameter reads still respect the required update and ownership
 boundary. Group compatible state transfers by destination, dimension and optimizer

@@ -5,6 +5,7 @@
 #include "eps/entropy_adapter.hpp"
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
+#include "eps/cache_resolver.hpp"
 
 namespace py=pybind11;
 using namespace eps;
@@ -78,21 +79,9 @@ class Backend {
     for(auto& m:metadata)files.insert(files.end(),m.state_files.begin(),m.state_files.end());return files;
   }
   void Cache(std::vector<std::pair<AgentId,std::string>> endpoints) {
-    auto agents=std::make_shared<std::map<AgentId,std::shared_ptr<BrpcCacheBackend>>>();
-    for(auto& [id,endpoint]:endpoints)(*agents)[id]=std::make_shared<BrpcCacheBackend>(endpoint,run_,0,id);
-    adapter_->SetCacheResolver([agents](auto work,auto layouts)->Result<std::vector<TensorBlock>> {
-      std::map<AgentId,std::vector<AgentWork>> groups;
-      for(auto& task:work)groups[task.agent].push_back(std::move(task));
-      std::vector<std::future<Result<std::vector<TensorBlock>>>> pending;
-      for(auto& [id,group]:groups) {
-        if(!agents->contains(id))return Error{Error::Code::invalid_argument,"unknown worker cache endpoint"};
-        pending.push_back(agents->at(id)->GatherHost(std::move(group),layouts));
-      }
-      std::vector<TensorBlock> result;
-      for(auto& f:pending){auto r=f.get();if(auto e=std::get_if<Error>(&r))return *e;
-        for(auto& part:std::get<std::vector<TensorBlock>>(r))result.push_back(std::move(part));}
-      return result;
-    });
+    std::map<AgentId,std::shared_ptr<CacheBackend>> agents;
+    for(auto& [id,endpoint]:endpoints)agents[id]=std::make_shared<BrpcCacheBackend>(endpoint,run_,0,id);
+    adapter_->SetCacheResolver(MakeCacheResolver(std::move(agents)));
   }
  private:
   std::string run_;std::uint64_t epoch_;std::uint32_t count_;

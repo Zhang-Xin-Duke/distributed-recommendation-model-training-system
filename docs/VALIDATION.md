@@ -4,9 +4,9 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Native core, RPC, cache protocol, adapter and TensorFlow graph | 11/11 passed |
-| macOS arm64, core-only ASan/UBSan | Core, policies, ownership, control replay and adapter | 7/7 passed |
-| Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | Native CPU/CUDA suite | 12/12 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, coalesced gathers and TensorFlow graph | 13/13 passed |
+| macOS arm64, core-only ASan/UBSan | Current core, policies, ownership, control replay, adapter and coalesced gathers | 8/8 passed |
+| Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | CPU/CUDA suite before cross-shard gather coalescing | 12/12 passed |
 | Three separately rented RTX A6000 48 GB devices, compute capability 8.6 | CUDA state/device-result check on each device | All three passed; distinct GPU UUIDs verified |
 
 The L40 driver was 610.43.02, compute capability 8.9. CUDA code was subsequently
@@ -24,6 +24,8 @@ preload library.
 | Optimizer and storage | Numerical preflight before mutation, weights/moments/counters, bounded state/tickets, corrupt snapshot rejection and continued optimizer trajectory after restore |
 | Concurrent Learners | Eight caller threads alternate training/evaluation and retry Push; shared rows receive the expected 192 updates |
 | Real PS processes | Two BRPC shard processes reconstruct features and updates against a single-shard reference; restart under a new run rejects old-run requests |
+| Cross-shard cache gathers | Two shards and three reference agents cover mixed resident/transfer/CPU routes, repeated IDs, empty bags, sum/mean/sequence, one gather per destination, concurrent dispatch and matching weights/moments/counters |
+| Gather failure cleanup | Missing/malformed/failing resolvers and partial shard capacity rejection release known successful tickets; a promise-backed completion proves a fast destination failure waits for other gather futures |
 | Configured backpressure | With a live-ticket limit of 32, 64 concurrent Learners admit 32 and reject 32; cached reads and row pins remain valid, and a rejected Learner retries successfully after releases |
 | Cache control | Original command replay, retired-command fencing, slot reclamation after acknowledged writeback and ownership generation checks |
 | Mixed placement | CPU and cache-owned portions of one Push share the same original optimizer context; moving a referenced row is rejected |
@@ -32,7 +34,7 @@ preload library.
 | Cold access route | Unique CPU-owned weights can be transferred for GPU pooling without admitting full optimizer state; compared with the host reference |
 | CUDA process lifecycle | Two PS processes plus a CUDA cache process exercise mixed reads/updates, two-way migration, cache-draining snapshot and restore |
 | Embedding adapter | Padding exclusion, valid mean denominators, sequence scatter/gather, completed-handle replay and Join ordering |
-| TensorFlow graph | TensorFlow 2.20.0 graph with two external PS processes, dense variable/optimizer, five sparse updates, evaluation and two-shard save; loss decreases without retracing |
+| TensorFlow graph | TensorFlow 2.20.0 graph with two external PS processes, dense variable/optimizer, five sparse updates, evaluation and two-shard save; loss decreases without retracing; separate CPU-only and transferred-vector/cache-RPC host-reference routes |
 
 The TensorFlow check exercises the portable host-callback bridge. It does not
 rebuild the full private Entropy application. Model/device-native integration

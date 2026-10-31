@@ -7,7 +7,7 @@ three 30-second trials with three GPU workers, two parameter shards and eight
 concurrent Learners. The trials completed **5,754 steps with zero errors**.
 Short-window sweeps reach approximately 70 steps/s on one, two and three GPUs.
 Increasing concurrency beyond that point raises latency without increasing
-throughput. The present scaling limit lies in the service/transport path.
+throughput. The measured revision's scaling limit lies in the service/transport path.
 
 ![Throughput and tail latency](assets/capacity.svg)
 
@@ -138,14 +138,21 @@ coordination and messages while the small vector workload provides limited GPU
 work to amortize them. Throughput, shard controls and the CPU-only transport
 probe together point to this service/communication path as the next target.
 
-The next optimization is to **coalesce cached feature work across parameter
-shards by destination GPU**, then issue destination gathers concurrently.
+Following these measurements, the client now **coalesces cached feature work
+across parameter shards by destination GPU** and issues destination gathers
+concurrently. Native, real-BRPC and TensorFlow checks cover the new path; the
+two-shard/three-agent test asserts one gather per destination and checks
+numerical state against a CPU reference. The figures above remain measurements
+of `db74e47`; a paired GPU rerun is needed to quantify this subsequent change.
+
 Re-running on a directly reachable private network would separate application
 coordination from the forwarded transport. The measurements here establish the
 limit of this deployment and workload; raw GPU compute capacity and complete
 model-training scaling require their own workloads.
 
 ## Correctness and overload
+
+At the measured revision:
 
 - L40 native CPU/CUDA suite: **12/12 passed**.
 - macOS native/RPC/TensorFlow suite: **11/11 passed**.

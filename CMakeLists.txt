@@ -14,6 +14,7 @@ add_library(eps_core
   src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
   src/client/distributed_client.cpp
+  src/client/cache_resolver.cpp
   src/cache/access_cost_model.cpp
   src/cache/host_backend.cpp
   src/cache/agent_runtime.cpp
@@ -132,7 +133,10 @@ if(EPS_BUILD_BRPC)
       if(eps_tensorflow_available EQUAL 0)
         add_test(NAME tensorflow_graph_external_shards
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py" $<TARGET_FILE:eps_server>)
-        set_tests_properties(tensorflow_graph_external_shards PROPERTIES TIMEOUT 120
+        add_test(NAME tensorflow_graph_cache_external_shards
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        set_tests_properties(tensorflow_graph_external_shards tensorflow_graph_cache_external_shards PROPERTIES TIMEOUT 120
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
       endif()
     endif()
@@ -163,6 +167,10 @@ if(EPS_BUILD_TESTS)
   target_link_libraries(eps_multi_agent_tests PRIVATE eps_core)
   add_test(NAME concurrent_multi_agent_updates COMMAND eps_multi_agent_tests)
   set_tests_properties(concurrent_multi_agent_updates PROPERTIES TIMEOUT 15)
+  add_executable(eps_coalesced_gather_tests tests/coalesced_gather_tests.cpp)
+  target_link_libraries(eps_coalesced_gather_tests PRIVATE eps_core)
+  add_test(NAME coalesced_cross_shard_gathers COMMAND eps_coalesced_gather_tests)
+  set_tests_properties(coalesced_cross_shard_gathers PROPERTIES TIMEOUT 20)
   add_executable(eps_compact_tests tests/compact_tests.cpp)
   target_link_libraries(eps_compact_tests PRIVATE eps_core)
   target_include_directories(eps_compact_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

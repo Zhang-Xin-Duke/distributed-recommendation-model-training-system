@@ -19,7 +19,7 @@ synchronization remain the training framework's responsibility.
 
 ![Measured capacity on one, two and three GPU workers](docs/assets/capacity.svg)
 
-**Measured capacity:** with three RTX A6000 workers and two parameter shards,
+**Measured capacity** (revision `db74e47`): with three RTX A6000 workers and two parameter shards,
 three 30-second trials completed **5,754 sparse update steps** with no errors:
 **61.8 steps/s** median, **246.7 ms** median trial P99. Short-window sweeps peak
 near 70 steps/s for one, two and three GPUs; higher concurrency increases tail
@@ -36,8 +36,8 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the native L40 suite passes 12/12 checks, the macOS native and
-TensorFlow suite passes 11/11, and the core ASan/UBSan suite passes 7/7.
+**Validation:** the current macOS native and TensorFlow suite passes 13/13,
+and the core ASan/UBSan suite passes 8/8. The measured L40 revision passed 12/12.
 Coverage includes mixed CPU/GPU updates, migration, restart, numerical state,
 buffer ownership and configured overload rejection. See the
 [validation record](docs/VALIDATION.md).
@@ -92,6 +92,12 @@ flowchart LR
 
 ## Implemented optimizations
 
+- **Cross-shard gather coalescing:** remap each shard's cached work to original
+  input positions and merge it by destination, feature and route. The shared
+  resolver issues one asynchronous gather per destination, reducing up to
+  `shards × GPUs` calls to `GPUs` calls for a lookup. Original shard tickets and
+  sparse-update boundaries remain independent. This path has native, real-BRPC
+  and TensorFlow correctness coverage; the plotted GPU measurements predate it.
 - **Compact sparse-gradient transfer:** send each pooled feature gradient with
   ordered row references and mean scales. The destination GPU reduces those
   contributions into row gradients before Adam. Use expanded gradients when they

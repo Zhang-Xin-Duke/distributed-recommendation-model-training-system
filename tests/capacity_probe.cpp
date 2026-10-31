@@ -1,6 +1,7 @@
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
 #include "eps/distributed_client.hpp"
+#include "eps/cache_resolver.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <atomic>
@@ -36,18 +37,10 @@ int main(int argc,char** argv){
     std::vector<std::shared_ptr<ParameterService>> shards;
     std::vector<std::shared_ptr<BrpcParameterService>> admin;
     for(const auto& endpoint:endpoints){auto s=std::make_shared<BrpcParameterService>(endpoint,30000);shards.push_back(s);admin.push_back(s);}
-    std::map<AgentId,std::shared_ptr<BrpcCacheBackend>> agents;
+    std::map<AgentId,std::shared_ptr<CacheBackend>> agents;
     for(AgentId id=0;id<agent_endpoints.size();++id)
       agents[id]=std::make_shared<BrpcCacheBackend>(agent_endpoints[id],run,0,id,30000);
-    auto resolve=[agents](auto work,auto layouts)->Result<std::vector<TensorBlock>>{
-      std::map<AgentId,std::vector<AgentWork>> groups;for(auto& task:work)groups[task.agent].push_back(std::move(task));
-      std::vector<std::future<Result<std::vector<TensorBlock>>>> futures;
-      for(auto& [id,tasks]:groups)futures.push_back(agents.at(id)->GatherHost(std::move(tasks),layouts));
-      std::vector<TensorBlock> out;
-      for(auto& f:futures){auto result=f.get();if(auto e=std::get_if<Error>(&result))return *e;
-        for(auto& part:std::get<std::vector<TensorBlock>>(result))out.push_back(std::move(part));}
-      return out;
-    };
+    auto resolve=MakeCacheResolver(agents);
     DistributedClient setup(shards);setup.SetCacheResolver(resolve);
     Take(setup.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));
     std::uint64_t sequence=0;
