@@ -127,7 +127,10 @@ int main(int argc,char** argv){
         compact_commands+=s.compact_update_commands-stats_before[i].compact_update_commands;
         if(s.live_tickets)throw std::runtime_error("load left an outstanding training ticket");}
       std::uint64_t checked=0;
-      for(Key key=1;key<=rows;key+=std::max<std::uint64_t>(1,rows/32)){
+      for(std::uint64_t sample=0;sample<32;++sample){
+        // Offset the sample stride so power-of-two shard counts are covered,
+        // rather than repeatedly selecting only one key-modulo partition.
+        const Key key=1+(sample*(rows/32)+sample)%rows;
         const auto home=key%shards.size();auto loc=Take(admin[home]->Locations({{1,key}}));
         auto state=Take(admin[home]->ReadState(loc)).at(0);
         if(state.row_updates!=expected[key])throw std::runtime_error("accepted training update count mismatch");
