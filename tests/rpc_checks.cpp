@@ -1,6 +1,7 @@
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
 #include "eps/distributed_client.hpp"
+#include "eps/cache_resolver.hpp"
 #include "eps/runtime.hpp"
 #include "transport/codec.hpp"
 #include <brpc/channel.h>
@@ -112,7 +113,7 @@ int main(int argc,char** argv){
     DistributedClient client(remote);Take(client.CreateTable(Table(2)));
     if(caching){
       auto reader=std::make_shared<BrpcCacheBackend>(argv[4],run,0,0);
-      client.SetCacheResolver([reader](auto work,auto layouts){return reader->GatherHost(std::move(work),std::move(layouts)).get();});
+      client.SetCacheResolver(MakeCacheResolver({{0,reader}}));
     }
     if(resumed){
       auto packet=Request("wire-test",0,true);

@@ -51,6 +51,18 @@ int main(int argc,char** argv){
       auto batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,true,{std::move(f)}}));Take(setup.Release(batch));
     }
     const auto cached=rows/2;
+    // Capture independent CPU-owned weights before migration. The later read
+    // check spans resident/cold rows, repeats, empty bags and sequence positions.
+    std::vector<Key> reference_keys;
+    for(Key i=1;i<=32;++i)for(Key key:{i,cached+i,rows-32+i})reference_keys.push_back(key);
+    std::map<Key,std::vector<float>> reference_weights;
+    for(std::size_t home=0;home<shards.size();++home) {
+      std::vector<RowKey> sample;
+      for(auto key:reference_keys)if(key%shards.size()==home)sample.push_back({1,key});
+      if(sample.empty())continue;
+      auto states=Take(admin[home]->ReadState(Take(admin[home]->Locations(std::move(sample)))));
+      for(auto& state:states)reference_weights.emplace(state.row.key,std::move(state.weights));
+    }
     for(std::size_t home=0;home<shards.size();++home)for(AgentId agent=0;agent<agents.size();++agent){
       std::vector<RowKey> move;
       auto flush=[&]{if(move.empty())return;Take(admin[home]->MoveRows({run,std::move(move),agent,Placement::gpu,{16ULL<<20,16ULL<<20,1,0}}));move.clear();};
@@ -58,6 +70,33 @@ int main(int argc,char** argv){
         move.push_back({1,key});if(move.size()==1024)flush();}
       flush();
     }
+    std::vector<Key> check_keys;
+    for(std::size_t i=0;i<128;++i)check_keys.push_back(reference_keys[i%reference_keys.size()]);
+    std::vector<FeatureInput> check_features{
+      {1,701,Pooling::mean,check_keys,{0,32,32,128},{32,0,96}},
+      {1,702,Pooling::sequence,check_keys,{0,0,64,128},{0,64,64}},
+      {1,703,Pooling::sum,check_keys,{0,64,128},{64,64}}};
+    auto checked_batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,true,check_features}));
+    std::uint64_t preflight_values=0;double preflight_error=0;
+    for(std::size_t fi=0;fi<check_features.size();++fi) {
+      const auto& input=check_features[fi];const auto& output=checked_batch.features().at(fi);
+      std::vector<float> expected_values(output.values.size(),0);
+      for(std::size_t b=0;b<input.valid_lengths.size();++b) {
+        for(auto i=input.offsets[b];i<input.offsets[b+1];++i) {
+          const auto row=input.pooling==Pooling::sequence?i:b;
+          for(std::size_t d=0;d<dim;++d)expected_values[row*dim+d]+=reference_weights.at(input.keys[i])[d];
+        }
+        if(input.pooling==Pooling::mean && input.valid_lengths[b])
+          for(std::size_t d=0;d<dim;++d)expected_values[b*dim+d]/=input.valid_lengths[b];
+      }
+      for(std::size_t i=0;i<expected_values.size();++i) {
+        const auto error=std::abs(double(output.values[i])-expected_values[i]);
+        if(!std::isfinite(output.values[i]) || error>5e-6)
+          throw std::runtime_error("preflight distributed feature differs from captured CPU weights");
+        preflight_error=std::max(preflight_error,error);++preflight_values;
+      }
+    }
+    Take(setup.Release(checked_batch));
     std::vector<std::atomic<std::uint64_t>> expected(rows+1);
     std::vector<std::uint64_t> next_sequences(128,0);
     for(int warm=0;warm<3;++warm){
@@ -140,6 +179,8 @@ int main(int argc,char** argv){
       result["rejected_admissions"]=admission_failures;
       result["expanded_gradient_bytes"]=expanded_bytes;result["transferred_gradient_bytes"]=transferred_bytes;
       result["compact_update_commands"]=compact_commands;
+      result["preflight_values_checked"]=preflight_values;
+      result["preflight_max_absolute_error"]=preflight_error;
       result["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();
       result["end_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count()+elapsed;
       std::cout<<result.dump()<<std::endl;++group;
