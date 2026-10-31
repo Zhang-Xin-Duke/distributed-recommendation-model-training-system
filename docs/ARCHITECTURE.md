@@ -1,4 +1,4 @@
-# Service architecture
+# Distributed parameter server architecture
 
 ## Keep the training framework; extract its parameter subsystem
 

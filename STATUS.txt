@@ -1,4 +1,4 @@
-Embedding Parameter Service
+Distributed Parameter Server
 Stage: architecture and original interface contracts
 Date: 2026-10-31
 

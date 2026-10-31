@@ -1,12 +1,15 @@
-# Embedding Parameter Service
+# Distributed Parameter Server
 
-**An independent parameter service for sparse embedding training.**
+**Distributed storage, access and updates for machine-learning parameters.**
 
-A training batch often touches only a small fraction of a large embedding table.
-The same pattern appears in recommendation, advertising, knowledge graphs, graph
-learning and word-embedding models. Embedding Parameter Service manages the
-parameter tables, batched lookups, sparse updates and CPU/GPU cache placement
-behind a service interface.
+Training workers pull the parameters needed for a batch and push gradients back
+for updates. Distributed Parameter Server partitions those parameters across
+server shards and manages batched access, optimizer state and CPU/GPU placement.
+
+The first implementation targets sparse access to embedding tables: each batch
+touches only a small fraction of a large table. This pattern appears in
+recommendation, advertising, knowledge graphs, graph learning and word-embedding
+models.
 
 The first integration retains **Entropy's training framework**: dataset readers,
 model graphs, GPU forward/backward, dense gradient synchronization and training
@@ -24,7 +27,7 @@ flowchart LR
         A[Embedding adapter] <--> G
         C["GPU cache agent<br/>Existing tensors and CUDA execution"] <--> G
     end
-    A <-->|Batched lookup and sparse gradients| S[Embedding Parameter Service]
+    A <-->|Batched lookup and sparse gradients| S[Distributed Parameter Server]
     S --> T[Sharded parameter storage]
     S --> U[Sparse gradient reduction and optimizer]
     S --> P[Access and cache planner]

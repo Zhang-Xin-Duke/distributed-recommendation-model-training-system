@@ -1,4 +1,4 @@
-# API and Entropy integration
+# Parameter-server API and Entropy integration
 
 ## Public service surface
 

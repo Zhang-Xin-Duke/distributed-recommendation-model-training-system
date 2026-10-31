@@ -1,8 +1,8 @@
-# Embedding Parameter Service implementation plan
+# Distributed Parameter Server implementation plan
 
-**Goal:** Extract a complete embedding parameter service from the reference
-training lifecycle, then optimize CPU/GPU access and migration without replacing
-the training framework.
+**Goal:** Extract a distributed parameter server from the reference training
+lifecycle, initially supporting sparse embedding parameters, then optimize CPU/GPU
+access and migration while retaining the training framework.
 
 **Architecture:** Independent CPU parameter-service shards own row routing,
 storage, update sequencing and cache decisions. A thin Entropy adapter preserves

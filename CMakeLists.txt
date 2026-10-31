@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(embedding_parameter_service LANGUAGES CXX)
+project(distributed_parameter_server LANGUAGES CXX)
 
 # Interface-only target for the architecture stage. No server is built yet.
 add_library(eps_contracts INTERFACE)
