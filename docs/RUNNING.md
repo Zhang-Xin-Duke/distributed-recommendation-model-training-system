@@ -83,3 +83,68 @@ Restore each server with its matching shard file and a new run ID:
 This preserves weights, LazyAdam moments, per-row update counts and table optimizer
 globals. A new run ID rejects packets from the old run. Static shard membership
 and fail/restart recovery are used for this version.
+
+## CUDA cache worker
+
+With a CUDA toolkit installed, build with `-DEPS_BUILD_CUDA=ON` and the appropriate
+`CMAKE_CUDA_ARCHITECTURES` (89 for L40, 86 for RTX A6000):
+
+```sh
+cmake -S . -B build/cuda -DCMAKE_BUILD_TYPE=Release \
+  -DEPS_BUILD_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=89
+cmake --build build/cuda -j 6
+ctest --test-dir build/cuda --output-on-failure
+./build/cuda/eps_cache_agent --run example-training-run --backend cuda \
+  --agent 0 --device 0 --listen 127.0.0.1:9200
+```
+
+Enable `cache.enabled` and add `agents: [{"id": 0, "endpoint": "127.0.0.1:9200"}]`
+to each PS config. Clients install a cache resolver with
+`DistributedClient::SetCacheResolver`; the TensorFlow bridge exposes
+`cache_endpoints([(0, "127.0.0.1:9200")])`.
+
+`access.policy` selects `cpu_only`, `transfer_unique`, or `cost`.
+These choices concern CPU-backed rows. Resident rows always use their current
+agent. `cost` uses paired workload measurements supplied through
+`access.observations`, or a live `AccessPlanner` supplied to `ConfigureAccess`.
+Uncalibrated pooled features retain the CPU route. Migration is explicitly
+requested through `MoveRows`, which checks live references, generations, staging
+bytes and reusable slots before publishing a new owner.
+
+`scripts/gpu_validate.sh` provisions a project-local compiler/runtime and BRPC
+on Ubuntu while retaining the installed NVIDIA driver. It records a complete
+build/check log. On Thunder it disables BRPC's optional pthread profiler hook,
+which conflicts with the provider's preloaded `dlsym` interposer.
+
+## Scaling and capacity
+
+`eps_capacity_probe` exercises sparse parameter training steps: lookup, mean
+pooling, feature gradients and acknowledged updates. It samples parameter update
+counters after each load level and rejects runs with mismatched counters,
+non-finite results or live tickets left behind. Initialization and kernel warmup
+are outside its timed interval. It measures the parameter subsystem; no dense
+model computation is included.
+
+For an existing host with three visible devices:
+
+```sh
+python3 scripts/capacity_sweep.py --build build/cuda --out results/capacity \
+  --devices 0,1,2 --gpu-counts 1,2,3 --ps-shards 2 \
+  --rows 262144 --dimension 128 --keys 1024 --bag 32 \
+  --learners 1,2,4,8,16,32 --seconds 5 --repeats 3
+```
+
+Each topology starts fresh processes. Each load level produces raw JSON metrics
+for completed updates/s, ID occurrences/s, P50/P95/P99 latency, lookup/update
+latency, sequencer occupancy and queue waiting. Worker/PS CPU and RSS are sampled
+separately; GPU telemetry is device-wide. Repeat ranges accompany median rates.
+
+`scripts/fleet_capacity_sweep.py` manages agents across separately prepared SSH
+hosts and invokes the same load generator. Its private fleet config supplies
+connection paths and already prepared forwarding endpoints. It verifies distinct
+GPU UUIDs and stops its agent/telemetry processes in `finally` blocks. For an SSH
+tunnel deployment, report transport overhead with the results. Rental creation
+and resource deletion remain with the experiment controller.
+
+See [the TensorFlow adapter guide](../adapters/entropy/README.md) for its build
+and graph integration example.

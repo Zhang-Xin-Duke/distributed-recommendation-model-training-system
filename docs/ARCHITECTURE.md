@@ -24,8 +24,10 @@ required by this service.
 
 The parameter service is a separate C++ process with its own endpoints and CPU
 memory allocation. It can be started, configured and scaled separately from the
-training application. The GPU agent stays in the existing GPU worker so the
-model and cache share its CUDA context and TensorFlow variables.
+training application. The GPU backend can be linked into a compatible worker;
+the supplied `eps_cache_agent` executable hosts it as a standalone process.
+The portable TensorFlow adapter consumes host-returning RPC contributions.
+Native model/device-tensor interoperability is a further integration step.
 
 ```mermaid
 flowchart TB
@@ -95,11 +97,12 @@ stateDiagram-v2
     Draining --> CPU: Finish referenced updates; write back; publish location
 ```
 
-A location change waits for existing lookup tickets that reference the row to
-finish. Both loading and draining close new references before taking a state
-copy, queue demand for those rows, and publish the destination after transfer.
-The scheduler chooses low-demand candidates and reserves free slots to
-keep that wait away from most new requests. Full state moves together; for the
+A location change requires existing lookup tickets that reference the row to
+finish. The current `MoveRows` rejects pinned rows so its caller can retry later;
+once accepted, the home-shard sequencer remains occupied through the transfer and
+publishes the destination after acknowledgement. This gives one explicit state
+handoff. An asynchronous coordinator that lets unrelated rows progress during a
+move remains planned. Full state moves together; for the
 initial sparse LazyAdam policy this includes weights, first/second moments and
 row update metadata. Table/shard optimizer globals are managed by the update
 sequencer rather than independently advanced in CPU and GPU code.
@@ -123,7 +126,7 @@ budgets; existing RPC completion threads do not wait on row or device completion
 | CacheCoordinator | Observe accesses, plan placement/migration | `src/cache/` |
 | ServiceTransport | Batched requests and contiguous payloads | `src/server/` |
 | EntropyAdapter | Pull/Push/Join integration | `adapters/entropy/` |
-| GpuCacheAgent | Execute existing-worker GPU work | `adapters/entropy/gpu/` |
+| GpuCacheAgent | CUDA pooling, updates and full-state copy | `src/cuda/` |
 
 The first implementation provides a complete CPU parameter-service path before
 connecting GPU-resident execution. Both use the same lookup/update contracts.

@@ -3,7 +3,7 @@
 #include <functional>
 #include <brpc/channel.h>
 #include <brpc/controller.h>
-#include "transport/codec.hpp"
+#include "transport/rpc_call.hpp"
 
 namespace eps {
 namespace t = transport;
@@ -17,44 +17,38 @@ struct BrpcParameterService::Impl {
     detail::Require(channel.Init(endpoint.c_str(),&options)==0,"cannot initialize BRPC channel");
   }
 };
-namespace {
-template <typename Req, typename Rsp, typename Out>
-struct CallState : google::protobuf::Closure {
-  std::shared_ptr<void> keep_alive;
-  brpc::Controller controller;
-  Req request;
-  Rsp response;
-  std::promise<Result<Out>> promise;
-  std::function<Out(const Rsp&,const butil::IOBuf&)> decode;
-  void Run() override {
-    std::unique_ptr<CallState> self(this);
-    try {
-      if(controller.Failed()) promise.set_value(Error{Error::Code::unavailable,controller.ErrorText()});
-      else if(auto error=t::GetError(response.status())) promise.set_value(*error);
-      else promise.set_value(decode(response,controller.response_attachment()));
-    } catch(const detail::Failure& e) { promise.set_value(e.error()); }
-      catch(const std::exception& e) { promise.set_value(Error{Error::Code::run_failed,e.what()}); }
-  }
-};
-template <typename Req, typename Rsp, typename Out, typename Impl, typename Build, typename Decode>
-std::future<Result<Out>> Call(std::shared_ptr<Impl> impl,
-    void (wire::EmbeddingService_Stub::*method)(google::protobuf::RpcController*,const Req*,Rsp*,google::protobuf::Closure*),
-    Build build, Decode decode) {
-  auto state=std::make_unique<CallState<Req,Rsp,Out>>();
-  auto future=state->promise.get_future();
-  state->keep_alive=impl;state->decode=std::move(decode);
-  state->controller.set_timeout_ms(impl->timeout_ms);
-  try { build(state->request,state->controller.request_attachment()); }
-  catch(const detail::Failure& e) { state->promise.set_value(e.error());return future; }
-  wire::EmbeddingService_Stub stub(&impl->channel);
-  auto* raw=state.release();(stub.*method)(&raw->controller,&raw->request,&raw->response,raw);
-  return future;
-}
-auto AckDecoder=[](const wire::Ack&,const butil::IOBuf&) { return Ack{}; };
-}
+using transport::Call;
+using transport::AckDecoder;
+
 BrpcParameterService::BrpcParameterService(std::string endpoint,int timeout)
     :impl_(std::make_shared<Impl>(endpoint,timeout)) {}
 BrpcParameterService::~BrpcParameterService()=default;
+std::future<Result<RuntimeStats>> BrpcParameterService::Stats(){
+  return Call<wire::StatsRequest,wire::StatsReply,RuntimeStats>(impl_,&wire::EmbeddingService_Stub::Stats,
+    [](auto&,auto&){},[](const auto& q,const auto&){RuntimeStats s;
+#define EPS_STAT(name) s.name=q.name();
+      EPS_STAT(lookups) EPS_STAT(updates) EPS_STAT(duplicate_requests) EPS_STAT(rows)
+      EPS_STAT(state_bytes) EPS_STAT(live_tickets) EPS_STAT(ticket_payload_bytes)
+      EPS_STAT(queued_payload_bytes) EPS_STAT(cached_rows) EPS_STAT(migration_bytes)
+      EPS_STAT(executed_operations) EPS_STAT(queue_wait_nanoseconds) EPS_STAT(executor_busy_nanoseconds)
+      EPS_STAT(rejected_operations) EPS_STAT(peak_queued_operations)
+#undef EPS_STAT
+      return s;});
+}
+std::future<Result<std::vector<LocatedRow>>> BrpcParameterService::Locations(std::vector<RowKey> rows){
+  return Call<wire::RowsRequest,wire::LocationsReply,std::vector<LocatedRow>>(impl_,&wire::EmbeddingService_Stub::Locations,
+    [rows=std::move(rows)](auto& q,auto&){for(auto row:rows){auto* r=q.add_rows();r->set_table_id(row.table);r->set_key(row.key);}},
+    [](const auto& q,const auto&){std::vector<LocatedRow> out;for(const auto& row:q.rows())out.push_back(t::Decode(row));return out;});
+}
+std::future<Result<std::vector<LocatedRow>>> BrpcParameterService::MoveRows(MoveRowsRequest r){
+  return Call<wire::MoveRequest,wire::LocationsReply,std::vector<LocatedRow>>(impl_,&wire::EmbeddingService_Stub::MoveRows,
+    [r=std::move(r)](auto& q,auto&){
+      q.set_run(r.run);q.set_agent_id(r.agent);q.set_destination(static_cast<wire::Placement>(static_cast<int>(r.destination)+1));
+      q.set_network_bytes(r.budget.network_bytes);q.set_staging_bytes(r.budget.staging_bytes);
+      q.set_max_inflight_batches(r.budget.max_inflight_batches);q.set_reserve_slots(r.budget.reserve_slots);
+      for(auto row:r.rows){auto* x=q.add_rows();x->set_table_id(row.table);x->set_key(row.key);}
+    },[](const auto& q,const auto&){std::vector<LocatedRow> out;for(const auto& row:q.rows())out.push_back(t::Decode(row));return out;});
+}
 std::future<Result<Ack>> BrpcParameterService::CreateTable(TableDefinition d) {
   return Call<wire::CreateTableRequest,wire::Ack,Ack>(impl_,&wire::EmbeddingService_Stub::CreateTable,
     [d](auto& q,auto&) {t::Encode(d,q.mutable_table());},AckDecoder);
@@ -65,9 +59,9 @@ std::future<Result<LookupReply>> BrpcParameterService::Lookup(LookupRequest r) {
       t::Encode(r.id,q.mutable_identity());q.set_partition_epoch(r.partition_epoch);q.set_read_only(r.read_only);
       for(const auto& f:r.features)t::Encode(f,q.add_features(),a);
     },[](const auto& q,const auto& a) {
-      detail::Require(q.agent_work_size()==0,"GPU response requires a GPU adapter");
       LookupReply out;out.ticket=q.ticket();
       for(const auto& f:q.cpu_contributions())out.cpu_contributions.push_back(t::Decode(f,a));
+      for(const auto& work:q.agent_work())out.agent_work.push_back(t::Decode(work,a));
       return out;
     });
 }

@@ -13,7 +13,9 @@ Entropy 继续负责读数据、构图、模型前向与反向、dense 参数更
 我们从参数访问边界抽出一个独立 C++ 服务，由轻量适配器对接原来的 Pull/Push/Join。
 
 服务管理参数表、批量查找、pooling、梯度归并、稀疏优化器和缓存决策。
-GPU cache agent 留在原 GPU Worker 内，用已有 TensorFlow 变量和 CUDA 执行环境完成 GPU 工作。
+GPU cache agent 在显存中保存权重和 Adam 状态，完成查找、聚合、更新和状态传输。
+它可以嵌入依赖兼容的 GPU Worker；当前提供独立进程，通过 BRPC 接入参数分片。
+TensorFlow 适配层已提供 Pull/Push/Join 的 host callback 路径，保留原模型与 dense 优化器。
 
 这样，参数服务可以独立启动、分配 CPU/内存和扩容；训练模型保持原有运行方式。
 
@@ -23,7 +25,7 @@ GPU cache agent 留在原 GPU Worker 内，用已有 TensorFlow 变量和 CUDA �
 |---|---|
 | 原有 Learner / GPU Worker | 提供训练输入，执行模型，产生梯度 |
 | 独立参数服务 | 存储与访问参数，执行 sparse 更新，决定缓存放置和迁移 |
-| GPU cache agent | 在现有 GPU 进程中查常驻行、处理更新和状态传输 |
+| GPU cache agent | 查显存中的常驻行，执行更新，批量换入与回写完整状态 |
 
 ## 一批请求怎样走
 
@@ -31,7 +33,10 @@ GPU cache agent 留在原 GPU Worker 内，用已有 TensorFlow 变量和 CUDA �
 2. 服务区分 CPU 参数行和 GPU 常驻行，返回或组织图需要的特征。
 3. 原模型照常前向、计算 loss 和反向。
 4. 梯度带着本次 lookup ticket 返回，合并该次请求内重复 ID 的贡献，更新对应参数。
-5. 完成 Push/Join 后释放本次引用，缓存调度器选择适量参数换入换出。
+5. GPU 与 CPU 完成各自负责的更新，服务回复确认；完成 Push/Join 后释放本次引用。
+
+一次 Push 涉及多张卡时，向不同 GPU 并发下发更新；同一张卡上的控制命令保持顺序。
+CPU 与所有 GPU 部分使用该次请求的同一份优化器上下文，不合并不同 Learner 的更新。
 
 保留原框架的异步 Learner 模式；不同 Learner 的 Adam 更新仍是独立更新，服务不把它们合成一次。
 
@@ -43,13 +48,19 @@ GPU cache agent 留在原 GPU Worker 内，用已有 TensorFlow 变量和 CUDA �
 **缓存准入：** 参数迁移需要同时搬权重和优化器状态。比较后续复用节省与换入、回写成本，减少只用一次的参数进入缓存。
 未进入缓存的参数继续正常训练。
 
-**迁移调度：** 限制在途字节与任务数，提前准备空槽，合并同目标、同布局的参数传输，减少突然大量迁移和等待回写的时间。
+**迁移调度：** 限制迁移字节与批次数，预留空槽，按兼容布局批量传输完整状态。
+当前迁移要求相关 lookup 已结束，等待 GPU 完成后才发布新位置与 generation；回写确认后才回收显存槽。
+自动窗口准入、异步准备和迁移期间让无关请求继续推进，属于后续优化。
 
 分片、去重、pooling、GPU cache 和异步传输在 Entropy 中已有参考。独立项目重点是上述决策、服务化边界和完整参数生命周期。
 
 ## 技术与交付
 
-C++20 服务核心，BRPC/Protobuf 通信，连续参数存储；Entropy 适配器连接现有 TensorFlow custom op 和 GPU 通道。
-先实现可独立运行的 CPU 参数服务，再接入现有 GPU cache agent，最后加入访问与迁移策略。
+C++20 服务核心，BRPC/Protobuf 通信，分块连续参数存储，CUDA 完成显存侧操作。
+便携 TensorFlow 适配层通过本地客户端子进程隔离二进制依赖，接管 Embedding 的 Pull/Push/Join。
+原 Entropy 应用的完整构建与模型/GPU 原生张量接入仍需单独验证。
 
-CPU 参数服务、BRPC 通信、跨分片客户端、保存恢复和成本策略库已实现，并通过本地正确性检查。两个真实服务器进程的保存与重启也已验证。接下来接入 Entropy 图和 GPU cache agent；GPU 路径与性能结果尚未验证。原始代码与 Full Mirror 文档保留在本地 `references/private/`。
+CPU/CUDA 参数访问、稀疏更新、双向迁移、跨分片客户端与保存恢复已实现。
+L40 上已验证两个参数服务进程与真实 CUDA 缓存进程的完整生命周期；三个不同 UUID 的 A6000 也分别通过 CUDA 检查。
+多卡容量实验扫描 Learner 数、参数分片数和输入规模，统计完成更新的吞吐、P99、排队时间和执行线程占用。
+具体结果及其测试边界见 [验证记录](VALIDATION.md)。原始源码与 Full Mirror 文档保留在本地 `references/private/`。

@@ -1,0 +1,147 @@
+#include "eps/brpc_client.hpp"
+#include "eps/brpc_cache_backend.hpp"
+#include "eps/distributed_client.hpp"
+#include <nlohmann/json.hpp>
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <cmath>
+#include <iostream>
+#include <latch>
+#include <map>
+#include <mutex>
+#include <numeric>
+#include <random>
+#include <set>
+#include <thread>
+
+using namespace eps;
+using Clock=std::chrono::steady_clock;
+namespace {
+template<typename T>T Take(Result<T> r){if(auto e=std::get_if<Error>(&r))throw std::runtime_error(e->message);return std::get<T>(std::move(r));}
+template<typename T>T Take(std::future<Result<T>> f){return Take(f.get());}
+std::vector<std::string> Split(std::string s){std::vector<std::string> out;std::size_t begin=0;
+  for(;;){auto end=s.find(',',begin);out.push_back(s.substr(begin,end-begin));if(end==s.npos)return out;begin=end+1;}}
+double Ms(Clock::time_point begin){return std::chrono::duration<double,std::milli>(Clock::now()-begin).count();}
+double Percentile(std::vector<double> v,double q){if(v.empty())return 0;std::sort(v.begin(),v.end());return v[std::size_t((v.size()-1)*q)];}
+}
+int main(int argc,char** argv){
+  try {
+    if(argc!=11)throw std::runtime_error("usage: eps_capacity_probe SHARDS AGENTS RUN ROWS DIM KEYS BAG LEARNER_LIST SECONDS REPEATS");
+    const auto endpoints=Split(argv[1]),agent_endpoints=Split(argv[2]);const std::string run=argv[3];
+    const std::uint64_t rows=std::stoull(argv[4]);const std::uint32_t dim=std::stoul(argv[5]),keys=std::stoul(argv[6]),bag=std::stoul(argv[7]);
+    const auto levels=Split(argv[8]);const double duration=std::stod(argv[9]);const int repeats=std::stoi(argv[10]);
+    if(rows<1024 || rows>1048576 || !dim || dim>512 || !keys || keys>8192 || !bag || keys%bag || duration<=0 || duration>60 || repeats<1 || repeats>10)
+      throw std::runtime_error("invalid capacity workload dimensions");
+    std::vector<std::shared_ptr<ParameterService>> shards;
+    std::vector<std::shared_ptr<BrpcParameterService>> admin;
+    for(const auto& endpoint:endpoints){auto s=std::make_shared<BrpcParameterService>(endpoint,30000);shards.push_back(s);admin.push_back(s);}
+    std::map<AgentId,std::shared_ptr<BrpcCacheBackend>> agents;
+    for(AgentId id=0;id<agent_endpoints.size();++id)
+      agents[id]=std::make_shared<BrpcCacheBackend>(agent_endpoints[id],run,0,id,30000);
+    auto resolve=[agents](auto work,auto layouts)->Result<std::vector<TensorBlock>>{
+      std::map<AgentId,std::vector<AgentWork>> groups;for(auto& task:work)groups[task.agent].push_back(std::move(task));
+      std::vector<std::future<Result<std::vector<TensorBlock>>>> futures;
+      for(auto& [id,tasks]:groups)futures.push_back(agents.at(id)->GatherHost(std::move(tasks),layouts));
+      std::vector<TensorBlock> out;
+      for(auto& f:futures){auto result=f.get();if(auto e=std::get_if<Error>(&result))return *e;
+        for(auto& part:std::get<std::vector<TensorBlock>>(result))out.push_back(std::move(part));}
+      return out;
+    };
+    DistributedClient setup(shards);setup.SetCacheResolver(resolve);
+    Take(setup.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));
+    std::uint64_t sequence=0;
+    for(std::uint64_t begin=0;begin<rows;begin+=1024){
+      FeatureInput f{1,0,Pooling::sequence,{},{0},{}};
+      for(auto key=begin;key<std::min(rows,begin+1024);++key)f.keys.push_back(key+1);
+      f.offsets.push_back(f.keys.size());f.valid_lengths.push_back(f.keys.size());
+      auto batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,true,{std::move(f)}}));Take(setup.Release(batch));
+    }
+    const auto cached=rows/2;
+    for(std::size_t home=0;home<shards.size();++home)for(AgentId agent=0;agent<agents.size();++agent){
+      std::vector<RowKey> move;
+      auto flush=[&]{if(move.empty())return;Take(admin[home]->MoveRows({run,std::move(move),agent,Placement::gpu,{16ULL<<20,16ULL<<20,1,0}}));move.clear();};
+      for(Key key=1;key<=cached;++key)if(key%shards.size()==home && (key/shards.size())%agents.size()==agent){
+        move.push_back({1,key});if(move.size()==1024)flush();}
+      flush();
+    }
+    std::vector<std::atomic<std::uint64_t>> expected(rows+1);
+    std::vector<std::uint64_t> next_sequences(128,0);
+    for(int warm=0;warm<3;++warm){
+      FeatureInput f{1,0,Pooling::mean,{},{0},{}};
+      for(std::uint32_t i=0;i<keys;++i){f.keys.push_back(1+i%rows);
+        if((i+1)%bag==0){f.offsets.push_back(i+1);f.valid_lengths.push_back(bag);}}
+      std::set<Key> unique(f.keys.begin(),f.keys.end());
+      auto batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,false,{std::move(f)}}));
+      auto gradients=batch.features();for(auto& g:gradients)std::fill(g.values.begin(),g.values.end(),0.01f);
+      Take(setup.Push(batch,std::move(gradients)));for(auto key:unique)++expected[key];
+    }
+    std::uint32_t group=0;
+    for(const auto& level:levels)for(int repeat=0;repeat<repeats;++repeat){
+      std::vector<RuntimeStats> stats_before;
+      const int learners=std::stoi(level);if(learners<1 || learners>128)throw std::runtime_error("invalid Learner count");
+      std::latch ready(learners),start(1);Clock::time_point deadline;
+      std::mutex mutex;std::vector<double> latencies,lookups,pushes;std::uint64_t completed=0,failures=0;std::string error;
+      std::vector<std::thread> threads;
+      for(int learner=0;learner<learners;++learner)threads.emplace_back([&,learner]{
+        DistributedClient client(shards);client.SetCacheResolver(resolve);
+        try{Take(client.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));}
+        catch(const std::exception& e){std::lock_guard lock(mutex);error=e.what();++failures;ready.count_down();return;}
+        ready.count_down();start.wait();
+        std::mt19937_64 random(42+learner+group*1000);std::uint64_t seq=next_sequences[learner];
+        std::vector<double> local_latency,local_lookup,local_push;
+        try{
+          while(Clock::now()<deadline){
+            FeatureInput f{1,0,Pooling::mean,{},{0},{}};f.keys.reserve(keys);
+            for(std::uint32_t i=0;i<keys;++i){f.keys.push_back(1+random()%(random()%100<95?cached:rows));
+              if((i+1)%bag==0){f.offsets.push_back(i+1);f.valid_lengths.push_back(bag);}}
+            std::set<Key> unique(f.keys.begin(),f.keys.end());
+            const auto begin=Clock::now();
+            auto batch=Take(client.Lookup({{run,std::uint32_t(learner),seq++,Phase::lookup},1,false,{std::move(f)}}));
+            const auto lookup_ms=Ms(begin);auto gradients=batch.features();
+            for(auto& g:gradients)for(auto& value:g.values){if(!std::isfinite(value))throw std::runtime_error("non-finite feature");value=0.01f;}
+            const auto push_begin=Clock::now();Take(client.Push(batch,std::move(gradients)));
+            local_latency.push_back(Ms(begin));local_lookup.push_back(lookup_ms);local_push.push_back(Ms(push_begin));
+            for(auto key:unique)++expected[key];
+          }
+        }catch(const std::exception& e){std::lock_guard lock(mutex);error=e.what();++failures;}
+        next_sequences[learner]=seq;
+        std::lock_guard lock(mutex);completed+=local_latency.size();
+        latencies.insert(latencies.end(),local_latency.begin(),local_latency.end());
+        lookups.insert(lookups.end(),local_lookup.begin(),local_lookup.end());pushes.insert(pushes.end(),local_push.begin(),local_push.end());
+      });
+      ready.wait();
+      for(auto& shard:admin)stats_before.push_back(Take(shard->Stats()));
+      const auto begin=Clock::now();deadline=begin+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>(duration));start.count_down();
+      for(auto& thread:threads)thread.join();const auto elapsed=Ms(begin)/1000;
+      if(failures)throw std::runtime_error("capacity run failed: "+error);
+      std::uint64_t busy_ns=0,wait_ns=0,operations=0,admission_failures=0;
+      for(std::size_t i=0;i<admin.size();++i){auto s=Take(admin[i]->Stats());
+        busy_ns+=s.executor_busy_nanoseconds-stats_before[i].executor_busy_nanoseconds;
+        wait_ns+=s.queue_wait_nanoseconds-stats_before[i].queue_wait_nanoseconds;
+        operations+=s.executed_operations-stats_before[i].executed_operations;
+        admission_failures+=s.rejected_operations-stats_before[i].rejected_operations;
+        if(s.live_tickets)throw std::runtime_error("load left an outstanding training ticket");}
+      std::uint64_t checked=0;
+      for(Key key=1;key<=rows;key+=std::max<std::uint64_t>(1,rows/32)){
+        const auto home=key%shards.size();auto loc=Take(admin[home]->Locations({{1,key}}));
+        auto state=Take(admin[home]->ReadState(loc)).at(0);
+        if(state.row_updates!=expected[key])throw std::runtime_error("accepted training update count mismatch");
+        for(auto value:state.weights)if(!std::isfinite(value))throw std::runtime_error("non-finite trained parameter");++checked;
+      }
+      nlohmann::json result{{"test","distributed_sparse_training_capacity"},{"gpu_agents",agents.size()},{"ps_shards",shards.size()},
+        {"rows",rows},{"dimension",dim},{"cached_rows",cached},{"keys_per_step",keys},{"bag_length",bag},{"learners",learners},{"repeat",repeat},
+        {"completed_steps",completed},{"errors",failures},{"elapsed_seconds",elapsed},{"steps_per_second",completed/elapsed},
+        {"id_occurrences_per_second",completed*keys/elapsed},{"step_p50_ms",Percentile(latencies,0.5)},{"step_p95_ms",Percentile(latencies,0.95)},
+        {"step_p99_ms",Percentile(latencies,0.99)},{"lookup_p99_ms",Percentile(lookups,0.99)},{"push_p99_ms",Percentile(pushes,0.99)},
+        {"checked_parameter_counters",checked}};
+      result["sequencer_busy_fraction"]=busy_ns/1e9/(elapsed*admin.size());
+      result["queue_wait_per_operation_ms"]=operations?wait_ns/1e6/operations:0;
+      result["rejected_admissions"]=admission_failures;
+      result["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();
+      result["end_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count()+elapsed;
+      std::cout<<result.dump()<<std::endl;++group;
+    }
+    return 0;
+  }catch(const std::exception& e){std::cerr<<"FAIL capacity probe: "<<e.what()<<'\n';return 1;}
+}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "eps/types.hpp"
 #include "store/shard_store.hpp"
 
@@ -13,7 +15,8 @@ struct PreparedFeature {
 };
 
 void ValidateFeature(const FeatureInput& feature, const ShardStore& store);
-PreparedFeature PrepareFeature(FeatureInput feature, ShardStore& store);
+PreparedFeature PrepareFeature(FeatureInput feature, ShardStore& store,
+    const std::function<bool(RowKey)>& cpu_owned = {});
 // Returned vectors are unique per key across all features of one Push.
 std::unordered_map<TableId, RowGradients> ReduceGradients(
     const std::vector<PreparedFeature>& features,

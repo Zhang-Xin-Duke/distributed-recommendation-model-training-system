@@ -22,7 +22,8 @@ void ValidateFeature(const FeatureInput& f, const ShardStore& store) {
     Require(key % store.shard_count() == store.shard(), "key routed to wrong shard");
 }
 
-PreparedFeature PrepareFeature(FeatureInput f, ShardStore& store) {
+PreparedFeature PrepareFeature(FeatureInput f, ShardStore& store,
+    const std::function<bool(RowKey)>& cpu_owned) {
   PreparedFeature out;
   out.input = std::move(f);
   std::unordered_map<Key, std::size_t> unique;
@@ -40,6 +41,7 @@ PreparedFeature PrepareFeature(FeatureInput f, ShardStore& store) {
   out.contribution = {out.input.feature, {rows, dim}, std::vector<float>(rows * dim, 0)};
   for (std::size_t b = 0; b < out.input.valid_lengths.size(); ++b) {
     for (auto i = out.input.offsets[b]; i < out.input.offsets[b + 1]; ++i) {
+      if(cpu_owned && !cpu_owned({out.input.table,out.input.keys[i]}))continue;
       const auto row = t.At(out.unique_slots[out.occurrence_to_unique[i]]);
       auto dest = out.contribution.values.data() +
           (out.input.pooling == Pooling::sequence ? i : b) * dim;

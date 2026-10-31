@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -30,6 +31,9 @@ class DistributedClient {
   Result<DistributedBatch> Lookup(LookupRequest request);
   Result<Ack> Push(const DistributedBatch& batch, std::vector<TensorBlock> gradients);
   Result<Ack> Release(const DistributedBatch& batch);
+  using CacheResolver=std::function<Result<std::vector<TensorBlock>>(
+      std::vector<AgentWork>,std::vector<FeatureInput>)>;
+  void SetCacheResolver(CacheResolver resolver);
  private:
   std::vector<std::shared_ptr<ParameterService>> shards_;
   std::unordered_map<TableId, TableDefinition> tables_;
@@ -37,5 +41,6 @@ class DistributedClient {
   // asynchronous across shards; this lock protects its metadata and failure state.
   std::mutex mutex_;
   bool failed_ = false;
+  CacheResolver resolver_;
 };
 }  // namespace eps

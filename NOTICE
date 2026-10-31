@@ -1,7 +1,7 @@
 Distributed Parameter Server
 Required Notice: Copyright 2026 Xin Zhang
 
-Original project documents and interface contracts are provided under the
+Original project source code, documents and interface contracts are provided under the
 PolyForm Noncommercial License 1.0.0 in LICENSE.
 
 The design draws on research into an existing training framework and the public

@@ -5,60 +5,44 @@
 #include <brpc/closure_guard.h>
 #include <brpc/controller.h>
 #include <bthread/bthread.h>
-#include "transport/codec.hpp"
+#include "transport/rpc_dispatch.hpp"
 
 namespace eps::transport {
-namespace {
-template <typename T, typename Rsp>
-struct Pending {
-  std::future<Result<T>> future;
-  brpc::Controller* controller;
-  Rsp* response;
-  google::protobuf::Closure* done;
-  std::function<void(T,const Rsp*,Rsp*,butil::IOBuf&)> encode;
-  static void* Run(void* pointer) {
-    std::unique_ptr<Pending> p(static_cast<Pending*>(pointer));
-    brpc::ClosureGuard done(p->done);
-    try {
-      // std::future's blocking wait would pin a native BRPC worker. Yield this
-      // lightweight bthread while the bounded shard sequencer does the work.
-      while(p->future.wait_for(std::chrono::seconds(0))!=std::future_status::ready)
-        bthread_usleep(100);
-      auto result=p->future.get();
-      if(auto error=std::get_if<Error>(&result)) SetError(p->response->mutable_status(),*error);
-      else p->encode(std::get<T>(std::move(result)),p->response,p->response,
-                     p->controller->response_attachment());
-    } catch(const detail::Failure& e) { SetError(p->response->mutable_status(),e.error()); }
-      catch(const std::exception& e) { SetError(p->response->mutable_status(),{Error::Code::run_failed,e.what()}); }
-    return nullptr;
-  }
-};
-
-template <typename T,typename Req,typename Rsp,typename Start,typename EncodeFn>
-void Dispatch(google::protobuf::RpcController* raw,const Req* request,Rsp* response,
-              google::protobuf::Closure* done,Start start,EncodeFn encode) {
-  brpc::ClosureGuard guard(done);
-  auto* controller=static_cast<brpc::Controller*>(raw);
-  try {
-    detail::Require(controller->request_attachment().size()<=kMaxAttachment &&
-                    request->ByteSizeLong() <= (1ULL<<20),"RPC payload exceeds limit");
-    auto p=std::make_unique<Pending<T,Rsp>>();
-    p->future=start(controller->request_attachment());
-    p->controller=controller;p->response=response;p->done=done;
-    p->encode=[encode](T result,const Rsp*,Rsp* out,butil::IOBuf& a) {encode(std::move(result),out,a);};
-    bthread_t id;
-    detail::Require(bthread_start_background(&id,nullptr,&Pending<T,Rsp>::Run,p.get())==0,
-                    "cannot schedule RPC completion",Error::Code::unavailable);
-    guard.release();p.release();
-  } catch(const detail::Failure& e) {SetError(response->mutable_status(),e.error());}
-    catch(const std::exception& e) {SetError(response->mutable_status(),{Error::Code::run_failed,e.what()});}
+void BrpcServer::Stats(google::protobuf::RpcController* c,const wire::StatsRequest* q,
+                       wire::StatsReply* r,google::protobuf::Closure* done){
+  Dispatch<RuntimeStats>(c,q,r,done,[&](const auto&){return service_.Stats();},
+    [](const RuntimeStats& s,auto* out,auto&){
+#define EPS_STAT(name) out->set_##name(s.name);
+      EPS_STAT(lookups) EPS_STAT(updates) EPS_STAT(duplicate_requests) EPS_STAT(rows)
+      EPS_STAT(state_bytes) EPS_STAT(live_tickets) EPS_STAT(ticket_payload_bytes)
+      EPS_STAT(queued_payload_bytes) EPS_STAT(cached_rows) EPS_STAT(migration_bytes)
+      EPS_STAT(executed_operations) EPS_STAT(queue_wait_nanoseconds) EPS_STAT(executor_busy_nanoseconds)
+      EPS_STAT(rejected_operations) EPS_STAT(peak_queued_operations)
+#undef EPS_STAT
+    });
 }
-auto AckEncode=[](Ack,wire::Ack*,butil::IOBuf&) {};
-}
+using namespace eps::transport;
 
 void BrpcServer::CreateTable(google::protobuf::RpcController* c,const wire::CreateTableRequest* q,
                            wire::Ack* r,google::protobuf::Closure* done) {
   Dispatch<Ack>(c,q,r,done,[&](const auto&) {return service_.CreateTable(Decode(q->table()));},AckEncode);
+}
+void BrpcServer::Locations(google::protobuf::RpcController* c,const wire::RowsRequest* q,
+                          wire::LocationsReply* r,google::protobuf::Closure* done){
+  Dispatch<std::vector<LocatedRow>>(c,q,r,done,[&](const auto&){
+    std::vector<RowKey> rows;for(const auto& row:q->rows())rows.push_back({row.table_id(),row.key()});
+    return service_.Locations(std::move(rows));
+  },[](auto rows,auto* out,auto&){for(const auto& row:rows)Encode(row,out->add_rows());});
+}
+void BrpcServer::MoveRows(google::protobuf::RpcController* c,const wire::MoveRequest* q,
+                         wire::LocationsReply* r,google::protobuf::Closure* done){
+  Dispatch<std::vector<LocatedRow>>(c,q,r,done,[&](const auto&){
+    detail::Require(q->destination()==wire::CPU || q->destination()==wire::GPU,"invalid move destination");
+    MoveRowsRequest request{q->run(),{},q->agent_id(),static_cast<Placement>(q->destination()-1),
+      {q->network_bytes(),q->staging_bytes(),q->max_inflight_batches(),q->reserve_slots()}};
+    for(const auto& row:q->rows())request.rows.push_back({row.table_id(),row.key()});
+    return service_.MoveRows(std::move(request));
+  },[](auto rows,auto* out,auto&){for(const auto& row:rows)Encode(row,out->add_rows());});
 }
 void BrpcServer::Lookup(google::protobuf::RpcController* c,const wire::LookupRequest* q,
                       wire::LookupReply* r,google::protobuf::Closure* done) {
@@ -70,7 +54,7 @@ void BrpcServer::Lookup(google::protobuf::RpcController* c,const wire::LookupReq
   },[](LookupReply result,auto* out,auto& a) {
     out->set_ticket(result.ticket);
     for(const auto& f:result.cpu_contributions)Encode(f,out->add_cpu_contributions(),a);
-    detail::Require(result.agent_work.empty(),"GPU response encoding is not enabled");
+    for(const auto& work:result.agent_work)Encode(work,out->add_agent_work(),a);
   });
 }
 void BrpcServer::Push(google::protobuf::RpcController* c,const wire::PushRequest* q,

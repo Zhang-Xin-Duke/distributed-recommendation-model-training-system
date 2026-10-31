@@ -71,13 +71,23 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
     }
     std::vector<std::future<Result<LookupReply>>> futures;futures.reserve(shards_.size());
     sent=true;
-    for(std::size_t i=0;i<shards_.size();++i)futures.push_back(shards_[i]->Lookup(std::move(requests[i])));
+    for(std::size_t i=0;i<shards_.size();++i)futures.push_back(shards_[i]->Lookup(requests[i]));
     std::optional<Error> failure;
     for(std::size_t shard=0;shard<shards_.size();++shard) {
       auto result=futures[shard].get();
       if(auto error=std::get_if<Error>(&result)){failure=*error;continue;}
       auto reply=std::get<LookupReply>(std::move(result));out.shards_[shard].ticket=reply.ticket;
-      detail::Require(reply.agent_work.empty(),"GPU work requires the GPU adapter");
+      if(!reply.agent_work.empty()){
+        detail::Require(bool(resolver_),"cached rows require a cache resolver");
+        auto parts=Take(resolver_(std::move(reply.agent_work),requests[shard].features));
+        for(const auto& part:parts){
+          auto it=std::find_if(reply.cpu_contributions.begin(),reply.cpu_contributions.end(),
+            [&](const auto& f){return f.feature==part.feature;});
+          detail::Require(it!=reply.cpu_contributions.end() && it->shape==part.shape &&
+            it->values.size()==part.values.size(),"cached contribution layout mismatch");
+          for(std::size_t i=0;i<part.values.size();++i)it->values[i]+=part.values[i];
+        }
+      }
       detail::Require(reply.cpu_contributions.size()==request.features.size(),"server feature count mismatch");
       for(std::size_t fi=0;fi<request.features.size();++fi) {
         const auto& f=request.features[fi];const auto dim=tables_.at(f.table).dimension;
@@ -157,5 +167,8 @@ Result<Ack> DistributedClient::Release(const DistributedBatch& batch) {
     for(auto& f:futures)Take(f);
     return Ack{};
   }catch(const detail::Failure& e){failed_=true;return e.error();}
+}
+void DistributedClient::SetCacheResolver(CacheResolver resolver){
+  std::lock_guard lock(mutex_);resolver_=std::move(resolver);
 }
 }  // namespace eps

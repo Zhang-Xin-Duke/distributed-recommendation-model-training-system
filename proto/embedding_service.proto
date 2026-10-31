@@ -188,6 +188,7 @@ message SnapshotReply {
 }
 
 service EmbeddingService {
+  rpc Stats(StatsRequest) returns (StatsReply);
   rpc CreateTable(CreateTableRequest) returns (Ack);
   rpc Lookup(LookupRequest) returns (LookupReply);
   rpc Push(PushRequest) returns (Ack);
@@ -195,4 +196,67 @@ service EmbeddingService {
   rpc ReadState(ReadStateRequest) returns (ReadStateReply);
   rpc CompleteMigration(MigrationCompletion) returns (Ack);
   rpc DrainAndFlush(DrainRequest) returns (SnapshotReply);
+  rpc Locations(RowsRequest) returns (LocationsReply);
+  rpc MoveRows(MoveRequest) returns (LocationsReply);
+}
+
+message StatsRequest {}
+message StatsReply {
+  Status status = 1;
+  uint64 lookups = 2; uint64 updates = 3; uint64 duplicate_requests = 4;
+  uint64 rows = 5; uint64 state_bytes = 6; uint64 live_tickets = 7;
+  uint64 ticket_payload_bytes = 8; uint64 queued_payload_bytes = 9;
+  uint64 cached_rows = 10; uint64 migration_bytes = 11;
+  uint64 executed_operations = 12; uint64 queue_wait_nanoseconds = 13;
+  uint64 executor_busy_nanoseconds = 14; uint64 rejected_operations = 15;
+  uint64 peak_queued_operations = 16;
+}
+
+message RowKey { uint32 table_id = 1; uint64 key = 2; }
+message RowsRequest { repeated RowKey rows = 1; }
+message LocationsReply { Status status = 1; repeated LocatedRow rows = 2; }
+message MoveRequest {
+  string run = 1;
+  repeated RowKey rows = 2;
+  uint32 agent_id = 3;
+  Placement destination = 4;
+  uint64 network_bytes = 5;
+  uint64 staging_bytes = 6;
+  uint32 max_inflight_batches = 7;
+  uint64 reserve_slots = 8;
+}
+
+message AgentIdentity { string run = 1; uint32 home_shard = 2; uint64 sequence = 3; }
+message AgentDefineRequest { AgentIdentity identity = 1; TableDefinition table = 2; }
+message AgentCapacityRequest { string run = 1; uint32 table_id = 2; }
+message AgentCapacityReply { Status status = 1; uint64 free_slots = 2; }
+message MigrationPlan {
+  string id = 1; uint32 agent_id = 2; repeated LocatedRow rows = 3;
+  Placement destination = 4; uint64 estimated_bytes = 5;
+}
+message AgentLoadRequest {
+  AgentIdentity identity = 1; MigrationPlan plan = 2; repeated RowState states = 3;
+}
+message AgentGatherRequest {
+  string run = 1; repeated AgentWork work = 2; repeated FeatureInput layouts = 3;
+}
+message AgentGatherReply { Status status = 1; repeated TensorBlock contributions = 2; }
+message UpdateContext {
+  RequestIdentity original_request = 1; uint32 home_shard = 2; uint32 table_id = 3;
+  uint64 optimizer_sequence = 4; float learning_rate = 5;
+  float beta1_power = 6; float beta2_power = 7;
+}
+message AgentApplyRequest {
+  AgentIdentity identity = 1; UpdateContext context = 2;
+  repeated RowKey rows = 3; PayloadSlice gradients = 4;
+}
+message AgentPlanRequest { AgentIdentity identity = 1; MigrationPlan plan = 2; }
+service CacheAgentService {
+  rpc Define(AgentDefineRequest) returns (Ack);
+  rpc FreeSlots(AgentCapacityRequest) returns (AgentCapacityReply);
+  rpc Load(AgentLoadRequest) returns (LocationsReply);
+  rpc Gather(AgentGatherRequest) returns (AgentGatherReply);
+  rpc Apply(AgentApplyRequest) returns (Ack);
+  rpc ReadBack(AgentPlanRequest) returns (ReadStateReply);
+  rpc CommitEviction(AgentPlanRequest) returns (Ack);
 }

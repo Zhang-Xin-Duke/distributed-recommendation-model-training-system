@@ -4,8 +4,8 @@
 
 Training workers pull the parameters needed for a batch and push gradients back
 for updates. Distributed Parameter Server partitions those parameters across
-server shards and manages batched access and optimizer state. The cache design
-extends this path with CPU/GPU placement.
+server shards and manages batched access and optimizer state. GPU workers cache
+complete parameter rows and execute resident pooling and sparse updates.
 
 The first implementation targets sparse access to embedding tables: each batch
 touches only a small fraction of a large table. This pattern appears in
@@ -14,14 +14,23 @@ models.
 
 The first integration retains **Entropy's training framework**: dataset readers,
 model graphs, GPU forward/backward, dense gradient synchronization and training
-orchestration continue to run there. The planned adapter connects its embedding
-operations to this service.
+orchestration continue to run there. A Pull/Push/Join adapter connects embedding
+operations to the service; its portable TensorFlow bridge uses stateful host
+callbacks and an isolated native RPC client.
 
-**Implemented:** independently running CPU shards, a BRPC client/server,
-cross-shard batching, sparse LazyAdam updates, bounded request/ticket payloads,
-and durable snapshots with exact optimizer restore. Cost-based routing and
-migration policies are available as a separately checked library. GPU execution
-and Entropy graph integration are the next milestones.
+**Implemented:** independent BRPC parameter shards, cross-shard batching,
+sparse LazyAdam, CUDA-resident weights and optimizer states, CPU/GPU migration,
+generation fencing, bounded lookup tickets, and durable snapshots with optimizer
+restore. CPU pooling and unique-vector transfer are executable access paths;
+a pluggable cost planner selects between them. A TensorFlow graph check exercises
+Pull → dense model/loss → sparse Push → Join against external server processes.
+
+**GPU validation:** real L40 checks cover mixed CPU/GPU updates, migration and
+restart. A checked-read stress run used 1,048,576 rows of dimension 128 and
+8,388,608 ID occurrences across 16 callers, with zero maximum absolute error
+against its CPU reference and no additional backend output allocations during
+reads. This measures parameter-access correctness under load, rather than model
+training speedup. See the [validation record](docs/VALIDATION.md).
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
 [Implementation progress](docs/plans/2026-10-31-implementation.md)
@@ -103,22 +112,28 @@ src/update/        Sparse LazyAdam validation and updates
 src/server/        Bounded shard executor and standalone server
 src/transport/     BRPC services, client and attachment codec
 src/client/        Cross-shard routing, pooling and sequence reconstruction
-src/cache/         Cost model and bounded migration proposals
+src/cache/         Agent control, host reference backend and cost planner
+src/cuda/          Resident pooling, sparse Adam and batched state transfers
+adapters/entropy/  C++ Pull/Push/Join adapter and portable TensorFlow bridge
 proto/            Service protocol
 configs/          Example service/integration configuration
-tests/            Core, policy and real-process RPC correctness checks
+tests/            Core, CUDA, TensorFlow, recovery and capacity probes
+scripts/          GPU build and process/fleet capacity sweeps
 docs/             Architecture, rationale and delivery plan
 references/       Local reference collection guide
 ```
 
 The implementation is designed around **C++20**, **BRPC/Protobuf** and contiguous
-parameter-state storage. The Entropy adapter targets **TensorFlow custom operations** and the existing
-CPU/GPU communication path; its GPU cache agent executes the CUDA-facing work in
-the training process. A future client can use the same table/key/gradient contract
-without depending on video-specific features.
+parameter-state storage. The C++ agent can run inside a compatible training worker
+or as a standalone process. The supplied portable TensorFlow bridge isolates
+BRPC's binary dependencies in a local client process; feature tensors cross a
+host-memory boundary. The C++ CUDA API also returns owning device tensors for
+native callers. Clients use the same table/key/gradient contract across tasks.
 
-The CPU runtime and BRPC transport are executable. The GPU-agent contract and
-target integration remain documented alongside the implementation sequence.
+The [adapter guide](adapters/entropy/README.md) describes integration and gradient
+conventions. The [implementation plan](docs/plans/2026-10-31-implementation.md)
+tracks automatic admission, asynchronous preparation and integrated workload
+evaluation.
 
 ## References
 

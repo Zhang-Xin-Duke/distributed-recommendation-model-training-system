@@ -1,27 +1,25 @@
 #pragma once
 
-#include <future>
-#include <vector>
-
-#include "eps/types.hpp"
+#include "eps/cache_backend.hpp"
 
 namespace eps {
 
-// Runs inside the existing GPU worker; device allocations and streams stay there.
-class GpuCacheAgent {
- public:
-  virtual ~GpuCacheAgent() = default;
+struct DeviceTensor {
+  virtual ~DeviceTensor()=default;
+  virtual void* data() const=0;
+  virtual std::uint64_t elements() const=0;
+  virtual int device() const=0;
+  virtual void WaitOnStream(void* cuda_stream) const=0;
+  virtual std::vector<float> CopyToHost() const=0;
+};
 
-  virtual std::future<Result<Ack>> Load(
-      MigrationPlan plan, std::vector<RowState> state) = 0;
-  virtual std::future<Result<std::vector<DeviceTensorBlock>>> Gather(
-      std::string ticket, std::vector<AgentWork> work,
+// Native model code consumes device results directly; the control interface
+// is also available over BRPC through CacheBackend.
+class GpuCacheAgent : public CacheBackend {
+ public:
+  virtual std::future<Result<std::vector<DeviceTensorBlock>>> GatherDevice(
+      std::vector<AgentWork> work,
       std::vector<FeatureInput> layouts) = 0;
-  virtual std::future<Result<Ack>> Apply(
-      std::string ticket, UpdateContext context, DeviceRowGradients gradients) = 0;
-  // Returns current weights + optimizer state after referenced GPU work finishes.
-  virtual std::future<Result<std::vector<RowState>>> WriteBack(
-      MigrationPlan plan) = 0;
 };
 
 }  // namespace eps

@@ -134,6 +134,17 @@ void ShardStore::Import(const RowState& row) {
   *target.updates = row.row_updates;
 }
 
+void ShardStore::Overwrite(const RowState& row) {
+  auto& t=Table(row.row.table);const auto dim=t.definition.dimension;
+  Require(t.index.contains(row.row.key) && row.weights.size()==dim &&
+    row.first_moment.size()==dim && row.second_moment.size()==dim,"invalid returned row state");
+  auto target=t.At(t.index.at(row.row.key));
+  std::copy(row.weights.begin(),row.weights.end(),target.weights);
+  std::copy(row.first_moment.begin(),row.first_moment.end(),target.first);
+  std::copy(row.second_moment.begin(),row.second_moment.end(),target.second);
+  *target.updates=row.row_updates;
+}
+
 std::uint64_t ShardStore::rows() const {
   std::uint64_t n = 0;
   for (const auto& [id, t] : tables_) n += t.keys.size();

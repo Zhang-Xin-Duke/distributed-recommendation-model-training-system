@@ -41,6 +41,7 @@ class ShardStore {
   std::size_t Ensure(TableId table, Key key);
   RowState Read(TableId table, Key key) const;
   void Import(const RowState& row);
+  void Overwrite(const RowState& row);
   std::uint64_t bytes() const { return allocated_bytes_; }
   std::uint64_t rows() const;
   bool empty() const { return tables_.empty(); }

@@ -187,6 +187,20 @@ struct MigrationCompletion {
   bool completed;
 };
 
+struct MoveRowsRequest {
+  std::string run;
+  std::vector<RowKey> rows;
+  AgentId agent;
+  Placement destination;
+  MigrationBudget budget;
+};
+
+struct AgentCommand {
+  std::string run;
+  ShardId shard;
+  std::uint64_t sequence;
+};
+
 struct SnapshotMetadata {
   std::string snapshot_id;
   ShardId shard;

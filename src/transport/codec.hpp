@@ -113,6 +113,42 @@ inline RowState Decode(const wire::RowState& x, const butil::IOBuf& attachment) 
   return {{x.row().table_id(),x.row().key()},Unpack<float>(x.weights(),attachment),
     Unpack<float>(x.first_moment(),attachment),Unpack<float>(x.second_moment(),attachment),x.row_updates()};
 }
+inline void Encode(const AgentWork& x,wire::AgentWork* y,butil::IOBuf& a){
+  y->set_feature_id(x.feature);y->set_agent_id(x.agent);
+  y->set_route(static_cast<wire::AgentWork_Route>(static_cast<int>(x.route)+1));
+  for(const auto& row:x.rows)Encode(row,y->add_rows());
+  Pack(x.occurrence_to_unique,y->mutable_occurrence_to_unique(),a);
+  Pack(x.transferred_weights,y->mutable_transferred_weights(),a);
+}
+inline AgentWork Decode(const wire::AgentWork& x,const butil::IOBuf& a){
+  detail::Require(x.route()>=wire::AgentWork::CPU_POOL && x.route()<=wire::AgentWork::RESIDENT_GPU,"invalid agent route");
+  AgentWork out{x.feature_id(),static_cast<AccessRoute>(x.route()-1),x.agent_id(),{},
+    Unpack<std::uint64_t>(x.occurrence_to_unique(),a),Unpack<float>(x.transferred_weights(),a)};
+  for(const auto& row:x.rows())out.rows.push_back(Decode(row));return out;
+}
+inline void Encode(const AgentCommand& x,wire::AgentIdentity* y){
+  y->set_run(x.run);y->set_home_shard(x.shard);y->set_sequence(x.sequence);
+}
+inline AgentCommand Decode(const wire::AgentIdentity& x){return {x.run(),x.home_shard(),x.sequence()};}
+inline void Encode(const MigrationPlan& x,wire::MigrationPlan* y){
+  y->set_id(x.id);y->set_agent_id(x.agent);y->set_estimated_bytes(x.estimated_bytes);
+  y->set_destination(static_cast<wire::Placement>(static_cast<int>(x.destination)+1));
+  for(const auto& row:x.rows)Encode(row,y->add_rows());
+}
+inline MigrationPlan Decode(const wire::MigrationPlan& x){
+  detail::Require(x.destination()>=wire::CPU && x.destination()<=wire::DRAINING,"invalid migration placement");
+  MigrationPlan out{x.id(),x.agent_id(),{},static_cast<Placement>(x.destination()-1),x.estimated_bytes()};
+  for(const auto& row:x.rows())out.rows.push_back(Decode(row));return out;
+}
+inline void Encode(const UpdateContext& x,wire::UpdateContext* y){
+  Encode(x.original_request,y->mutable_original_request());y->set_home_shard(x.shard);
+  y->set_table_id(x.table);y->set_optimizer_sequence(x.optimizer_sequence);
+  y->set_learning_rate(x.learning_rate);y->set_beta1_power(x.beta1_power);y->set_beta2_power(x.beta2_power);
+}
+inline UpdateContext Decode(const wire::UpdateContext& x){
+  return {Decode(x.original_request()),x.home_shard(),x.table_id(),x.optimizer_sequence(),
+    x.learning_rate(),x.beta1_power(),x.beta2_power()};
+}
 inline void SetError(wire::Status* status, const Error& e) {
   status->set_code(static_cast<wire::Status_Code>(static_cast<int>(e.code)+1));
   status->set_message(e.message);
