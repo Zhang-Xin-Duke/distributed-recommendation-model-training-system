@@ -35,6 +35,7 @@ struct RequestId {
   std::uint32_t learner;
   std::uint64_t sequence;
   Phase phase;
+  bool operator==(const RequestId&) const = default;
 };
 
 struct RowKey {
@@ -51,6 +52,7 @@ struct OptimizerConfig {
   float epsilon;
   float initial_beta1_power;
   float initial_beta2_power;
+  bool operator==(const OptimizerConfig&) const = default;
 };
 
 struct TableDefinition {
@@ -62,6 +64,7 @@ struct TableDefinition {
   float initialization_min;
   float initialization_max;
   std::uint64_t initialization_seed;
+  bool operator==(const TableDefinition&) const = default;
 };
 
 struct FeatureInput {

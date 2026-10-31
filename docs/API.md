@@ -53,10 +53,17 @@ and GPU portions the same optimizer counter and hyperparameters.
 The request identity is `(run, learner, sequence, phase)`. A retry retains that
 identity. Accepted updates are acknowledged without adding a duplicate gradient
 contribution. A duplicate of an in-flight request joins its completion; an ack
-means the update completed. Per-learner, per-phase retired watermarks advance only
-over contiguous completed sequences, retaining gaps for out-of-order completion.
+means the update completed. A per-learner retired watermark advances only over
+contiguous completed lookup lifecycles, retaining gaps for out-of-order completion.
+Push and read-only Release close the same lifecycle sequence, so alternating
+training and evaluation does not leave holes in independent phase streams.
 Retired identities are rejected without executing them again. This covers a live
 run; owner failure follows the framework restart boundary.
+
+The CPU runtime implements this lifecycle. `DistributedClient` fans out to all
+configured shards and combines their CPU contributions. If a distributed operation
+fails after dispatch, that client run is stopped: cross-shard updates are not a
+transaction. Restart uses the framework checkpoint boundary and a new run ID.
 
 The initial optimizer profile uses FP32 sparse LazyAdam with independent w/m/v
 arrays. Its formulas, epsilon placement, beta powers, initialization and update
@@ -94,3 +101,13 @@ resident features and gradients can stay in the existing GPU execution context.
 The public contract refers to tables, keys, vectors, feature layouts and gradients.
 It does not encode user/video naming, application-specific model layers, or a
 particular dataset. Another framework can supply a client adapter to this API.
+
+## Saving in the current runtime
+
+`DrainAndFlush` closes lookup admission first. Outstanding tickets must complete
+or be explicitly released; the controller retries drain after reaching that
+boundary. Snapshots are immutable shard files published after flush/fsync, with
+weights, moments, row counters, table definitions and optimizer globals.
+`CpuParameterService::Resume` reopens a local service after coordinated saving.
+The standalone server restores with `--restore FILE --run NEW_RUN`; remote resume
+control and the Entropy save hook remain integration work.

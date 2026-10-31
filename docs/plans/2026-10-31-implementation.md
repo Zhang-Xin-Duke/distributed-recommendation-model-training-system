@@ -11,8 +11,18 @@ the existing graph; an agent in each existing GPU worker executes device work.
 **Tech stack:** C++20, BRPC/Protobuf, TensorFlow custom-operation adapter and CUDA
 in the GPU agent. Initial row layout is FP32 weights and unshared LazyAdam moments.
 
-The current delivery is design and interface code. Runtime implementation and all
-validation below are future phases; no tests or benchmarks are run in this stage.
+Implementation started on 2026-10-31. CPU correctness checks and real-process RPC
+checks are authorized; GPU rental is deferred until the GPU path is ready to run.
+
+| Phase | Current evidence |
+|---|---|
+| 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
+| 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
+| 3. Entropy integration | Pending |
+| 4. GPU cache agent | Pending |
+| 5. Independent policies | Cost model, hysteresis, reuse scoring and migration proposal budgets implemented and checked; execution integration pending |
+
+See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
 ## 1. Build a standalone CPU parameter service
 
@@ -105,7 +115,7 @@ placement does not alter which IDs train or the number of optimizer updates.
 **Exit condition:** each policy can be enabled independently against the same
 CPU-only, static and frequency/window baselines.
 
-## Later validation, after the user resumes testing
+## Validation coverage to complete
 
 | Question | Proposed evidence |
 |---|---|

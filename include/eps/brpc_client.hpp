@@ -1,0 +1,23 @@
+#pragma once
+
+#include <memory>
+#include <string>
+#include "eps/parameter_service.hpp"
+
+namespace eps {
+class BrpcParameterService final : public ParameterService {
+ public:
+  explicit BrpcParameterService(std::string endpoint, int timeout_ms = 5000);
+  ~BrpcParameterService() override;
+  std::future<Result<Ack>> CreateTable(TableDefinition) override;
+  std::future<Result<LookupReply>> Lookup(LookupRequest) override;
+  std::future<Result<Ack>> Push(PushRequest) override;
+  std::future<Result<Ack>> Release(ReleaseRequest) override;
+  std::future<Result<std::vector<RowState>>> ReadState(std::vector<LocatedRow>) override;
+  std::future<Result<Ack>> CompleteMigration(MigrationCompletion) override;
+  std::future<Result<SnapshotMetadata>> DrainAndFlush(std::string) override;
+ private:
+  struct Impl;
+  std::shared_ptr<Impl> impl_;
+};
+}  // namespace eps

@@ -4,7 +4,8 @@
 
 Training workers pull the parameters needed for a batch and push gradients back
 for updates. Distributed Parameter Server partitions those parameters across
-server shards and manages batched access, optimizer state and CPU/GPU placement.
+server shards and manages batched access and optimizer state. The cache design
+extends this path with CPU/GPU placement.
 
 The first implementation targets sparse access to embedding tables: each batch
 touches only a small fraction of a large table. This pattern appears in
@@ -13,11 +14,36 @@ models.
 
 The first integration retains **Entropy's training framework**: dataset readers,
 model graphs, GPU forward/backward, dense gradient synchronization and training
-orchestration continue to run there. A thin adapter connects its embedding
+orchestration continue to run there. The planned adapter connects its embedding
 operations to this service.
 
-**Project stage:** service architecture and interface contracts. The implementation
-sequence is documented in the [plan](docs/plans/2026-10-31-implementation.md).
+**Implemented:** independently running CPU shards, a BRPC client/server,
+cross-shard batching, sparse LazyAdam updates, bounded request/ticket payloads,
+and durable snapshots with exact optimizer restore. Cost-based routing and
+migration policies are available as a separately checked library. GPU execution
+and Entropy graph integration are the next milestones.
+
+[Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
+[Implementation progress](docs/plans/2026-10-31-implementation.md)
+
+```mermaid
+sequenceDiagram
+    participant W as Training worker / client
+    participant A as Parameter shard 0
+    participant B as Parameter shard 1
+    W->>A: Batched IDs owned by shard 0
+    W->>B: Batched IDs owned by shard 1
+    A-->>W: Partial features + ticket
+    B-->>W: Partial features + ticket
+    Note over W: Combine sums / normalize means / restore sequence order
+    Note over W: Model forward and backward
+    W->>A: Gradients + original ticket
+    W->>B: Gradients + original ticket
+    A-->>W: Update completed
+    B-->>W: Update completed
+```
+
+## Target integration
 
 ```mermaid
 flowchart LR
@@ -71,8 +97,16 @@ explains the decision model and expected workload benefits.
 
 ```text
 include/eps/       C++20 service and cache-agent contracts
+src/store/         Chunked row storage and durable binary snapshots
+src/access/        Deduplicated lookup and feature-gradient reduction
+src/update/        Sparse LazyAdam validation and updates
+src/server/        Bounded shard executor and standalone server
+src/transport/     BRPC services, client and attachment codec
+src/client/        Cross-shard routing, pooling and sequence reconstruction
+src/cache/         Cost model and bounded migration proposals
 proto/            Service protocol
 configs/          Example service/integration configuration
+tests/            Core, policy and real-process RPC correctness checks
 docs/             Architecture, rationale and delivery plan
 references/       Local reference collection guide
 ```
@@ -83,9 +117,8 @@ CPU/GPU communication path; its GPU cache agent executes the CUDA-facing work in
 the training process. A future client can use the same table/key/gradient contract
 without depending on video-specific features.
 
-The tracked code currently defines the service, planner and GPU-agent interfaces,
-an original Protobuf schema, and example configurations. Runtime modules follow
-the implementation plan. The CMake target exposes the interface headers only.
+The CPU runtime and BRPC transport are executable. The GPU-agent contract and
+target integration remain documented alongside the implementation sequence.
 
 ## References
 

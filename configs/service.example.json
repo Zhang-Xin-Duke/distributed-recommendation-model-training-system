@@ -18,7 +18,7 @@
     },
     "initialization": {"min": -0.01, "max": 0.01, "seed": 1}
   }],
-  "access": {"policy": "cost_based", "switch_margin": 0.15},
+  "access": {"policy": "cpu_only", "switch_margin": 0.15},
   "cache": {
     "enabled": false,
     "admission": "reuse_cost",
@@ -31,6 +31,8 @@
     "max_request_bytes": 16777216,
     "max_live_tickets": 1024,
     "cpu_state_bytes": 1073741824,
+    "ticket_payload_bytes": 67108864,
+    "queue_payload_bytes": 67108864,
     "statistics_bytes": 16777216
   },
   "snapshot_directory": "./snapshots"

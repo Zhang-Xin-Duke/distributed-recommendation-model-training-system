@@ -1,14 +1,17 @@
 Distributed Parameter Server
-Stage: architecture and original interface contracts
+Stage: CPU service and RPC implementation; GPU/framework integration in progress
 Date: 2026-10-31
 
-Delivered locally:
-- Training-framework-preserving service architecture, lifecycle and API.
-- Acceleration rationale, application scope, architecture decisions and delivery plan.
-- C++20 service/planner/GPU-agent contracts, original protocol and example configs.
-- Local upstream source snapshot and indexed Full Mirror reference collection.
+Implemented:
+- Chunked sharded parameter state and deterministic initialization.
+- Deduplicated sum/mean/sequence lookup and original-request gradient reduction.
+- Sparse LazyAdam, bounded lifecycle retry history and explicit release/drain.
+- Checksummed, durable snapshots and optimizer-exact restore.
+- BRPC server/client, typed attachment codec and cross-shard client reconstruction.
+- Standalone cost/hysteresis/admission/migration-budget policy implementation.
 
-Next implementation milestone: separately running CPU parameter service with
-batched lookup, original sparse update semantics and drain/save lifecycle.
-No server implementation or performance results are claimed at this stage.
-Builds, tests, training and benchmarks are deferred at the user's request.
+Validation: native core/policy/two-process RPC checks and core ASan/UBSan checks.
+See docs/VALIDATION.md. No GPU or performance result has been measured.
+
+Remaining: Entropy graph adapter, CUDA cache execution, row migration coordinator,
+policy integration, GPU correctness, stress and end-to-end performance evaluation.

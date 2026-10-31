@@ -52,4 +52,4 @@ GPU cache agent 留在原 GPU Worker 内，用已有 TensorFlow 变量和 CUDA �
 C++20 服务核心，BRPC/Protobuf 通信，连续参数存储；Entropy 适配器连接现有 TensorFlow custom op 和 GPU 通道。
 先实现可独立运行的 CPU 参数服务，再接入现有 GPU cache agent，最后加入访问与迁移策略。
 
-当前仓库交付架构、接口和实施计划，暂不运行测试。原始代码与 Full Mirror 文档保留在本地 `references/private/`。
+CPU 参数服务、BRPC 通信、跨分片客户端、保存恢复和成本策略库已实现，并通过本地正确性检查。两个真实服务器进程的保存与重启也已验证。接下来接入 Entropy 图和 GPU cache agent；GPU 路径与性能结果尚未验证。原始代码与 Full Mirror 文档保留在本地 `references/private/`。
