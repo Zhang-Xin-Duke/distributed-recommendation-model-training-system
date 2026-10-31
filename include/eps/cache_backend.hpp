@@ -20,6 +20,9 @@ class CacheBackend {
       std::vector<AgentWork> work, std::vector<FeatureInput> layouts) = 0;
   virtual std::future<Result<Ack>> ApplyHost(
       UpdateContext context, RowGradients gradients) = 0;
+  // The default reference implementation expands on the host. CUDA overrides
+  // this operation to reduce the references directly into device gradients.
+  virtual std::future<Result<Ack>> ApplyCompact(UpdateContext,CompactGradients);
   // Readback retains the rows. Slot reclamation is a separate acknowledged step.
   virtual std::future<Result<std::vector<RowState>>> ReadBack(MigrationPlan plan) = 0;
   virtual std::future<Result<Ack>> CommitEviction(MigrationPlan plan) = 0;

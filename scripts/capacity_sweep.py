@@ -57,7 +57,8 @@ def run_topology(args, count, root):
             config = output / f"ps-{shard}.json"
             config.write_text(json.dumps(dict(schema_version=1, run_id=run, listen="127.0.0.1:0",
                 partition=dict(shard_id=shard, shard_count=args.ps_shards, epoch=1), tables=[],
-                cache=dict(enabled=True,concurrent_agent_updates=not args.serial_agent_updates),
+                cache=dict(enabled=True,concurrent_agent_updates=not args.serial_agent_updates,
+                           compact_gradients=not args.expanded_gradients),
                 agents=[dict(id=i, endpoint=e) for i,e in enumerate(agent_endpoints)],
                 access=dict(policy="cpu_only"),
                 limits=dict(cpu_state_bytes=8<<30, max_live_tickets=1024,
@@ -118,6 +119,8 @@ def main():
     parser.add_argument("--host-reference", action="store_true")
     parser.add_argument("--serial-agent-updates", action="store_true",
                         help="Ablation: wait for each GPU owner's update before sending the next")
+    parser.add_argument("--expanded-gradients", action="store_true",
+                        help="Ablation: send expanded per-ID gradients rather than feature-gradient references")
     parser.add_argument("--external-agents", default="",
                         help="Endpoints of independently managed GPU workers; one topology per invocation")
     parser.add_argument("--run-id", default="")

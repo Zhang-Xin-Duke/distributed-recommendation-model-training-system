@@ -16,6 +16,7 @@ class AgentRuntime {
   std::future<Result<std::vector<LocatedRow>>> Load(AgentCommand,MigrationPlan,std::vector<RowState>);
   std::future<Result<std::vector<TensorBlock>>> Gather(std::string run,std::vector<AgentWork>,std::vector<FeatureInput>);
   std::future<Result<Ack>> Apply(AgentCommand,UpdateContext,RowGradients);
+  std::future<Result<Ack>> ApplyCompact(AgentCommand,UpdateContext,CompactGradients);
   std::future<Result<std::vector<RowState>>> ReadBack(AgentCommand,MigrationPlan);
   std::future<Result<Ack>> CommitEviction(AgentCommand,MigrationPlan);
  private:

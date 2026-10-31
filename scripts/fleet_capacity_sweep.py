@@ -87,6 +87,7 @@ def main():
     p.add_argument("--seconds", type=float, default=2)
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--serial-agent-updates", action="store_true")
+    p.add_argument("--expanded-gradients", action="store_true")
     a = p.parse_args()
     if not a.out_name.replace("-", "").replace("_", "").isalnum():
         p.error("out-name must contain letters, digits, underscores or dashes")
@@ -115,6 +116,8 @@ def main():
                 "--seconds",str(a.seconds),"--repeats",str(a.repeats)]
             if a.serial_agent_updates:
                 command.append("--serial-agent-updates")
+            if a.expanded_gradients:
+                command.append("--expanded-gradients")
             script="hardware="+repr(hardware)+"\ncommand="+repr(command)+"\n"+r'''
 import pathlib,subprocess
 pathlib.Path(command[command.index('--external-hardware')+1]).write_text(hardware)

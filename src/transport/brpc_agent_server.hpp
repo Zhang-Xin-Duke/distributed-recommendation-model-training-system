@@ -12,6 +12,7 @@ class BrpcAgentServer final : public v1::CacheAgentService {
   EPS_AGENT_RPC(Load,AgentLoadRequest,LocationsReply)
   EPS_AGENT_RPC(Gather,AgentGatherRequest,AgentGatherReply)
   EPS_AGENT_RPC(Apply,AgentApplyRequest,Ack)
+  EPS_AGENT_RPC(ApplyCompact,AgentCompactApplyRequest,Ack)
   EPS_AGENT_RPC(ReadBack,AgentPlanRequest,ReadStateReply)
   EPS_AGENT_RPC(CommitEviction,AgentPlanRequest,Ack)
 #undef EPS_AGENT_RPC

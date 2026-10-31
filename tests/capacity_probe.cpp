@@ -116,11 +116,15 @@ int main(int argc,char** argv){
       for(auto& thread:threads)thread.join();const auto elapsed=Ms(begin)/1000;
       if(failures)throw std::runtime_error("capacity run failed: "+error);
       std::uint64_t busy_ns=0,wait_ns=0,operations=0,admission_failures=0;
+      std::uint64_t expanded_bytes=0,transferred_bytes=0,compact_commands=0;
       for(std::size_t i=0;i<admin.size();++i){auto s=Take(admin[i]->Stats());
         busy_ns+=s.executor_busy_nanoseconds-stats_before[i].executor_busy_nanoseconds;
         wait_ns+=s.queue_wait_nanoseconds-stats_before[i].queue_wait_nanoseconds;
         operations+=s.executed_operations-stats_before[i].executed_operations;
         admission_failures+=s.rejected_operations-stats_before[i].rejected_operations;
+        expanded_bytes+=s.expanded_gradient_bytes-stats_before[i].expanded_gradient_bytes;
+        transferred_bytes+=s.transferred_gradient_bytes-stats_before[i].transferred_gradient_bytes;
+        compact_commands+=s.compact_update_commands-stats_before[i].compact_update_commands;
         if(s.live_tickets)throw std::runtime_error("load left an outstanding training ticket");}
       std::uint64_t checked=0;
       for(Key key=1;key<=rows;key+=std::max<std::uint64_t>(1,rows/32)){
@@ -138,6 +142,8 @@ int main(int argc,char** argv){
       result["sequencer_busy_fraction"]=busy_ns/1e9/(elapsed*admin.size());
       result["queue_wait_per_operation_ms"]=operations?wait_ns/1e6/operations:0;
       result["rejected_admissions"]=admission_failures;
+      result["expanded_gradient_bytes"]=expanded_bytes;result["transferred_gradient_bytes"]=transferred_bytes;
+      result["compact_update_commands"]=compact_commands;
       result["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();
       result["end_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count()+elapsed;
       std::cout<<result.dump()<<std::endl;++group;

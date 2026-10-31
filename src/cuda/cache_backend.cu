@@ -1,4 +1,5 @@
 #include "eps/cuda_cache_backend.hpp"
+#include "eps/compact_gradients.hpp"
 
 #include <cuda_runtime.h>
 #include <algorithm>
@@ -105,6 +106,17 @@ __global__ void AdamKernel(float* state, const float* gradients,
     } else {
       state[base] = w; state[base + dim] = m; state[base + dim * 2] = v;
     }
+  }
+}
+__global__ void ReduceFeatureGradients(const float* sources,const float* scales,
+    const std::uint64_t* offsets,const std::uint64_t* references,float* gradients,
+    std::uint64_t rows,std::uint32_t dim){
+  for(std::uint64_t i=blockIdx.x*blockDim.x+threadIdx.x;i<rows*dim;
+      i+=std::uint64_t(blockDim.x)*gridDim.x){
+    const auto row=i/dim,d=i%dim;float sum=0;
+    for(auto ref=offsets[row];ref<offsets[row+1];++ref)
+      sum+=sources[references[ref]*dim+d]*scales[ref];
+    gradients[i]=sum;
   }
 }
 struct OutputBudget {
@@ -286,6 +298,34 @@ struct CudaCacheBackend::Impl {
       Cuda(cudaGetLastError());
     }
   }
+  Table& ValidateUpdate(const UpdateContext& context,const std::vector<RowKey>& rows){
+    auto& t=Get(context.table);
+    detail::Require(std::isfinite(context.learning_rate) && context.learning_rate>0 &&
+      context.beta1_power>=0 && context.beta1_power<1 && context.beta2_power>=0 &&
+      context.beta2_power<1,"invalid CUDA update context");
+    Limit(rows.size()*std::uint64_t(t.definition.dimension)*4);
+    std::set<Key> unique;
+    for(auto row:rows){auto it=t.rows.find(row.key);
+      detail::Require(row.table==context.table && unique.insert(row.key).second &&
+        it!=t.rows.end() && it->second.location.home==context.shard &&
+        it->second.updates!=UINT64_MAX,"invalid CUDA gradient owner/counter");}
+    return t;
+  }
+  Ack ApplyPrepared(UpdateContext context,const std::vector<RowKey>& rows,std::uint64_t slots_offset){
+    auto& t=Get(context.table);const auto dim=t.definition.dimension;
+    if(rows.empty())return {};
+    Cuda(cudaMemsetAsync(invalid.pointer,0,sizeof(int),stream.value));
+    const auto& o=t.definition.optimizer;
+    const auto lr=context.learning_rate*std::sqrt(1-context.beta2_power)/(1-context.beta1_power);
+    AdamKernel<<<Blocks(rows.size()*dim),256,0,stream.value>>>(t.state.As<float>(),device_values.As<float>(),
+      device_indices.As<std::uint64_t>()+slots_offset,rows.size(),dim,o.beta1,o.beta2,lr,o.epsilon,true,invalid.As<int>());
+    Cuda(cudaGetLastError());int rejected=0;
+    Cuda(cudaMemcpyAsync(&rejected,invalid.pointer,sizeof(int),cudaMemcpyDeviceToHost,stream.value));Finish();
+    detail::Require(!rejected,"CUDA optimizer state would overflow");
+    AdamKernel<<<Blocks(rows.size()*dim),256,0,stream.value>>>(t.state.As<float>(),device_values.As<float>(),
+      device_indices.As<std::uint64_t>()+slots_offset,rows.size(),dim,o.beta1,o.beta2,lr,o.epsilon,false,invalid.As<int>());
+    Cuda(cudaGetLastError());Finish();for(auto row:rows)++t.rows.at(row.key).updates;return {};
+  }
   CudaCacheOptions options;
   Stream stream;
   Event done;
@@ -435,50 +475,42 @@ std::future<Result<std::vector<DeviceTensorBlock>>> CudaCacheBackend::GatherDevi
   });
 }
 std::future<Result<Ack>> CudaCacheBackend::ApplyHost(UpdateContext context, RowGradients g) {
-  return impl_->executor->Submit<Ack>([this, context, g = std::move(g)] {
-    impl_->Activate(); auto& t = impl_->Get(context.table);
-    const auto dim = t.definition.dimension;
-    detail::Require(g.values.size() == g.rows.size() * dim &&
-        std::isfinite(context.learning_rate) && context.learning_rate > 0 &&
-        context.beta1_power >= 0 && context.beta1_power < 1 &&
-        context.beta2_power >= 0 && context.beta2_power < 1, "invalid CUDA update context");
-    impl_->Limit(g.values.size() * 4); impl_->Limit(g.rows.size() * 8);
-    std::set<Key> unique;
-    for (std::size_t i = 0; i < g.rows.size(); ++i) {
-      auto it = t.rows.find(g.rows[i].key);
-      detail::Require(g.rows[i].table == context.table &&
-          unique.insert(g.rows[i].key).second && it != t.rows.end() &&
-          it->second.location.home == context.shard, "invalid CUDA gradient owner");
-      impl_->host_indices.As<std::uint64_t>()[i] = it->second.location.slot;
-    }
-    if (g.rows.empty()) return Ack{};
-    std::copy(g.values.begin(), g.values.end(), impl_->host_values.As<float>());
-    Cuda(cudaMemcpyAsync(impl_->device_values.pointer, impl_->host_values.pointer,
-                         g.values.size() * 4, cudaMemcpyHostToDevice, impl_->stream.value));
-    Cuda(cudaMemcpyAsync(impl_->device_indices.pointer, impl_->host_indices.pointer,
-                         g.rows.size() * 8, cudaMemcpyHostToDevice, impl_->stream.value));
-    Cuda(cudaMemsetAsync(impl_->invalid.pointer, 0, sizeof(int), impl_->stream.value));
-    const auto& o = t.definition.optimizer;
-    const auto lr = context.learning_rate * std::sqrt(1 - context.beta2_power) /
-                    (1 - context.beta1_power);
-    AdamKernel<<<Blocks(g.values.size()), 256, 0, impl_->stream.value>>>(
-        t.state.As<float>(), impl_->device_values.As<float>(),
-        impl_->device_indices.As<std::uint64_t>(), g.rows.size(), dim,
-        o.beta1, o.beta2, lr, o.epsilon, true, impl_->invalid.As<int>());
-    Cuda(cudaGetLastError());
-    int invalid = 0;
-    Cuda(cudaMemcpyAsync(&invalid, impl_->invalid.pointer, sizeof(int),
-                         cudaMemcpyDeviceToHost, impl_->stream.value));
-    impl_->Finish();
-    detail::Require(!invalid, "CUDA optimizer state would overflow");
-    AdamKernel<<<Blocks(g.values.size()), 256, 0, impl_->stream.value>>>(
-        t.state.As<float>(), impl_->device_values.As<float>(),
-        impl_->device_indices.As<std::uint64_t>(), g.rows.size(), dim,
-        o.beta1, o.beta2, lr, o.epsilon, false, impl_->invalid.As<int>());
-    Cuda(cudaGetLastError());
-    impl_->Finish();
-    for (auto row : g.rows) ++t.rows.at(row.key).updates;
-    return Ack{};
+  return impl_->executor->Submit<Ack>([this,context,g=std::move(g)] {
+    impl_->Activate();auto& t=impl_->ValidateUpdate(context,g.rows);const auto dim=t.definition.dimension;
+    detail::Require(g.values.size()==g.rows.size()*dim,"invalid CUDA gradient shape");
+    impl_->Limit(g.rows.size()*8);
+    for(std::size_t i=0;i<g.rows.size();++i)impl_->host_indices.As<std::uint64_t>()[i]=t.rows.at(g.rows[i].key).location.slot;
+    if(g.rows.empty())return Ack{};
+    std::copy(g.values.begin(),g.values.end(),impl_->host_values.As<float>());
+    Cuda(cudaMemcpyAsync(impl_->device_values.pointer,impl_->host_values.pointer,g.values.size()*4,cudaMemcpyHostToDevice,impl_->stream.value));
+    Cuda(cudaMemcpyAsync(impl_->device_indices.pointer,impl_->host_indices.pointer,g.rows.size()*8,cudaMemcpyHostToDevice,impl_->stream.value));
+    return impl_->ApplyPrepared(context,g.rows,0);
+  });
+}
+std::future<Result<Ack>> CudaCacheBackend::ApplyCompact(UpdateContext context,CompactGradients p){
+  return impl_->executor->Submit<Ack>([this,context,p=std::move(p)]{
+    impl_->Activate();ValidateCompactGradients(p);
+    auto& t=impl_->ValidateUpdate(context,p.rows);const auto dim=t.definition.dimension;
+    detail::Require(p.dimension==dim,"compact CUDA table dimension mismatch");
+    const auto slots_offset=p.row_offsets.size()+p.source_rows.size();
+    const auto index_count=slots_offset+p.rows.size();
+    const auto value_count=p.source_values.size()+p.scales.size();
+    impl_->Limit(index_count*8);impl_->Limit(value_count*4);
+    if(p.rows.empty())return Ack{};
+    auto* indices=impl_->host_indices.As<std::uint64_t>();
+    std::copy(p.row_offsets.begin(),p.row_offsets.end(),indices);
+    std::copy(p.source_rows.begin(),p.source_rows.end(),indices+p.row_offsets.size());
+    for(std::size_t i=0;i<p.rows.size();++i)indices[slots_offset+i]=t.rows.at(p.rows[i].key).location.slot;
+    auto* values=impl_->host_values.As<float>();
+    std::copy(p.source_values.begin(),p.source_values.end(),values);
+    std::copy(p.scales.begin(),p.scales.end(),values+p.source_values.size());
+    Cuda(cudaMemcpyAsync(impl_->device_transient.pointer,values,value_count*4,cudaMemcpyHostToDevice,impl_->stream.value));
+    Cuda(cudaMemcpyAsync(impl_->device_indices.pointer,indices,index_count*8,cudaMemcpyHostToDevice,impl_->stream.value));
+    ReduceFeatureGradients<<<Blocks(p.rows.size()*dim),256,0,impl_->stream.value>>>(
+      impl_->device_transient.As<float>(),impl_->device_transient.As<float>()+p.source_values.size(),
+      impl_->device_indices.As<std::uint64_t>(),impl_->device_indices.As<std::uint64_t>()+p.row_offsets.size(),
+      impl_->device_values.As<float>(),p.rows.size(),dim);
+    Cuda(cudaGetLastError());return impl_->ApplyPrepared(context,p.rows,slots_offset);
   });
 }
 std::future<Result<std::vector<RowState>>> CudaCacheBackend::ReadBack(MigrationPlan plan) {

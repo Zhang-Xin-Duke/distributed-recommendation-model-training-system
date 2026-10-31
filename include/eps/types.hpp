@@ -161,6 +161,17 @@ struct RowGradients {
   std::vector<float> values;
 };
 
+// CSR-style references from each unique parameter row to the feature-gradient
+// rows contributing to it. Repeated IDs retain repeated, ordered references.
+struct CompactGradients {
+  std::vector<RowKey> rows;
+  std::uint32_t dimension;
+  std::vector<float> source_values;
+  std::vector<std::uint64_t> row_offsets;
+  std::vector<std::uint64_t> source_rows;
+  std::vector<float> scales;
+};
+
 struct DeviceRowGradients {
   std::vector<RowKey> rows;
   std::shared_ptr<DeviceTensor> values;

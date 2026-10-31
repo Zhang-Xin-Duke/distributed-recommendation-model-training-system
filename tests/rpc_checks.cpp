@@ -63,6 +63,43 @@ void MalformedAttachment(const std::string& endpoint){
   stub.Lookup(&c,&q,&r,nullptr);
   Check(!c.Failed()&&r.status().code()==eps::v1::Status::INVALID_ARGUMENT,"malformed attachment was accepted");
 }
+void CompactLifecycle(DistributedClient& client,DistributedClient& baseline,
+    const std::vector<std::shared_ptr<ParameterService>>& remote,CpuParameterService& reference,
+    const std::string& run,bool caching,bool resumed){
+  auto definition=Table(remote.size());definition.id=2;definition.dimension=128;
+  Take(client.CreateTable(definition));definition.shard_count=1;Take(baseline.CreateTable(definition));
+  auto request=[](const std::string& r,std::uint64_t seq,bool eval){
+    FeatureInput f{2,7,Pooling::mean,{},{0,128},{128}};
+    for(Key key=1;key<=128;++key)f.keys.push_back(key);
+    return LookupRequest{{r,1,seq,Phase::lookup},1,eval,{std::move(f)}};
+  };
+  auto warm=Take(client.Lookup(request(run,0,true)));Take(client.Release(warm));
+  auto ref_warm=Take(baseline.Lookup(request("baseline",0,true)));Take(baseline.Release(ref_warm));
+  auto gradients=[](const DistributedBatch& batch){auto out=batch.features();
+    for(auto& g:out)for(std::size_t d=0;d<g.values.size();++d)g.values[d]=std::sin(float(d)*0.1f);return out;};
+  if(resumed){auto previous=Take(baseline.Lookup(request("baseline",1,false)));Take(baseline.Push(previous,gradients(previous)));}
+  if(caching)for(std::size_t home=0;home<remote.size();++home){
+    std::vector<RowKey> rows;for(Key key=1;key<=128;++key)if(key%remote.size()==home)rows.push_back({2,key});
+    auto connection=std::dynamic_pointer_cast<BrpcParameterService>(remote[home]);
+    Take(connection->MoveRows({run,std::move(rows),0,Placement::gpu,{1<<20,1<<20,1,0}}));
+  }
+  auto actual=Take(client.Lookup(request(run,1,false)));
+  auto expected=Take(baseline.Lookup(request("baseline",resumed?2:1,false)));
+  for(std::size_t i=0;i<actual.features()[0].values.size();++i)Near(actual.features()[0].values[i],expected.features()[0].values[i]);
+  auto g=gradients(actual);Take(client.Push(actual,g));Take(client.Push(actual,g));Take(baseline.Push(expected,g));
+  for(Key key=1;key<=128;++key){
+    const auto home=key%remote.size();auto connection=std::dynamic_pointer_cast<BrpcParameterService>(remote[home]);
+    auto x=Take(remote[home]->ReadState(Take(connection->Locations({{2,key}})))).at(0);
+    auto y=Take(reference.ReadState({{{2,key},0,Placement::cpu,0,0,0}})).at(0);
+    Check(x.row_updates==y.row_updates,"compact RPC update count mismatch");
+    for(int d=0;d<128;++d){Near(x.weights[d],y.weights[d]);Near(x.first_moment[d],y.first_moment[d]);Near(x.second_moment[d],y.second_moment[d]);}
+  }
+  if(caching)for(auto& shard:remote){
+    auto stats=Take(std::dynamic_pointer_cast<BrpcParameterService>(shard)->Stats());
+    Check(stats.compact_update_commands>0 && stats.transferred_gradient_bytes<stats.expanded_gradient_bytes,
+      "compact gradient RPC route was not exercised");
+  }
+}
 }
 int main(int argc,char** argv){
   try{
@@ -120,6 +157,7 @@ int main(int argc,char** argv){
       Take(baseline.Push(single,grads));CompareState(remote,*reference);
     }
     auto eval=Take(client.Lookup(Request(run,count+(caching&&!resumed?1:0),true)));Take(client.Release(eval));
+    CompactLifecycle(client,baseline,remote,*reference,run,caching,resumed);
     if(!resumed){
       MalformedAttachment(argv[1]);
       for(auto& shard:remote){auto saved=Take(shard->DrainAndFlush("checkpoint"));

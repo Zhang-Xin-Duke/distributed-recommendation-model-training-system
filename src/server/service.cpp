@@ -16,6 +16,7 @@
 #include "access/batch_access.hpp"
 #include "common/error.hpp"
 #include "common/executor.hpp"
+#include "eps/compact_gradients.hpp"
 #include "server/request_tracker.hpp"
 #include "store/snapshot.hpp"
 #include "update/lazy_adam.hpp"
@@ -235,29 +236,52 @@ class CpuParameterService::Impl {
       }
       for(const auto& [table,g]:cpu)detail::ValidateLazyAdam(store_->Table(table),g);
       try{
-        struct DeviceUpdate {UpdateContext context;RowGradients gradients;};
+        struct DeviceUpdate {UpdateContext context;std::variant<RowGradients,CompactGradients> payload;};
         std::map<AgentId,std::deque<DeviceUpdate>> groups;
+        std::uint64_t reference_bytes=0,transferred_bytes=0,compact_commands=0;
         for(auto& [owner,g]:device){
           const auto& t=store_->Table(owner.second);
           UpdateContext context{request.id,options_.shard_id,owner.second,t.optimizer_sequence,
             t.definition.optimizer.learning_rate,t.beta1_power,t.beta2_power};
-          groups[owner.first].push_back({context,std::move(g)});
+          const auto expanded=g.values.size()*sizeof(float);reference_bytes+=expanded;
+          if(options_.compact_gpu_gradients && expanded>g.rows.size()*20+8){
+            try{
+              auto compact=detail::BuildCompactGradients(ticket.features,request.feature_gradients,g.rows,t.definition.dimension);
+              const auto bytes=CompactGradientBytes(compact)-compact.rows.size()*sizeof(RowKey);
+              if(bytes<expanded){
+                groups[owner.first].push_back({context,std::move(compact)});
+                transferred_bytes+=bytes;++compact_commands;continue;
+              }
+            }catch(const detail::Failure& e){
+              // Highly repeated/sequence layouts can have larger reference
+              // metadata than their already-reduced dense gradient.
+              if(e.error().code!=Error::Code::capacity_exceeded)throw;
+            }
+          }
+          transferred_bytes+=expanded;groups[owner.first].push_back({context,std::move(g)});
         }
+        auto send=[this](AgentId agent,DeviceUpdate update){
+          if(auto* compact=std::get_if<CompactGradients>(&update.payload))
+            return agents_.at(agent)->ApplyCompact(update.context,std::move(*compact));
+          return agents_.at(agent)->ApplyHost(update.context,std::get<RowGradients>(std::move(update.payload)));
+        };
         // Independent GPU owners can execute one original Push concurrently.
         // Keep at most one control command per home/agent stream outstanding so
         // a later table cannot overtake that stream's earlier command.
         if(!options_.concurrent_agent_updates){
           for(auto& [agent,updates]:groups)for(auto& update:updates)
-            AgentResult(agents_.at(agent)->ApplyHost(update.context,std::move(update.gradients)));
+            AgentResult(send(agent,std::move(update)));
         }else for(;;){
           std::vector<std::future<Result<Ack>>> pending;pending.reserve(groups.size());
           for(auto& [agent,updates]:groups)if(!updates.empty()){
             auto update=std::move(updates.front());updates.pop_front();
-            pending.push_back(agents_.at(agent)->ApplyHost(update.context,std::move(update.gradients)));
+            pending.push_back(send(agent,std::move(update)));
           }
           if(pending.empty())break;
           for(auto& completion:pending)AgentResult(std::move(completion));
         }
+        stats_.expanded_gradient_bytes+=reference_bytes;stats_.transferred_gradient_bytes+=transferred_bytes;
+        stats_.compact_update_commands+=compact_commands;
       }catch(const std::exception& e){fatal_=e.what();throw detail::Failure({Error::Code::run_failed,fatal_});}
       for(const auto& [table,g]:cpu)detail::ApplyLazyAdam(store_->Table(table),g);
       tracker_.Complete(request.id);

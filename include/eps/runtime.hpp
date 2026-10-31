@@ -23,6 +23,7 @@ struct RuntimeOptions {
   std::uint32_t request_history = 4096;
   std::uint32_t max_queued_operations = 1024;
   bool concurrent_agent_updates = true;
+  bool compact_gpu_gradients = true;
   std::filesystem::path snapshot_directory = "snapshots";
 };
 
@@ -42,6 +43,9 @@ struct RuntimeStats {
   std::uint64_t executor_busy_nanoseconds = 0;
   std::uint64_t rejected_operations = 0;
   std::uint64_t peak_queued_operations = 0;
+  std::uint64_t expanded_gradient_bytes = 0;
+  std::uint64_t transferred_gradient_bytes = 0;
+  std::uint64_t compact_update_commands = 0;
 };
 
 // A bounded asynchronous shard sequencer. Transport callbacks never execute

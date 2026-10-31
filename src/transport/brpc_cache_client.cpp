@@ -53,6 +53,15 @@ std::future<Result<std::vector<RowState>>> BrpcCacheBackend::ReadBack(MigrationP
     [id=impl_->Next(),plan=std::move(plan)](auto& q,auto&){t::Encode(id,q.mutable_identity());t::Encode(plan,q.mutable_plan());},
     [](const auto& q,const auto& a){std::vector<RowState> out;for(const auto& row:q.states())out.push_back(t::Decode(row,a));return out;});
 }
+std::future<Result<Ack>> BrpcCacheBackend::ApplyCompact(UpdateContext context,CompactGradients p){
+  return t::Call<wire::AgentCompactApplyRequest,wire::Ack,Ack>(impl_,&wire::CacheAgentService_Stub::ApplyCompact,
+    [id=impl_->Next(),context,p=std::move(p)](auto& q,auto& a){
+      t::Encode(id,q.mutable_identity());t::Encode(context,q.mutable_context());q.set_dimension(p.dimension);
+      for(auto row:p.rows){auto* x=q.add_rows();x->set_table_id(row.table);x->set_key(row.key);}
+      t::Pack(p.source_values,q.mutable_source_values(),a);t::Pack(p.row_offsets,q.mutable_row_offsets(),a);
+      t::Pack(p.source_rows,q.mutable_source_rows(),a);t::Pack(p.scales,q.mutable_scales(),a);
+    },t::AckDecoder);
+}
 std::future<Result<Ack>> BrpcCacheBackend::CommitEviction(MigrationPlan plan){
   return t::Call<wire::AgentPlanRequest,wire::Ack,Ack>(impl_,&wire::CacheAgentService_Stub::CommitEviction,
     [id=impl_->Next(),plan=std::move(plan)](auto& q,auto&){t::Encode(id,q.mutable_identity());t::Encode(plan,q.mutable_plan());},t::AckDecoder);

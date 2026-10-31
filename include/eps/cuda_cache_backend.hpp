@@ -26,6 +26,7 @@ class CudaCacheBackend final : public GpuCacheAgent {
   std::future<Result<std::vector<TensorBlock>>> GatherHost(std::vector<AgentWork>,std::vector<FeatureInput>) override;
   std::future<Result<std::vector<DeviceTensorBlock>>> GatherDevice(std::vector<AgentWork>,std::vector<FeatureInput>) override;
   std::future<Result<Ack>> ApplyHost(UpdateContext,RowGradients) override;
+  std::future<Result<Ack>> ApplyCompact(UpdateContext,CompactGradients) override;
   std::future<Result<std::vector<RowState>>> ReadBack(MigrationPlan) override;
   std::future<Result<Ack>> CommitEviction(MigrationPlan) override;
   std::future<Result<CudaMemoryStats>> MemoryStats();

@@ -86,6 +86,12 @@ std::future<Result<std::vector<RowState>>> AgentRuntime::ReadBack(AgentCommand i
   return impl_->Command<std::vector<RowState>>(std::move(id),"readback",std::move(size),
     [this,plan=std::move(plan)]() mutable {return detail::Await(impl_->backend->ReadBack(std::move(plan)));});
 }
+std::future<Result<Ack>> AgentRuntime::ApplyCompact(AgentCommand id,UpdateContext context,CompactGradients p){
+  return impl_->Command<Ack>(id,"apply_compact",[]{return 0ULL;},[this,id,context,p=std::move(p)]()mutable{
+    detail::Require(context.original_request.run==id.run && context.shard==id.shard,"compact update control owner mismatch");
+    return detail::Await(impl_->backend->ApplyCompact(context,std::move(p)));
+  });
+}
 std::future<Result<Ack>> AgentRuntime::CommitEviction(AgentCommand id,MigrationPlan plan){
   return impl_->Command<Ack>(std::move(id),"commit",[]{return 0ULL;},[this,plan=std::move(plan)]() mutable {
     return detail::Await(impl_->backend->CommitEviction(std::move(plan)));

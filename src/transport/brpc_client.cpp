@@ -32,6 +32,7 @@ std::future<Result<RuntimeStats>> BrpcParameterService::Stats(){
       EPS_STAT(queued_payload_bytes) EPS_STAT(cached_rows) EPS_STAT(migration_bytes)
       EPS_STAT(executed_operations) EPS_STAT(queue_wait_nanoseconds) EPS_STAT(executor_busy_nanoseconds)
       EPS_STAT(rejected_operations) EPS_STAT(peak_queued_operations)
+      EPS_STAT(expanded_gradient_bytes) EPS_STAT(transferred_gradient_bytes) EPS_STAT(compact_update_commands)
 #undef EPS_STAT
       return s;});
 }

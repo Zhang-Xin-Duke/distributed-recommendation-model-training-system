@@ -12,6 +12,7 @@ class BrpcCacheBackend final : public CacheBackend {
   std::future<Result<std::vector<LocatedRow>>> Load(MigrationPlan,std::vector<RowState>) override;
   std::future<Result<std::vector<TensorBlock>>> GatherHost(std::vector<AgentWork>,std::vector<FeatureInput>) override;
   std::future<Result<Ack>> ApplyHost(UpdateContext,RowGradients) override;
+  std::future<Result<Ack>> ApplyCompact(UpdateContext,CompactGradients) override;
   std::future<Result<std::vector<RowState>>> ReadBack(MigrationPlan) override;
   std::future<Result<Ack>> CommitEviction(MigrationPlan) override;
  private:

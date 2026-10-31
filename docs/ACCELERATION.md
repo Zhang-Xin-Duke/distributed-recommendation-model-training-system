@@ -61,6 +61,34 @@ of demand. Parameter reads still respect the required update and ownership
 boundary. Group compatible state transfers by destination, dimension and optimizer
 layout, retaining a map back to rows and requests.
 
+## Keep pooled gradients compact across worker links
+
+A pooled feature produces one gradient vector for a bag. Sending a separate
+expanded copy for every ID repeats that vector many times. The compact update
+path sends the original feature-gradient rows and a CSR-style map from each
+unique parameter row to its contributing gradient rows and mean-pooling scales.
+The GPU reduces these ordered references directly into device gradient staging,
+then runs the same LazyAdam validation and update kernels.
+
+For a bag of 64 distinct IDs and dimension 128, expanded gradients contain
+64 copies of a 128-dimensional vector. The compact representation carries one
+vector and 64 references. Repeated IDs retain repeated references; contributions
+from different features remain in their original reduction order. Each GPU
+receives the home shard's original optimizer context.
+
+Reference metadata adds work and can exceed the already-reduced payload for
+short bags, low dimensions or sequence features. The service compares complete
+numeric payload sizes and uses expanded gradients when they are smaller. Packet
+validation and device staging limits apply before state mutation. CPU-owned rows
+retain their existing update path; the home service still validates the original
+gradient reduction before dispatching device work.
+
+Updates to different GPU owners are submitted before awaiting acknowledgements.
+Commands to one home/agent control stream remain ordered, including multi-table
+updates. This removes sequential waits between independent devices while keeping
+one original Push boundary. The capacity harness exposes separate ablation flags
+for concurrent dispatch and compact gradients.
+
 ## Expected workload fit
 
 - Long pooled bags: reduce raw-vector transport through CPU partial pooling.
@@ -71,4 +99,5 @@ layout, retaining a map back to rows and requests.
 The first implementation will compare CPU-only, static placement, frequency/window
 caching and these policies using the same training computation. Metrics include
 end-to-end throughput, phase time, transfer bytes, cache churn, slot wait and
-validation quality. No performance measurements have been run for this project.
+validation quality. Correctness and capacity evidence is recorded in
+[VALIDATION.md](VALIDATION.md).

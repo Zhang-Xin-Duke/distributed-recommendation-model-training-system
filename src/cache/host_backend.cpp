@@ -1,4 +1,5 @@
 #include "eps/cache_backend.hpp"
+#include "eps/compact_gradients.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -7,6 +8,11 @@
 #include "common/executor.hpp"
 
 namespace eps {
+std::future<Result<Ack>> CacheBackend::ApplyCompact(UpdateContext context,CompactGradients packet){
+  try{return ApplyHost(context,ExpandCompactGradients(packet));}
+  catch(const detail::Failure& e){std::promise<Result<Ack>> p;p.set_value(e.error());return p.get_future();}
+  catch(const std::bad_alloc&){std::promise<Result<Ack>> p;p.set_value(Error{Error::Code::capacity_exceeded,"compact gradient allocation failed"});return p.get_future();}
+}
 namespace {
 using RowId=std::pair<TableId,Key>;
 RowId Id(RowKey row){return {row.table,row.key};}

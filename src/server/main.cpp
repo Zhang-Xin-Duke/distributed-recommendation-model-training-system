@@ -43,7 +43,10 @@ int main(int argc,char** argv) {
     options.shard_count=j.at("partition").at("shard_count");
     options.partition_epoch=j.at("partition").at("epoch");
     options.snapshot_directory=j.value("snapshot_directory",std::string("snapshots"));
-    if(j.contains("cache"))options.concurrent_agent_updates=j["cache"].value("concurrent_agent_updates",true);
+    if(j.contains("cache")){
+      options.concurrent_agent_updates=j["cache"].value("concurrent_agent_updates",true);
+      options.compact_gpu_gradients=j["cache"].value("compact_gradients",true);
+    }
     if(j.contains("limits")) {
       const auto& l=j["limits"];
       options.max_request_bytes=l.value("max_request_bytes",options.max_request_bytes);

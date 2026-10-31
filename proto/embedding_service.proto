@@ -210,6 +210,8 @@ message StatsReply {
   uint64 executed_operations = 12; uint64 queue_wait_nanoseconds = 13;
   uint64 executor_busy_nanoseconds = 14; uint64 rejected_operations = 15;
   uint64 peak_queued_operations = 16;
+  uint64 expanded_gradient_bytes = 17; uint64 transferred_gradient_bytes = 18;
+  uint64 compact_update_commands = 19;
 }
 
 message RowKey { uint32 table_id = 1; uint64 key = 2; }
@@ -251,12 +253,18 @@ message AgentApplyRequest {
   repeated RowKey rows = 3; PayloadSlice gradients = 4;
 }
 message AgentPlanRequest { AgentIdentity identity = 1; MigrationPlan plan = 2; }
+message AgentCompactApplyRequest {
+  AgentIdentity identity = 1; UpdateContext context = 2; uint32 dimension = 3;
+  repeated RowKey rows = 4; PayloadSlice source_values = 5;
+  PayloadSlice row_offsets = 6; PayloadSlice source_rows = 7; PayloadSlice scales = 8;
+}
 service CacheAgentService {
   rpc Define(AgentDefineRequest) returns (Ack);
   rpc FreeSlots(AgentCapacityRequest) returns (AgentCapacityReply);
   rpc Load(AgentLoadRequest) returns (LocationsReply);
   rpc Gather(AgentGatherRequest) returns (AgentGatherReply);
   rpc Apply(AgentApplyRequest) returns (Ack);
+  rpc ApplyCompact(AgentCompactApplyRequest) returns (Ack);
   rpc ReadBack(AgentPlanRequest) returns (ReadStateReply);
   rpc CommitEviction(AgentPlanRequest) returns (Ack);
 }

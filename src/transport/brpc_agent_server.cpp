@@ -32,6 +32,14 @@ void BrpcAgentServer::ReadBack(google::protobuf::RpcController* c,const wire::Ag
   Dispatch<std::vector<RowState>>(c,q,r,done,[&](const auto&){return runtime_.ReadBack(Decode(q->identity()),Decode(q->plan()));},
     [home=q->identity().home_shard()](auto rows,auto* out,auto& a){for(const auto& row:rows)Encode(row,out->add_states(),a,home);});
 }
+void BrpcAgentServer::ApplyCompact(google::protobuf::RpcController* c,const wire::AgentCompactApplyRequest* q,wire::Ack* r,google::protobuf::Closure* done){
+  Dispatch<Ack>(c,q,r,done,[&](const auto& a){
+    CompactGradients p{{},q->dimension(),Unpack<float>(q->source_values(),a),
+      Unpack<std::uint64_t>(q->row_offsets(),a),Unpack<std::uint64_t>(q->source_rows(),a),Unpack<float>(q->scales(),a)};
+    for(const auto& row:q->rows())p.rows.push_back({row.table_id(),row.key()});
+    return runtime_.ApplyCompact(Decode(q->identity()),Decode(q->context()),std::move(p));
+  },AckEncode);
+}
 void BrpcAgentServer::CommitEviction(google::protobuf::RpcController* c,const wire::AgentPlanRequest* q,wire::Ack* r,google::protobuf::Closure* done){
   Dispatch<Ack>(c,q,r,done,[&](const auto&){return runtime_.CommitEviction(Decode(q->identity()),Decode(q->plan()));},AckEncode);
 }

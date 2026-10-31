@@ -6,6 +6,9 @@
 #include "store/shard_store.hpp"
 
 namespace eps::detail {
+struct PreparedFeature;
+CompactGradients BuildCompactGradients(const std::vector<PreparedFeature>&,
+    const std::vector<TensorBlock>&,const std::vector<RowKey>&,std::uint32_t dimension);
 
 struct PreparedFeature {
   FeatureInput input;

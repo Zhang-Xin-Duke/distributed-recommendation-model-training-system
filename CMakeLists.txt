@@ -11,6 +11,7 @@ add_library(eps_core
   src/store/shard_store.cpp
   src/store/snapshot.cpp
   src/access/batch_access.cpp
+  src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
   src/client/distributed_client.cpp
   src/cache/access_cost_model.cpp
@@ -155,6 +156,10 @@ if(EPS_BUILD_TESTS)
   target_link_libraries(eps_multi_agent_tests PRIVATE eps_core)
   add_test(NAME concurrent_multi_agent_updates COMMAND eps_multi_agent_tests)
   set_tests_properties(concurrent_multi_agent_updates PROPERTIES TIMEOUT 15)
+  add_executable(eps_compact_tests tests/compact_tests.cpp)
+  target_link_libraries(eps_compact_tests PRIVATE eps_core)
+  target_include_directories(eps_compact_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  add_test(NAME compact_feature_gradient_semantics COMMAND eps_compact_tests)
   if(EPS_BUILD_CUDA)
     add_executable(eps_cuda_tests tests/cuda_tests.cpp)
     target_link_libraries(eps_cuda_tests PRIVATE eps_cuda)

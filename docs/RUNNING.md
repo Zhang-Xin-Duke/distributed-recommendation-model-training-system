@@ -139,6 +139,12 @@ for completed updates/s, ID occurrences/s, P50/P95/P99 latency, lookup/update
 latency, sequencer occupancy and queue waiting. Worker/PS CPU and RSS are sampled
 separately; GPU telemetry is device-wide. Repeat ranges accompany median rates.
 
+Use `--serial-agent-updates` or `--expanded-gradients` for independent ablations.
+They set `cache.concurrent_agent_updates=false` and `cache.compact_gradients=false`
+respectively. The default uses concurrent owners and chooses compact gradients
+only when their numeric payload is smaller. Runtime statistics report expanded
+reference bytes, transmitted numeric gradient bytes and compact-update commands.
+
 `scripts/fleet_capacity_sweep.py` manages agents across separately prepared SSH
 hosts and invokes the same load generator. Its private fleet config supplies
 connection paths and already prepared forwarding endpoints. It verifies distinct

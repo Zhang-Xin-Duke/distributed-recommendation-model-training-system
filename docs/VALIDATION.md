@@ -4,9 +4,9 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Native core, RPC, cache protocol, adapter and TensorFlow graph | 9/9 passed |
-| macOS arm64, core-only ASan/UBSan | Core, policies, ownership, control replay and adapter | 6/6 passed |
-| Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | Native CPU/CUDA suite | 10/10 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Native core, RPC, cache protocol, adapter and TensorFlow graph | 10/10 passed |
+| macOS arm64, core-only ASan/UBSan | Core, policies, ownership, control replay and adapter | 7/7 passed |
+| Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | Native CPU/CUDA suite | 11/11 passed |
 | Three separately rented RTX A6000 48 GB devices, compute capability 8.6 | CUDA state/device-result check on each device | All three passed; distinct GPU UUIDs verified |
 
 The L40 driver was 610.43.02, compute capability 8.9. CUDA code was subsequently
@@ -27,6 +27,7 @@ preload library.
 | Cache control | Original command replay, retired-command fencing, slot reclamation after acknowledged writeback and ownership generation checks |
 | Mixed placement | CPU and cache-owned portions of one Push share the same original optimizer context; moving a referenced row is rejected |
 | CUDA execution | Multi-table gather, mean partials and sequences, complete optimizer state, overflow rejection, eviction/reload generations and device results that outlive staging/backend reuse |
+| Compact gradient updates | Ordered GPU reduction of feature-gradient references, cross-feature and mean semantics, overflow rejection, duplicate command replay and optimizer trajectory through RPC save/restore |
 | Cold access route | Unique CPU-owned weights can be transferred for GPU pooling without admitting full optimizer state; compared with the host reference |
 | CUDA process lifecycle | Two PS processes plus a CUDA cache process exercise mixed reads/updates, two-way migration, cache-draining snapshot and restore |
 | Embedding adapter | Padding exclusion, valid mean denominators, sequence scatter/gather, completed-handle replay and Join ordering |

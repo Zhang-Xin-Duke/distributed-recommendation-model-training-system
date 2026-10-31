@@ -21,7 +21,9 @@ callbacks and an isolated native RPC client.
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam, CUDA-resident weights and optimizer states, CPU/GPU migration,
 generation fencing, bounded lookup tickets, and durable snapshots with optimizer
-restore. CPU pooling and unique-vector transfer are executable access paths;
+restore. Pooled gradients travel as feature vectors plus ordered ID references;
+CUDA expands and reduces them at their parameter owner. Independent GPU owners
+execute updates concurrently. CPU pooling and unique-vector transfer are executable access paths;
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 

@@ -93,10 +93,22 @@ int main(){
       Compare(Take(gpu->GatherHost(gw,layout)),Take(host.GatherHost(hw,layout)));
     }
     MigrationPlan gp{"read",0,gl,Placement::cpu,0},hp{"read",0,hl,Placement::cpu,0};
+    CompactGradients compact{{{1,1},{1,2},{1,3},{1,4}},128,{},{0,3,4,6,7},
+      {0,1,0,2,1,2,0},{1.0f/3,0.5f,1.0f/3,1,0.25f,0.25f,1}};
+    for(int source=0;source<3;++source)for(int d=0;d<128;++d)compact.source_values.push_back(0.01f*std::sin(float(source*11+d)));
+    for(std::uint64_t step=7;step<9;++step){
+      UpdateContext context{{"cuda-test",0,step,Phase::push},0,1,step,0.01f,b1,b2};
+      Take(gpu->ApplyCompact(context,compact));Take(host.ApplyCompact(context,compact));
+      b1*=0.9f;b2*=0.999f;
+    }
     std::reverse(gp.rows.begin(),gp.rows.end());std::reverse(hp.rows.begin(),hp.rows.end());
     CompareStates(Take(gpu->ReadBack(gp)),Take(host.ReadBack(hp)));
     auto original=Take(gpu->ReadBack(gp));
-    UpdateContext bad{{"cuda-test",0,7,Phase::push},0,1,7,0.01f,b1,b2};
+    UpdateContext bad{{"cuda-test",0,9,Phase::push},0,1,9,0.01f,b1,b2};
+    auto compact_overflow=compact;
+    std::fill(compact_overflow.source_values.begin(),compact_overflow.source_values.end(),std::numeric_limits<float>::max());
+    Check(std::holds_alternative<Error>(gpu->ApplyCompact(bad,compact_overflow).get()),"CUDA compact overflow accepted");
+    CompareStates(original,Take(gpu->ReadBack(gp)));
     RowGradients overflow{{{1,1}},std::vector<float>(128,1)};
     overflow.values.back()=std::numeric_limits<float>::max();
     Check(std::holds_alternative<Error>(gpu->ApplyHost(bad,overflow).get()),"CUDA overflow accepted");
