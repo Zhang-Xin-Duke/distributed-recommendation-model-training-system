@@ -83,6 +83,10 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--fleet", type=pathlib.Path, required=True)
     p.add_argument("--out-name", required=True)
+    p.add_argument("--build-name", default="build-cuda",
+                   help="Prepared coordinator build directory, relative to its project root")
+    p.add_argument("--coalesce-gathers", choices=("0", "1"), default=None,
+                   help="Set EPS_COALESCE_GATHERS for a probe that supports selectable gather policies")
     p.add_argument("--gpu-counts", default="1,2,3")
     p.add_argument("--ps-shards", type=int, default=2)
     p.add_argument("--rows", type=int, default=262144)
@@ -98,6 +102,8 @@ def main():
     a = p.parse_args()
     if not a.out_name.replace("-", "").replace("_", "").isalnum():
         p.error("out-name must contain letters, digits, underscores or dashes")
+    if not a.build_name.replace("-", "").replace("_", "").isalnum():
+        p.error("build-name must be one directory name")
     fleet = json.loads(a.fleet.read_text());coordinator=fleet["coordinator"]
     for count in map(int,a.gpu_counts.split(",")):
         if not 1<=count<=len(fleet["workers"]):
@@ -114,7 +120,7 @@ def main():
             root=pathlib.PurePosixPath(coordinator["root"])
             output=root/"results"/a.out_name/f"gpu-{count}"
             command=[str(root/"environment/bin/python"),str(root/"source/scripts/capacity_sweep.py"),
-                "--build",str(root/"build-cuda"),"--out",str(output),
+                "--build",str(root/a.build_name),"--out",str(output),
                 "--external-agents",",".join("127.0.0.1:"+str(w["forward_port"]) for w in workers),
                 "--external-hardware",str(root/"results"/(run+"-hardware.csv")),"--run-id",run,
                 "--devices",",".join(map(str,range(count))),"--gpu-counts",str(count),
@@ -127,10 +133,11 @@ def main():
                 command.append("--expanded-gradients")
             if a.host_reference:
                 command.append("--host-reference")
-            script="hardware="+repr(hardware)+"\ncommand="+repr(command)+"\n"+r'''
-import pathlib,subprocess
+            script="hardware="+repr(hardware)+"\ncommand="+repr(command)+"\ncoalesce="+repr(a.coalesce_gathers)+"\n"+r'''
+import pathlib,subprocess,os
 pathlib.Path(command[command.index('--external-hardware')+1]).write_text(hardware)
-subprocess.run(command,check=True)
+environment=None if coalesce is None else dict(os.environ,EPS_COALESCE_GATHERS=coalesce)
+subprocess.run(command,check=True,env=environment)
 '''
             result=remote(coordinator,script,timeout=300+len(a.learners.split(","))*a.repeats*(a.seconds+30))
             print(result,flush=True)

@@ -7,6 +7,9 @@
 | macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, both gather policies and TensorFlow graphs | 14/14 passed |
 | macOS arm64, core-only ASan/UBSan | Current core, policies, ownership, control replay, adapter and coalesced gathers | 8/8 passed |
 | Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | CPU/CUDA suite before cross-shard gather coalescing | 12/12 passed |
+| Ubuntu 22.04, A6000 coordinator, shared server/agent at `5a4cdcb` | Initial native CPU/CUDA checks | 13/13 passed |
+| Ubuntu 22.04, current client at `9f36ca3` | Native CPU checks | 11/11 passed |
+| Ubuntu 22.04, current client, CUDA agents | Two-shard process lifecycle, both gather policies; fresh and optimizer-exact restored state | Both modes passed |
 | Three separately rented RTX A6000 48 GB devices, compute capability 8.6 | CUDA state/device-result check on each device | All three passed; distinct GPU UUIDs verified |
 
 The L40 driver was 610.43.02, compute capability 8.9. CUDA code was subsequently
@@ -86,13 +89,24 @@ this software/configuration/workload combination. Completed shard, batch-size
 and CPU-only transport controls expose the communication/coordinator path as the
 next scaling target.
 
-All 207 published trials completed without reported errors. The three-GPU,
-two-shard, eight-Learner configuration completed 5,754 updates across three
-30-second trials, at median 61.8 steps/s and median trial P99 246.7 ms. The large
-batch control reached 573,010 input ID occurrences/s with acknowledged updates.
+The new fleet completes **253 capacity trials and 153,703 updates with zero
+reported errors**. An additional 207 trials from the initial deployment remain
+archived. At three GPUs, four shards and eight Learners, three 30-second trials
+complete 10,841 updates at **122.95 steps/s** median and **104.93 ms** median trial
+P99. Controls extend to 128 Learners, sixteen shards and a million-row,
+512-dimensional table with 6 GiB of logical weights and Adam moments.
 
-The [benchmark report](BENCHMARKS.md) includes the final 1/2/3-GPU curves,
-overload behavior, shard/batch/transport controls and source provenance.
-The [raw manifest](benchmarks/2026-10-31/manifest.json) and
-[summary](benchmarks/2026-10-31/summary.json) make each reported result inspectable.
-Commands are documented in [RUNNING.md](RUNNING.md).
+The projected candidate also performs an untimed numerical preflight per fresh
+topology. It captures 96 sampled CPU-owned rows before migration and compares
+sum/mean/sequence features after migration, including repeated IDs and empty
+bags. The small workload checks 17,024 values; the 512-dimensional control
+checks 68,096. Maximum absolute error across the new candidate records is
+**4.470348358154297 × 10⁻⁸**. Preflight precedes warmup and does not advance the
+optimizer or timed-input RNG.
+
+The [benchmark report](BENCHMARKS.md) contains within-fleet paired comparisons,
+1/2/3-GPU curves, shard and transport controls, source provenance and the limits
+revealed by the tests. Its data index links every raw manifest and summary.
+The [validation artifact](benchmarks/2026-10-31-capacity-controls/validation.json)
+records suite counts, source revisions and source-log hashes. Commands are
+documented in [RUNNING.md](RUNNING.md).

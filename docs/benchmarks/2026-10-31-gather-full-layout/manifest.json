@@ -1,0 +1,250 @@
+{
+  "workload": {
+    "rows": 262144,
+    "dimension": 128,
+    "keys": 1024,
+    "bag": 32,
+    "learners": "4,8,16,32",
+    "seconds": 5.0,
+    "ps_shards": 2
+  },
+  "comparison": "same server/agent builds; alternating client order; fresh state per run",
+  "binary_sha256": {
+    "baseline": {
+      "eps_server": "b6487b37846968dcfabfdb105cdfebdd21b276086fb48688061c482bd99bdab1",
+      "eps_capacity_probe": "5ec8bd5ac4c727dfc220ec10c645bab670dff9d9a41b30d16f1c4f42d0f1d286"
+    },
+    "candidate": {
+      "eps_server": "b6487b37846968dcfabfdb105cdfebdd21b276086fb48688061c482bd99bdab1",
+      "eps_capacity_probe": "20a725818e8b56b3de9d2839a980dcf58b7a16b57d1434902307f5dbd961cb8e"
+    },
+    "cache_agent": "2aafec0e47854f03b975c757448452363db90170c8a529e06cb81cec89e42bcd"
+  },
+  "candidate_read_preflight": false,
+  "candidate_coalescing": null,
+  "labels": {},
+  "environment": {
+    "date": "2026-10-31",
+    "provider": "Thunder Compute",
+    "os": "Ubuntu 22.04.5 LTS",
+    "coordinator_cpu": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "coordinator_allocated_vcpus": 6,
+    "coordinator_memory_bytes": 51539607552,
+    "gpu_workers": "Three distinct RTX A6000 48 GB devices; one also hosts the PS/load generator",
+    "transport": "BRPC: local loopback to coordinator agent; SSH-forwarded links to the other two agents",
+    "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "protobuf": "libprotoc 3.12.4",
+    "cuda_compiler": "Build cuda_13.0.r13.0/compiler.36424714_0",
+    "driver": "610.43.02",
+    "cuda_architectures": [
+      86
+    ],
+    "server_source_commit": "5a4cdcb",
+    "cache_agent_source_commit": "5a4cdcb",
+    "server_agent_sources_identical_between_client_revisions": true,
+    "dense_model_included": false
+  },
+  "experiments": [
+    {
+      "name": "gather-pair-b0-1gpu-baseline",
+      "block": 0,
+      "gpu_count": 1,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b0-1gpu-baseline.jsonl",
+      "sha256": "3ab1e9c9913bb7156c80fab0ef7e846e314f8bdc639a4997d8423a03675c1024",
+      "trials": 4,
+      "resources_file": "gather-pair-b0-1gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b0-1gpu-candidate",
+      "block": 0,
+      "gpu_count": 1,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b0-1gpu-candidate.jsonl",
+      "sha256": "abf398c01906d4a13d23c24cc782547ade6b8bfbe5b89c5cd92a006857fc07ba",
+      "trials": 4,
+      "resources_file": "gather-pair-b0-1gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b0-2gpu-candidate",
+      "block": 0,
+      "gpu_count": 2,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b0-2gpu-candidate.jsonl",
+      "sha256": "bb014d67b0fd71e9bdf9aeaea51db0aebd1a1668180c6f952ee7be3e36b2293a",
+      "trials": 4,
+      "resources_file": "gather-pair-b0-2gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b0-2gpu-baseline",
+      "block": 0,
+      "gpu_count": 2,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b0-2gpu-baseline.jsonl",
+      "sha256": "db00946453af20472409577182efde2289611da2e98fe4ec2ce42d58a1aff322",
+      "trials": 4,
+      "resources_file": "gather-pair-b0-2gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b0-3gpu-baseline",
+      "block": 0,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b0-3gpu-baseline.jsonl",
+      "sha256": "c32d3b1094a64165ac7e19e43531957d8cf00bbedd6e4e251e8a0eda2c7aad9e",
+      "trials": 4,
+      "resources_file": "gather-pair-b0-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b0-3gpu-candidate",
+      "block": 0,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b0-3gpu-candidate.jsonl",
+      "sha256": "0d202b36596c07f65e798409de990d4c369577056b5f18e8fac686d4b6a7528c",
+      "trials": 4,
+      "resources_file": "gather-pair-b0-3gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b1-1gpu-candidate",
+      "block": 1,
+      "gpu_count": 1,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b1-1gpu-candidate.jsonl",
+      "sha256": "0a992ddecdaa541a24330e0fbc88a92677df30f807b568e0d9c5f6cafef74e20",
+      "trials": 4,
+      "resources_file": "gather-pair-b1-1gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b1-1gpu-baseline",
+      "block": 1,
+      "gpu_count": 1,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b1-1gpu-baseline.jsonl",
+      "sha256": "24612e5ba77844896f1e48e1dfcf95f485b0461c185e3405c62dd0f538f4ea88",
+      "trials": 4,
+      "resources_file": "gather-pair-b1-1gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b1-2gpu-baseline",
+      "block": 1,
+      "gpu_count": 2,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b1-2gpu-baseline.jsonl",
+      "sha256": "2d0d49c75601ceae91bedf07f59b997080908afdaa4731dbb0a679892aa0be06",
+      "trials": 4,
+      "resources_file": "gather-pair-b1-2gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b1-2gpu-candidate",
+      "block": 1,
+      "gpu_count": 2,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b1-2gpu-candidate.jsonl",
+      "sha256": "8f7e04bdfafab74f379c1eb3c4d7a9654b4d16baa782e205e90c11327fa27913",
+      "trials": 4,
+      "resources_file": "gather-pair-b1-2gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b1-3gpu-candidate",
+      "block": 1,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b1-3gpu-candidate.jsonl",
+      "sha256": "0f15637de8a13ef44d219ed0d09d7d8258ad7266c6bb4373f2a24a92b396676d",
+      "trials": 4,
+      "resources_file": "gather-pair-b1-3gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b1-3gpu-baseline",
+      "block": 1,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b1-3gpu-baseline.jsonl",
+      "sha256": "377e64e75eb65d54e14bccf8df8372329cfa8f9dfc45ae3d163e0dc5ca12161d",
+      "trials": 4,
+      "resources_file": "gather-pair-b1-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b2-1gpu-baseline",
+      "block": 2,
+      "gpu_count": 1,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b2-1gpu-baseline.jsonl",
+      "sha256": "c39eef1725e5a30cd95d5eade64d7525436d3457f002500d9a5d8936df1146eb",
+      "trials": 4,
+      "resources_file": "gather-pair-b2-1gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b2-1gpu-candidate",
+      "block": 2,
+      "gpu_count": 1,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b2-1gpu-candidate.jsonl",
+      "sha256": "76e7a7981deccd1c3d4b9a422d19a2bd0b7df5449b795a574451ec0d9289f6c8",
+      "trials": 4,
+      "resources_file": "gather-pair-b2-1gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b2-2gpu-candidate",
+      "block": 2,
+      "gpu_count": 2,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b2-2gpu-candidate.jsonl",
+      "sha256": "8a8743ad3e0e9c579ba3a8e23dd361bda025b79d5d544ac555d011214946e626",
+      "trials": 4,
+      "resources_file": "gather-pair-b2-2gpu-candidate-resources.json"
+    },
+    {
+      "name": "gather-pair-b2-2gpu-baseline",
+      "block": 2,
+      "gpu_count": 2,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b2-2gpu-baseline.jsonl",
+      "sha256": "6985978f9e893b4d82328377d342e6b1b0f6d28bd666b66a9c9e56a6df02428c",
+      "trials": 4,
+      "resources_file": "gather-pair-b2-2gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b2-3gpu-baseline",
+      "block": 2,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "gather-pair-b2-3gpu-baseline.jsonl",
+      "sha256": "db30310409309e3e42ba1ffe310df8929839b8edf5253c04bac1bd09728f7638",
+      "trials": 4,
+      "resources_file": "gather-pair-b2-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "gather-pair-b2-3gpu-candidate",
+      "block": 2,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "5a4cdcb",
+      "raw_file": "gather-pair-b2-3gpu-candidate.jsonl",
+      "sha256": "3b556c4dfc6a36088d872c74e65f0fa545585fcfd7d5f94648bbe6fc25b5cc59",
+      "trials": 4,
+      "resources_file": "gather-pair-b2-3gpu-candidate-resources.json"
+    }
+  ],
+  "trials": 72,
+  "paired_comparisons": 36,
+  "load_levels": 12
+}

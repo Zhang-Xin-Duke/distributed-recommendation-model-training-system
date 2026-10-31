@@ -1,0 +1,250 @@
+{
+  "workload": {
+    "rows": 262144,
+    "dimension": 128,
+    "keys": 1024,
+    "bag": 32,
+    "learners": "4,8,16,32,64,128",
+    "seconds": 5.0,
+    "ps_shards": 2
+  },
+  "comparison": "same server/agent builds; alternating client order; fresh state per run",
+  "binary_sha256": {
+    "baseline": {
+      "eps_server": "b6487b37846968dcfabfdb105cdfebdd21b276086fb48688061c482bd99bdab1",
+      "eps_capacity_probe": "5ec8bd5ac4c727dfc220ec10c645bab670dff9d9a41b30d16f1c4f42d0f1d286"
+    },
+    "candidate": {
+      "eps_server": "b6487b37846968dcfabfdb105cdfebdd21b276086fb48688061c482bd99bdab1",
+      "eps_capacity_probe": "4557f1b2b940fb2aa9a9ebf36cc1eb22095b48c3ba937f97cd7d4cdc431eaddd"
+    },
+    "cache_agent": "2aafec0e47854f03b975c757448452363db90170c8a529e06cb81cec89e42bcd"
+  },
+  "candidate_read_preflight": true,
+  "candidate_coalescing": null,
+  "labels": {},
+  "environment": {
+    "date": "2026-10-31",
+    "provider": "Thunder Compute",
+    "os": "Ubuntu 22.04.5 LTS",
+    "coordinator_cpu": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "coordinator_allocated_vcpus": 6,
+    "coordinator_memory_bytes": 51539607552,
+    "gpu_workers": "Three distinct RTX A6000 48 GB devices; one also hosts the PS/load generator",
+    "transport": "BRPC: local loopback to coordinator agent; SSH-forwarded links to the other two agents",
+    "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "protobuf": "libprotoc 3.12.4",
+    "cuda_compiler": "Build cuda_13.0.r13.0/compiler.36424714_0",
+    "driver": "610.43.02",
+    "cuda_architectures": [
+      86
+    ],
+    "server_source_commit": "5a4cdcb",
+    "cache_agent_source_commit": "5a4cdcb",
+    "server_agent_sources_identical_between_client_revisions": true,
+    "dense_model_included": false
+  },
+  "experiments": [
+    {
+      "name": "projected-pair-b0-1gpu-baseline",
+      "block": 0,
+      "gpu_count": 1,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b0-1gpu-baseline.jsonl",
+      "sha256": "dac25c2f1561b17bae4644d0ec51848c25953f6faf5eb2b38b8a102c56ea7867",
+      "trials": 6,
+      "resources_file": "projected-pair-b0-1gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b0-1gpu-candidate",
+      "block": 0,
+      "gpu_count": 1,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b0-1gpu-candidate.jsonl",
+      "sha256": "561d68dc6e6dd902100f685cfc44cbafcffde908532e5518c06075a12187d12a",
+      "trials": 6,
+      "resources_file": "projected-pair-b0-1gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b0-2gpu-candidate",
+      "block": 0,
+      "gpu_count": 2,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b0-2gpu-candidate.jsonl",
+      "sha256": "fa5b9f5528c14c134cd32887a745d0d88d6542b22be41d6f761c22f480cc5bcb",
+      "trials": 6,
+      "resources_file": "projected-pair-b0-2gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b0-2gpu-baseline",
+      "block": 0,
+      "gpu_count": 2,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b0-2gpu-baseline.jsonl",
+      "sha256": "b44d4c5bee8e3b1f63e8c124a6b2d1fa0fc060e32490658ba97f83de7f447c50",
+      "trials": 6,
+      "resources_file": "projected-pair-b0-2gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b0-3gpu-baseline",
+      "block": 0,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b0-3gpu-baseline.jsonl",
+      "sha256": "0aaef8fd53ef1ef410ef4f2c608bd2f1d821f01ac188951f499147cae25405c7",
+      "trials": 6,
+      "resources_file": "projected-pair-b0-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b0-3gpu-candidate",
+      "block": 0,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b0-3gpu-candidate.jsonl",
+      "sha256": "7f7513864e56c705a82801dde89a46129162495883d3f5a1fc12f56302318aae",
+      "trials": 6,
+      "resources_file": "projected-pair-b0-3gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b1-1gpu-candidate",
+      "block": 1,
+      "gpu_count": 1,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b1-1gpu-candidate.jsonl",
+      "sha256": "721e1341e21af1454b7971ab66a11bcc96732483cef5029963f0c1651a1c5489",
+      "trials": 6,
+      "resources_file": "projected-pair-b1-1gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b1-1gpu-baseline",
+      "block": 1,
+      "gpu_count": 1,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b1-1gpu-baseline.jsonl",
+      "sha256": "04e7526bf1064e338d26f2b6802bb8e22706d0707fb096370251dfbf7b9c92c4",
+      "trials": 6,
+      "resources_file": "projected-pair-b1-1gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b1-2gpu-baseline",
+      "block": 1,
+      "gpu_count": 2,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b1-2gpu-baseline.jsonl",
+      "sha256": "99a9cca334f01df32a5799a54dc7ba30506a1992db8c4404c74602286778c7a1",
+      "trials": 6,
+      "resources_file": "projected-pair-b1-2gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b1-2gpu-candidate",
+      "block": 1,
+      "gpu_count": 2,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b1-2gpu-candidate.jsonl",
+      "sha256": "092b5359aef2fbf646143111a85ef23e2537b628bd8e93f38fae2be5a8b5f276",
+      "trials": 6,
+      "resources_file": "projected-pair-b1-2gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b1-3gpu-candidate",
+      "block": 1,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b1-3gpu-candidate.jsonl",
+      "sha256": "30d558c1c507b5dcbed981b3f83713d05411b99a3b7d92d163ee2f9bce90de98",
+      "trials": 6,
+      "resources_file": "projected-pair-b1-3gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b1-3gpu-baseline",
+      "block": 1,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b1-3gpu-baseline.jsonl",
+      "sha256": "51aa1b3a864b126cbdb52d70d94b64937b0bb6b0261a5b5bfc4b112c585299bd",
+      "trials": 6,
+      "resources_file": "projected-pair-b1-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b2-1gpu-baseline",
+      "block": 2,
+      "gpu_count": 1,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b2-1gpu-baseline.jsonl",
+      "sha256": "863778ae2b4682e356431ac76e158dcaebc76e58bd8fdd718731eabc8be544fb",
+      "trials": 6,
+      "resources_file": "projected-pair-b2-1gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b2-1gpu-candidate",
+      "block": 2,
+      "gpu_count": 1,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b2-1gpu-candidate.jsonl",
+      "sha256": "a842d5e340f634d855698532ff647ef6a105e6eeb24937c1a31dac9087d9cdbf",
+      "trials": 6,
+      "resources_file": "projected-pair-b2-1gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b2-2gpu-candidate",
+      "block": 2,
+      "gpu_count": 2,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b2-2gpu-candidate.jsonl",
+      "sha256": "29fbf63e6a159c4e679126b3ec5ecfd6f1831ff5f8c9e1dba12ad634d67b19ab",
+      "trials": 6,
+      "resources_file": "projected-pair-b2-2gpu-candidate-resources.json"
+    },
+    {
+      "name": "projected-pair-b2-2gpu-baseline",
+      "block": 2,
+      "gpu_count": 2,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b2-2gpu-baseline.jsonl",
+      "sha256": "79b754ff532ca29fc8d5077f8b29a4e47ee4db69a037675f1deba547ea03597b",
+      "trials": 6,
+      "resources_file": "projected-pair-b2-2gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b2-3gpu-baseline",
+      "block": 2,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "projected-pair-b2-3gpu-baseline.jsonl",
+      "sha256": "0cc160af6c0af0d3c5e61dac5c31374836f678bce2963d38fa26dda996c85981",
+      "trials": 6,
+      "resources_file": "projected-pair-b2-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "projected-pair-b2-3gpu-candidate",
+      "block": 2,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "513640e",
+      "raw_file": "projected-pair-b2-3gpu-candidate.jsonl",
+      "sha256": "c506029294eaadb101a598cfd872a5ba7017c86ba9c87c04746ba95c8289c450",
+      "trials": 6,
+      "resources_file": "projected-pair-b2-3gpu-candidate-resources.json"
+    }
+  ],
+  "trials": 108,
+  "paired_comparisons": 54,
+  "load_levels": 18
+}

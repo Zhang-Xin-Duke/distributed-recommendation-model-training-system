@@ -17,15 +17,17 @@ framework. The supplied TensorFlow bridge uses stateful host callbacks and an
 isolated native RPC client. Dataset readers, model computation and dense gradient
 synchronization remain the training framework's responsibility.
 
-![Measured capacity on one, two and three GPU workers](docs/assets/capacity.svg)
+![Three-GPU parameter-service capacity](docs/assets/service-capacity.svg)
 
-**Measured capacity** (revision `db74e47`): with three RTX A6000 workers and two parameter shards,
-three 30-second trials completed **5,754 sparse update steps** with no errors:
-**61.8 steps/s** median, **246.7 ms** median trial P99. Short-window sweeps peak
-near 70 steps/s for one, two and three GPUs; higher concurrency increases tail
-latency. A larger-batch control reaches **573,010 input ID occurrences/s**, including
-acknowledged updates. These measurements cover the sparse parameter subsystem
-over SSH-forwarded BRPC. [Results, methodology and raw records](docs/BENCHMARKS.md).
+**Measured capacity:** three RTX A6000 agents, four parameter shards and eight
+concurrent Learners sustain **122.95 completed sparse updates/s** with **104.93 ms
+median trial P99** across three 30-second trials: **10,841 updates, zero errors**.
+Higher shard counts and concurrency expose the service's communication and
+queueing limits. A million-row, 512-dimensional control exercises **6 GiB of
+logical parameter/Adam state** and reaches approximately **109–111 thousand input
+ID occurrences/s** including acknowledged updates. The measurements use synthetic
+gradients over the sparse parameter path, with one local and two SSH-forwarded
+GPU agents. [Capacity curves, paired comparisons and raw records](docs/BENCHMARKS.md).
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam, CUDA-resident weights and optimizer states, CPU/GPU migration,
@@ -37,8 +39,9 @@ a pluggable cost planner selects between them. A TensorFlow graph check exercise
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
 **Validation:** the current macOS native and TensorFlow suite passes 14/14,
-and the core ASan/UBSan suite passes 8/8. The measured L40 revision passed 12/12.
-Coverage includes mixed CPU/GPU updates, migration, restart, numerical state,
+and the core ASan/UBSan suite passes 8/8. Both gather policies pass the real CUDA
+process save/restore check. This round completes 253 capacity trials and 153,703
+updates with zero reported errors. Coverage includes mixed CPU/GPU updates, migration, restart, numerical state,
 buffer ownership and configured overload rejection. See the
 [validation record](docs/VALIDATION.md).
 

@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-31",
+  "client_source": "9f36ca3",
+  "server_and_cuda_agent_source": "5a4cdcb",
+  "mac_native_tensorflow": {
+    "passed": 14,
+    "total": 14,
+    "command": "ctest --test-dir build/tensorflow --output-on-failure"
+  },
+  "core_asan_ubsan": {
+    "passed": 8,
+    "total": 8,
+    "command": "ctest --test-dir build/asan --output-on-failure"
+  },
+  "ubuntu_initial_cpu_cuda": {
+    "source": "5a4cdcb",
+    "passed": 13,
+    "total": 13
+  },
+  "ubuntu_current_cpu": {
+    "source": "9f36ca3",
+    "passed": 11,
+    "total": 11
+  },
+  "cuda_process_lifecycle": {
+    "client_source": "9f36ca3",
+    "coalesce_modes": [
+      0,
+      1
+    ],
+    "fresh_and_restored_each": true
+  },
+  "distinct_cuda_visible_devices": 3,
+  "cuda_device_result_checks_passed_on_all_devices": true,
+  "source_log_sha256": {
+    "mac_native_tensorflow": "4e6f7400c48d23aad7b1aef9bc7571c4978b56ff730d5371de5e8a83e2524e7c",
+    "core_asan_ubsan": "3e116056ee639eb590a95b3578520ec6338ff3f8201975dc2e14348f422ec3dd",
+    "initial_cpu_cuda": "40aa2b28843134d1cc9df3de77df44ebeedf6c245a97b652c129f53e838525a0",
+    "current_cpu_and_cuda_rpc": "365573bab7662da93f35045c6baa9495937b73d4266220dbf94f5ca8489b9dcb"
+  }
+}

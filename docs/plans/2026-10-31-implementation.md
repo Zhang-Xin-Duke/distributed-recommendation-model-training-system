@@ -20,7 +20,7 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
 | 3. Framework integration | C++ Pull/Push/Join adapter and portable TensorFlow host bridge implemented; real graph/external-shard check passed; native original-application build and device interop pending |
 | 4. GPU cache agent | CUDA resident gather/Adam, full-state loading/writeback, generation fencing and cache-draining restore verified on L40; individual A6000 checks also passed |
-| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection and cross-shard gather coalescing execute; reuse scoring and bounded admission proposals checked; automatic window/controller integration and asynchronous preparation pending |
+| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; reuse scoring and bounded admission proposals checked; automatic window/controller integration and asynchronous preparation pending |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
@@ -130,3 +130,18 @@ Stress later workloads with long pooled bags, short bags, repeated IDs, cold IDs
 changing hot sets, constrained cache capacity and multiple Learners. Report
 metadata/planning overhead and peak state memory alongside throughput. No speedup
 target is used as a substitute for measured results.
+
+## Multi-GPU capacity record — October 31
+
+The new fleet completes 253 trials and 153,703 acknowledged sparse updates
+without reported errors, covering 1/2/3 A6000 agents, up to 128 Learners,
+2/4/8/16 PS shards and million-row 512D state. At three GPUs, four shards and
+eight Learners, three 30-second trials reach 122.95 updates/s and 104.93 ms
+median trial P99. Larger shard/concurrency controls identify coordination and
+communication as the next scaling targets. Paired results retain negative
+coalescing results; per-shard overlap with destination projection is the default.
+
+Current native/TensorFlow checks pass 14/14, core ASan/UBSan 8/8, Linux CPU
+11/11, and real CUDA migration/save/restore passes with both gather modes.
+[The capacity report](../BENCHMARKS.md) links source revisions and all raw data.
+All three instances were deleted after results were fetched and audited.

@@ -1,0 +1,16 @@
+[
+  {
+    "learners": 128,
+    "repeat": 0,
+    "ps_cpu_cores": 0.8885668833134577,
+    "load_generator_cpu_cores": 0.3847300459518011,
+    "ps_sampled_rss_bytes": 525918208
+  },
+  {
+    "learners": 128,
+    "repeat": 1,
+    "ps_cpu_cores": 0.9201005146060672,
+    "load_generator_cpu_cores": 0.370819590321357,
+    "ps_sampled_rss_bytes": 526348288
+  }
+]

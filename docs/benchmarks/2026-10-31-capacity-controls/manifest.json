@@ -1,0 +1,192 @@
+{
+  "date": "2026-10-31",
+  "environment": {
+    "date": "2026-10-31",
+    "provider": "Thunder Compute",
+    "os": "Ubuntu 22.04.5 LTS",
+    "coordinator_cpu": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "coordinator_allocated_vcpus": 6,
+    "coordinator_memory_bytes": 51539607552,
+    "gpu_workers": "Three distinct RTX A6000 48 GB devices; one also hosts the PS/load generator",
+    "transport": "BRPC: local loopback to coordinator agent; SSH-forwarded links to the other two agents",
+    "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "protobuf": "libprotoc 3.12.4",
+    "cuda_compiler": "Build cuda_13.0.r13.0/compiler.36424714_0",
+    "driver": "610.43.02",
+    "cuda_architectures": [
+      86
+    ],
+    "server_source_commit": "5a4cdcb",
+    "cache_agent_source_commit": "5a4cdcb",
+    "server_agent_sources_identical_between_client_revisions": true,
+    "dense_model_included": false
+  },
+  "workload": {
+    "scope": "Complete sparse lookup, pooling, feature-gradient preparation and acknowledged LazyAdam updates; synthetic gradients; no dense-model computation",
+    "timing": "Initialization, numerical preflight, warmup and post-trial checks excluded; final drain and client bookkeeping included"
+  },
+  "experiments": [
+    {
+      "name": "streamed-four-shards",
+      "suite": "shard_control",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "streamed-four-shards.jsonl",
+      "sha256": "55e2a56bc4110e739edb623893007987d3b58b12fac00115be33b9c212df0418",
+      "gpu_agents": 3,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "streamed-four-shards-resources.json",
+      "trial_count": 8,
+      "learner_levels": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "streamed-shards-8",
+      "suite": "shard_control",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "streamed-shards-8.jsonl",
+      "sha256": "b1908c7a046824c050d7b4f8161c479dfae09f47f6c8d7f053e020bab405428c",
+      "gpu_agents": 3,
+      "ps_shards": 8,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "streamed-shards-8-resources.json",
+      "trial_count": 4,
+      "learner_levels": [
+        8,
+        16
+      ]
+    },
+    {
+      "name": "streamed-shards-16",
+      "suite": "shard_control",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "streamed-shards-16.jsonl",
+      "sha256": "ee89b408c21fa9acb4f1bd509941beda3a3cfa8a911e8c04d62713fb23f558a0",
+      "gpu_agents": 3,
+      "ps_shards": 16,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "streamed-shards-16-resources.json",
+      "trial_count": 4,
+      "learner_levels": [
+        8,
+        16
+      ]
+    },
+    {
+      "name": "large-embedding-mode-0",
+      "suite": "large_table",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "large-embedding-mode-0.jsonl",
+      "sha256": "ad82a8c4ac737d24c5048a7ba380c21a1b133ec66396a022d73c5a01c828886c",
+      "gpu_agents": 3,
+      "ps_shards": 2,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "large-embedding-mode-0-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        4,
+        8,
+        16
+      ]
+    },
+    {
+      "name": "large-embedding-mode-1",
+      "suite": "large_table",
+      "variant": "projected_coalesced",
+      "source_commit": "9f36ca3",
+      "raw_file": "large-embedding-mode-1.jsonl",
+      "sha256": "6035f1a7a3f5dad0e2a7288cf5f3bf872175df3501317f7d226d8f1a8965e090",
+      "gpu_agents": 3,
+      "ps_shards": 2,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "large-embedding-mode-1-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        4,
+        8,
+        16
+      ]
+    },
+    {
+      "name": "streamed-sustained",
+      "suite": "sustained",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "streamed-sustained.jsonl",
+      "sha256": "219153a21ef5425259552d11ee917dd6b07b37bd6214ccfdb8dfada3838d7f2c",
+      "gpu_agents": 3,
+      "ps_shards": 2,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "streamed-sustained-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        128
+      ]
+    },
+    {
+      "name": "streamed-four-shards-sustained",
+      "suite": "sustained",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "streamed-four-shards-sustained.jsonl",
+      "sha256": "ec1068ecab70af8e450419aec71bb516e142d54fb6284fc65a1485c0645f58b1",
+      "gpu_agents": 3,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "streamed-four-shards-sustained-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        8
+      ]
+    },
+    {
+      "name": "streamed-two-shards-eight-sustained",
+      "suite": "sustained",
+      "variant": "projected_per_shard",
+      "source_commit": "9f36ca3",
+      "raw_file": "streamed-two-shards-eight-sustained.jsonl",
+      "sha256": "ea5922516c38b97913b813e76cf919cda7294b65bd26ad99b64a54dd3dc8be20",
+      "gpu_agents": 3,
+      "ps_shards": 2,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "streamed-two-shards-eight-sustained-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        8
+      ]
+    }
+  ],
+  "transport_control": "transport-control.json"
+}

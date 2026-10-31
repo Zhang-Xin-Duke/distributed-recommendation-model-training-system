@@ -1,0 +1,121 @@
+{
+  "workload": {
+    "rows": 262144,
+    "dimension": 128,
+    "keys": 1024,
+    "bag": 32,
+    "learners": "4,8,16,32,64,128",
+    "seconds": 5.0,
+    "ps_shards": 2
+  },
+  "comparison": "same server/agent builds; alternating client order; fresh state per run",
+  "binary_sha256": {
+    "baseline": {
+      "eps_server": "b6487b37846968dcfabfdb105cdfebdd21b276086fb48688061c482bd99bdab1",
+      "eps_capacity_probe": "5ec8bd5ac4c727dfc220ec10c645bab670dff9d9a41b30d16f1c4f42d0f1d286"
+    },
+    "candidate": {
+      "eps_server": "b6487b37846968dcfabfdb105cdfebdd21b276086fb48688061c482bd99bdab1",
+      "eps_capacity_probe": "ba42a1038b82e19b02736d0a9b2cefaccfda8f2b2bc1d07be8a55a83c1a874ec"
+    },
+    "cache_agent": "2aafec0e47854f03b975c757448452363db90170c8a529e06cb81cec89e42bcd"
+  },
+  "candidate_read_preflight": true,
+  "candidate_coalescing": "0",
+  "labels": {
+    "baseline": "Original per-shard",
+    "candidate": "Projected per-shard"
+  },
+  "environment": {
+    "date": "2026-10-31",
+    "provider": "Thunder Compute",
+    "os": "Ubuntu 22.04.5 LTS",
+    "coordinator_cpu": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "coordinator_allocated_vcpus": 6,
+    "coordinator_memory_bytes": 51539607552,
+    "gpu_workers": "Three distinct RTX A6000 48 GB devices; one also hosts the PS/load generator",
+    "transport": "BRPC: local loopback to coordinator agent; SSH-forwarded links to the other two agents",
+    "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "protobuf": "libprotoc 3.12.4",
+    "cuda_compiler": "Build cuda_13.0.r13.0/compiler.36424714_0",
+    "driver": "610.43.02",
+    "cuda_architectures": [
+      86
+    ],
+    "server_source_commit": "5a4cdcb",
+    "cache_agent_source_commit": "5a4cdcb",
+    "server_agent_sources_identical_between_client_revisions": true,
+    "dense_model_included": false
+  },
+  "experiments": [
+    {
+      "name": "streamed-pair-b0-3gpu-baseline",
+      "block": 0,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "streamed-pair-b0-3gpu-baseline.jsonl",
+      "sha256": "22b25209fafa811b2d704d3f3d1688cc6ffe8c5a081d09b801d84f7f9095d1fd",
+      "trials": 6,
+      "resources_file": "streamed-pair-b0-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "streamed-pair-b0-3gpu-candidate",
+      "block": 0,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "9f36ca3",
+      "raw_file": "streamed-pair-b0-3gpu-candidate.jsonl",
+      "sha256": "db94fcfc17a81f98220f4604759da70e74c2bf2a86074655ed038c3ccf618463",
+      "trials": 6,
+      "resources_file": "streamed-pair-b0-3gpu-candidate-resources.json"
+    },
+    {
+      "name": "streamed-pair-b1-3gpu-candidate",
+      "block": 1,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "9f36ca3",
+      "raw_file": "streamed-pair-b1-3gpu-candidate.jsonl",
+      "sha256": "e1223099d8ee37e2a4dbf5237d25e12fea51b769867720b0039bd2ab0e0368df",
+      "trials": 6,
+      "resources_file": "streamed-pair-b1-3gpu-candidate-resources.json"
+    },
+    {
+      "name": "streamed-pair-b1-3gpu-baseline",
+      "block": 1,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "streamed-pair-b1-3gpu-baseline.jsonl",
+      "sha256": "f73ae9ae09998fecb81b586aa933a5caf4e952a41125182bd9aa73d8e5adfc24",
+      "trials": 6,
+      "resources_file": "streamed-pair-b1-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "streamed-pair-b2-3gpu-baseline",
+      "block": 2,
+      "gpu_count": 3,
+      "variant": "baseline",
+      "client_commit": "db74e47",
+      "raw_file": "streamed-pair-b2-3gpu-baseline.jsonl",
+      "sha256": "b6a246a15900cc9aedbaf710c7df3c4b12cbb0b3e00b827e738e5f3923274747",
+      "trials": 6,
+      "resources_file": "streamed-pair-b2-3gpu-baseline-resources.json"
+    },
+    {
+      "name": "streamed-pair-b2-3gpu-candidate",
+      "block": 2,
+      "gpu_count": 3,
+      "variant": "candidate",
+      "client_commit": "9f36ca3",
+      "raw_file": "streamed-pair-b2-3gpu-candidate.jsonl",
+      "sha256": "fae62bdb5a06c2c04bd961cc2eb4c434b40ac1cffb43d51a24a29cc19c716fa1",
+      "trials": 6,
+      "resources_file": "streamed-pair-b2-3gpu-candidate-resources.json"
+    }
+  ],
+  "trials": 36,
+  "paired_comparisons": 18,
+  "load_levels": 6
+}

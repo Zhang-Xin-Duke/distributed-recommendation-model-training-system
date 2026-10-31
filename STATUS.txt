@@ -15,20 +15,22 @@ Implemented:
 - C++ embedding adapter and portable TensorFlow Pull/Push/Join bridge.
 - Compact pooled-gradient transfers with ordered GPU reduction and size-based fallback.
 - Concurrent independent GPU-owner update dispatch.
-- Cross-shard gather coalescing with one concurrent gather per destination.
+- Destination-projected cache gathers; default per-shard overlap and optional cross-shard coalescing.
 - Known-ticket cleanup after failed lookup/reconstruction and collected read completions.
 - Real-process/fleet capacity probes with latency and sequencer queue metrics.
 
-Validation: twelve native CUDA checks on L40 before gather coalescing; thirteen
-current native/TensorFlow checks on macOS; eight current core ASan/UBSan checks.
-Three separate A6000 devices each passed the
-CUDA state/device-result check. Completed 207 capacity trials across one, two and
-three GPUs, 1-64 Learners, shard/batch controls and three 30-second trials.
-The longer three-GPU control completed 5,754 updates with zero errors at median
-61.8 steps/s; large batches reached 573,010 input ID occurrences/s.
+Validation: current macOS native/RPC/TensorFlow checks 14/14; core ASan/UBSan
+8/8; Ubuntu CPU checks 11/11; initial A6000 CPU/CUDA checks 13/13. Both current
+gather policies pass real-process CUDA migration and optimizer-exact restore.
+Three distinct A6000 devices passed CUDA state/device-result checks.
+Completed 253 new capacity trials and 153,703 updates, with zero reported errors;
+460 capacity trials are retained including the initial deployment. Sweeps cover
+1/2/3 GPUs, up to 128 Learners, 2/4/8/16 shards and million-row 512D state.
+Best tested sustained three-GPU point: 4 shards, 8 Learners, 122.95 updates/s,
+104.93 ms median trial P99; 10,841 updates across three 30-second trials.
+Additional shards or concurrency expose coordination/communication limits.
 See docs/BENCHMARKS.md and docs/VALIDATION.md.
-The published GPU curves predate cross-shard gather coalescing; a paired GPU
-rerun remains required for its performance effect.
+All three rented instances for this round were deleted and verified absent.
 
 Remaining: automatic admission/eviction controller integration, asynchronous
 preparation/overlap, original Entropy application/native device integration, and
