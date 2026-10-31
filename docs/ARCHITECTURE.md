@@ -31,8 +31,7 @@ model and cache share its CUDA context and TensorFlow variables.
 flowchart TB
     L[Existing Entropy Learner] <-->|Lookup / Push / Join| A[Embedding adapter]
     A <--> S[Independent parameter-service shard]
-    S --> B[CPU parameter rows
-Key index + contiguous state arrays]
+    S --> B["CPU parameter rows<br/>Key index + contiguous state arrays"]
     S --> Q[Update queue and sparse optimizer]
     S --> P[Access / admission / migration planner]
     P <-->|Plans, state transfers, completion| C[GPU cache agent in existing worker]
