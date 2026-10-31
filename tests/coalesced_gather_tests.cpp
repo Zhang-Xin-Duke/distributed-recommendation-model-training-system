@@ -50,6 +50,17 @@ class ObservedBackend final : public CacheBackend {
       result.set_value(Error{Error::Code::unavailable,"injected destination failure"});return result.get_future();
     }
     std::set<std::tuple<std::uint32_t,AccessRoute>> groups;
+    std::uint64_t sent=0;
+    for(const auto& layout:layouts) {
+      sent+=layout.keys.size();
+      for(std::size_t i=0;i<layout.keys.size();++i) {
+        bool used=false;
+        for(const auto& task:work)if(task.feature==layout.feature)
+          used|=task.occurrence_to_unique.at(i)!=UINT64_MAX;
+        Check(used,"destination received an unreferenced input ID");
+      }
+    }
+    received_keys+=sent;
     for(const auto& task:work)
       Check(groups.emplace(task.feature,task.route).second,"same feature/route was not coalesced across shards");
     auto barrier=gate;
@@ -68,6 +79,7 @@ class ObservedBackend final : public CacheBackend {
     return backend.CommitEviction(std::move(p));
   }
   HostCacheBackend backend;std::atomic<int> calls{0};std::shared_ptr<Gate> gate;
+  std::atomic<std::uint64_t> received_keys{0};
   bool fail=false;
   std::shared_ptr<std::promise<Result<std::vector<TensorBlock>>>> held;
   std::shared_ptr<std::promise<void>> dispatched;
@@ -132,6 +144,8 @@ int main() {
     for(std::uint64_t seq=1;seq<=3;++seq) {
       auto gate=std::make_shared<Gate>();
       std::vector<int> before;
+      std::uint64_t before_keys=0;
+      for(auto& worker:workers)before_keys+=worker->received_keys;
       for(auto& worker:workers){before.push_back(worker->calls);worker->gate=gate;}
       auto a=Take(actual.Lookup(Request(0,seq,false))),b=Take(baseline.Lookup(Request(0,seq,false)));
       Same(a,b);
@@ -139,6 +153,10 @@ int main() {
         Check(workers[i]->calls==before[i]+1,"lookup did not issue exactly one gather per destination");
         workers[i]->gate.reset();
       }
+      std::uint64_t sent_keys=0;for(auto& worker:workers)sent_keys+=worker->received_keys;
+      // There are 23 input occurrences; CPU-only cold rows remain on their
+      // shard. Each remaining occurrence appears in one destination layout.
+      Check(sent_keys-before_keys==19,"destination projection did not send exactly the referenced positions");
       auto gradients=a.features();
       for(auto& f:gradients)for(std::size_t j=0;j<f.values.size();++j)f.values[j]=0.03f*(1+j%7)*seq;
       Take(actual.Push(a,gradients));Take(baseline.Push(b,gradients));
@@ -183,7 +201,9 @@ int main() {
     workers[1]->dispatched=std::make_shared<std::promise<void>>();
     auto dispatched=workers[1]->dispatched->get_future();
     AgentWork slow{};slow.agent=1;
-    auto waiting=std::async(std::launch::async,[&]{return resolver({known,slow},{});});
+    known.feature=slow.feature=0;known.occurrence_to_unique=slow.occurrence_to_unique={0};
+    FeatureInput dummy{1,0,Pooling::sequence,{1},{0,1},{1}};
+    auto waiting=std::async(std::launch::async,[&]{return resolver({known,slow},{dummy});});
     const bool launched=dispatched.wait_for(std::chrono::seconds(3))==std::future_status::ready;
     const bool waited=waiting.wait_for(std::chrono::milliseconds(10))==std::future_status::timeout;
     workers[1]->held->set_value(std::vector<TensorBlock>{});

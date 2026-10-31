@@ -49,6 +49,9 @@ Resident and transferred vectors retain separate task payloads.
 
 `MakeCacheResolver` validates destination endpoints, dispatches one gather per
 destination and collects every returned future before reporting an error.
+Before dispatch it projects key arrays, bag offsets and occurrence maps onto the
+positions that destination reads. Original mean denominators remain unchanged;
+sequence contributions are scattered back to original positions on return.
 Custom resolvers must also collect all submitted read completions before returning.
 If lookup, reconstruction or cache resolution fails, the client collects any
 already-submitted shard replies and releases every known successful ticket.

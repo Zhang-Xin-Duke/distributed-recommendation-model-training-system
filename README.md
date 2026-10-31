@@ -94,7 +94,8 @@ flowchart LR
 
 - **Cross-shard gather coalescing:** remap each shard's cached work to original
   input positions and merge it by destination, feature and route. The shared
-  resolver issues one asynchronous gather per destination, reducing up to
+  resolver sends only the positions each destination reads and restores sequence
+  results to their original positions. It issues one asynchronous gather per destination, reducing up to
   `shards × GPUs` calls to `GPUs` calls for a lookup. Original shard tickets and
   sparse-update boundaries remain independent. This path has native, real-BRPC
   and TensorFlow correctness coverage; the plotted GPU measurements predate it.

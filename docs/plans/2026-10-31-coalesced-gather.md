@@ -56,3 +56,26 @@ including standalone BRPC lifecycle/restore and TensorFlow graphs using both
 CPU-only and transferred-vector/cache-RPC host-reference paths.
 `ctest --test-dir build/asan --output-on-failure`: **8/8 passed**.
 The existing CUDA benchmark data remains associated with `db74e47`.
+
+## Destination projection follow-up
+
+The first alternating CUDA comparison exposes a tradeoff: merging calls leaves
+each destination with full original key arrays and dense occurrence maps.
+Reduce those payloads before issuing the gather. For each destination/feature,
+retain only positions referenced by its tasks, preserve original bag boundaries
+and mean denominators, and slice each task's occurrence map to those positions.
+Resident and transferred payloads retain their existing row references.
+
+The backend returns pooled contributions with unchanged bag count. Sequence
+results use the smaller destination layout; the resolver scatters them back to
+original positions before returning to `DistributedClient`. This keeps the
+resolver's public contract and all shard tickets unchanged. Verify exact
+destination key counts, empty bags, repeated IDs, mixed routes, sequences and
+optimizer state. Measure the new client separately on the same fixed fleet.
+
+Implemented destination projection and sequence restoration. Native/TensorFlow
+checks pass 13/13 and core ASan/UBSan checks pass 8/8. The mixed-route test sends
+exactly 19 destination keys for 23 input occurrences, with four CPU-only
+occurrences retained at the parameter shards. Parameter and optimizer state
+still matches the CPU reference. The fixed-fleet GPU comparison remains separate
+from these correctness checks.
