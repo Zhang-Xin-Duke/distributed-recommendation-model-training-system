@@ -69,6 +69,13 @@ int main(int argc,char** argv){
     std::vector<std::shared_ptr<ParameterService>> remote={
       std::make_shared<BrpcParameterService>(argv[1]),std::make_shared<BrpcParameterService>(argv[2])};
     DistributedClient client(remote);Take(client.CreateTable(Table(2)));
+    if(resumed){
+      auto packet=Request("wire-test",0,true);
+      // Only shard-0-owned keys; rejection must be about the old run, not routing.
+      packet.features={{1,0,Pooling::sum,{2},{0,1},{1}}};
+      auto old=remote[0]->Lookup(std::move(packet)).get();
+      Check(std::holds_alternative<Error>(old),"packet from old run was accepted");
+    }
     RuntimeOptions options;options.run_id="baseline";
     auto reference=std::make_shared<CpuParameterService>(options);
     DistributedClient baseline({reference});Take(baseline.CreateTable(Table(1)));

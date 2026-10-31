@@ -5,6 +5,8 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <limits>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -185,6 +187,50 @@ void PayloadBudgets() {
   Check(Failure(queue.Lookup({Id(0,Phase::lookup),1,true,
     {Feature(0,Pooling::sum,{1},{0,1},{1})}})).code==Error::Code::capacity_exceeded,"queue byte budget ignored");
 }
+void ConcurrentLearners() {
+  CpuParameterService s(Options());Value(s.CreateTable(Table()));
+  std::mutex mutex;std::string failure;
+  std::vector<std::thread> workers;
+  for(std::uint32_t learner=0;learner<8;++learner)workers.emplace_back([&,learner] {
+    try {
+      for(std::uint64_t seq=0;seq<32;++seq) {
+        const bool eval=seq%4==0;
+        auto batch=Lookup(s,seq,{Feature(0,Pooling::sum,{1},{0,1},{1})},eval,"test",learner);
+        if(eval)Release(s,seq,batch.ticket,"test",learner);
+        else {
+          PushRequest p{Id(seq,Phase::push,"test",learner),batch.ticket,{{0,{1,2},{1,1}}}};
+          Value(s.Push(p));Value(s.Push(p));
+        }
+      }
+    }catch(const std::exception& e){std::lock_guard lock(mutex);failure=e.what();}
+  });
+  for(auto& worker:workers)worker.join();
+  Check(failure.empty(),failure.c_str());
+  Check(Read(s,1).row_updates==192,"concurrent Learner updates lost or duplicated");
+  auto stats=Value(s.Stats());
+  Check(stats.live_tickets==0 && stats.ticket_payload_bytes==0 && stats.updates==192,
+        "concurrent completion leaked lifecycle state");
+}
+void OverflowDoesNotPartiallyUpdate() {
+  CpuParameterService s(Options());Value(s.CreateTable(Table()));
+  auto batch=Lookup(s,0,{Feature(0,Pooling::sequence,{1,2},{0,2},{2})});
+  Failure(s.Push({Id(0,Phase::push),batch.ticket,
+    {{0,{2,2},{1,1,std::numeric_limits<float>::max(),1}}}}));
+  Release(s,0,batch.ticket);
+  Check(Read(s,1).row_updates==0 && Read(s,2).row_updates==0,"numeric rejection applied partial update");
+  Near(Read(s,1).weights[0],0.25f);
+}
+void OutOfOrderLifecycleWindow() {
+  auto o=Options();o.request_history=8;
+  CpuParameterService s(o);Value(s.CreateTable(Table()));
+  auto later=Lookup(s,1,{Feature(0,Pooling::sum,{1},{0,1},{1})},true);
+  auto first=Lookup(s,0,{Feature(0,Pooling::sum,{1},{0,1},{1})},true);
+  Release(s,1,later.ticket);Release(s,0,first.ticket);
+  for(std::uint64_t seq=2;seq<32;++seq){
+    auto b=Lookup(s,seq,{Feature(0,Pooling::sum,{1},{0,1},{1})},true);Release(s,seq,b.ticket);
+  }
+  Check(Value(s.Stats()).live_tickets==0,"out-of-order window failed to retire");
+}
 }
 
 int main() {
@@ -197,7 +243,10 @@ int main() {
     {"partitioning and initializer",ShardsAndInitializer},
     {"mixed request history",BoundedHistoryWithMixedRequests},
     {"resource bounds and epoch",BudgetAndEpoch},
-    {"ticket and queue payload limits",PayloadBudgets}};
+    {"ticket and queue payload limits",PayloadBudgets},
+    {"concurrent Learner lifecycles",ConcurrentLearners},
+    {"numeric rejection without partial updates",OverflowDoesNotPartiallyUpdate},
+    {"out-of-order lifecycle retirement",OutOfOrderLifecycleWindow}};
   int failed=0;
   for(const auto& [name,fn]:checks) {
     try { fn();std::cout<<"PASS "<<name<<'\n'; }
