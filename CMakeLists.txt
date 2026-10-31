@@ -102,6 +102,8 @@ if(EPS_BUILD_BRPC)
   target_include_directories(eps_server PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_executable(eps_capacity_probe tests/capacity_probe.cpp)
   target_link_libraries(eps_capacity_probe PRIVATE eps_brpc nlohmann_json::nlohmann_json)
+  add_executable(eps_cache_policy_probe tests/cache_policy_probe.cpp)
+  target_link_libraries(eps_cache_policy_probe PRIVATE eps_brpc nlohmann_json::nlohmann_json)
   add_executable(eps_cache_agent src/server/agent_main.cpp)
   target_link_libraries(eps_cache_agent PRIVATE eps_brpc)
   target_include_directories(eps_cache_agent PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -119,6 +121,10 @@ if(EPS_BUILD_BRPC)
     add_test(NAME automatic_cache_external_shards
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/cache_policy_processes.py"
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_policy_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
+    add_test(NAME cache_policy_fixed_trace_smoke
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/cache_policy_trace_processes.py"
+        $<TARGET_FILE:eps_cache_policy_probe>)
+    set_tests_properties(cache_policy_fixed_trace_smoke PROPERTIES TIMEOUT 150)
     add_test(NAME automatic_cache_coalesced_external_shards
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/cache_policy_processes.py"
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_policy_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
