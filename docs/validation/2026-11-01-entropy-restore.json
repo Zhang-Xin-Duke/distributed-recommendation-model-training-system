@@ -1,0 +1,368 @@
+{
+  "source_commit": "ce17f182615b091861d9b56af68cafbfdf6a5e67",
+  "scope": "Committed snapshot staging, loaded provenance, original restore boundary and optimizer-exact continuation",
+  "environment": {
+    "source_commit": "ce17f182615b091861d9b56af68cafbfdf6a5e67",
+    "binary_sha256": {
+      "eps_server": "834128a766f72d5cd2b642e9a8f5a4c0e0b6096fd080bb80bb7e44e5f2cff9ed",
+      "eps_cache_agent": "6e4377921477a2847c0a8b9909bf3cb0c9f902e09ccf96d5dfc6268dfc73f21e",
+      "eps_restore_provenance_tests": "c9ea6b4779af6d1705d17a57b8410b7aebe1afc620b94fa53c78fa26c29ec783",
+      "eps_snapshot_compare": "b69010e003385a85d919c66a50ef673dfa04e28b423cf49cd60e3fcab9617958",
+      "eps_cuda_tests": "e484c22d90955469f38a30c9bfcd375cb659ab9025e7b84322654346dbd6f63c"
+    },
+    "source_sha256": {
+      "include/eps/types.hpp": "c7ae24065666ae235faf6dcf5dfbcc028d76b8e72c90e7ec19d9f6e9353c8f43",
+      "src/server/service.cpp": "8b53e5c714e9c6b3279261aa67d00f9641a128668f59554079c5eb3a179376d4",
+      "src/store/snapshot.cpp": "3b71dd17011097322e9e0252b4b89da560bbd60131e1423a1493b88ff9a0ae22",
+      "proto/embedding_service.proto": "ce9b03cedd05cf31da5a43bfa6058dcf64387728dc2bc8f8ce98beb867494c18",
+      "src/transport/brpc_client.cpp": "15138349d1bd7b9c40c4c3a503300f9c15b88f06d7cd79f64060c32c33485411",
+      "src/transport/brpc_server.cpp": "6766cec712845a837d5c1e57412b8bdc0c8391f936cc36919f990cd02b6f892a",
+      "adapters/entropy/python_bindings.cpp": "5ba2df84a89533a512a820c717f6ca2b64ecc41191f559bc9b74f0be09375840",
+      "adapters/entropy/checkpoint_restore.py": "826714f8fbcf803a77db776c40ec44896dda16aef501672a7ba95b3d74dde2d1",
+      "adapters/entropy/entropy_stage.py": "f1107fab1a8e284571c631d33b9a60bf88d405f261194563d4fdd8669ee3ef0c",
+      "adapters/entropy/entropy_install.py": "c7ac9a713f2315b4150dd1f3618db252755527521089ade0a09ea65421435c25",
+      "tests/entropy_restore_processes.py": "32dc0757aec8febab5df0c0acfea752859d1fd46126bd974da788a3c13f1c4f0",
+      "tests/entropy_source_contract.py": "2cf2b9e2fcfc51093fb0205bfe23cef914a0dd0cca696aec9592764ae89b0498",
+      "tests/restore_provenance_tests.cpp": "d9c17ffaa173b914d4514472ec658709cdf37be03be38abfc5912b3c5742a2e2",
+      "tests/snapshot_compare.cpp": "a71f614cd7fbe6da91e7f9ea0d4f5743cc1f2b6535d897c13acc6d3603d23137"
+    },
+    "source_fixture_sha256": {
+      "tensorswitch/python/tensorswitch/train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+      "tensorswitch/python/tensorswitch/inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+    },
+    "gpu": "NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "native_cuda_tests": 25,
+    "full_tests": 39,
+    "forced_cuda_tests": 8,
+    "original_restore_records": [
+      {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "cuda",
+        "source": {
+          "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+          "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      },
+      {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "cuda",
+        "source": {
+          "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+          "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      },
+      {
+        "test": "original_restore_rejection",
+        "mode": "fresh",
+        "before_dense_restore": true
+      },
+      {
+        "test": "original_restore_rejection",
+        "mode": "wrong",
+        "before_dense_restore": true
+      },
+      {
+        "test": "original_runner_restore_continuation",
+        "initial_snapshot_verified": true,
+        "initial_input_cursor": 3,
+        "final_input_cursor": 6,
+        "continued_steps": 3,
+        "input_cursor_kind": "state written by the original-checkpoint feeder stand-in",
+        "dense_max_absolute_error": 0.0,
+        "active_service_rewind_rejected": true,
+        "parameter_shards": 2,
+        "cache_backend": "cuda",
+        "source": {
+          "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+          "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_sparse_wait",
+            "worker_restore_dense"
+          ]
+        }
+      },
+      {
+        "test": "restored_full_optimizer_state",
+        "selected_tables": [
+          3,
+          7
+        ],
+        "checked_rows": 5,
+        "max_state_absolute_error": 0.0,
+        "compared": [
+          "weights",
+          "first_moment",
+          "second_moment",
+          "row_counters",
+          "optimizer_sequence",
+          "beta_powers"
+        ]
+      },
+      {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "automatic_resident_cuda",
+        "train_steps": 5,
+        "prepared_inputs": true,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      },
+      {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "automatic_resident_cuda",
+        "train_steps": 5,
+        "prepared_inputs": true,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": true,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    ]
+  },
+  "logs": [
+    {
+      "name": "ubuntu-native-cuda",
+      "passed": 25,
+      "file": "validation/2026-11-01-entropy-restore/ubuntu-native-cuda.log",
+      "sha256": "4778a6e368f1baf3c98c170557c2c25b2a86c2b8a089459db38b99c24d44354b"
+    },
+    {
+      "name": "ubuntu-full-cuda-tensorflow",
+      "passed": 39,
+      "file": "validation/2026-11-01-entropy-restore/ubuntu-full-cuda-tensorflow.log",
+      "sha256": "ff5b3a2383a7d569329260757f488f107a110acaf09824afbd3ae626c3e6187d"
+    },
+    {
+      "name": "ubuntu-forced-cuda-restore",
+      "passed": 8,
+      "file": "validation/2026-11-01-entropy-restore/ubuntu-forced-cuda-restore.log",
+      "sha256": "2a102628977125b885c62a3594865679afda92dde0131653207751b49c61b4e4"
+    },
+    {
+      "name": "macos-native-tensorflow",
+      "passed": 36,
+      "file": "validation/2026-11-01-entropy-restore/macos-native-tensorflow.log",
+      "sha256": "a350ae8bd4836bc06a8b92332b312bdb42bdd123f831cf92180bcff7a2bf5bfa"
+    },
+    {
+      "name": "macos-asan-ubsan",
+      "passed": 16,
+      "file": "validation/2026-11-01-entropy-restore/macos-asan-ubsan.log",
+      "sha256": "58a894ab94d4753cb0ddff271351bf7272add1e190f16d63f1ba6a14db16e5c4"
+    },
+    {
+      "name": "macos-tsan",
+      "passed": 16,
+      "file": "validation/2026-11-01-entropy-restore/macos-tsan.log",
+      "sha256": "58a18e693a38452444033a76261abb513a849d864fd098efd21b54954e0989b1"
+    }
+  ],
+  "source_sha256": {
+    "include/eps/types.hpp": "c7ae24065666ae235faf6dcf5dfbcc028d76b8e72c90e7ec19d9f6e9353c8f43",
+    "src/server/service.cpp": "8b53e5c714e9c6b3279261aa67d00f9641a128668f59554079c5eb3a179376d4",
+    "src/store/snapshot.cpp": "3b71dd17011097322e9e0252b4b89da560bbd60131e1423a1493b88ff9a0ae22",
+    "proto/embedding_service.proto": "ce9b03cedd05cf31da5a43bfa6058dcf64387728dc2bc8f8ce98beb867494c18",
+    "src/transport/brpc_client.cpp": "15138349d1bd7b9c40c4c3a503300f9c15b88f06d7cd79f64060c32c33485411",
+    "src/transport/brpc_server.cpp": "6766cec712845a837d5c1e57412b8bdc0c8391f936cc36919f990cd02b6f892a",
+    "adapters/entropy/python_bindings.cpp": "5ba2df84a89533a512a820c717f6ca2b64ecc41191f559bc9b74f0be09375840",
+    "adapters/entropy/checkpoint_restore.py": "826714f8fbcf803a77db776c40ec44896dda16aef501672a7ba95b3d74dde2d1",
+    "adapters/entropy/entropy_stage.py": "f1107fab1a8e284571c631d33b9a60bf88d405f261194563d4fdd8669ee3ef0c",
+    "adapters/entropy/entropy_install.py": "c7ac9a713f2315b4150dd1f3618db252755527521089ade0a09ea65421435c25",
+    "tests/entropy_restore_processes.py": "32dc0757aec8febab5df0c0acfea752859d1fd46126bd974da788a3c13f1c4f0",
+    "tests/entropy_source_contract.py": "2cf2b9e2fcfc51093fb0205bfe23cef914a0dd0cca696aec9592764ae89b0498",
+    "tests/restore_provenance_tests.cpp": "d9c17ffaa173b914d4514472ec658709cdf37be03be38abfc5912b3c5742a2e2",
+    "tests/snapshot_compare.cpp": "a71f614cd7fbe6da91e7f9ea0d4f5743cc1f2b6535d897c13acc6d3603d23137"
+  },
+  "archive_sha256": "e37748105a632a4b0b3235228d77b9061eae077e38d38abb34d343df4523e244",
+  "cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793512414.720143
+  },
+  "gpu_continuation": {
+    "test": "original_runner_restore_continuation",
+    "initial_snapshot_verified": true,
+    "initial_input_cursor": 3,
+    "final_input_cursor": 6,
+    "continued_steps": 3,
+    "input_cursor_kind": "state written by the original-checkpoint feeder stand-in",
+    "dense_max_absolute_error": 0.0,
+    "active_service_rewind_rejected": true,
+    "parameter_shards": 2,
+    "cache_backend": "cuda",
+    "source": {
+      "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+      "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+      "source_definitions": [
+        "SparseTable",
+        "SparseLazyAdam",
+        "per_learner_once_attr",
+        "cluster_specific",
+        "add_var_collections",
+        "InputBuilder.sparse_vars",
+        "InputBuilder.apply_sparse_grads",
+        "_MultiDatasetRunner.checkpoint",
+        "_MultiDatasetRunner.prepare_path",
+        "checkpoint",
+        "_MultiDatasetRunner.restore",
+        "worker_restore",
+        "worker_restore_sparse",
+        "worker_restore_dense"
+      ],
+      "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+      "executed_paths": [
+        "SparseTable construction/registration/decorators",
+        "InputBuilder.sparse_vars",
+        "InputBuilder.apply_sparse_grads",
+        "_MultiDatasetRunner.restore",
+        "worker_restore",
+        "worker_restore_sparse",
+        "worker_restore_sparse_wait",
+        "worker_restore_dense"
+      ]
+    }
+  },
+  "gpu_state_comparison": {
+    "test": "restored_full_optimizer_state",
+    "selected_tables": [
+      3,
+      7
+    ],
+    "checked_rows": 5,
+    "max_state_absolute_error": 0.0,
+    "compared": [
+      "weights",
+      "first_moment",
+      "second_moment",
+      "row_counters",
+      "optimizer_sequence",
+      "beta_powers"
+    ]
+  },
+  "snapshot_integrity": "joint manifest SHA-256, staged file SHA-256, partition header and native full-body embedded checksum",
+  "model_device": "CPU TensorFlow model; forced-CUDA tests execute parameter cache work on the rented A6000",
+  "native_framework_scope": "preserved methods are source-executed with explicit native environment/save/feeder stand-ins and single-participant framework barrier records",
+  "input_reader_scope": "checkpointed feeder stand-in cursor; native original data reader is not executed",
+  "remaining": [
+    "native original-application and original-reader execution",
+    "multi-peer original framework checkpoint/barrier execution",
+    "in-process device-tensor integration"
+  ],
+  "filesystem_transport": "local paths through actual tf.io.gfile; remote filesystem plugins require their configured deployment environment"
+}

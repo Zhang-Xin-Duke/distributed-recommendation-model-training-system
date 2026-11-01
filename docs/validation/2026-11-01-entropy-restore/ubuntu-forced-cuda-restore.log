@@ -1,0 +1,158 @@
+Internal ctest changing into directory: /home/ubuntu/entropy-restore-validation/build-cuda
+UpdateCTestConfiguration  from :/home/ubuntu/entropy-restore-validation/build-cuda/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/ubuntu/entropy-restore-validation/build-cuda/DartConfiguration.tcl
+Test project /home/ubuntu/entropy-restore-validation/build-cuda
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start  1: automatic_cache_external_shards
+
+1: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent"
+1: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+1: Test timeout computed to be: 120
+1: PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+1: PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+1/8 Test  #1: automatic_cache_external_shards .............   Passed    2.75 sec
+test 3
+    Start  3: automatic_cache_coalesced_external_shards
+
+3: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent"
+3: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+3: Environment variables: 
+3:  EPS_COALESCE_GATHERS=1
+3: Test timeout computed to be: 120
+3: PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+3: PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+2/8 Test  #3: automatic_cache_coalesced_external_shards ...   Passed    2.79 sec
+test 6
+    Start  6: cache_agent_process_lifecycle
+
+6: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/cache_rpc_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_rpc_checks" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent"
+6: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+6: Environment variables: 
+6:  EPS_CACHE_BACKEND=cuda
+6: Test timeout computed to be: 90
+6: CACHE_BACKEND=cuda
+6: PASS two-shard lookup, mean, sequence, updates and retry
+6: PASS two-shard restore trajectory
+3/8 Test  #6: cache_agent_process_lifecycle ...............   Passed    3.22 sec
+test 11
+    Start 11: entropy_original_table_cache
+
+11: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/entropy_hooks_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent"
+11: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+11: Environment variables: 
+11:  PYTHONPATH=/home/ubuntu/entropy-restore-validation/build-cuda/python:/home/ubuntu/entropy-restore-validation/source/adapters/entropy
+11: Test timeout computed to be: 120
+11: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+11: E0000 00:00:1793512340.742892   16225 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+11: W0000 00:00:1793512340.900168   16225 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+11: Skipping registering GPU devices...
+11: I0000 00:00:1793512341.125326   16225 mlir_graph_optimization_pass.cc:437] MLIR V1 optimization pass is not enabled
+11: E0000 00:00:1793512341.354434   16349 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+11: W0000 00:00:1793512341.355138   16349 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+11: Skipping registering GPU devices...
+11: {"test": "entropy_original_table_graph", "train_steps": 6, "reference_checked_steps": 5, "max_reference_absolute_error": 0.0, "loss_before": 0.1697656214237213, "loss_after": 0.09437486529350281, "parameter_shards": 2, "callback_tls_independent": true, "prediction_repetitions": 12, "missing_gradient_zero_fill": true, "unused_feature_releases": 12, "same_learner_graph_recreation": true, "original_runner_midrun_checkpoint": true, "failed_dense_save_stays_frozen": true, "table_class_preserved": true, "backend_learner_ids": [0, 10], "cache_backend": "cuda", "source": {"train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9", "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a", "source_definitions": ["SparseTable", "SparseLazyAdam", "per_learner_once_attr", "cluster_specific", "add_var_collections", "InputBuilder.sparse_vars", "InputBuilder.apply_sparse_grads", "_MultiDatasetRunner.checkpoint", "_MultiDatasetRunner.prepare_path", "checkpoint", "_MultiDatasetRunner.restore", "worker_restore", "worker_restore_sparse", "worker_restore_dense"], "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported", "executed_paths": ["SparseTable construction/registration/decorators", "InputBuilder.sparse_vars", "InputBuilder.apply_sparse_grads", "_MultiDatasetRunner.checkpoint", "_MultiDatasetRunner.prepare_path", "checkpoint"]}}
+4/8 Test #11: entropy_original_table_cache ................   Passed    9.38 sec
+test 12
+    Start 12: entropy_original_restore_trajectory
+
+12: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/entropy_restore_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_snapshot_compare"
+12: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+12: Environment variables: 
+12:  PYTHONPATH=/home/ubuntu/entropy-restore-validation/build-cuda/python:/home/ubuntu/entropy-restore-validation/source/adapters/entropy
+12: Test timeout computed to be: 240
+12: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+12: E0000 00:00:1793512350.236750   16544 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793512350.394373   16544 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: I0000 00:00:1793512350.623997   16544 mlir_graph_optimization_pass.cc:437] MLIR V1 optimization pass is not enabled
+12: E0000 00:00:1793512351.075246   16667 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793512351.076095   16667 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: {"test": "entropy_original_table_graph", "train_steps": 6, "reference_checked_steps": 5, "max_reference_absolute_error": 0.0, "loss_before": 0.1697656214237213, "loss_after": 0.09437486529350281, "parameter_shards": 2, "callback_tls_independent": true, "prediction_repetitions": 12, "missing_gradient_zero_fill": true, "unused_feature_releases": 12, "same_learner_graph_recreation": true, "original_runner_midrun_checkpoint": true, "failed_dense_save_stays_frozen": true, "table_class_preserved": true, "backend_learner_ids": [0, 10], "cache_backend": "cuda", "source": {"train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9", "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a", "source_definitions": ["SparseTable", "SparseLazyAdam", "per_learner_once_attr", "cluster_specific", "add_var_collections", "InputBuilder.sparse_vars", "InputBuilder.apply_sparse_grads", "_MultiDatasetRunner.checkpoint", "_MultiDatasetRunner.prepare_path", "checkpoint", "_MultiDatasetRunner.restore", "worker_restore", "worker_restore_sparse", "worker_restore_dense"], "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported", "executed_paths": ["SparseTable construction/registration/decorators", "InputBuilder.sparse_vars", "InputBuilder.apply_sparse_grads", "_MultiDatasetRunner.checkpoint", "_MultiDatasetRunner.prepare_path", "checkpoint"]}}
+12: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+12: E0000 00:00:1793512359.750597   16839 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793512359.905713   16839 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: I0000 00:00:1793512360.117171   16839 mlir_graph_optimization_pass.cc:437] MLIR V1 optimization pass is not enabled
+12: {"test": "original_restore_rejection", "mode": "fresh", "before_dense_restore": true}
+12: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+12: E0000 00:00:1793512368.201760   17113 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793512368.367488   17113 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: I0000 00:00:1793512368.591837   17113 mlir_graph_optimization_pass.cc:437] MLIR V1 optimization pass is not enabled
+12: {"test": "original_restore_rejection", "mode": "wrong", "before_dense_restore": true}
+12: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+12: E0000 00:00:1793512382.176034   17396 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793512382.326979   17396 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: I0000 00:00:1793512382.543907   17396 mlir_graph_optimization_pass.cc:437] MLIR V1 optimization pass is not enabled
+12: E0000 00:00:1793512382.665519   17506 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793512382.666094   17506 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: {"test": "original_runner_restore_continuation", "initial_snapshot_verified": true, "initial_input_cursor": 3, "final_input_cursor": 6, "continued_steps": 3, "input_cursor_kind": "state written by the original-checkpoint feeder stand-in", "dense_max_absolute_error": 0.0, "active_service_rewind_rejected": true, "parameter_shards": 2, "cache_backend": "cuda", "source": {"train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9", "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a", "source_definitions": ["SparseTable", "SparseLazyAdam", "per_learner_once_attr", "cluster_specific", "add_var_collections", "InputBuilder.sparse_vars", "InputBuilder.apply_sparse_grads", "_MultiDatasetRunner.checkpoint", "_MultiDatasetRunner.prepare_path", "checkpoint", "_MultiDatasetRunner.restore", "worker_restore", "worker_restore_sparse", "worker_restore_dense"], "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported", "executed_paths": ["SparseTable construction/registration/decorators", "InputBuilder.sparse_vars", "InputBuilder.apply_sparse_grads", "_MultiDatasetRunner.restore", "worker_restore", "worker_restore_sparse", "worker_restore_sparse_wait", "worker_restore_dense"]}}
+12: {"test": "restored_full_optimizer_state", "selected_tables": [3, 7], "checked_rows": 5, "max_state_absolute_error": 0.0, "compared": ["weights", "first_moment", "second_moment", "row_counters", "optimizer_sequence", "beta_powers"]}
+5/8 Test #12: entropy_original_restore_trajectory .........   Passed   40.75 sec
+test 18
+    Start 18: tensorflow_graph_prepared_automatic_cache
+
+18: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent"
+18: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+18: Environment variables: 
+18:  PYTHONPATH=/home/ubuntu/entropy-restore-validation/build-cuda/python:/home/ubuntu/entropy-restore-validation/source/adapters/entropy
+18:  EPS_TEST_PREPARE=1
+18:  EPS_TEST_AUTO_CACHE=1
+18:  EPS_TEST_COALESCE=1
+18: Test timeout computed to be: 120
+18: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+18: E0000 00:00:1793512390.512480   17687 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+18: W0000 00:00:1793512390.643317   17687 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+18: Skipping registering GPU devices...
+18: {"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_cuda", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+6/8 Test #18: tensorflow_graph_prepared_automatic_cache ...   Passed    8.36 sec
+test 20
+    Start 20: tensorflow_graph_periodic_checkpoint
+
+20: Test command: /home/ubuntu/entropy-restore-validation/environment/bin/python "/home/ubuntu/entropy-restore-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_server" "/home/ubuntu/entropy-restore-validation/build-cuda/eps_cache_agent"
+20: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+20: Environment variables: 
+20:  PYTHONPATH=/home/ubuntu/entropy-restore-validation/build-cuda/python:/home/ubuntu/entropy-restore-validation/source/adapters/entropy
+20:  EPS_TEST_PREPARE=1
+20:  EPS_TEST_AUTO_CACHE=1
+20:  EPS_TEST_PERIODIC=1
+20: Test timeout computed to be: 120
+20: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+20: E0000 00:00:1793512399.149845   17974 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+20: W0000 00:00:1793512399.273921   17974 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+20: Skipping registering GPU devices...
+20: {"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_cuda", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": true, "checkpoint_shards": 2, "retraces": 0}
+7/8 Test #20: tensorflow_graph_periodic_checkpoint ........   Passed    9.08 sec
+test 37
+    Start 37: resumable_cuda_shard_operations
+
+37: Test command: /home/ubuntu/entropy-restore-validation/build-cuda/eps_resumable_service_tests
+37: Working Directory: /home/ubuntu/entropy-restore-validation/build-cuda
+37: Environment variables: 
+37:  EPS_RESUMABLE_BACKEND=cuda
+37: Test timeout computed to be: 90
+37: PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+8/8 Test #37: resumable_cuda_shard_operations .............   Passed    4.24 sec
+
+The following tests passed:
+	automatic_cache_external_shards
+	automatic_cache_coalesced_external_shards
+	cache_agent_process_lifecycle
+	entropy_original_table_cache
+	entropy_original_restore_trajectory
+	tensorflow_graph_prepared_automatic_cache
+	tensorflow_graph_periodic_checkpoint
+	resumable_cuda_shard_operations
+
+100% tests passed, 0 tests failed out of 8
+
+Total Test time (real) =  80.57 sec

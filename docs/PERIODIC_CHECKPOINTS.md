@@ -84,9 +84,9 @@ backend.resume("step-2000")
 
 Export keeps admission closed. The parameter manifest identifies the sparse
 files; the training controller owns the joint commit with dense and input state.
-Restoration currently stages exported files into the server's snapshot layout
-before starting a fresh run. Automatic retrieval from the original framework's
-remote checkpoint store remains part of the controller integration.
+The [restore stager](ENTROPY_RESTORE.md) streams committed shard files into local
+storage and starts fresh servers. Original restore hooks verify loaded snapshot
+identities before restoring dense/input state through the existing framework.
 
 ## Lifecycle verification
 
@@ -120,8 +120,8 @@ EPS_CACHE_BACKEND=cuda ctest --test-dir build/cuda -V \
 The [original table/Runner hooks](ENTROPY_TABLE_HOOKS.md) now install this lifecycle
 at the original source boundaries. Their source-level Session checks preserve
 the original directory preparation, dense/input save flow and gradient dispatcher.
-The native original-application build, multi-peer framework execution, remote
-restore staging and in-process device-tensor integration remain separate work.
+The native original-application build, original-reader/multi-peer framework
+execution and in-process device-tensor integration remain separate work.
 
 Executed checks at source `dc72662`: 30/30 local native/RPC/TensorFlow,
 15/15 ASan/UBSan, 15/15 ThreadSanitizer, 24/24 A6000 native CPU/CUDA,

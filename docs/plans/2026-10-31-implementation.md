@@ -18,7 +18,7 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 |---|---|
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
-| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original named-table/Runner hooks and periodic export/resume implemented; original-method Session checks pass on external shards/Host cache; earlier portable mid-run save passes forced CUDA; remote restore, native original-application execution, multi-peer framework barriers and device interop pending |
+| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native original-application/reader execution, multi-peer framework barriers and device interop pending |
 | 4. GPU cache agent | CUDA resident gather/Adam, full-state loading/writeback, generation fencing and cache-draining restore verified on L40; individual A6000 checks also passed |
 | 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked |
 

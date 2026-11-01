@@ -1,0 +1,56 @@
+Test project /home/ubuntu/entropy-restore-validation/build-cuda
+      Start  1: automatic_cache_external_shards
+ 1/25 Test  #1: automatic_cache_external_shards .............   Passed    0.82 sec
+      Start  2: cache_policy_fixed_trace_smoke
+ 2/25 Test  #2: cache_policy_fixed_trace_smoke ..............   Passed    4.86 sec
+      Start  3: automatic_cache_coalesced_external_shards
+ 3/25 Test  #3: automatic_cache_coalesced_external_shards ...   Passed    0.84 sec
+      Start  4: rpc_cache_backpressure
+ 4/25 Test  #4: rpc_cache_backpressure ......................   Passed    1.30 sec
+      Start  5: two_process_rpc_and_restore
+ 5/25 Test  #5: two_process_rpc_and_restore .................   Passed    0.64 sec
+      Start  6: cache_agent_process_lifecycle
+ 6/25 Test  #6: cache_agent_process_lifecycle ...............   Passed    3.37 sec
+      Start  7: core_correctness
+ 7/25 Test  #7: core_correctness ............................   Passed    0.05 sec
+      Start  8: cost_and_migration_policies
+ 8/25 Test  #8: cost_and_migration_policies .................   Passed    0.01 sec
+      Start  9: cache_ownership_and_updates
+ 9/25 Test  #9: cache_ownership_and_updates .................   Passed    0.03 sec
+      Start 10: automatic_cache_policy_lifecycle
+10/25 Test #10: automatic_cache_policy_lifecycle ............   Passed    0.07 sec
+      Start 11: agent_control_replay
+11/25 Test #11: agent_control_replay ........................   Passed    0.02 sec
+      Start 12: embedding_adapter_lifecycle
+12/25 Test #12: embedding_adapter_lifecycle .................   Passed    0.02 sec
+      Start 13: service_phase_timing
+13/25 Test #13: service_phase_timing ........................   Passed    0.01 sec
+      Start 14: bounded_asynchronous_preparation
+14/25 Test #14: bounded_asynchronous_preparation ............   Passed    0.03 sec
+      Start 15: periodic_checkpoint_lifecycle
+15/25 Test #15: periodic_checkpoint_lifecycle ...............   Passed    0.05 sec
+      Start 16: restored_snapshot_provenance
+16/25 Test #16: restored_snapshot_provenance ................   Passed    0.03 sec
+      Start 17: bounded_sparse_optimizer
+17/25 Test #17: bounded_sparse_optimizer ....................   Passed    0.03 sec
+      Start 18: resumable_actor_dependencies
+18/25 Test #18: resumable_actor_dependencies ................   Passed    0.18 sec
+      Start 19: resumable_shard_operations
+19/25 Test #19: resumable_shard_operations ..................   Passed    0.13 sec
+      Start 20: concurrent_multi_agent_updates
+20/25 Test #20: concurrent_multi_agent_updates ..............   Passed    0.02 sec
+      Start 21: coalesced_cross_shard_gathers
+21/25 Test #21: coalesced_cross_shard_gathers ...............   Passed    0.04 sec
+      Start 22: compact_feature_gradient_semantics
+22/25 Test #22: compact_feature_gradient_semantics ..........   Passed    0.02 sec
+      Start 23: resumable_cuda_shard_operations
+23/25 Test #23: resumable_cuda_shard_operations .............   Passed    4.21 sec
+      Start 24: cuda_state_and_device_results
+24/25 Test #24: cuda_state_and_device_results ...............   Passed    4.34 sec
+      Start 25: cuda_concurrent_checked_reads
+25/25 Test #25: cuda_concurrent_checked_reads ...............   Passed    5.82 sec
+
+100% tests passed, 0 tests failed out of 25
+
+Total Test time (real) =  26.97 sec
+Sun Nov  1 05:47:50 UTC 2026

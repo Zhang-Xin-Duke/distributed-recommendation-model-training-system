@@ -38,6 +38,8 @@ python -m entropy_stage \
 Repeat on each shard host with its own shard index and service configuration.
 The configuration's shard count and epoch must match the checkpoint. Set the
 training adapter's run, ordered endpoints, epoch and table IDs to those servers.
+Set `cpu_state_bytes` to cover the shard's restored weights, moments and counters;
+the existing service capacity limits also apply during restore.
 `--filesystem tensorflow` uses the installed framework's `tf.io.gfile`, including
 its configured remote-filesystem plugins. Local files use `--filesystem local`.
 
@@ -102,3 +104,9 @@ snapshot loading and TensorFlow state. Preserved original methods execute with
 explicit native-environment/feeder stand-ins and single-participant framework
 barriers. Full native application, original reader and multi-peer framework
 execution retain their own validation requirements.
+
+At source `ce17f18`, local native/RPC/TensorFlow checks pass 36/36; ASan/UBSan and
+ThreadSanitizer each pass 16/16 core checks. A6000 execution passes 25/25 native
+CPU/CUDA checks, 39/39 full checks and 8/8 forced-CUDA cases. The resumed selected
+parameter/Adam state and dense variable have zero measured error against the
+uninterrupted control. [Source and execution evidence](validation/2026-11-01-entropy-restore.json).

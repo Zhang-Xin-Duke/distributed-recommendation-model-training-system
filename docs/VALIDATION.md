@@ -1,5 +1,48 @@
 # Validation record
 
+## Committed restore and loaded-state verification — November 1, 2026
+
+Source `ce17f18` connects committed parameter snapshots to fresh service startup
+and the original table/Runner restore boundary. The stager verifies the joint
+manifest, file SHA-256 and partition header; the native loader validates the
+full snapshot and publishes its provenance only on success. Restore hooks require
+matching loaded files in a pristine new run before original dense restore.
+
+| Environment | Executed checks | Result |
+| --- | --- | --- |
+| macOS arm64, native/RPC/TensorFlow | Complete suite, including two-service staging/restart and original restore flow | 36/36 |
+| macOS arm64, ASan/UBSan | Complete core suite | 16/16 |
+| macOS arm64, ThreadSanitizer | Complete core suite | 16/16 |
+| Ubuntu, GNU 11.4, A6000, CUDA 13.0.88 | Native CPU/CUDA suite | 25/25 |
+| Same A6000, TensorFlow 2.20.0 | Complete native/CUDA/TensorFlow suite | 39/39 |
+| Same build, forced CUDA Agent | Original table/restore paths, periodic save, cache lifecycle and delayed operations | 8/8 |
+
+The restore regression commits after step 3, terminates both PS processes,
+stages their files through `entropy_stage`, starts fresh services with a new run,
+and continues three steps through the original source-level Runner/worker/table
+restore flow. The CUDA path matches uninterrupted six-step execution with
+**zero maximum absolute error** for selected weights, both Adam moments and beta
+powers; row counters and optimizer sequence match exactly. The native comparator
+checks five rows across two selected tables. Dense parameter error is also zero.
+
+Independent phases reject a fresh un-restored service and a different loaded
+snapshot before dense restore. A subsequent restore attempt after training begins
+is rejected. Core checks additionally cover failed-load publication, duplicate
+definition, first admission, schema change and repeated empty-snapshot restore.
+Filesystem checks cover immutable retry, bounded reads, missing joint markers,
+mismatched manifests and corrupt files.
+
+Parameter-cache execution uses real CUDA on the A6000; the TensorFlow model runs
+on CPU. Original methods are source-executed with explicit native-environment,
+save/feeder stand-ins and single-participant barrier records. Input continuation
+uses the saved test-feeder cursor. Staging exercises local paths through actual
+`tf.io.gfile`; configured remote plugins retain their own deployment validation.
+Full native application/reader, multi-peer framework execution and in-process
+device tensors remain separate requirements.
+
+[Restore commands and protocol](ENTROPY_RESTORE.md) ·
+[Source, binary/log hashes, comparison records and verified rental deletion](validation/2026-11-01-entropy-restore.json).
+
 ## Original Entropy table and Runner hooks — November 1, 2026
 
 Source `ea743b9` installs the external backend on selected original table names,

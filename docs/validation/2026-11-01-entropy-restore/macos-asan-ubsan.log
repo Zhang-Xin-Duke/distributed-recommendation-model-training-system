@@ -1,0 +1,37 @@
+Test project PROJECT_ROOT/build/asan
+      Start  1: core_correctness
+ 1/16 Test  #1: core_correctness .....................   Passed    0.43 sec
+      Start  2: cost_and_migration_policies
+ 2/16 Test  #2: cost_and_migration_policies ..........   Passed    0.09 sec
+      Start  3: cache_ownership_and_updates
+ 3/16 Test  #3: cache_ownership_and_updates ..........   Passed    0.23 sec
+      Start  4: automatic_cache_policy_lifecycle
+ 4/16 Test  #4: automatic_cache_policy_lifecycle .....   Passed    0.29 sec
+      Start  5: agent_control_replay
+ 5/16 Test  #5: agent_control_replay .................   Passed    0.12 sec
+      Start  6: embedding_adapter_lifecycle
+ 6/16 Test  #6: embedding_adapter_lifecycle ..........   Passed    0.22 sec
+      Start  7: service_phase_timing
+ 7/16 Test  #7: service_phase_timing .................   Passed    0.22 sec
+      Start  8: bounded_asynchronous_preparation
+ 8/16 Test  #8: bounded_asynchronous_preparation .....   Passed    0.25 sec
+      Start  9: periodic_checkpoint_lifecycle
+ 9/16 Test  #9: periodic_checkpoint_lifecycle ........   Passed    0.26 sec
+      Start 10: restored_snapshot_provenance
+10/16 Test #10: restored_snapshot_provenance .........   Passed    0.15 sec
+      Start 11: bounded_sparse_optimizer
+11/16 Test #11: bounded_sparse_optimizer .............   Passed    0.22 sec
+      Start 12: resumable_actor_dependencies
+12/16 Test #12: resumable_actor_dependencies .........   Passed    0.29 sec
+      Start 13: resumable_shard_operations
+13/16 Test #13: resumable_shard_operations ...........   Passed    0.34 sec
+      Start 14: concurrent_multi_agent_updates
+14/16 Test #14: concurrent_multi_agent_updates .......   Passed    0.22 sec
+      Start 15: coalesced_cross_shard_gathers
+15/16 Test #15: coalesced_cross_shard_gathers ........   Passed    0.30 sec
+      Start 16: compact_feature_gradient_semantics
+16/16 Test #16: compact_feature_gradient_semantics ...   Passed    0.12 sec
+
+100% tests passed, 0 tests failed out of 16
+
+Total Test time (real) =   3.77 sec
