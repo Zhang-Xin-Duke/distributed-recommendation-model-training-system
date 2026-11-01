@@ -94,7 +94,8 @@ def run_topology(args, count, root):
                    str(args.seconds), str(args.repeats)]
         (output / "command.json").write_text(json.dumps(command, indent=2)+"\n")
         with (output / "raw.jsonl").open("w") as result, (output / "probe.log").open("w+") as log:
-            probe = subprocess.Popen(command, stdout=result, stderr=log)
+            probe = subprocess.Popen(command, stdout=result, stderr=log,
+                env=dict(os.environ, EPS_CAPACITY_ACCESS_PATTERN=args.access_pattern))
             processes.append(probe)
             code = probe.wait(timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
             if code:
@@ -144,6 +145,8 @@ def main():
     parser.add_argument("--keys", type=int, default=1024)
     parser.add_argument("--bag", type=int, default=32)
     parser.add_argument("--learners", default="1,2,4,8,16,32,64")
+    parser.add_argument("--access-pattern", choices=("resident_mixture", "hot_shard"),
+                        default="resident_mixture", help="Hot shard sends timed accesses to home shard 0")
     parser.add_argument("--seconds", type=float, default=2)
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--host-reference", action="store_true")

@@ -35,6 +35,10 @@ int main(int argc,char** argv){
     const char* gather_mode=std::getenv("EPS_COALESCE_GATHERS");
     if(gather_mode && std::string(gather_mode)!="0" && std::string(gather_mode)!="1")throw std::runtime_error("EPS_COALESCE_GATHERS must be 0 or 1");
     const bool coalesce=gather_mode && std::string(gather_mode)=="1";
+    const char* pattern_env=std::getenv("EPS_CAPACITY_ACCESS_PATTERN");
+    const std::string access_pattern=pattern_env?pattern_env:"resident_mixture";
+    if(access_pattern!="resident_mixture" && access_pattern!="hot_shard")
+      throw std::runtime_error("EPS_CAPACITY_ACCESS_PATTERN must be resident_mixture or hot_shard");
     const auto levels=Split(argv[8]);const double duration=std::stod(argv[9]);const int repeats=std::stoi(argv[10]);
     if(rows<1024 || rows>1048576 || !dim || dim>512 || !keys || keys>8192 || !bag || keys%bag || duration<=0 || duration>60 || repeats<1 || repeats>10)
       throw std::runtime_error("invalid capacity workload dimensions");
@@ -129,7 +133,12 @@ int main(int argc,char** argv){
         try{
           while(Clock::now()<deadline){
             FeatureInput f{1,0,Pooling::mean,{},{0},{}};f.keys.reserve(keys);
-            for(std::uint32_t i=0;i<keys;++i){f.keys.push_back(1+random()%(random()%100<95?cached:rows));
+            for(std::uint32_t i=0;i<keys;++i){
+              const auto bound=random()%100<95?cached:rows;
+              const Key key=access_pattern=="hot_shard"
+                ? (1+random()%(bound/shards.size()))*shards.size()
+                : 1+random()%bound;
+              f.keys.push_back(key);
               if((i+1)%bag==0){f.offsets.push_back(i+1);f.valid_lengths.push_back(bag);}}
             std::set<Key> unique(f.keys.begin(),f.keys.end());
             const auto begin=Clock::now();
@@ -202,6 +211,7 @@ int main(int argc,char** argv){
       result["expanded_gradient_bytes"]=expanded_bytes;result["transferred_gradient_bytes"]=transferred_bytes;
       result["compact_update_commands"]=compact_commands;
       result["coalesced_gathers"]=coalesce;
+      result["access_pattern"]=access_pattern;
       result["preflight_values_checked"]=preflight_values;
       result["preflight_max_absolute_error"]=preflight_error;
       result["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();

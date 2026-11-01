@@ -21,6 +21,8 @@ are collected with the capacity records.
 4. Repeat selected four-GPU points with active limit 1 to isolate scheduling.
    Test a larger 1,048,576-row, 512-dimensional table on one and four GPUs.
    Record automatic-placement behavior separately from manual placement.
+   Add a hot-shard control whose timed IDs all map to home shard 0, while keeping
+   table size, vector width and resident-mixture probability fixed.
 5. Collect link-transfer controls, CPU/RSS/GPU telemetry, source/binary hashes
    and raw results before deleting all rented instances. Retain failed points
    explicitly; do not reinterpret a failed run as a zero-error completion.

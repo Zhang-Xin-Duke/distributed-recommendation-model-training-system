@@ -98,6 +98,7 @@ def main():
     p.add_argument("--keys", type=int, default=1024)
     p.add_argument("--bag", type=int, default=32)
     p.add_argument("--learners", default="1,2,4,8,16,32,64")
+    p.add_argument("--access-pattern", choices=("resident_mixture", "hot_shard"), default="resident_mixture")
     p.add_argument("--seconds", type=float, default=2)
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--serial-agent-updates", action="store_true")
@@ -130,6 +131,7 @@ def main():
                 "--devices",",".join(map(str,range(count))),"--gpu-counts",str(count),
                 "--cache-admission",a.cache_admission,"--ps-shards",str(a.ps_shards),"--rows",str(a.rows),"--dimension",str(a.dimension),
                 "--max-active-operations",str(a.max_active_operations),"--dependency-cache",a.dependency_cache,
+                "--access-pattern",a.access_pattern,
                 "--keys",str(a.keys),"--bag",str(a.bag),"--learners",a.learners,
                 "--seconds",str(a.seconds),"--repeats",str(a.repeats)]
             if a.serial_agent_updates:
