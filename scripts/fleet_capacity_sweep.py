@@ -10,6 +10,7 @@ import json
 import pathlib
 import shlex
 import subprocess
+import sys
 import uuid
 
 
@@ -110,6 +111,7 @@ def main():
     if not a.build_name.replace("-", "").replace("_", "").isalnum():
         p.error("build-name must be one directory name")
     fleet = json.loads(a.fleet.read_text());coordinator=fleet["coordinator"]
+    failures=[]
     for count in map(int,a.gpu_counts.split(",")):
         if not 1<=count<=len(fleet["workers"]):
             p.error("GPU count exceeds the prepared fleet")
@@ -148,10 +150,17 @@ subprocess.run(command,check=True,env=environment)
 '''
             result=remote(coordinator,script,timeout=300+len(a.learners.split(","))*a.repeats*(a.seconds+30))
             print(result,flush=True)
+        except Exception as error:
+            # Each topology has fresh processes. Retain its failed probe and
+            # attempt the remaining counts so an admission boundary stays local.
+            failures.append(f"{count} GPU(s): {error}")
+            print(f"Failed {count}-GPU topology: {error}",file=sys.stderr,flush=True)
         finally:
             with concurrent.futures.ThreadPoolExecutor(max_workers=count) as pool:
                 for result in pool.map(lambda node:stop_worker(node,run),workers):
                     print(result.strip(),flush=True)
+    if failures:
+        raise RuntimeError("One or more GPU topologies failed:\n"+"\n".join(failures))
 
 
 if __name__ == "__main__":

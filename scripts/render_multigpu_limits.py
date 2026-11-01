@@ -14,7 +14,10 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--data",type=pathlib.Path,required=True)
     p.add_argument("--out",type=pathlib.Path,required=True)
+    p.add_argument("--prefix",default="multigpu-limits")
     args=p.parse_args()
+    if not args.prefix.replace("-", "").replace("_", "").isalnum():
+        p.error("invalid output prefix")
     manifest=json.loads((args.data/"manifest.json").read_text())
     rows=[]
     for e in manifest["experiments"]:
@@ -42,18 +45,20 @@ def main():
     for ax,title,ylabel in zip(axes,["Throughput plateau","Tail latency","PS queue wait"],
         ["Completed sparse updates / second","Trial P99 (ms)","Mean wait per operation (ms)"]):
         ax.set_title(title,fontweight="bold");ax.set_ylabel(ylabel)
-        ax.set_xscale("log",base=2);ax.set_xticks([1,2,4,8,16,32,64],labels=[1,2,4,8,16,32,64])
+        ticks=sorted({r['learners'] for r in rows})
+        ax.set_xscale("log",base=2);ax.set_xticks(ticks,labels=ticks)
         ax.set_xlabel("Concurrent Learners");ax.grid(axis="y",alpha=.2);ax.set_axisbelow(True)
         ax.set_ylim(bottom=0)
     axes[0].legend(frameon=False)
     fig.suptitle("Fixed-workload multi-GPU parameter-service limits",fontsize=16,fontweight="bold")
     fig.supxlabel("262,144 rows × 128 FP32 dimensions · 1,024 IDs/step · 4 parameter shards · 131,072 total resident rows\n"
-        "Three 4-second windows + full drain per point; median and observed range. One local agent; additional agents use SSH-forwarded BRPC.",fontsize=9)
+        +manifest.get("figure_timing", "Three 4-second windows + full drain per point; median and observed range.")
+        +" One local agent; additional agents use SSH-forwarded BRPC.",fontsize=9)
     args.out.mkdir(parents=True,exist_ok=True)
-    fig.savefig(args.out/"multigpu-limits.svg",bbox_inches="tight",facecolor="white",metadata={"Date":None})
-    svg=args.out/"multigpu-limits.svg"
+    fig.savefig(args.out/(args.prefix+".svg"),bbox_inches="tight",facecolor="white",metadata={"Date":None})
+    svg=args.out/(args.prefix+".svg")
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines())+"\n")
-    fig.savefig(args.out/"multigpu-limits.png",bbox_inches="tight",facecolor="white",dpi=160)
+    fig.savefig(args.out/(args.prefix+".png"),bbox_inches="tight",facecolor="white",dpi=160)
 
 
 if __name__=="__main__":main()
