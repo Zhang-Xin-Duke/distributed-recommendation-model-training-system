@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "run": "training-run",
+  "endpoints": ["127.0.0.1:9100", "127.0.0.1:9101"],
+  "partition_epoch": 1,
+  "learner_id_stride": 1,
+  "backend": "native",
+  "native": {"device": "/CPU:0"},
+  "tables": {"users": {"id": 3, "seed": 42}, "items": {"id": 7, "seed": 42}}
+}

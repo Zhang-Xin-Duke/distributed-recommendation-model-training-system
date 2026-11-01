@@ -19,6 +19,7 @@ def probe(endpoints,runtime,operations,mode,agent,directory):
     from eps_tensorflow import Feature
     from eps_tensorflow_native import NativeParameterServer
     from native_session_backend import NativeSessionBackend
+    from native_worker_owner import NativeWorkerOwner
     tf.compat.v1.disable_eager_execution()
     gpu=mode=='cuda';device='/GPU:0' if gpu else '/CPU:0'
     if gpu:assert tf.config.list_physical_devices('GPU')
@@ -28,6 +29,11 @@ def probe(endpoints,runtime,operations,mode,agent,directory):
     cfg=dict(run='native-sessions',endpoints=endpoints,learner=0,tables=[],release_read_only=True)
     if gpu:cfg['cuda']=dict(agent=0,device=0,listen=agent,state_bytes=1 << 20,rows_per_table=64,owner_key='session-worker')
     options=dict(device=device,op_library=operations,runtime_library=runtime)
+    warm=None
+    if gpu:
+        warm=NativeWorkerOwner(cfg,runtime_library=runtime)
+        for physical in tf.config.list_physical_devices('GPU'):
+            tf.config.experimental.set_memory_growth(physical,True)
     owner=NativeSessionBackend(cfg,**options);second=None
     try:
         owner.create_table(definition)
@@ -57,6 +63,7 @@ def probe(endpoints,runtime,operations,mode,agent,directory):
             owner.set_prediction(1,False);session.run(step)
         assert all(s['updates']==4 and s['live_tickets']==0 for s in owner.stats())
         other=dict(cfg,learner=1);second=NativeSessionBackend(other,**options)
+        if warm:warm.close()
         second.create_table(definition);second.set_prediction(1,True)
         g2,h2,v2,_=graph(second)
         with tf.compat.v1.Session(graph=g2,config=session_options) as session:
@@ -91,6 +98,7 @@ def probe(endpoints,runtime,operations,mode,agent,directory):
     finally:
         owner.close()
         if second:second.close()
+        if warm:warm.close()
 
 
 def main():

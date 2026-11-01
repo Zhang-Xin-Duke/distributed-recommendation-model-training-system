@@ -43,6 +43,7 @@ def probe(endpoints,root,agent=None):
         optimizer=train.SparseLazyAdam(learning_rate=.01,epsilon=.001)
         definitions={name:sparse_table_definition(identifier,2,optimizer,initialization=(.25,.25),seed=42 if name=='users' else 0)
                      for name,identifier in [('users',103),('hashed',107)]}
+        for definition in definitions.values():reference.create_table(json.dumps(definition))
         graph=tf.Graph()
         with graph.as_default():
             kwargs=dict(optimizer=optimizer,initializer=tf.keras.initializers.Constant(.25),
@@ -88,7 +89,6 @@ def probe(endpoints,root,agent=None):
         if native_backend:
             assert {'EpsRuntime','EpsPull','EpsPush','EpsIdCommand'}<=graph_types
             assert not any('PyFunc' in kind for kind in graph_types)
-        for definition in definitions.values():reference.create_table(json.dumps(definition))
         user_features=[dict(table=103,feature=0,pooling='mean',padding_key=UINT64_MAX,
                             keys=np.array([0,1,UINT64_MAX,1,2],np.uint64),offsets=np.array([0,3,5],np.int64)),
                        dict(table=103,feature=1,pooling='sequence',padding_key=UINT64_MAX,

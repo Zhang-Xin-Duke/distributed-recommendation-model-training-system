@@ -129,6 +129,7 @@ class Installation:
         self._checkpoint_key=None
         self._local=threading.local()
         self._owner_key='eps-worker-'+uuid.uuid4().hex
+        self._native_owner=None
         self.closed=False
         replacements={
             '_create_table':self._create_table,
@@ -163,7 +164,12 @@ class Installation:
             self._wrappers[name]=dispatch
             setattr(self.cls,name,dispatch)
         self.cls._eps_installation=self
-        try:self._install_controller()
+        try:
+            if self.config.backend=='native' and 'cuda' in self.config.native:
+                from native_worker_owner import NativeWorkerOwner
+                self._native_owner=NativeWorkerOwner(self._native_configuration(0),
+                    runtime_library=self.config.native.get('runtime_library'))
+            self._install_controller()
         except BaseException:
             self.close();raise
 
@@ -217,13 +223,8 @@ class Installation:
             if identifier not in self._backends:
                 if self.config.backend=='native':
                     from native_session_backend import NativeSessionBackend
-                    configuration=dict(run=self.config.run,endpoints=self.config.endpoints,learner=identifier,
-                        epoch=self.config.epoch,max_live=self.config.max_live,tables=[],release_read_only=True,
-                        coalesce_gather=self.config.coalesce,
-                        agents=[dict(id=i,endpoint=e) for i,e in self.config.cache_agents])
-                    if 'cuda' in self.config.native:
-                        configuration['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)
-                    backend=NativeSessionBackend(configuration,**{k:v for k,v in self.config.native.items() if k!='cuda'})
+                    backend=NativeSessionBackend(self._native_configuration(identifier),
+                        **{k:v for k,v in self.config.native.items() if k!='cuda'})
                 else:
                     from eps_tensorflow import ParameterServer
                     backend=ParameterServer(self.config.endpoints,self.config.run,identifier,
@@ -235,6 +236,15 @@ class Installation:
                     backend.close();raise
                 self._backends[identifier]=backend
             return self._backends[identifier]
+
+    def _native_configuration(self,identifier):
+        values=dict(run=self.config.run,endpoints=self.config.endpoints,learner=identifier,
+            epoch=self.config.epoch,max_live=self.config.max_live,tables=[],release_read_only=True,
+            coalesce_gather=self.config.coalesce,
+            agents=[dict(id=i,endpoint=e) for i,e in self.config.cache_agents])
+        if 'cuda' in self.config.native:
+            values['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)
+        return values
 
     def _verify_restore(self,path,checkpoint_id):
         import tensorflow as tf
@@ -551,6 +561,11 @@ class Installation:
                 except Exception as error:
                     if failure is None:failure=error
             self._backends.clear();self._states.clear()
+            if self._native_owner is not None:
+                try:self._native_owner.close()
+                except Exception as error:
+                    if failure is None:failure=error
+                self._native_owner=None
             if failure is not None:raise failure
 
     def __enter__(self):return self

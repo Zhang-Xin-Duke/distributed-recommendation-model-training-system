@@ -17,6 +17,8 @@ configuration. The portable backend remains the default.
    tables in the controller, build Eps Pull/Push/Release operations in the original
    graph, and reuse the existing save/export/restore hooks. Shared GPU ownership
    must retain one worker Agent across learner contexts in the same process.
+   Start that owner through the C ABI before the original entry point and its
+   peer initialization barrier, without initializing TensorFlow devices.
 4. Exercise graph recreation, mixed selected tables, sequence/padding/bucket IDs,
    prediction/training switches, missing gradients and original-controller save
    and restore. Check native graph types and complete touched optimizer state
