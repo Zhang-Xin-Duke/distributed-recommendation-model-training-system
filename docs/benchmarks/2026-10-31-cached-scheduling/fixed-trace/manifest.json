@@ -1,0 +1,118 @@
+{
+  "source_commit": "0661e522bdc27f69978f71e6409beff72bab7077",
+  "backend": "cuda",
+  "source_sha256": {
+    "tests/cache_policy_probe.cpp": "7cec85e0ab63e8e153f3e9711a813bc3dafd47ef8114fb4105a9ece2f4d045fe",
+    "scripts/cache_policy_sweep.py": "8870b164dd35a8766c2303154bcfe92702366a46f1ef6668336aa5d96cdd37a9",
+    "src/server/service.cpp": "3ffa55da4e20ee9f951a7096724e1ecba4ea62571ff9f4c0b4e3e7cd89fd792f",
+    "src/cache/reuse_policy.cpp": "2314af79d2973a9f061ad001c30bfd55b4bd7227aa66ebb4e06eb9ab1e5b34ae",
+    "src/cuda/cache_backend.cu": "8687a15a88d341d17d610aa2b33883e35b5a42e0ce3fd7eb0ead59a787e93581",
+    "proto/embedding_service.proto": "e97a426417d2c270dc4fad9a61e8bfdb9b8bcb4064f9b0df046060ed5538c102"
+  },
+  "binary_sha256": {
+    "eps_server": "65866492c322e12d9950b9f5e29bdea5fcee0ffb0c4e7a6d00531a4ee0cf7bae",
+    "eps_cache_agent": "11931dca58f15cebb35e7d35799f440488460a5bb59a9795f1b75561960892eb",
+    "eps_cache_policy_probe": "3c1196bd3a575912b3921f8a19ec14bfa70dce2c1ff8463d4e2b9971d54ad32e"
+  },
+  "workload": {
+    "rows": 2048,
+    "dimension": 4,
+    "keys": 64,
+    "bag": 8,
+    "hot_rows": 64,
+    "cache_rows": 96,
+    "reserve_slots": 4,
+    "phase_steps": 8,
+    "calibration_steps": 8,
+    "window_requests": 2,
+    "max_tracked_rows": 512,
+    "migration_rows": 16,
+    "window_bytes": 4096,
+    "repeats": 1,
+    "calibration_repeats": 1,
+    "coalesce": false,
+    "devices": [
+      0
+    ]
+  },
+  "experiments": [
+    {
+      "name": "calibration-b0-cpu_only",
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 0,
+      "phases": 1,
+      "raw_file": "calibration-b0-cpu_only/raw.jsonl",
+      "sha256": "96044402cacd11a7c13df8fd758e5cb16763264f6ceb602a73a612feacb8c97a"
+    },
+    {
+      "name": "calibration-b0-static",
+      "mode": "static",
+      "calibration": true,
+      "block": 0,
+      "phases": 1,
+      "raw_file": "calibration-b0-static/raw.jsonl",
+      "sha256": "068458bbff5bb159bb39bafa7667b2430ed57e1a8606bb943c68d05077727d26"
+    },
+    {
+      "name": "trace-b0-cpu_only",
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-cpu_only/raw.jsonl",
+      "sha256": "617911a1a7379bfb560505cbd133490042203fbaf812ff7da3099564492ebb63"
+    },
+    {
+      "name": "trace-b0-static",
+      "mode": "static",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-static/raw.jsonl",
+      "sha256": "d9feb85edfad700f073327c49fbe1e5ee52e008581e135f2a1652d5c7d8da717"
+    },
+    {
+      "name": "trace-b0-frequency",
+      "mode": "frequency",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-frequency/raw.jsonl",
+      "sha256": "44fea76890a7795eb96af10d488bcafc0c5fc2bc8e2c415ea7728971f2b44b41"
+    },
+    {
+      "name": "trace-b0-reuse_cost",
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-reuse_cost/raw.jsonl",
+      "sha256": "57da3b515e7cd9c8e15e101097c1195e14249f1df38230aec259c8d74a495578"
+    }
+  ],
+  "gpus": [
+    {
+      "index": 0,
+      "name": "NVIDIA RTX A6000",
+      "compute_cap": "8.6",
+      "driver": "610.43.02",
+      "memory": "49140 MiB"
+    }
+  ],
+  "gpu": {
+    "index": 0,
+    "name": "NVIDIA RTX A6000",
+    "compute_cap": "8.6",
+    "driver": "610.43.02",
+    "memory": "49140 MiB"
+  },
+  "calibration": {
+    "cpu_step_mean_ms_median": 0.900557875,
+    "static_step_mean_ms_median": 7.301365375,
+    "mean_initial_hot_unique_per_step": 38.75,
+    "saved_microseconds_per_access": 0.0,
+    "calculation": "max(0, (median CPU step ms - median static step ms) * 1000 / initially hot distinct rows per step)",
+    "repeats_per_mode": 1
+  }
+}

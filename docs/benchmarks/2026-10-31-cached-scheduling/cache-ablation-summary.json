@@ -1,0 +1,18 @@
+{
+  "off": {
+    "steps_per_second": 67.69030209145916,
+    "step_p99_ms": 708.214934,
+    "dependency_prepare_nanoseconds_per_update": 10281111.164345404,
+    "dependency_rebuilds_per_update": 32.23676880222841,
+    "dependency_cache_hits_per_update": 0.0,
+    "updates": 1091
+  },
+  "on": {
+    "steps_per_second": 94.50247284535811,
+    "step_p99_ms": 396.297511,
+    "dependency_prepare_nanoseconds_per_update": 817124.6866267466,
+    "dependency_rebuilds_per_update": 2.0019960079840318,
+    "dependency_cache_hits_per_update": 30.75449101796407,
+    "updates": 1492
+  }
+}

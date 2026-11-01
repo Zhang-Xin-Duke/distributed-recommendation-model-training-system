@@ -102,6 +102,8 @@ def render(summary,out):
                   'Three fresh-service blocks per point; 4-second submission windows + full drain. Median and observed range.',fontsize=9)
     out.mkdir(parents=True,exist_ok=True)
     fig.savefig(out/'resumable-scheduling.svg',facecolor='white',metadata={'Date':None})
+    svg=out/'resumable-scheduling.svg'
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
     fig.savefig(out/'resumable-scheduling.png',facecolor='white',dpi=160)
     plt.close(fig)
 

@@ -1,0 +1,297 @@
+{
+  "date": "2026-10-31",
+  "source_commit": "0661e522bdc27f69978f71e6409beff72bab7077",
+  "local": {
+    "source_commit": "0661e522bdc27f69978f71e6409beff72bab7077",
+    "suites": {
+      "native": {
+        "passed": 26,
+        "total": 26,
+        "log_sha256": "3b07f44b8c518da921993c71639c12224cbd45168d2868984dd94d02004a6007"
+      },
+      "asan": {
+        "passed": 13,
+        "total": 13,
+        "log_sha256": "22fbce13fd55d421b63a06d8fd82cd8ef9dca9237dd35a31d8b0021c8f5612ae"
+      },
+      "tsan": {
+        "passed": 5,
+        "total": 5,
+        "log_sha256": "70866fdf413d39d6367a4c74709f6664db58d6615c87d093bbbe1f2ae98fcd82"
+      }
+    }
+  },
+  "environment": {
+    "source_commit": "0661e522bdc27f69978f71e6409beff72bab7077",
+    "binary_sha256": {
+      "eps_server": "65866492c322e12d9950b9f5e29bdea5fcee0ffb0c4e7a6d00531a4ee0cf7bae",
+      "eps_cache_agent": "11931dca58f15cebb35e7d35799f440488460a5bb59a9795f1b75561960892eb",
+      "eps_cache_policy_probe": "3c1196bd3a575912b3921f8a19ec14bfa70dce2c1ff8463d4e2b9971d54ad32e",
+      "eps_preparation_tests": "46f2dbf140e7849e29b67d9938c7deb59e65c652b1db5911609cba902cf33456",
+      "eps_phase_tests": "a99b9426cdec7bc2cf28901bf6a154b02358493c491370049b7b18c5399409f8",
+      "eps_resumable_actor_tests": "45d0afa4b56a7ac241a6c3784a12f87dafcf4175dde93274829c28dcd6bd9a10",
+      "eps_resumable_service_tests": "37f40ca3cd748522a2d3f51802407dcb809e1b8fe8eee3fc0fa5d5187e62c4dd"
+    },
+    "cuda_architectures": [
+      86
+    ],
+    "arithmetic": "--fmad=false",
+    "brpc": "1.18.0",
+    "gpu": "NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "python_packages": [
+      {
+        "name": "absl-py",
+        "version": "2.5.1"
+      },
+      {
+        "name": "astunparse",
+        "version": "1.6.3"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.23"
+      },
+      {
+        "name": "charset-normalizer",
+        "version": "3.5.2"
+      },
+      {
+        "name": "cmake",
+        "version": "3.31.6"
+      },
+      {
+        "name": "cuda-toolkit",
+        "version": "13.0.3.0"
+      },
+      {
+        "name": "flatbuffers",
+        "version": "25.12.19"
+      },
+      {
+        "name": "gast",
+        "version": "0.7.0"
+      },
+      {
+        "name": "google-pasta",
+        "version": "0.2.0"
+      },
+      {
+        "name": "grpcio",
+        "version": "1.85.1"
+      },
+      {
+        "name": "h5py",
+        "version": "3.16.0"
+      },
+      {
+        "name": "idna",
+        "version": "3.20"
+      },
+      {
+        "name": "keras",
+        "version": "3.15.1"
+      },
+      {
+        "name": "libclang",
+        "version": "18.1.1"
+      },
+      {
+        "name": "Markdown",
+        "version": "3.11.2"
+      },
+      {
+        "name": "markdown-it-py",
+        "version": "4.2.0"
+      },
+      {
+        "name": "MarkupSafe",
+        "version": "3.0.4"
+      },
+      {
+        "name": "mdurl",
+        "version": "0.1.2"
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.6.0"
+      },
+      {
+        "name": "namex",
+        "version": "0.1.0"
+      },
+      {
+        "name": "ninja",
+        "version": "1.13.2"
+      },
+      {
+        "name": "numpy",
+        "version": "2.2.6"
+      },
+      {
+        "name": "nvidia-cuda-cccl",
+        "version": "13.0.85"
+      },
+      {
+        "name": "nvidia-cuda-crt",
+        "version": "13.0.88"
+      },
+      {
+        "name": "nvidia-cuda-nvcc",
+        "version": "13.0.88"
+      },
+      {
+        "name": "nvidia-cuda-runtime",
+        "version": "13.0.96"
+      },
+      {
+        "name": "nvidia-nvvm",
+        "version": "13.0.88"
+      },
+      {
+        "name": "opt_einsum",
+        "version": "3.4.0"
+      },
+      {
+        "name": "optree",
+        "version": "0.20.0"
+      },
+      {
+        "name": "packaging",
+        "version": "26.3"
+      },
+      {
+        "name": "pillow",
+        "version": "13.0.0"
+      },
+      {
+        "name": "pip",
+        "version": "25.0.1"
+      },
+      {
+        "name": "protobuf",
+        "version": "7.36.2"
+      },
+      {
+        "name": "pybind11",
+        "version": "3.0.1"
+      },
+      {
+        "name": "Pygments",
+        "version": "2.21.0"
+      },
+      {
+        "name": "requests",
+        "version": "2.34.2"
+      },
+      {
+        "name": "rich",
+        "version": "15.0.0"
+      },
+      {
+        "name": "setuptools",
+        "version": "84.2.1"
+      },
+      {
+        "name": "six",
+        "version": "1.17.0"
+      },
+      {
+        "name": "tensorboard",
+        "version": "2.20.0"
+      },
+      {
+        "name": "tensorboard-data-server",
+        "version": "0.7.2"
+      },
+      {
+        "name": "tensorflow",
+        "version": "2.20.0"
+      },
+      {
+        "name": "termcolor",
+        "version": "3.3.0"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0"
+      },
+      {
+        "name": "urllib3",
+        "version": "2.8.0"
+      },
+      {
+        "name": "Werkzeug",
+        "version": "3.1.9"
+      },
+      {
+        "name": "wheel",
+        "version": "0.48.0"
+      },
+      {
+        "name": "wrapt",
+        "version": "2.5.2"
+      }
+    ],
+    "bootstrap_native_tests": 22,
+    "full_tests": 29,
+    "forced_cuda_tests": 5,
+    "tensorflow_model_device": "CPU host-callback path; parameter cache agent uses CUDA",
+    "model_training_steps": 5,
+    "transport": "two loopback PS processes, one standalone CUDA cache agent and isolated Python/TensorFlow native client"
+  },
+  "allocation": {
+    "affinity_cpus": 6,
+    "cpu_quota": "594000 100000",
+    "allocated_memory_bytes": "51539607552"
+  },
+  "bootstrap_cpu_cuda": {
+    "passed": 22,
+    "total": 22
+  },
+  "complete_cpu_cuda_tensorflow": {
+    "passed": 29,
+    "total": 29
+  },
+  "forced_cuda_processes_and_delay_injection": {
+    "passed": 5,
+    "total": 5
+  },
+  "source_log_sha256": {
+    "bootstrap_cpu_cuda": "abe54853bd9db32cc0a2c7b56037bb58ea3542f0a5fc948965ad1714cfbf27ad",
+    "complete_cpu_cuda_tensorflow": "4a2643ac9fff1a179a38687ca55e7b03300b003a75ad383180d57cfb62438c8a",
+    "forced_cuda_processes_and_delay_injection": "0afc2f4b3a922b5244713436c686767def7a8b47d8c2085e741975e4868b6db9"
+  },
+  "fixed_trace": {
+    "independent_runs": 6,
+    "phase_records": 14,
+    "updates": 112,
+    "errors": 0,
+    "maximum_state_absolute_error": 0,
+    "maximum_feature_absolute_error": 9.313225746154785e-10,
+    "nonfatal_maintenance_failures": 1
+  },
+  "rental_cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793503240.1427572
+  },
+  "private_archive_sha256": "707235e6f495ab3cffbf04a7814be26a5ad937ac4b2a45540368aec89dfedcf4",
+  "capacity": {
+    "trials": 64,
+    "updates": 23407,
+    "raw_manifest": "../benchmarks/2026-10-31-cached-scheduling/manifest.json",
+    "errors": 0,
+    "checked_parameter_counters": 2048
+  },
+  "dependency_ablation": {
+    "trials": 6,
+    "updates": 2583,
+    "manifest": "../benchmarks/2026-10-31-cached-scheduling/cache-ablation-manifest.json",
+    "errors": 0,
+    "checked_parameter_counters": 192,
+    "summary": "../benchmarks/2026-10-31-cached-scheduling/cache-ablation-summary.json"
+  }
+}

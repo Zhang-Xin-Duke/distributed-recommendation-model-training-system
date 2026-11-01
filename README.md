@@ -163,6 +163,22 @@ execute in coarse windows under a shard barrier. Agent waits suspend the actor;
 independent work can proceed outside maintenance/save barriers. The [acceleration design](docs/ACCELERATION.md) explains the
 choices and costs.
 
+## Shard scheduling
+
+![Same-binary serialized and resumable scheduling controls](docs/assets/resumable-scheduling.svg)
+
+At one parameter shard and 32 concurrent Learners, caching queued dependency
+plans increases throughput from **67.69 to 94.50 updates/s** in a same-binary
+cache-on/off comparison. Dependency preparation falls from **10.28 to 0.82 ms per
+completed update**, while trial P99 falls from **708.21 to 396.30 ms**.
+
+The latest single-A6000 deployment retains **70 capacity trials and 25,990
+updates**, with zero training-update errors. Serialized/resumable controls retain
+mixed results across shard counts and automatic policies: one-shard manual loads
+improve by 5.3–10.6%, while some automatic-maintenance configurations regress.
+The [scheduling report](docs/SCHEDULING_RESULTS.md) separates the cache ablation,
+concurrency controls, numerical replay and earlier uncached implementation.
+
 ## Measured cache-policy behavior
 
 ![Cache hit rate, throughput and migration cost](docs/assets/cache-policy-moderate-adaptation.svg)

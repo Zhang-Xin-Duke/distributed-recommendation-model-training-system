@@ -3,7 +3,8 @@
 Shard operations use a [resumable actor](RESUMABLE_OPERATIONS.md). Independent
 requests can progress during owner waits; row/lifecycle/optimizer dependencies
 and ordered full barriers preserve the update and save contract. Stats fields
-37–40 expose active/waiting operations and retained payload/dependency bytes.
+37–43 expose active/waiting operations, retained payload/dependency bytes and
+dependency-plan preparation/rebuild/cache-hit counters.
 
 ## Public service surface
 

@@ -1,0 +1,71 @@
+{
+  "source_commit": "0661e522bdc27f69978f71e6409beff72bab7077",
+  "experiments": [
+    {
+      "name": "cache-b0-off",
+      "ps_shards": 1,
+      "max_active_operations": 16,
+      "admission": "manual",
+      "dependency_cache": "off",
+      "trials": 1,
+      "updates": 352,
+      "raw_file": "capacity/cache-b0-off/gpu-1-shards-1/raw.jsonl",
+      "sha256": "0f3bbad811bef0c8f761396bb9c8d269dc95c34d8357b69ba3f3b60d5f0d3fec"
+    },
+    {
+      "name": "cache-b0-on",
+      "ps_shards": 1,
+      "max_active_operations": 16,
+      "admission": "manual",
+      "dependency_cache": "on",
+      "trials": 1,
+      "updates": 511,
+      "raw_file": "capacity/cache-b0-on/gpu-1-shards-1/raw.jsonl",
+      "sha256": "4e6d898b25492e66ad74bb944042d5ed8a5973d3bd99eef8e6d9710ee73e51c7"
+    },
+    {
+      "name": "cache-b1-on",
+      "ps_shards": 1,
+      "max_active_operations": 16,
+      "admission": "manual",
+      "dependency_cache": "on",
+      "trials": 1,
+      "updates": 501,
+      "raw_file": "capacity/cache-b1-on/gpu-1-shards-1/raw.jsonl",
+      "sha256": "00028da0421f6c89cbf38d3cbfa6123970bb1190cee82906ce74da99452a5d07"
+    },
+    {
+      "name": "cache-b1-off",
+      "ps_shards": 1,
+      "max_active_operations": 16,
+      "admission": "manual",
+      "dependency_cache": "off",
+      "trials": 1,
+      "updates": 359,
+      "raw_file": "capacity/cache-b1-off/gpu-1-shards-1/raw.jsonl",
+      "sha256": "7c447367df323b4d366c29584c58980610c4f19ebb94fe756aca77c8dbb9423a"
+    },
+    {
+      "name": "cache-b2-off",
+      "ps_shards": 1,
+      "max_active_operations": 16,
+      "admission": "manual",
+      "dependency_cache": "off",
+      "trials": 1,
+      "updates": 380,
+      "raw_file": "capacity/cache-b2-off/gpu-1-shards-1/raw.jsonl",
+      "sha256": "13ea5ea01f374152d745b009d1a1785fac8bfea7c04521b9ec7c89a51a5c41a6"
+    },
+    {
+      "name": "cache-b2-on",
+      "ps_shards": 1,
+      "max_active_operations": 16,
+      "admission": "manual",
+      "dependency_cache": "on",
+      "trials": 1,
+      "updates": 480,
+      "raw_file": "capacity/cache-b2-on/gpu-1-shards-1/raw.jsonl",
+      "sha256": "0933718588cda795bcfec85668cfa4329222bd7b19980eded1010ca499ccf713"
+    }
+  ]
+}

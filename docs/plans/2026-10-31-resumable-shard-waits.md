@@ -60,3 +60,19 @@ Keep the earlier four-agent capacity results attached to their source revision;
 publish new performance claims only after matched measurements. Fetch/hash
 results before deleting rentals. Update architecture, API and validation docs,
 commit and push the implementation and evidence.
+
+## Executed evidence
+
+Source `c52f516` fixes the GCC 11 owning-aggregate await failure and passes the
+complete A6000 suite 29/29 plus five forced-CUDA checks. Its 64-trial matrix
+retains high-concurrency regressions from repeated dependency planning.
+
+Source `0661e52` adds bounded queued-plan reuse, ownership/policy invalidation,
+non-cacheable incomplete Push layouts and preparation/rebuild/hit counters.
+Current local suites pass 26/26, ASan/UBSan 13/13 and focused TSan 5/5; A6000
+CPU/CUDA passes 22/22, the full graph suite 29/29 and forced CUDA 5/5.
+The latest 64-trial matrix and six-trial cache ablation complete 25,990 updates
+without training-update errors. Fixed replay verifies another 112 updates with
+zero final-state error and one retained nonfatal maintenance event.
+The [report](../SCHEDULING_RESULTS.md) records positive and negative controls;
+[validation](../validation/2026-10-31-cached-shards.json) records hashes and cleanup.

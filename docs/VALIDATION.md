@@ -4,11 +4,11 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2, source `040ae90` | Native/RPC/TensorFlow suite, including bounded asynchronous preparation and phase counters | 24/24 passed |
-| macOS arm64, core-only ASan/UBSan, source `040ae90` | Core, policies, ownership, adapter, gathers, preparation and phase counters | 11/11 passed |
-| macOS arm64, ThreadSanitizer, source `040ae90` | Focused bounded-preparation and service-phase concurrency checks | 2/2 passed |
-| Ubuntu 22.04, GNU 11.4, A6000, CUDA 13.0.88, TensorFlow 2.20.0, source `040ae90` | Complete native/RPC/CUDA/TensorFlow suite with prepared inputs | 26/26 passed |
-| Same A6000 build, `EPS_CACHE_BACKEND=cuda` | Automatic cache with both gather policies, migration/save/restore and prepared TensorFlow graph | 4/4 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2, source `0661e52` | Complete native/RPC/TensorFlow suite, including dependency caches, invalidation and resumable operations | 26/26 passed |
+| macOS arm64, core-only ASan/UBSan, source `0661e52` | Complete core suite | 13/13 passed |
+| macOS arm64, ThreadSanitizer, source `0661e52` | Automatic cache, prepared inputs, resumable actor/service and concurrent owners | 5/5 passed |
+| Ubuntu 22.04, GNU 11.4, A6000, CUDA 13.0.88, TensorFlow 2.20.0, source `0661e52` | Complete native/RPC/CUDA/TensorFlow suite | 29/29 passed |
+| Same A6000 build, forced CUDA | Automatic cache, migration/save/restore, prepared graph and delayed resumable CUDA operations | 5/5 passed |
 | Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | CPU/CUDA suite before cross-shard gather coalescing | 12/12 passed |
 | Ubuntu 22.04, A6000 coordinator, shared server/agent at `5a4cdcb` | Initial native CPU/CUDA checks | 13/13 passed |
 | Ubuntu 22.04, client at `9f36ca3` | Native CPU checks | 11/11 passed |
@@ -39,6 +39,21 @@ profiles complete 36 independent runs / 6,528 updates with full CPU replay;
 [the policy report](CACHE_POLICY_RESULTS.md) retains phase records and checks.
 
 ## What the checks establish
+
+The [resumable-shard artifact](validation/2026-10-31-cached-shards.json) records
+current source/binary/log hashes, bounded queued-plan caching and ownership-epoch
+invalidation, conflict fairness, same-table optimizer ordering, exclusive
+maintenance upgrades, checkpoint barriers and cross-continuation failure fencing.
+The CUDA delay-injection check proves independent progress and excludes moving
+rows until publication/eviction acknowledgement. A queued read planned before a
+move must acquire the newly published Agent stream after that move.
+
+The latest [same-binary scheduling study](SCHEDULING_RESULTS.md) retains 64 main
+capacity trials / 23,407 updates plus six cache-ablation trials / 2,583 updates,
+all without training-update errors. A separate six-run trace checks all touched
+weights, moments and row counters over 112 updates with zero final-state error;
+one nonfatal cache-maintenance failure remains in its records. Earlier source
+`c52f516` and its negative uncached scheduling results retain separate artifacts.
 
 The [asynchronous-preparation artifact](validation/2026-10-31-asynchronous-preparation.json)
 records source/binary/log hashes, executed suite results and graph records for
