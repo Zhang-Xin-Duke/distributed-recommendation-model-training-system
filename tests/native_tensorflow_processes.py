@@ -78,6 +78,7 @@ def main():
                 if gpu:assert all('/device:GPU:0' in x.device for x in a[1])
                 if iteration==0:retained=(a[1],tuple(x.numpy().copy() for x in a[1]))
                 states=[json.loads(x.stats().numpy()) for x in backends];cached_seen|=any(x['cached_rows'] for x in states[0]);assert all(x['live_tickets']==0 for state in states for x in state)
+                assert all(x['updates']==iteration+1 for state in states for x in state),'native graph did not acknowledge each sparse update'
                 if iteration==1:
                     for i,(backend,m) in enumerate(zip(backends,models)):
                         backend.save('middle').numpy();checkpoint=tf.train.Checkpoint(dense=m[2],optimizer=m[3],input_step=m[4]);path=checkpoint.write(str(root/f'dense-{i}'))
@@ -101,7 +102,7 @@ def main():
             for backend in backends:backend.close().numpy()
             for tensor,values in zip(*retained):np.testing.assert_array_equal(tensor.numpy(),values)
             print(json.dumps(dict(test='native_tensorflow_graph',mode=mode,tensorflow=tf.__version__,external_ps_processes=4,training_steps=5,features=7,prepared_steps=2,
-                checked_parameter_rows=sum(x['checked_rows'] for x in state_records),max_state_absolute_error=max(x['max_state_absolute_error'] for x in state_records),
+                checked_parameter_rows=sum(x['checked_rows'] for x in state_records),acknowledged_updates_per_shard=5,max_state_absolute_error=max(x['max_state_absolute_error'] for x in state_records),
                 max_model_absolute_error=maximum,resident_parameters_observed=bool(cached_seen),native_op_types=sorted(graph_types & {'EpsPull','EpsPullPrepared','EpsPush','EpsCommand'}),
                 python_callbacks=False,output_valid_after_runtime_close=True,mid_run_dense_and_sparse_save_resume=True,output_schema_failure_tickets_released=True)))
         except Exception:
