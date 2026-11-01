@@ -24,6 +24,12 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
+The current [native multi-GPU study](../NATIVE_MULTIGPU_RESULTS.md) reaches 1,022
+concurrent Learners on one/two/four owners for the smaller workload and exposes
+large-input overload failures at that concurrency. Timely overload rejection,
+completion/drain and control-plane responsiveness need repair; original
+application/reader installation and multi-peer framework barriers remain open.
+
 ## 1. Build a standalone CPU parameter service
 
 **Create:** `src/store/shard_store.{hpp,cpp}`,

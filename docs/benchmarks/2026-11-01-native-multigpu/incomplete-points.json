@@ -1,0 +1,18 @@
+[
+  {
+    "experiment": "current-heavy-boundary-gpu-1-shards-4",
+    "gpu_owners": 1,
+    "learner_level": 1022,
+    "rows": 1048576,
+    "dimension": 512,
+    "ids_per_update": 8192,
+    "completed_levels": [
+      128,
+      512
+    ],
+    "outcome": "probe did not complete; inspect orchestration timeout and live-health records",
+    "optimizer_trajectory_verified": false,
+    "harness_total_deadline_seconds": 285,
+    "health_observation": "heavy-live-observation.json"
+  }
+]

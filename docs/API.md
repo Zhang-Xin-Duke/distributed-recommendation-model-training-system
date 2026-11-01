@@ -94,7 +94,10 @@ Repeated IDs are merged within this original Push. Independent Learner updates
 remain independent optimizer updates. A shard-level update context gives CPU
 and GPU portions the same optimizer counter and hyperparameters.
 
-The request identity is `(run, learner, sequence, phase)`. A retry retains that
+The request identity is `(run, learner, sequence, phase)`. Learner IDs currently
+range from 0 through 1023 in a run, bounding lifecycle stream bookkeeping.
+Live lookup tickets have their separately configured `max_live_tickets` budget.
+A retry retains that
 identity. Accepted updates are acknowledged without adding a duplicate gradient
 contribution. A duplicate of an in-flight request joins its completion; an ack
 means the update completed. A per-learner retired watermark advances only over

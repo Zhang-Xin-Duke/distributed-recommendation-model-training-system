@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/home/ubuntu/dps-native-tensorflow/results-final.tar.gz",
+    "bytes": 386490,
+    "sha256": "95c8aef927f18d12400fc96f5170352c95bcbb44c7e3ef673ba8ece9a7c97bdc",
+    "worker": 0
+  },
+  {
+    "path": "/home/ubuntu/dps-native-tensorflow/results-final.tar.gz",
+    "bytes": 45253,
+    "sha256": "36656cc3b88c66f9135fe8d3d579de1ef47e86fc4a1bf183c7e5f0aa51672af2",
+    "worker": 1
+  },
+  {
+    "path": "/home/ubuntu/dps-native-tensorflow/results-final.tar.gz",
+    "bytes": 33705,
+    "sha256": "8e78a76030f6e21fcbaba5d5cfd580c36e230ef6d677ccadec8cc497cbe33468",
+    "worker": 2
+  },
+  {
+    "path": "/home/ubuntu/dps-native-tensorflow/results-final.tar.gz",
+    "bytes": 33048,
+    "sha256": "2f35e8bbc5f9f0082f4e9257aa00b78e106b871cce4dc82524a3f34844f74c5a",
+    "worker": 3
+  }
+]

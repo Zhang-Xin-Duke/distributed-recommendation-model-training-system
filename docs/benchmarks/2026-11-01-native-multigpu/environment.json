@@ -1,0 +1,91 @@
+{
+  "runtime_exports": [
+    "00000000000bfbe0 T eps_runtime_api_v1"
+  ],
+  "runtime_dynamic_dependencies": [
+    "0x0000000000000001 (NEEDED)             Shared library: [libgflags.so.2.2]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libleveldb.so.1d]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libssl.so.3]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libcrypto.so.3]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libz.so.1]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libcudart.so.13]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]",
+    "0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]",
+    "0x0000000000000001 (NEEDED)             Shared library: [ld-linux-x86-64.so.2]"
+  ],
+  "binary_sha256": {
+    "eps_server": "10436cdb43350382b8ce49f816ebe1710359786fd9ae6ae36fe2e7829fc4c9ab",
+    "eps_cache_agent": "b5f8006f3b448575a1fbf7324e5047900d2e8980bede3d200b0e32d00817cf44",
+    "eps_capacity_probe": "71ca69d755a5e8e4521b9228d369945df33c646b5b805e326acd50d40f0afdf3",
+    "libeps_runtime.so": "093ddd1d6a2ba7c8cc3e942c4ec194627723f303602e6bc946a9d865afe546cd",
+    "eps_tensorflow_ops.so": "7f782ae63a4d8c9450473bfdbf3dcbed405257f1123e2d88bb3836f37af215dd"
+  },
+  "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+  "cpu_max": "594000 100000",
+  "affinity_cpu_count": 6,
+  "source_sha256": {
+    "src/server/service.cpp": "8b53e5c714e9c6b3279261aa67d00f9641a128668f59554079c5eb3a179376d4",
+    "src/cuda/cache_backend.cu": "6817003e1a8b6c11c3f1abb3371fc7ec6e6d6a716a79b8a20c2d8bd072095d63",
+    "adapters/entropy/runtime_c.cpp": "650024c4292de20b97e0f8fd7a404851a4b297ddf87182a406acfc768d5e50a9",
+    "adapters/entropy/tensorflow_ops.cc": "9088db2d2e26b12be43ec46a97973aba655e91d568015a230a461436e4bff938",
+    "tests/capacity_probe.cpp": "da84ba71feb5096b806b95f3bd580994f770078990e3f9d9b591d51440d56d65"
+  },
+  "tensorflow_build": {
+    "tensorflow": "2.20.0",
+    "command": [
+      "c++",
+      "-shared",
+      "-fPIC",
+      "-O2",
+      "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/tensorflow_ops.cc",
+      "-I/home/ubuntu/dps-native-tensorflow/source/include",
+      "-I/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/include",
+      "-D_GLIBCXX_USE_CXX11_ABI=1",
+      "--std=c++17",
+      "-DEIGEN_MAX_ALIGN_BYTES=64",
+      "-L/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow",
+      "-l:libtensorflow_framework.so.2",
+      "-o",
+      "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_tensorflow_ops.so",
+      "-ldl",
+      "-pthread",
+      "-Wl,-rpath,/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow"
+    ],
+    "compile_flags": [
+      "-I/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/include",
+      "-D_GLIBCXX_USE_CXX11_ABI=1",
+      "--std=c++17",
+      "-DEIGEN_MAX_ALIGN_BYTES=64"
+    ],
+    "link_flags": [
+      "-L/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow",
+      "-l:libtensorflow_framework.so.2"
+    ]
+  },
+  "runtime_source_commit": "5a69840",
+  "model_fixture_commit": "1c8f060",
+  "workers": [
+    {
+      "worker": 0,
+      "hardware": "GPU-33c074cc-def1-52c3-ac57-4226e0e7aa7e, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+      "agent_sha256": "b5f8006f3b448575a1fbf7324e5047900d2e8980bede3d200b0e32d00817cf44"
+    },
+    {
+      "worker": 1,
+      "hardware": "GPU-30cdce94-4534-5b7d-959d-b17a6705baca, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+      "agent_sha256": "b5f8006f3b448575a1fbf7324e5047900d2e8980bede3d200b0e32d00817cf44"
+    },
+    {
+      "worker": 2,
+      "hardware": "GPU-a364481c-674e-58da-abb0-1e9defbe3892, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+      "agent_sha256": "b5f8006f3b448575a1fbf7324e5047900d2e8980bede3d200b0e32d00817cf44"
+    },
+    {
+      "worker": 3,
+      "hardware": "GPU-a5cf5bd3-bd55-5fa8-b7b6-81ae3568ce22, NVIDIA L40, 8.9, 610.43.02, 46068 MiB",
+      "agent_sha256": "b5f8006f3b448575a1fbf7324e5047900d2e8980bede3d200b0e32d00817cf44"
+    }
+  ]
+}

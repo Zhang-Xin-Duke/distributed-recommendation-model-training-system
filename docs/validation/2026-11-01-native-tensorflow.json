@@ -1,0 +1,246 @@
+{
+  "source_commit": "5a69840",
+  "model_fixture_commit": "1c8f060",
+  "checks": {
+    "ubuntu_passed": 47,
+    "ubuntu_skipped": 3,
+    "macos_native": 30,
+    "macos_portable_tensorflow": 42
+  },
+  "skipped_original_source_checks": [
+    "entropy_original_table_external_shards",
+    "entropy_original_table_cache",
+    "entropy_original_restore_trajectory"
+  ],
+  "native_records": [
+    {
+      "test": "native_tensorflow_graph",
+      "mode": "cpu",
+      "tensorflow": "2.20.0",
+      "external_ps_processes": 4,
+      "training_steps": 5,
+      "features": 7,
+      "prepared_steps": 2,
+      "checked_parameter_rows": 8,
+      "acknowledged_updates_per_shard": 5,
+      "max_state_absolute_error": 0,
+      "max_model_absolute_error": 0.0,
+      "resident_parameters_observed": false,
+      "native_op_types": [
+        "EpsCommand",
+        "EpsPull",
+        "EpsPullPrepared",
+        "EpsPush"
+      ],
+      "python_callbacks": false,
+      "output_valid_after_runtime_close": true,
+      "mid_run_dense_and_sparse_save_resume": true,
+      "output_schema_failure_tickets_released": true
+    },
+    {
+      "test": "native_tensorflow_graph",
+      "mode": "cuda",
+      "tensorflow": "2.20.0",
+      "external_ps_processes": 4,
+      "training_steps": 5,
+      "features": 7,
+      "prepared_steps": 2,
+      "checked_parameter_rows": 8,
+      "acknowledged_updates_per_shard": 5,
+      "max_state_absolute_error": 0,
+      "max_model_absolute_error": 7.450580596923828e-09,
+      "resident_parameters_observed": true,
+      "native_op_types": [
+        "EpsCommand",
+        "EpsPull",
+        "EpsPullPrepared",
+        "EpsPush"
+      ],
+      "python_callbacks": false,
+      "output_valid_after_runtime_close": true,
+      "mid_run_dense_and_sparse_save_resume": true,
+      "output_schema_failure_tickets_released": true
+    },
+    {
+      "test": "native_runtime_c_abi",
+      "abi_version": 1,
+      "shards": 2,
+      "prepared_input": true,
+      "duplicate_push": true,
+      "buffer_outlives_runtime": true
+    }
+  ],
+  "gpu_owner_models": [
+    {
+      "test": "native_tensorflow_graph",
+      "mode": "cuda",
+      "tensorflow": "2.20.0",
+      "external_ps_processes": 4,
+      "training_steps": 5,
+      "features": 7,
+      "prepared_steps": 2,
+      "checked_parameter_rows": 8,
+      "acknowledged_updates_per_shard": 5,
+      "max_state_absolute_error": 0,
+      "max_model_absolute_error": 7.450580596923828e-09,
+      "resident_parameters_observed": true,
+      "native_op_types": [
+        "EpsCommand",
+        "EpsPull",
+        "EpsPullPrepared",
+        "EpsPush"
+      ],
+      "python_callbacks": false,
+      "output_valid_after_runtime_close": true,
+      "mid_run_dense_and_sparse_save_resume": true,
+      "output_schema_failure_tickets_released": true,
+      "gpu_parameter_owners": 1,
+      "remote_owner_statistics": []
+    },
+    {
+      "test": "native_tensorflow_graph",
+      "mode": "cuda",
+      "tensorflow": "2.20.0",
+      "external_ps_processes": 4,
+      "training_steps": 5,
+      "features": 7,
+      "prepared_steps": 2,
+      "checked_parameter_rows": 8,
+      "acknowledged_updates_per_shard": 5,
+      "max_state_absolute_error": 0,
+      "max_model_absolute_error": 0.0,
+      "resident_parameters_observed": true,
+      "native_op_types": [
+        "EpsCommand",
+        "EpsPull",
+        "EpsPullPrepared",
+        "EpsPush"
+      ],
+      "python_callbacks": false,
+      "output_valid_after_runtime_close": true,
+      "mid_run_dense_and_sparse_save_resume": true,
+      "output_schema_failure_tickets_released": true,
+      "gpu_parameter_owners": 2,
+      "remote_owner_statistics": [
+        {
+          "free_slots_per_table": [
+            62,
+            62
+          ],
+          "accepted_requests": 49,
+          "completed_requests": 49,
+          "active_operations": 0,
+          "queued_operations": 0
+        }
+      ]
+    },
+    {
+      "test": "native_tensorflow_graph",
+      "mode": "cuda",
+      "tensorflow": "2.20.0",
+      "external_ps_processes": 4,
+      "training_steps": 5,
+      "features": 7,
+      "prepared_steps": 2,
+      "checked_parameter_rows": 8,
+      "acknowledged_updates_per_shard": 5,
+      "max_state_absolute_error": 0,
+      "max_model_absolute_error": 0.0,
+      "resident_parameters_observed": true,
+      "native_op_types": [
+        "EpsCommand",
+        "EpsPull",
+        "EpsPullPrepared",
+        "EpsPush"
+      ],
+      "python_callbacks": false,
+      "output_valid_after_runtime_close": true,
+      "mid_run_dense_and_sparse_save_resume": true,
+      "output_schema_failure_tickets_released": true,
+      "gpu_parameter_owners": 4,
+      "remote_owner_statistics": [
+        {
+          "free_slots_per_table": [
+            62,
+            63
+          ],
+          "accepted_requests": 40,
+          "completed_requests": 40,
+          "active_operations": 0,
+          "queued_operations": 0
+        },
+        {
+          "free_slots_per_table": [
+            62,
+            64
+          ],
+          "accepted_requests": 31,
+          "completed_requests": 31,
+          "active_operations": 0,
+          "queued_operations": 0
+        },
+        {
+          "free_slots_per_table": [
+            64,
+            63
+          ],
+          "accepted_requests": 20,
+          "completed_requests": 20,
+          "active_operations": 0,
+          "queued_operations": 0
+        }
+      ]
+    }
+  ],
+  "native_runtime_isolation": {
+    "exported_entry_points": [
+      "eps_runtime_api_v1"
+    ],
+    "dynamic_brpc_protobuf_protoc_dependencies": false
+  },
+  "source_archive_sha256": "6c97a2f389f2a3d111ceb0d80111234e430e26936f98b37c61cd50595a5d8a44",
+  "build_incidents": "2026-11-01-native-tensorflow/build-incidents.json",
+  "artifacts": [
+    {
+      "file": "2026-11-01-native-tensorflow/build-incidents.json",
+      "sha256": "20a8f2c3345d2ecb2639106bc948d67ddf745f09d98e88bddee908136b54e8d9"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/environment.json",
+      "sha256": "7f21bc865a5ab991d63ae1e68b5d8098c0a9cb55d58cfc3bffcbefce92fc4c76"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/failed-static-link.log",
+      "sha256": "980a8c873f126d8f4cf372f4a2d9aad89650b24a16400bc8ab343745d69a0f61"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/macos-interop-probe.json",
+      "sha256": "c6fb960c6ae9b18d7e65bef1361a8899482855c124bf4d6cdca2f467c35ab7ae"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/macos-native-runtime.log",
+      "sha256": "82762fc253be98198cdaf5060d1cb90a875d4b8683f8a98d4557e3621c853b39"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/macos-portable-tensorflow.log",
+      "sha256": "bbccf80bf292ad2e7789e89282a28bba7deb26749976e30bc6734e8b5bf4d561"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/multigpu-model-checks.json",
+      "sha256": "514bac1177235e0fb5187da29f6d0526201391519b75c3e01d0d62873b77f5c5"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/native-checks.json",
+      "sha256": "78f31b2bac997aaf48fcbe4c269f14b37c2bb1e8deeb175a5e0da5cb5f7535d6"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/tensorflow-build.json",
+      "sha256": "bcb8c92db333872e945fff3dc0a148a285cb0c04d7f850793e0ca0f0f85f5811"
+    },
+    {
+      "file": "2026-11-01-native-tensorflow/ubuntu-tests.log",
+      "sha256": "22b454265adabe9a7e942c77c313ae8af0e52ee94bee71956ee68c05f519cae5"
+    }
+  ],
+  "deployment_cleanup_reference": "2026-11-01-native-multigpu.json"
+}

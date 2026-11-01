@@ -1,0 +1,313 @@
+{
+  "runtime_source_commit": "5a69840f7f269ae70e144c60cf71b04964a8875c",
+  "completed_trials": 63,
+  "acknowledged_sparse_updates": 62363,
+  "sampled_row_counter_checks": 2016,
+  "failed_points": 1,
+  "incomplete_points": 1,
+  "failed_or_incomplete_points": 2,
+  "max_preflight_absolute_error": 3.91155481338501e-08,
+  "highest_completed_learner_level": 1022,
+  "highest_attempted_learner_level": 1022,
+  "peak_agent_dispatched": 32,
+  "peak_agent_pending": 1025,
+  "peak_agent_retained_request_bytes": 8812602,
+  "native_suite": {
+    "passed": 47,
+    "skipped": 3
+  },
+  "native_model_gpu_owners": [
+    1,
+    2,
+    4
+  ],
+  "native_model_max_sparse_state_error": 0,
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793526826.315166
+  },
+  "estimated_base_cost_usd_with_minute_rounding": 1.0572,
+  "cost_basis": "Observed lease interval rounded up to minutes at published base rates; estimate, not invoice",
+  "price_source": "https://www.thundercompute.com/pricing",
+  "artifacts": [
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/archives.json",
+      "sha256": "c8021472e04e9e1d57cac14c5ad3c2bcb72790f1409b6d974c5b164a7dcd4617"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/cleanup.json",
+      "sha256": "da0e4c52b97d6e112f02aece088a50bb0546972aa857a3d1554e8e2fc9739e62"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/confirmation-exit.json",
+      "sha256": "0cec28ea7ba7a6c203c639f08bdf94fab9ef9203e39dfa19da0335b3a0aa9701"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-1-shards-4-raw.jsonl",
+      "sha256": "4c06833e976cc56d47aeb3f3ea3458838363f74b84857ac6afd30a2242f2b301"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-1-shards-4-resources.json",
+      "sha256": "9c81657aedce6d7aa71a904580680802329a034deae47575d3d460774b853632"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-1-shards-4.jsonl",
+      "sha256": "e31deff0919a7818c88d072f2648e6d833d21d3f2e02531c38fae3a5a975ae16"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-2-shards-4-raw.jsonl",
+      "sha256": "25def80120d612db5ae69048093e0cb2aa8da19e7e345f21a25ca7e5c6a6a24f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-2-shards-4-resources.json",
+      "sha256": "fc21b227295c9f3bbb3b97cbe3ec4156659b5a1c57ca494d06c1b179d784767e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-2-shards-4.jsonl",
+      "sha256": "e35ad3b5b9a08e41fd0459d61af49a347e62b0c79e76f4acfaef2619f3a9b407"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-4-shards-4-raw.jsonl",
+      "sha256": "845fb5da09e9e870c3b2765746e33413e7087b2cdd49528dd449c63a7dca62ff"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-4-shards-4-resources.json",
+      "sha256": "13d5055fcfdf3e54d58f459df1090420ca5a9ad3a2df7a29d14abbe4d05f1a10"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-fixed-gpu-4-shards-4.jsonl",
+      "sha256": "38a3b396beeb101de4c16d8ce5e20ee13b41ce74a8440f72e5c2e378d9eeb12e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-heavy-boundary-gpu-1-shards-4-raw.jsonl",
+      "sha256": "096fb53c4a238ca92c2ed5c3d851f8fe359ff79eb93252ea6c5e2a1eb24d6a47"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-heavy-boundary-gpu-1-shards-4-resources.json",
+      "sha256": "aa5be6f6e902a6f85afd7493641761424248bec8badab674009c03d7d7add4f7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-heavy-boundary-gpu-1-shards-4.jsonl",
+      "sha256": "304855097a58f0d3fbe25d398ff3164dabd785dace4b5ba8bf9a8a7afa3da8b5"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-heavy-boundary-gpu-4-shards-4-raw.jsonl",
+      "sha256": "00b703aadbab7c1e94c6cda18a71fa159f4f5df0c314a9abefd544c5e4610e50"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-heavy-boundary-gpu-4-shards-4-resources.json",
+      "sha256": "903cd0cf032ceb30a6c7001666f85b4d464caf52a8f0fca9159300f9115ef459"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-heavy-boundary-gpu-4-shards-4.jsonl",
+      "sha256": "d89af5c8294e5fcdca5ff097d35f6e528d13a3548f6dd7ff14be3fcdc56cf2f9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-large-gpu-1-shards-4-raw.jsonl",
+      "sha256": "3c068d85129eb50e4837a5613f23bce751363d0c8b5311c35a89d82da97790fc"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-large-gpu-1-shards-4-resources.json",
+      "sha256": "bb90dee63699d229dc432a3b19330cf1e8589d746efccaa2b979245a13013390"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-large-gpu-1-shards-4.jsonl",
+      "sha256": "85aff11f9d68cde8699b42e6effe1dca975934fb2aa558717400f45363bc01a8"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-large-gpu-4-shards-4-raw.jsonl",
+      "sha256": "e8418709585ab4e6b44303b6d414b40b89c735e51b2dc918ca4c4495819799e3"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-large-gpu-4-shards-4-resources.json",
+      "sha256": "99e62bc401d28b83d2785fa2bd37b2814c11ed2abc6134bb1c1bff688a6c7f4b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-large-gpu-4-shards-4.jsonl",
+      "sha256": "519872bdc83b0647c8092959217213817e2f7efcea593848816f3dbcf1353d37"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-sustained-gpu-4-shards-4-raw.jsonl",
+      "sha256": "469440c2286fb39fb3b90e5ba905dd69391eee1379161e4a1743862907dce56e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-sustained-gpu-4-shards-4-resources.json",
+      "sha256": "2cbde7fbe9d3dff7436fc8bb4887fab19900b4ebb01bb2e6ebc6d6e083b988cb"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-sustained-gpu-4-shards-4.jsonl",
+      "sha256": "89f7d35e14553eef1606b1fbe19d2f3d5c5123830df7c3b286e94fbb829078e4"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-1-shards-4-raw.jsonl",
+      "sha256": "c22b3a6a1b21bd332f97847ccb99938fedfe8288ac689773bf35a7d2dca887f8"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-1-shards-4-resources.json",
+      "sha256": "b2ff47dd111da6a4df6c781c382f0f64c09f3bf46cbb4b79c309a0e58019fe04"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-1-shards-4.jsonl",
+      "sha256": "a49f3c2e5ee0f74b87cae802b2d6ff05f1697f354e3c032d54f3ec269d6831f0"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-2-shards-4-raw.jsonl",
+      "sha256": "3f3ab3888159af135ded2fe72efc49185a37e1bb187dbae5ab41ae224bbaf939"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-2-shards-4-resources.json",
+      "sha256": "d9528d2f8ae6bceac5f1a00d423a73fbc26b2d8a32b1f3b085ccddaeff271b13"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-2-shards-4.jsonl",
+      "sha256": "0277901e0c167d5b1c5003dabb71d79410eba6fdcf0a668d6708671cc4ef476b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-4-shards-4-raw.jsonl",
+      "sha256": "678aa47420624dd4404b14cc5b78b069b8a63c6ad08ba454d2236d97b886832d"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-4-shards-4-resources.json",
+      "sha256": "47e5ce54aa6ddc165441e28997cd17fcaec05692429143778e338623669fb987"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-gpu-4-shards-4.jsonl",
+      "sha256": "4cec05482dbd65de9d6ac7c5baeb61f017cf8c4cbbedadd08367ce33b5a411ed"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-1-shards-4-raw.jsonl",
+      "sha256": "16729828d95b589cace5e299b96e35d55bd1e894254494e12bf725f626331774"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-1-shards-4-resources.json",
+      "sha256": "ab369bacc96377ae531a21aaa7a14bf34cd242a905e04575bea96e5b22918d3d"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-1-shards-4.jsonl",
+      "sha256": "a3123968552b70eecdd7afd9acc8511d77d407a728343ac3e7133fe35234b21c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-2-shards-4-raw.jsonl",
+      "sha256": "f8b14d6042f9666cbcd13e987732917d18600e672f80205e4fae60442927a7b3"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-2-shards-4-resources.json",
+      "sha256": "53d426d43052ad6a86cfde0f006de31648261baad0152ffd197a194954f7b8a5"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-2-shards-4.jsonl",
+      "sha256": "ba364b0407bcde261f991a7cfa1fa01ac637632e1b1758683131e459300e970e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-4-shards-4-raw.jsonl",
+      "sha256": "e678d19c94ff7647693d2f493deb6d5beff5e8587d0024992a4385e4d5356117"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-4-shards-4-resources.json",
+      "sha256": "1aa9a8e3e672ec3d6432381a4e999e7bd813365f2c93893f2beb6f24df79995f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/current-upper-sustained-gpu-4-shards-4.jsonl",
+      "sha256": "5172af19317f962047af5a1c9dc30f1ffbb5138281e456d255ecc498ef97f2db"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/environment.json",
+      "sha256": "39cde9a14fdcb27f619ab672e668904a3ddde78f9b204267446eebafa0d02658"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/excluded-harness-incidents.json",
+      "sha256": "542d7dcbcfdb8a0c671dfe33150223cc07c5f19ad00a7018bbd427d5d6a3ecf6"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/excluded-upper-identity-overlap.jsonl",
+      "sha256": "adbaa6bdfac009fcd45ce92be4c8731c7cbf6ca7329d53d98d8957a14dda3ee9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/failed-points.json",
+      "sha256": "fc8178668ff8ec86164c47bc189c456208a98d2f5bccc4465f64dda376ced8e7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/gpu-sampling.json",
+      "sha256": "90e4db38c0f6eb594a43e037aa5d2c86fcd3fe69ff74d45eef653f9465fcbf31"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/heavy-exit.json",
+      "sha256": "a97b251c480d6a15ad63c7a1299a5de769756dd7d3d5c683b034fcc36eae0c4c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/heavy-four-observation.json",
+      "sha256": "d7f9f312117abde9100681253fcef1ae5eaee5239a318ae275da1481659ed397"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/heavy-live-observation.json",
+      "sha256": "f61f801e6648e33af1be02fdae89a6873b37d1e4640b3584305c6fd838611f85"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/heavy-memory-observation.json",
+      "sha256": "749ee28549184c6de0a03142d21560b06e0d164c335cdafbd94e11c110092dfa"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/heavy-orchestration.log",
+      "sha256": "3c8f087af04c599f911f6b6db5272ca7e2e3e602347572bf229c7379ee3fe291"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/incomplete-points.json",
+      "sha256": "8f791f1e4752a08bd09235fafb46e977640da564364bac24b654021bac2ad9d0"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/local-probe-correctness.log",
+      "sha256": "6af73938b9fcf9c86cf2339d3dd86d9c67827a4aca5b0513579cd8b23b5e20bb"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/manifest.json",
+      "sha256": "c36c979e46ec4c1e1a596091c1feef755ad788bcb082a0803ba8e6027e4fdc30"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/model-checks.json",
+      "sha256": "514bac1177235e0fb5187da29f6d0526201391519b75c3e01d0d62873b77f5c5"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/study-exit.json",
+      "sha256": "83cf0544f177ab8bedebbb1bd5dd99c26559a2e6ad1bc0f818b771f4ebdc8acd"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/summary.json",
+      "sha256": "f05651af854bd8c128c9610a57a343fe7c8744e821eda756c4fa5bdd002281ed"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/transport-control.json",
+      "sha256": "93e1a6a91a3464ecfb0766a1d9dcb1bac6a2f2226a19f486520d1e40d17f7771"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/upper-exit.json",
+      "sha256": "c459234b6d6e42e90b8152e54bd4f58b693a4b0db9c5a36ddf020bb7525a24fe"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/upper-probe-correctness.log",
+      "sha256": "5d65858982716205ae8d0285574071d6a0637bf83c8a7f387070721c0cd6f90f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-native-multigpu/upper-probe-provenance.json",
+      "sha256": "83b2cf69a9dbd2f222959ff0911ac7f85b12ef85d9cd1fcf6d9dfefad559bebd"
+    }
+  ],
+  "figures": [
+    {
+      "file": "assets/native-multigpu-capacity.svg",
+      "sha256": "fba7e1b1d71f3c7e7399a28cefe46937ec2b78b0a107a4b0c4fabb27e9816acb"
+    },
+    {
+      "file": "assets/native-multigpu-capacity.png",
+      "sha256": "8d0d526af9cdeadf7085a9fb7245ddc1901c4235e7e883d35b72a3e4c592d42b"
+    }
+  ],
+  "protocol_learner_id_range": [
+    0,
+    1023
+  ],
+  "probe_control_learner_ids": [
+    1022,
+    1023
+  ]
+}

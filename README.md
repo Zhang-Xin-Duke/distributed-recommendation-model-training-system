@@ -31,20 +31,27 @@ boundary before the existing job entry point builds its graph. Source-level
 Session checks execute the original methods against independent parameter shards,
 including a mid-run original-controller checkpoint.
 
-![Bounded Agent admission throughput and tail latency](docs/assets/agent-admission.svg)
+![Multi-GPU update throughput and tail latency](docs/assets/native-multigpu-capacity.svg)
 
-**Bounded admission on CUDA:** an Agent-wide queue limits dispatched, unfinished
-RPCs to 32 and retains waiting work within count/byte budgets. On the same
-four-GPU fleet, the previous transport limit rejects 128 concurrent Learners;
-the queued path completes 128/192-Learner runs on one, two and four agents.
-The four-agent, 192-Learner sustained test completes three 20-second windows at
-**59.17 acknowledged updates/s**, with **4.95 s median trial P99** and no remaining
-training tickets. This fleet uses **2 RTX A6000 + 2 L40**.
-[Admission design](docs/AGENT_ADMISSION.md) · [Measurements and raw evidence](docs/AGENT_ADMISSION_RESULTS.md).
+**Measured multi-GPU operating envelope:** with a fixed table and eight concurrent
+Learners, one, two and four GPU owners complete **123.28 / 103.53 / 90.19
+acknowledged sparse updates/s**. The four-owner, 32-Learner sustained test records
+**89.17 updates/s** and **729.77 ms median trial P99** across three 20-second
+windows. Higher concurrency increases queueing and tail latency; the report
+separates useful operating points, accepted load and protocol/deadline bounds.
+All three topologies complete three additional 20-second windows at **1,022
+concurrent Learners**, with median trial P99 ranging from **6.56 to 25.12 seconds**.
+The fleet uses **3 RTX A6000 + 1 L40** on separate hosts with SSH-forwarded BRPC.
+[Current results and raw evidence](docs/NATIVE_MULTIGPU_RESULTS.md).
 
-The workload matrix covers a million-row, 512-dimensional table with **6 GiB of
-logical parameter/Adam state**. Earlier all-A6000 operating points and their
-communication/scheduling controls remain in the [capacity report](docs/MULTIGPU_BOUNDARIES.md).
+The workload matrix also covers a million-row, 512-dimensional table with
+**6 GiB of logical parameter/Adam state**. At 8,192 IDs/update, one/four-owner
+512-Learner cases complete, while 1,022-Learner cases expose RPC/probe timeouts
+and delayed shard-statistics responses. Failed cohorts remain separate from
+verified throughput; overload response is a current repair priority.
+The [earlier admission comparison](docs/AGENT_ADMISSION_RESULTS.md)
+and [all-A6000 capacity study](docs/MULTIGPU_BOUNDARIES.md) retain their own runtime
+and deployment provenance.
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam with optional weight clipping, CUDA-resident weights and optimizer states, CPU/GPU migration,
@@ -55,10 +62,9 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the queued CUDA path retains **23 completed trials / 12,950
-acknowledged updates / 736 sampled row-counter checks**, with zero update errors,
-zero admission rejections and zero remaining tickets in completed records.
-Maximum preflight feature error is **3.91e-8**. The latest Ubuntu native,
+**Validation:** completed pressure-test windows inspect finite sampled weights,
+exact sampled row-update counters and drained lookup/Agent queues. Native model
+checks separately compare complete touched optimizer state. The latest Ubuntu native,
 TensorFlow and CUDA suite executes **47 passing checks**, with three private
 original-source checks skipped. Local native/C-ABI and portable TensorFlow suites
 pass **30/30** and **42/42**. Native TensorFlow model trajectories with **1/2/4
@@ -164,6 +170,9 @@ flowchart LR
 - **Bounded completion waiting:** reserve completion capacity before mutation;
   dedicated waiter threads notify BRPC callbacks when native futures finish.
   Requests no longer poll for completion on a timer.
+- **Agent-wide RPC admission:** dispatch at most 32 unfinished operations per
+  owner and retain waiting work within count/byte budgets. Permits cover backend
+  completion and response encoding. [Admission design](docs/AGENT_ADMISSION.md).
 - **Contiguous state and reusable staging:** preallocate CUDA parameter state and
   staging buffers, batch state transfers and return owning device results.
 

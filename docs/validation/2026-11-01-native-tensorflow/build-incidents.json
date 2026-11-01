@@ -1,0 +1,23 @@
+[
+  {
+    "source_commit": "0ba5613",
+    "tests_executed": 0,
+    "phase": "static link",
+    "failure": "Protobuf archive preceded BRPC; util/type-resolver reference unresolved",
+    "owned_instance_verified_absent": true,
+    "cleanup": "deadline guard"
+  },
+  {
+    "source_commit": "0313177",
+    "phase": "static link",
+    "exit_code": 2,
+    "tests_executed": 0,
+    "causes": [
+      "System Protobuf static archive contains non-PIC TLS relocations",
+      "Static Protobuf zlib dependency needs explicit final link order"
+    ],
+    "log": "failed-static-link.log",
+    "retrieved_archive_sha256": "a21216dd34670d1cef10c822f8a5c85227946e069a29d297dd490002bdedbbd3",
+    "resolution_commit": "5a69840"
+  }
+]

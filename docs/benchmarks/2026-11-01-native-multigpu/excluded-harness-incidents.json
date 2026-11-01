@@ -1,0 +1,9 @@
+{
+  "excluded_probe_source": "96c2ff5",
+  "excluded_case": "1024-Learner probe reused setup ID 999 and health ID 1001",
+  "observed_failure": "lookup is already released",
+  "accepted_capacity_measurement": false,
+  "fix_source": "9fe0ac6",
+  "subsequent_build_restart_error": "existing validated server symlink",
+  "excluded_from_fixed_sustained_large_and_corrected_upper_counts": true
+}

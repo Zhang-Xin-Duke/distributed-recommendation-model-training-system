@@ -1,0 +1,142 @@
+Failed 1-GPU topology: og:
+W1101 09:44:39.431766 66788     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:44:39.433245 66788     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=39239.
+I1101 09:44:39.433557 66788     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:39239 in web browser.
+W1101 09:49:22.307567 66833     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=255 fd=11 addr=127.0.0.1:52746:39239} (0x730080341340): Got EOF
+W1101 09:49:22.311728 66828     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=340 fd=12 addr=127.0.0.1:57240:39239} (0x73007436fd80): Got EOF
+
+ps-2.log:
+W1101 09:44:39.400622 66771     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:44:39.402107 66771     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=46793.
+I1101 09:44:39.402433 66771     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:46793 in web browser.
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 216, in <module>
+    main()
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 194, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 100, in run_topology
+    code = probe.wait(timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2045, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/home/ubuntu/dps-native-tensorflow/build-upper/eps_capacity_probe', '127.0.0.1:37369,127.0.0.1:33021,127.0.0.1:46793,127.0.0.1:39239', '127.0.0.1:19200', 'fleet-3981cea94317', '1048576', '512', '8192', '128', '128,512,1022', '5.0', '1']' timed out after 285.0 seconds
+Traceback (most recent call last):
+  File "<stdin>", line 23, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-native-tensorflow/environment/bin/python', '/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py', '--build', '/home/ubuntu/dps-native-tensorflow/build-upper', '--out', '/home/ubuntu/dps-native-tensorflow/results/current-heavy-boundary/gpu-1', '--external-agents', '127.0.0.1:19200', '--external-hardware', '/home/ubuntu/dps-native-tensorflow/results/fleet-3981cea94317-hardware.csv', '--run-id', 'fleet-3981cea94317', '--devices', '0', '--gpu-counts', '1', '--cache-admission', 'manual', '--ps-shards', '4', '--rows', '1048576', '--dimension', '512', '--max-active-operations', '16', '--dependency-cache', 'on', '--access-pattern', 'resident_mixture', '--keys', '8192', '--bag', '128', '--learners', '128,512,1022', '--seconds', '5.0', '--repeats', '1']' returned non-zero exit status 1.
+
+stopped fleet-3981cea94317
+Failed 4-GPU topology: c-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=255 fd=14 addr=127.0.0.1:52888:41785} (0x76f07e687880): Got EOF
+
+ps-3.log:
+W1101 09:49:29.884699 74848     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:49:29.886183 74848     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=35983.
+I1101 09:49:29.886480 74848     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:35983 in web browser.
+W1101 09:53:07.712000 74886     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=255 fd=14 addr=127.0.0.1:37308:35983} (0x7aeecc098d00): Got EOF
+
+probe.log:
+FAIL capacity probe: capacity run failed: [E1008]Reached timeout=30000ms @127.0.0.1:35983
+
+ps-2.log:
+W1101 09:49:29.853077 74831     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:49:29.854537 74831     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=35929.
+I1101 09:49:29.854829 74831     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:35929 in web browser.
+W1101 09:53:10.024221 74889     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=8589934763 fd=14 addr=127.0.0.1:41958:35929} (0x7985e4026240): Got EOF
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 216, in <module>
+    main()
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 194, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 102, in run_topology
+    raise subprocess.CalledProcessError(code, command)
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-native-tensorflow/build-upper/eps_capacity_probe', '127.0.0.1:41785,127.0.0.1:41055,127.0.0.1:35929,127.0.0.1:35983', '127.0.0.1:19200,127.0.0.1:19201,127.0.0.1:19202,127.0.0.1:19203', 'fleet-aac8a5690d63', '1048576', '512', '8192', '128', '128,512,1022', '5.0', '1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "<stdin>", line 23, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-native-tensorflow/environment/bin/python', '/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py', '--build', '/home/ubuntu/dps-native-tensorflow/build-upper', '--out', '/home/ubuntu/dps-native-tensorflow/results/current-heavy-boundary/gpu-4', '--external-agents', '127.0.0.1:19200,127.0.0.1:19201,127.0.0.1:19202,127.0.0.1:19203', '--external-hardware', '/home/ubuntu/dps-native-tensorflow/results/fleet-aac8a5690d63-hardware.csv', '--run-id', 'fleet-aac8a5690d63', '--devices', '0,1,2,3', '--gpu-counts', '4', '--cache-admission', 'manual', '--ps-shards', '4', '--rows', '1048576', '--dimension', '512', '--max-active-operations', '16', '--dependency-cache', 'on', '--access-pattern', 'resident_mixture', '--keys', '8192', '--bag', '128', '--learners', '128,512,1022', '--seconds', '5.0', '--repeats', '1']' returned non-zero exit status 1.
+
+stopped fleet-aac8a5690d63
+stopped fleet-aac8a5690d63
+stopped fleet-aac8a5690d63
+stopped fleet-aac8a5690d63
+Traceback (most recent call last):
+  File "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/scripts/fleet_capacity_sweep.py", line 183, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/scripts/fleet_capacity_sweep.py", line 179, in main
+    raise RuntimeError("One or more GPU topologies failed:\n"+"\n".join(failures))
+RuntimeError: One or more GPU topologies failed:
+1 GPU(s): og:
+W1101 09:44:39.431766 66788     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:44:39.433245 66788     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=39239.
+I1101 09:44:39.433557 66788     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:39239 in web browser.
+W1101 09:49:22.307567 66833     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=255 fd=11 addr=127.0.0.1:52746:39239} (0x730080341340): Got EOF
+W1101 09:49:22.311728 66828     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=340 fd=12 addr=127.0.0.1:57240:39239} (0x73007436fd80): Got EOF
+
+ps-2.log:
+W1101 09:44:39.400622 66771     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:44:39.402107 66771     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=46793.
+I1101 09:44:39.402433 66771     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:46793 in web browser.
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 216, in <module>
+    main()
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 194, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 100, in run_topology
+    code = probe.wait(timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2045, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/home/ubuntu/dps-native-tensorflow/build-upper/eps_capacity_probe', '127.0.0.1:37369,127.0.0.1:33021,127.0.0.1:46793,127.0.0.1:39239', '127.0.0.1:19200', 'fleet-3981cea94317', '1048576', '512', '8192', '128', '128,512,1022', '5.0', '1']' timed out after 285.0 seconds
+Traceback (most recent call last):
+  File "<stdin>", line 23, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-native-tensorflow/environment/bin/python', '/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py', '--build', '/home/ubuntu/dps-native-tensorflow/build-upper', '--out', '/home/ubuntu/dps-native-tensorflow/results/current-heavy-boundary/gpu-1', '--external-agents', '127.0.0.1:19200', '--external-hardware', '/home/ubuntu/dps-native-tensorflow/results/fleet-3981cea94317-hardware.csv', '--run-id', 'fleet-3981cea94317', '--devices', '0', '--gpu-counts', '1', '--cache-admission', 'manual', '--ps-shards', '4', '--rows', '1048576', '--dimension', '512', '--max-active-operations', '16', '--dependency-cache', 'on', '--access-pattern', 'resident_mixture', '--keys', '8192', '--bag', '128', '--learners', '128,512,1022', '--seconds', '5.0', '--repeats', '1']' returned non-zero exit status 1.
+
+4 GPU(s): c-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=255 fd=14 addr=127.0.0.1:52888:41785} (0x76f07e687880): Got EOF
+
+ps-3.log:
+W1101 09:49:29.884699 74848     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:49:29.886183 74848     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=35983.
+I1101 09:49:29.886480 74848     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:35983 in web browser.
+W1101 09:53:07.712000 74886     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=255 fd=14 addr=127.0.0.1:37308:35983} (0x7aeecc098d00): Got EOF
+
+probe.log:
+FAIL capacity probe: capacity run failed: [E1008]Reached timeout=30000ms @127.0.0.1:35983
+
+ps-2.log:
+W1101 09:49:29.853077 74831     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:49:29.854537 74831     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=35929.
+I1101 09:49:29.854829 74831     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:35929 in web browser.
+W1101 09:53:10.024221 74889     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=8589934763 fd=14 addr=127.0.0.1:41958:35929} (0x7985e4026240): Got EOF
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 216, in <module>
+    main()
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 194, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py", line 102, in run_topology
+    raise subprocess.CalledProcessError(code, command)
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-native-tensorflow/build-upper/eps_capacity_probe', '127.0.0.1:41785,127.0.0.1:41055,127.0.0.1:35929,127.0.0.1:35983', '127.0.0.1:19200,127.0.0.1:19201,127.0.0.1:19202,127.0.0.1:19203', 'fleet-aac8a5690d63', '1048576', '512', '8192', '128', '128,512,1022', '5.0', '1']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "<stdin>", line 23, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-native-tensorflow/environment/bin/python', '/home/ubuntu/dps-native-tensorflow/source/scripts/capacity_sweep.py', '--build', '/home/ubuntu/dps-native-tensorflow/build-upper', '--out', '/home/ubuntu/dps-native-tensorflow/results/current-heavy-boundary/gpu-4', '--external-agents', '127.0.0.1:19200,127.0.0.1:19201,127.0.0.1:19202,127.0.0.1:19203', '--external-hardware', '/home/ubuntu/dps-native-tensorflow/results/fleet-aac8a5690d63-hardware.csv', '--run-id', 'fleet-aac8a5690d63', '--devices', '0,1,2,3', '--gpu-counts', '4', '--cache-admission', 'manual', '--ps-shards', '4', '--rows', '1048576', '--dimension', '512', '--max-active-operations', '16', '--dependency-cache', 'on', '--access-pattern', 'resident_mixture', '--keys', '8192', '--bag', '128', '--learners', '128,512,1022', '--seconds', '5.0', '--repeats', '1']' returned non-zero exit status 1.
+

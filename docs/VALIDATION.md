@@ -1,5 +1,20 @@
 # Validation record
 
+## Current multi-GPU operating envelope — November 1, 2026
+
+Runtime `5a69840` and corrected probe `9fe0ac6` retain **63 completed windows /
+62,363 acknowledged sparse updates / 2,016 sampled row-counter checks** across
+one/two/four physical GPU owners. All three topologies complete three 20-second
+windows at 1,022 Learners on the smaller input. The million-row, 512D, 8192-ID
+workload completes 512 Learners on one/four owners; its 1,022-Learner cases yield
+one incomplete probe and one native RPC-timeout record. The failed cohorts are
+excluded from throughput and full optimizer-trajectory validation. Live health,
+memory/OOM, later four-owner read recovery and terminal timeout evidence remain
+separate records. All four archives are hash checked and all rentals deleted.
+
+[Results and known overload issue](NATIVE_MULTIGPU_RESULTS.md) ·
+[Structured validation and artifact hashes](validation/2026-11-01-native-multigpu.json)
+
 ## Native TensorFlow CPU/CUDA operations — November 1, 2026
 
 Runtime `5a69840` supplies an isolated C ABI and native resource, Pull, prepared

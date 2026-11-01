@@ -1,0 +1,11 @@
+{
+  "recorded_utc": "2026-11-01T09:51:48.149822+00:00",
+  "gpu_owners": 4,
+  "offered_learner_level": 1022,
+  "cgroup": {
+    "memory.current": "11552522240",
+    "memory.max": "51539607552",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  },
+  "gpu_sample": "0 %, 3128 MiB"
+}

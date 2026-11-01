@@ -1,0 +1,21 @@
+{
+  "exit_code": 0,
+  "completed": [
+    {
+      "name": "current-fixed",
+      "exit_code": 0,
+      "seconds": 271.3869540691376
+    },
+    {
+      "name": "current-sustained",
+      "exit_code": 0,
+      "seconds": 153.33679103851318
+    },
+    {
+      "name": "current-large",
+      "exit_code": 0,
+      "seconds": 118.46148800849915
+    }
+  ],
+  "finished_epoch": 1793525630.748872
+}

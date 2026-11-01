@@ -1,0 +1,94 @@
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x123): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x233): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x3e2): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Next(void const**, int*)':
+(.text+0x4e8): undefined reference to `inflateEnd'
+/usr/bin/ld: (.text+0x52d): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*)':
+(.text+0x686): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x762): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Init(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x838): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Deflate(int)':
+(.text+0x8a2): undefined reference to `deflate'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Close()':
+(.text+0xb4c): undefined reference to `deflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x371): undefined reference to `inflate'
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x123): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x233): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x3e2): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Next(void const**, int*)':
+(.text+0x4e8): undefined reference to `inflateEnd'
+/usr/bin/ld: (.text+0x52d): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*)':
+(.text+0x686): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x762): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Init(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x838): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Deflate(int)':
+(.text+0x8a2): undefined reference to `deflate'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Close()':
+(.text+0xb4c): undefined reference to `deflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x371): undefined reference to `inflate'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/Makefile2:433: CMakeFiles/eps_server.dir/all] Error 2
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(arena.o): relocation R_X86_64_TPOFF32 against hidden symbol `_ZN6google8protobuf8internal9ArenaImpl13thread_cache_E' can not be used when making a shared object
+/usr/bin/ld: failed to set dynamic section sizes: bad value
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x123): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x233): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x3e2): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Next(void const**, int*)':
+(.text+0x4e8): undefined reference to `inflateEnd'
+/usr/bin/ld: (.text+0x52d): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*)':
+(.text+0x686): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x762): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Init(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x838): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Deflate(int)':
+(.text+0x8a2): undefined reference to `deflate'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Close()':
+(.text+0xb4c): undefined reference to `deflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x371): undefined reference to `inflate'
+collect2: error: ld returned 1 exit status
+[ 84%] Linking CXX executable eps_cache_policy_probe
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(arena.o): relocation R_X86_64_TPOFF32 against symbol `_ZN6google8protobuf8internal9ArenaImpl13thread_cache_E' can not be used when making a shared object; recompile with -fPIC
+/usr/bin/ld: failed to set dynamic section sizes: bad value
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x123): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::~GzipInputStream()':
+(.text+0x233): undefined reference to `inflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x3e2): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Next(void const**, int*)':
+(.text+0x4e8): undefined reference to `inflateEnd'
+/usr/bin/ld: (.text+0x52d): undefined reference to `inflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*)':
+(.text+0x686): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::GzipOutputStream(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x762): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Init(google::protobuf::io::ZeroCopyOutputStream*, google::protobuf::io::GzipOutputStream::Options const&)':
+(.text+0x838): undefined reference to `deflateInit2_'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Deflate(int)':
+(.text+0x8a2): undefined reference to `deflate'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipOutputStream::Close()':
+(.text+0xb4c): undefined reference to `deflateEnd'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libprotobuf.a(gzip_stream.o): in function `google::protobuf::io::GzipInputStream::Inflate(int)':
+(.text+0x371): undefined reference to `inflate'
+collect2: error: ld returned 1 exit status
