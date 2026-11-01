@@ -23,12 +23,12 @@ def run_trial(args, name, mode, calibration, saved):
     root = args.out / name
     root.mkdir()
     processes, logs, endpoints = [], [], []
-    run = "policy-"+uuid.uuid4().hex[:12]
+    run = getattr(args,"run_id",None) or "policy-"+uuid.uuid4().hex[:12]
     steps = args.calibration_steps if calibration else args.phase_steps
     try:
-        agent_endpoints = []
+        agent_endpoints = list(getattr(args,"external_agents",[]))
         slots = args.cache_rows // len(args.devices)
-        for agent, device in enumerate(args.devices):
+        for agent, device in enumerate([] if agent_endpoints else args.devices):
             log = (root / f"agent-{agent}.log").open("w+")
             logs.append(log)
             row_bytes = args.dimension*12+8

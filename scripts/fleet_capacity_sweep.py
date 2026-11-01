@@ -25,17 +25,17 @@ def remote(node, script, timeout=120):
     return result.stdout
 
 
-def start_worker(node, agent, run, rows, dimension, host_reference=False):
-    options = dict(root=node["root"], agent=agent, run=run, rows=rows, dimension=dimension,host_reference=host_reference)
+def start_worker(node, agent, run, rows, dimension, host_reference=False, cache_slots=None):
+    options = dict(root=node["root"], agent=agent, run=run, rows=rows, dimension=dimension,host_reference=host_reference,cache_slots=cache_slots)
     script = "options="+repr(options)+"\n"+r'''
 import os,pathlib,subprocess,json,time
 o=options;root=pathlib.Path(o['root']);out=root/'results'/o['run'];out.mkdir(parents=True,exist_ok=True)
 env=os.environ.copy();env['LD_LIBRARY_PATH']=str(root/'agent-bundle/lib')+':'+env.get('LD_LIBRARY_PATH','')
 stdout=open(out/'agent.stdout','w');stderr=open(out/'agent.stderr','w')
-slots=o['rows']//2+1024
+slots=o['cache_slots'] or o['rows']//2+1024
 p=subprocess.Popen([str(root/'agent-bundle/bin/eps_cache_agent'),'--run',o['run'],'--backend','host' if o['host_reference'] else 'cuda',
  '--device','0','--agent',str(o['agent']),'--rows-per-table',str(slots),
- '--state-bytes',str(slots*(o['dimension']*12+8)+4096),'--listen','127.0.0.1:19200'],
+ '--state-bytes',str(slots*(o['dimension']*12+8)*(2 if o['cache_slots'] else 1)+4096),'--listen','127.0.0.1:19200'],
  stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,env=env,start_new_session=True)
 record=dict(agent=p.pid,monitor=None,cpu_monitor=None,run=o['run'])
 (out/'processes.json').write_text(json.dumps(record))
