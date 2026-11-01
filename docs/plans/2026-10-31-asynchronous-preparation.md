@@ -53,4 +53,9 @@ and eight inclusive service wall-time counters. Native/RPC/TensorFlow checks
 pass 24/24; ASan/UBSan 11/11; the two focused ThreadSanitizer checks pass 2/2.
 The graph includes real dense/sparse updates with prepared tokens and automatic
 cache/coalesced paths, output-schema cleanup and configured queue-byte rejection.
-Real CUDA validation of this revision is the next verification step.
+Source `040ae90` also passes the complete A6000 CPU/CUDA/TensorFlow suite 26/26
+and four forced-CUDA process/graph checks 4/4. Six fixed-trace runs retain 14 phase
+records and 112 updates with all eight counters and exact final CPU replay.
+The records retain one nonfatal cache-maintenance failure; training-update
+errors are zero. The single rental was deleted after archive hash verification.
+[Source-hashed evidence](../validation/2026-10-31-asynchronous-preparation.json).

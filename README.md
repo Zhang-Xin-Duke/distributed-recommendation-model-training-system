@@ -38,8 +38,11 @@ a pluggable cost planner selects between them. A TensorFlow graph check exercise
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
 **Validation:** the latest matrix retains **203 capacity trials and 103,426
-completed updates** across two fleets, with zero training-update errors. Native
-checks pass **15/15** locally and CPU/CUDA checks pass **17/17** on each GPU fleet.
+completed updates** across two fleets, with zero training-update errors. Current
+local native/RPC/TensorFlow checks pass **24/24**, ASan/UBSan **11/11** and focused
+ThreadSanitizer checks **2/2**; the current A6000 CPU/CUDA/TensorFlow suite passes
+**26/26**. The capacity fleets pass CPU/CUDA checks **17/17**
+at their recorded source revisions.
 Cache-policy replay checks all touched weights, Adam moments and row counters
 across **4,800 updates**; a separate four-agent positive-cost case exercises
 admission and eviction over another **192 updates**. Parameter/optimizer-state
@@ -99,6 +102,12 @@ flowchart LR
 
 ## Implemented optimizations
 
+- **Bounded asynchronous input preparation:** prepare future IDs, padding maps
+  and shard layouts on one worker while current model/RPC work runs. Count and
+  byte limits bound queued work; FIFO tokens are consumed explicitly. Parameter
+  reads occur at Pull consumption, preserving the caller's update/read order.
+  Eight service phase counters distinguish preparation, optimizer work, owner
+  waits and migration. [Lifecycle and metrics](docs/ASYNCHRONOUS_PREPARATION.md).
 - **Automatic reuse-aware placement:** track bounded, decayed per-row request
   reuse, admit rows whose predicted savings cover full-state migration, and
   replace lower-benefit residents after a minimum residence interval. Skip rows
@@ -143,8 +152,8 @@ See [benchmark definitions](docs/BENCHMARKS.md#gradient-payload).
 | Batched preparation and transfer | Prepare ID routing ahead and coalesce compatible payloads | Reduce allocation, scheduling and small-message overhead |
 
 The access planner, automatic admission/replacement controller and migration
-budgets are implemented. Decisions currently execute in coarse windows on the
-shard sequencer; asynchronous preparation and nonblocking agent waits remain
+budgets and asynchronous input preparation are implemented. Decisions currently
+execute in coarse windows on the shard sequencer; nonblocking agent waits remain
 scheduling work. The [acceleration design](docs/ACCELERATION.md) explains the
 choices and costs.
 
@@ -197,8 +206,8 @@ native callers. Clients use the same table/key/gradient contract across tasks.
 
 The [adapter guide](adapters/entropy/README.md) describes integration and gradient
 conventions. The [implementation plan](docs/plans/2026-10-31-implementation.md)
-tracks asynchronous preparation, original-framework native integration and
-integrated workload evaluation.
+tracks completed subsystems, original-framework native integration and integrated
+workload evaluation.
 
 ## References
 

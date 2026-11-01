@@ -1,0 +1,322 @@
+{
+  "date": "2026-10-31",
+  "source_commit": "040ae9032e6b020d9a51efb9ba84e1a945704455",
+  "mac_native_rpc_tensorflow": {
+    "passed": 24,
+    "total": 24
+  },
+  "core_asan_ubsan": {
+    "passed": 11,
+    "total": 11
+  },
+  "focused_thread_sanitizer": {
+    "passed": 2,
+    "total": 2
+  },
+  "local_prepared_graph_records": [
+    {
+      "test": "tensorflow_graph_pull_push_join",
+      "tensorflow": "2.20.0",
+      "cache_route": "cpu_pool",
+      "train_steps": 5,
+      "prepared_inputs": true,
+      "loss_before": 0.66015625,
+      "loss_after": 0.5970618724822998,
+      "checkpoint_shards": 2,
+      "retraces": 0
+    },
+    {
+      "test": "tensorflow_graph_pull_push_join",
+      "tensorflow": "2.20.0",
+      "cache_route": "automatic_resident_host",
+      "train_steps": 5,
+      "prepared_inputs": true,
+      "loss_before": 0.66015625,
+      "loss_after": 0.5970618724822998,
+      "checkpoint_shards": 2,
+      "retraces": 0
+    }
+  ],
+  "ubuntu_native_cpu_cuda": {
+    "passed": 19,
+    "total": 19
+  },
+  "ubuntu_native_rpc_cuda_tensorflow": {
+    "passed": 26,
+    "total": 26
+  },
+  "forced_cuda_process_and_prepared_graph": {
+    "passed": 4,
+    "total": 4
+  },
+  "environment": {
+    "source_commit": "040ae90",
+    "binary_sha256": {
+      "eps_server": "cc780e783b0698eb36ebe87ad21cb716068c2d4febf0304492f996fac15a9cee",
+      "eps_cache_agent": "267be587a68f9bb7d02e04e007f5e7af2127c584120fee6e949f4fa8444c19af",
+      "eps_cache_policy_probe": "d0bcfb4b980e29de921c77f5ec66caabc9e04b029fb36d6b2ac20b76de1c4724",
+      "eps_preparation_tests": "2a1409ba3072df71fb0a2fe59b3874e79c59e8560672d35895c8c2e1d631724a",
+      "eps_phase_tests": "3c23341a1fbc58d602149611e9d47ef874475d90e2dc68deb8724bd2ae8a8a86"
+    },
+    "cuda_architectures": [
+      86
+    ],
+    "arithmetic": "--fmad=false",
+    "brpc": "1.18.0",
+    "gpu": "NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "python_packages": [
+      {
+        "name": "absl-py",
+        "version": "2.5.1"
+      },
+      {
+        "name": "astunparse",
+        "version": "1.6.3"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.23"
+      },
+      {
+        "name": "charset-normalizer",
+        "version": "3.5.2"
+      },
+      {
+        "name": "cmake",
+        "version": "3.31.6"
+      },
+      {
+        "name": "cuda-toolkit",
+        "version": "13.0.3.0"
+      },
+      {
+        "name": "flatbuffers",
+        "version": "25.12.19"
+      },
+      {
+        "name": "gast",
+        "version": "0.7.0"
+      },
+      {
+        "name": "google-pasta",
+        "version": "0.2.0"
+      },
+      {
+        "name": "grpcio",
+        "version": "1.85.1"
+      },
+      {
+        "name": "h5py",
+        "version": "3.16.0"
+      },
+      {
+        "name": "idna",
+        "version": "3.20"
+      },
+      {
+        "name": "keras",
+        "version": "3.15.1"
+      },
+      {
+        "name": "libclang",
+        "version": "18.1.1"
+      },
+      {
+        "name": "Markdown",
+        "version": "3.11.2"
+      },
+      {
+        "name": "markdown-it-py",
+        "version": "4.2.0"
+      },
+      {
+        "name": "MarkupSafe",
+        "version": "3.0.4"
+      },
+      {
+        "name": "mdurl",
+        "version": "0.1.2"
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.6.0"
+      },
+      {
+        "name": "namex",
+        "version": "0.1.0"
+      },
+      {
+        "name": "ninja",
+        "version": "1.13.2"
+      },
+      {
+        "name": "numpy",
+        "version": "2.2.6"
+      },
+      {
+        "name": "nvidia-cuda-cccl",
+        "version": "13.0.85"
+      },
+      {
+        "name": "nvidia-cuda-crt",
+        "version": "13.0.88"
+      },
+      {
+        "name": "nvidia-cuda-nvcc",
+        "version": "13.0.88"
+      },
+      {
+        "name": "nvidia-cuda-runtime",
+        "version": "13.0.96"
+      },
+      {
+        "name": "nvidia-nvvm",
+        "version": "13.0.88"
+      },
+      {
+        "name": "opt_einsum",
+        "version": "3.4.0"
+      },
+      {
+        "name": "optree",
+        "version": "0.20.0"
+      },
+      {
+        "name": "packaging",
+        "version": "26.3"
+      },
+      {
+        "name": "pillow",
+        "version": "13.0.0"
+      },
+      {
+        "name": "pip",
+        "version": "25.0.1"
+      },
+      {
+        "name": "protobuf",
+        "version": "7.36.2"
+      },
+      {
+        "name": "pybind11",
+        "version": "3.0.1"
+      },
+      {
+        "name": "Pygments",
+        "version": "2.21.0"
+      },
+      {
+        "name": "requests",
+        "version": "2.34.2"
+      },
+      {
+        "name": "rich",
+        "version": "15.0.0"
+      },
+      {
+        "name": "setuptools",
+        "version": "84.2.1"
+      },
+      {
+        "name": "six",
+        "version": "1.17.0"
+      },
+      {
+        "name": "tensorboard",
+        "version": "2.20.0"
+      },
+      {
+        "name": "tensorboard-data-server",
+        "version": "0.7.2"
+      },
+      {
+        "name": "tensorflow",
+        "version": "2.20.0"
+      },
+      {
+        "name": "termcolor",
+        "version": "3.3.0"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0"
+      },
+      {
+        "name": "urllib3",
+        "version": "2.8.0"
+      },
+      {
+        "name": "Werkzeug",
+        "version": "3.1.9"
+      },
+      {
+        "name": "wheel",
+        "version": "0.48.0"
+      },
+      {
+        "name": "wrapt",
+        "version": "2.5.2"
+      }
+    ],
+    "bootstrap_native_tests": 19,
+    "full_tests": 26,
+    "forced_cuda_tests": 4,
+    "tensorflow_model_device": "CPU host-callback path; parameter cache agent uses CUDA",
+    "model_training_steps": 5,
+    "transport": "two loopback PS processes, one standalone CUDA cache agent and isolated Python/TensorFlow native client"
+  },
+  "forced_cuda_prepared_graph_records": [
+    {
+      "test": "tensorflow_graph_pull_push_join",
+      "tensorflow": "2.20.0",
+      "cache_route": "automatic_resident_cuda",
+      "train_steps": 5,
+      "prepared_inputs": true,
+      "loss_before": 0.66015625,
+      "loss_after": 0.5970618724822998,
+      "checkpoint_shards": 2,
+      "retraces": 0
+    }
+  ],
+  "phase_trace": {
+    "independent_runs": 6,
+    "phase_records": 14,
+    "completed_updates": 112,
+    "errors": 0,
+    "maximum_final_state_absolute_error": 0,
+    "maximum_feature_absolute_error": 9.313225746154785e-10,
+    "maintenance_failures": 1,
+    "phase_fields": [
+      "agent_wait_nanoseconds",
+      "cache_maintenance_nanoseconds",
+      "cpu_optimizer_nanoseconds",
+      "gpu_packet_prepare_nanoseconds",
+      "gradient_prepare_nanoseconds",
+      "lookup_prepare_nanoseconds",
+      "migration_nanoseconds",
+      "update_dispatch_nanoseconds"
+    ],
+    "frequency_admitted_rows": 66,
+    "frequency_evicted_rows": 38,
+    "raw_directory": "../benchmarks/2026-10-31-preparation-phase-trace",
+    "scope": "Small fixed-trace correctness and metric coverage; not a throughput comparison or a new multi-GPU scaling result"
+  },
+  "source_log_sha256": {
+    "mac_native_rpc_tensorflow": "f03b94b79501b6af3d9e06ed743b82d701c41376fa252f7182cae797580b4796",
+    "core_asan_ubsan": "449027d2f60ac156a5d489873e845872c21683e039ef8dfda4a9d8d110cb454e",
+    "focused_thread_sanitizer": "376d646ba4b5ce8a4064323e5b47600ce52897d46546a10fe9750674c9c98e33",
+    "ubuntu_native_cpu_cuda": "11c232f338f1c7d1a8f128a1bd872b0c111f4b85c64b0523838f3f0d19383b61",
+    "ubuntu_native_rpc_cuda_tensorflow": "e189d6b772047a1b68c032e19b925b335b8ad0e25521c9a75147991c34f99981",
+    "forced_cuda_process_and_prepared_graph": "bc026bebcf63cbe31c2dbaabbc1fd7e733a03e2ec3c8daa6f75826789a3624da"
+  },
+  "private_archive_sha256": "bb5248bf800c1043b4d4f128590a6bba2c80a5371073633d7ccac171f31a3a33",
+  "rental_cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793497970.68254
+  },
+  "scope": "Pure asynchronous metadata preparation, bounded cancellation/save lifecycle, current-weight reads at consumption, exact optimizer trajectory, real external CUDA cache and TensorFlow CPU-model host bridge. Original Entropy application and native model/device tensor interop remain separate integration work."
+}

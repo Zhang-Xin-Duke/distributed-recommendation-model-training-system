@@ -158,3 +158,18 @@ waits; migration includes owner waits. They must not be added as disjoint CPU
 percentages. Client-side gathers, framework computation and input-reader time
 are outside PS phase counters. Queue preparation time is exposed separately by
 `preparation_stats()`.
+
+## Executed validation
+
+Source `040ae90` passes 24 local native/RPC/TensorFlow checks, 11 ASan/UBSan checks
+and two focused ThreadSanitizer checks. An RTX A6000 passes the 26-test complete
+CPU/CUDA/TensorFlow suite and four additional forced-CUDA process/graph checks.
+The prepared CUDA-cache graph trains five steps through two external shards;
+loss falls from 0.66015625 to 0.59706187 without retracing.
+
+Six small fixed-trace runs retain 14 phase records and 112 updates. Every record
+contains all eight timing fields. Final weights, moments and counters match CPU
+replay exactly; the records retain one nonfatal cache-maintenance failure and
+zero training-update errors. This is correctness/metric coverage. Existing
+multi-GPU throughput figures remain attached to their measured revisions.
+[Environment, hashes, raw records and verified rental cleanup](validation/2026-10-31-asynchronous-preparation.json).

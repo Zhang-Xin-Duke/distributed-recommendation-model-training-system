@@ -75,10 +75,14 @@ three-agent check proves a single gather per destination, concurrent dispatch,
 layout/optimizer equivalence and known-ticket cleanup on failed lookups. GPU
 throughput curves retain their explicit source revisions in the benchmark report.
 
-Prepare key routing, unique mappings, buffer sizes and migration candidates ahead
-of demand. Parameter reads still respect the required update and ownership
-boundary. Group compatible state transfers by destination, dimension and optimizer
-layout, retaining a map back to rows and requests.
+A bounded worker now prepares future key routing, padding compaction, buffer
+sizes and position maps ahead of demand. FIFO token consumption performs the
+actual parameter read after the caller's preceding update boundary. Count and
+byte reservations bound outstanding inputs, including cancelled work still
+running. The [preparation design](ASYNCHRONOUS_PREPARATION.md) describes its
+checkpoint lifecycle and eight inclusive service phase counters. Compatible
+state transfers are grouped by destination, dimension and optimizer layout,
+retaining a map back to rows and requests.
 
 ## Keep pooled gradients compact across worker links
 
