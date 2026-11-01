@@ -162,10 +162,11 @@ BRPC parameter shards with a separately running agent, exercise JSON settings
 and RPC metrics, and continue the exact optimizer trajectory after restart.
 
 The process driver accepts `EPS_CACHE_BACKEND=cuda` for real-device verification;
-its default is the host protocol backend. GPU performance results in
-[BENCHMARKS.md](BENCHMARKS.md) retain their measured source revisions and manual
-placement. Automatic-policy performance needs a separate changing-hot-set
-comparison, including the migration work in end-to-end latency.
+its default is the host protocol backend. The manual-placement capacity results in [BENCHMARKS.md](BENCHMARKS.md) retain
+their measured source revisions. The [changing-hot-set evaluation](CACHE_POLICY_RESULTS.md)
+now compares CPU/static/frequency/reuse-cost modes on real A6000 hardware,
+including automatic migration in step latency. Both CUDA process modes pass
+replacement, migration and optimizer restart checks.
 
 
 `tensorflow_graph_automatic_cache` and its coalesced variant execute five

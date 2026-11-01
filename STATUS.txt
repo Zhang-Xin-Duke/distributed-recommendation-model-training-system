@@ -22,9 +22,10 @@ Implemented:
 - Known-ticket cleanup after failed lookup/reconstruction and collected read completions.
 - Real-process/fleet capacity probes with latency and sequencer queue metrics.
 
-Validation: current macOS native/RPC/TensorFlow checks 19/19; core ASan/UBSan
-9/9. Automatic cache modes pass native and two-shard external Host-agent
-replacement/optimizer-restore checks. Prior GPU revisions passed Ubuntu CPU
+Validation: current macOS native/RPC/TensorFlow checks 20/20; core ASan/UBSan
+9/9. Automatic cache modes pass native/TensorFlow and two-shard external
+reference checks. Current Ubuntu CPU/CUDA checks pass 17/17, and explicitly
+CUDA-backed automatic/restore process checks pass 3/3. Prior GPU revisions passed Ubuntu CPU
 11/11 and initial A6000 CPU/CUDA 13/13; both gather policies passed real-process
 CUDA migration and optimizer-exact restore at those source revisions.
 Three distinct A6000 devices passed CUDA state/device-result checks.
@@ -35,9 +36,15 @@ Best tested sustained three-GPU point: 4 shards, 8 Learners, 122.95 updates/s,
 104.93 ms median trial P99; 10,841 updates across three 30-second trials.
 Additional shards or concurrency expose coordination/communication limits.
 See docs/BENCHMARKS.md and docs/VALIDATION.md.
-All three rented instances for this round were deleted and verified absent.
+The earlier three-worker fleet and this round's single A6000 were deleted;
+account inventory verified zero instances.
+Fixed policy traces: two profiles, 36 independent runs (including calibration),
+84 phase records and 6,528 updates, with full feature/state replay checks.
+Main runs check 70,638 rows (moderate) and 189,261 rows (bulk), with zero maximum
+final-state absolute error; policy-failure events remain in the raw records.
+See docs/CACHE_POLICY_RESULTS.md.
 
-Remaining: real CUDA validation and hot-set performance evaluation of the new
-automatic controller; asynchronous preparation/overlap; original Entropy
+Remaining: asynchronous preparation/overlap; integrated automatic-policy
+multi-GPU evaluation; original Entropy
 application/native device integration; and
 end-to-end model performance/quality evaluation.

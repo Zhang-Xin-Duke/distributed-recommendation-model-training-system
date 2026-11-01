@@ -1,0 +1,243 @@
+{
+  "source_commit": "3a2cd7e934a99e609a927fe185aed9ec3bd61997",
+  "backend": "cuda",
+  "source_sha256": {
+    "tests/cache_policy_probe.cpp": "0f9fb66bed7bccd929c92785254f6f98917ed770e4101e958ee296928cb443fb",
+    "scripts/cache_policy_sweep.py": "f99f7fdf5255c62ea10e197c0fb1a8b01dba0aff3d45b26a2f7e714319e33b37",
+    "src/server/service.cpp": "1f5f86a34c95ac09b82380998d1425a5d9e583e1edded64d9a608b0da15abebe",
+    "src/cache/reuse_policy.cpp": "2314af79d2973a9f061ad001c30bfd55b4bd7227aa66ebb4e06eb9ab1e5b34ae",
+    "src/cuda/cache_backend.cu": "8687a15a88d341d17d610aa2b33883e35b5a42e0ce3fd7eb0ead59a787e93581",
+    "proto/embedding_service.proto": "84e01bc8390ae491264925bc0161a03656ef2807f530b7c74f36766d1e47f137"
+  },
+  "binary_sha256": {
+    "eps_server": "a2183812394e0cd40bab1b4f246350231909d4d2b1982b6125362b4ac5a395be",
+    "eps_cache_agent": "fa3b6a4876e9ca8b313cceb288b82a2c9dbe0925fbc0efc74a6cc3de56662196",
+    "eps_cache_policy_probe": "126bcdf69c1f9a539c48c8d66801d23ee6e49d98b878d99295a604b17e753f3f"
+  },
+  "workload": {
+    "rows": 262144,
+    "dimension": 512,
+    "keys": 8192,
+    "bag": 128,
+    "hot_rows": 8192,
+    "cache_rows": 10240,
+    "reserve_slots": 128,
+    "phase_steps": 64,
+    "calibration_steps": 64,
+    "window_requests": 16,
+    "max_tracked_rows": 65536,
+    "migration_rows": 1024,
+    "window_bytes": 16777216,
+    "repeats": 3,
+    "calibration_repeats": 3,
+    "coalesce": false
+  },
+  "gpu": {
+    "index": 0,
+    "name": "NVIDIA RTX A6000",
+    "compute_cap": "8.6",
+    "driver": "610.43.02",
+    "memory": "49140 MiB"
+  },
+  "calibration": {
+    "cpu_step_mean_ms_median": 43.668655671875,
+    "static_step_mean_ms_median": 42.470141984375,
+    "mean_initial_hot_unique_per_step": 5025.328125,
+    "saved_microseconds_per_access": 0.23849461322488344,
+    "calculation": "max(0, (median CPU step ms - median static step ms) * 1000 / initially hot distinct rows per step)",
+    "repeats_per_mode": 3
+  },
+  "environment": {
+    "date": "2026-10-31",
+    "provider": "Thunder Compute",
+    "requested_vcpus": 6,
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+    "visible_cpu_affinity": 6,
+    "os_release": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc_version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "cuda_architectures": [
+      86
+    ],
+    "arithmetic": "--fmad=false",
+    "brpc": "1.18.0",
+    "protobuf": "libprotoc 3.12.4",
+    "transport": "Two local BRPC PS processes and one local standalone CUDA agent; loopback",
+    "dense_model_included": false,
+    "host_reported_physical_memory_bytes": 540907040768,
+    "allocated_memory_bytes": 51539607552,
+    "cgroup_cpu_quota_us": 594000,
+    "cgroup_cpu_period_us": 100000,
+    "cgroup_cpu_equivalents": 5.94
+  },
+  "experiments": [
+    {
+      "name": "calibration-b0-cpu_only",
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 0,
+      "phases": 1,
+      "raw_file": "calibration-b0-cpu_only.jsonl",
+      "sha256": "28758ec853280ce207b5c4de40f5c39666e0f56bbd26a2be02579d2b99f94fb8"
+    },
+    {
+      "name": "calibration-b0-static",
+      "mode": "static",
+      "calibration": true,
+      "block": 0,
+      "phases": 1,
+      "raw_file": "calibration-b0-static.jsonl",
+      "sha256": "0d50cfd477c723d93d7fb0dcc21130b8b96ed681bbe9c19d97107be31f516fee"
+    },
+    {
+      "name": "calibration-b1-static",
+      "mode": "static",
+      "calibration": true,
+      "block": 1,
+      "phases": 1,
+      "raw_file": "calibration-b1-static.jsonl",
+      "sha256": "963df195cf3528bff89c0327f7ff0adaff04b2ac06f57ec5cec795a657c152be"
+    },
+    {
+      "name": "calibration-b1-cpu_only",
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 1,
+      "phases": 1,
+      "raw_file": "calibration-b1-cpu_only.jsonl",
+      "sha256": "bb135e8bc0c5597f3d87ffb44b813b65f562e48423657069e1e1495630dd1bdf"
+    },
+    {
+      "name": "calibration-b2-cpu_only",
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 2,
+      "phases": 1,
+      "raw_file": "calibration-b2-cpu_only.jsonl",
+      "sha256": "559ae2accc4c7eebfe6c570c7c3874088a8f26a910071b7b2b03da5662a7f0fa"
+    },
+    {
+      "name": "calibration-b2-static",
+      "mode": "static",
+      "calibration": true,
+      "block": 2,
+      "phases": 1,
+      "raw_file": "calibration-b2-static.jsonl",
+      "sha256": "d4c74d212312e37bd202190b959038b0da48114e601a4fb237941a17f0eff1e9"
+    },
+    {
+      "name": "trace-b0-cpu_only",
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-cpu_only.jsonl",
+      "sha256": "37585dbb02156ca3ffb04feaa77886eb1b842736ddd903bf0e0a8143e73a6485"
+    },
+    {
+      "name": "trace-b0-static",
+      "mode": "static",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-static.jsonl",
+      "sha256": "9b42da6df75dbd7abd212f8d58abbf3069a78a2e891006d9a0cfd22980a4e15f"
+    },
+    {
+      "name": "trace-b0-frequency",
+      "mode": "frequency",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-frequency.jsonl",
+      "sha256": "efee894b3319d592945ef6c480463af62a94335453ed5aca0216c908f72ae3a3"
+    },
+    {
+      "name": "trace-b0-reuse_cost",
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 0,
+      "phases": 3,
+      "raw_file": "trace-b0-reuse_cost.jsonl",
+      "sha256": "2d9e4fb9e9d9cdcca15f626898a59bc30030b4c954e90f574ed31a1032711276"
+    },
+    {
+      "name": "trace-b1-static",
+      "mode": "static",
+      "calibration": false,
+      "block": 1,
+      "phases": 3,
+      "raw_file": "trace-b1-static.jsonl",
+      "sha256": "8dd8581cf7f385e26e08b62263f2eb06329497bc485eab9d63f4dca2c693667a"
+    },
+    {
+      "name": "trace-b1-frequency",
+      "mode": "frequency",
+      "calibration": false,
+      "block": 1,
+      "phases": 3,
+      "raw_file": "trace-b1-frequency.jsonl",
+      "sha256": "6887d6a31a6b18bd410885815f852bac929e82c7510983d8e147d2df7c7d60e3"
+    },
+    {
+      "name": "trace-b1-reuse_cost",
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 1,
+      "phases": 3,
+      "raw_file": "trace-b1-reuse_cost.jsonl",
+      "sha256": "9d7a6e9cb85d7919dc1dee2c762e4cb82deda6075418603c870573e2a11b2aa6"
+    },
+    {
+      "name": "trace-b1-cpu_only",
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 1,
+      "phases": 3,
+      "raw_file": "trace-b1-cpu_only.jsonl",
+      "sha256": "95adc38fb453760b597d7a60f5fc321bf037d1e92f40dc35a042cc5bc75c26f0"
+    },
+    {
+      "name": "trace-b2-frequency",
+      "mode": "frequency",
+      "calibration": false,
+      "block": 2,
+      "phases": 3,
+      "raw_file": "trace-b2-frequency.jsonl",
+      "sha256": "2b253f67e22404966669444f992ed2efc92f1b6976b18a9b19f25abf41c508d5"
+    },
+    {
+      "name": "trace-b2-reuse_cost",
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 2,
+      "phases": 3,
+      "raw_file": "trace-b2-reuse_cost.jsonl",
+      "sha256": "adbe17c9a7318465831d612bbc347a3b20a358c71eb6c79f7b41b96a9fd07f88"
+    },
+    {
+      "name": "trace-b2-cpu_only",
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 2,
+      "phases": 3,
+      "raw_file": "trace-b2-cpu_only.jsonl",
+      "sha256": "fd43b0ac88d87dd5cad04939b32b04764df24a473451c24b8a4a76af042cfcea"
+    },
+    {
+      "name": "trace-b2-static",
+      "mode": "static",
+      "calibration": false,
+      "block": 2,
+      "phases": 3,
+      "raw_file": "trace-b2-static.jsonl",
+      "sha256": "733dcbc4682bae0521215f80eb4a01dbb4f457b8883f37089eb2d4c3cce8cacc"
+    }
+  ],
+  "counts": {
+    "independent_runs": 18,
+    "phase_records": 42,
+    "completed_updates": 2688,
+    "errors": 0
+  }
+}

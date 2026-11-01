@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-31",
+  "source_commit": "3a2cd7e934a99e609a927fe185aed9ec3bd61997",
+  "environment": {
+    "date": "2026-10-31",
+    "provider": "Thunder Compute",
+    "requested_vcpus": 6,
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+    "visible_cpu_affinity": 6,
+    "os_release": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "compiler": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc_version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "cuda_architectures": [
+      86
+    ],
+    "arithmetic": "--fmad=false",
+    "brpc": "1.18.0",
+    "protobuf": "libprotoc 3.12.4",
+    "transport": "Two local BRPC PS processes and one local standalone CUDA agent; loopback",
+    "dense_model_included": false,
+    "host_reported_physical_memory_bytes": 540907040768,
+    "allocated_memory_bytes": 51539607552,
+    "cgroup_cpu_quota_us": 594000,
+    "cgroup_cpu_period_us": 100000,
+    "cgroup_cpu_equivalents": 5.94
+  },
+  "gpu": {
+    "index": 0,
+    "name": "NVIDIA RTX A6000",
+    "compute_cap": "8.6",
+    "driver": "610.43.02",
+    "memory": "49140 MiB"
+  },
+  "binary_sha256": {
+    "eps_server": "a2183812394e0cd40bab1b4f246350231909d4d2b1982b6125362b4ac5a395be",
+    "eps_cache_agent": "fa3b6a4876e9ca8b313cceb288b82a2c9dbe0925fbc0efc74a6cc3de56662196",
+    "eps_cache_policy_probe": "126bcdf69c1f9a539c48c8d66801d23ee6e49d98b878d99295a604b17e753f3f"
+  },
+  "mac_native_rpc_tensorflow": {
+    "passed": 20,
+    "total": 20,
+    "command": "ctest --test-dir build/tensorflow --output-on-failure"
+  },
+  "core_asan_ubsan": {
+    "passed": 9,
+    "total": 9,
+    "source": "ce3ee51; core hashes unchanged at 3a2cd7e",
+    "previous_record": "2026-10-31-cache-policy.json"
+  },
+  "ubuntu_native_cpu_cuda": {
+    "passed": 17,
+    "total": 17,
+    "command": "ctest --test-dir build-cuda --output-on-failure"
+  },
+  "forced_cuda_process_checks": {
+    "passed": 3,
+    "total": 3,
+    "environment": "EPS_CACHE_BACKEND=cuda",
+    "tests": [
+      "automatic_cache_external_shards",
+      "automatic_cache_coalesced_external_shards",
+      "cache_agent_process_lifecycle"
+    ],
+    "fresh_and_restored_each": true
+  },
+  "source_log_sha256": {
+    "mac_native": "4d52d3b1a4ef6fc4fff7293eb10a667f12bd431971a1cb5dfdfe2f3baf48c331",
+    "ubuntu_native_cuda": "8c18bf8484d0855a3f17474c511eff52178804a5295ec703dc50f15fa28a9397",
+    "forced_cuda_processes": "ba38226a065224dc6799892ebed9204cf2e50ca549dfe30ac8cee70fdbe5b5fb"
+  },
+  "scope": "Native CPU/CUDA state and reserve checks; real CUDA automatic placement, migration and optimizer restore; local TensorFlow graph uses Host reference agent",
+  "dependency_profiler_hook_disabled_verified": true,
+  "cuda_architecture_86_verified": true,
+  "fixed_trace_profiles": {
+    "independent_runs": 36,
+    "phase_records": 84,
+    "completed_updates": 6528,
+    "completed_update_errors": 0,
+    "main_touched_rows_per_run": {
+      "moderate": 70638,
+      "bulk": 189261
+    },
+    "maximum_final_state_absolute_error": 0,
+    "maximum_feature_absolute_error": 6.705522537231445e-08,
+    "nonfatal_policy_events": 25
+  },
+  "rental_cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0
+  }
+}

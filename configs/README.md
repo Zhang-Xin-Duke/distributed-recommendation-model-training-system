@@ -31,3 +31,9 @@ admission changes placement while keeping the same sparse optimizer and update
 boundaries. `entropy-adapter.example.json` describes framework-adapter settings;
 the portable TensorFlow host bridge and its commands are documented under
 [adapters/entropy](../adapters/entropy/README.md).
+
+
+The [A6000 trace evaluation](../docs/CACHE_POLICY_RESULTS.md) supplies paired
+CPU/static calibration and compares frequency/reuse-cost placement with timed
+migration. Its cost inputs and working-set shapes are explicit so they can be
+replaced with observations from a different deployment.

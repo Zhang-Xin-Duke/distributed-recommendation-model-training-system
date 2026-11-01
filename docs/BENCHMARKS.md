@@ -15,6 +15,10 @@ without reported errors. It includes paired client comparisons, shard controls,
 a larger embedding table and longer-window checks. The [initial 207-trial report](BENCHMARKS.initial-2026-10-31.md)
 is retained separately with its original source revisions and deployment.
 
+Automatic placement has a separate [fixed-trace CUDA evaluation](CACHE_POLICY_RESULTS.md)
+with CPU/static/frequency/reuse-cost modes. The capacity results below keep their
+original manual-placement workloads and revisions.
+
 ## What a measured step does
 
 Each step performs distributed lookup, CPU/GPU feature reconstruction, gradient

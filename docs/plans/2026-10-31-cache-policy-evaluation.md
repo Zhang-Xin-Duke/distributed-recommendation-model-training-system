@@ -44,3 +44,31 @@ The main comparison uses a single Learner to keep row-update order identical.
 The earlier multi-Learner capacity report remains a separate experiment. This
 trace measures the sparse parameter subsystem with synthetic feature gradients;
 model forward/backward remains outside its timed interval.
+
+## Larger-batch profile
+
+The moderate profile's three CPU/static calibrations measured median complete
+steps of 10.785/14.834 ms, yielding a zero admission-savings prior. Retain this
+entire profile. Before starting another profile, fix its shape at 262,144-ID
+universe, 512 dimensions, 8,192 IDs/step, 128 IDs/bag, 8,192 hot rows, 10,240
+cache slots, 128 reserved slots and 64 steps/phase. Increase migration batches
+from 256 to 1,024 rows and window byte budgets from 2 to 16 MiB. All modes in
+this profile receive the same settings and repeat policy.
+
+This independent profile tests a larger amount of work per request and batched
+migration; it does not isolate a single changed variable. Keep both profiles and
+calibrations, including negative results. Its execution waits until the moderate
+profile finishes, uses the same immutable binaries and leases, and does not
+create another GPU instance.
+
+
+## Executed results
+
+Prepared source `3a2cd7e`; native fixed-trace smoke and full macOS suite passed
+(20/20). One A6000 instance compiled the native CUDA build, passed 17/17 checks
+and three additional CUDA-backed process lifecycle checks. Moderate/bulk profiles
+completed sequentially with the same binaries: 36 independent runs, 84 phase
+records and 6,528 updates. Full feature replay and final row-state/counter checks
+passed. Raw archives were fetched and hash-verified before instance deletion;
+account inventory confirmed zero instances. No runtime parameter was changed
+within a profile after its comparison began. See [the report](../CACHE_POLICY_RESULTS.md).

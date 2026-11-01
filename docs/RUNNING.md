@@ -191,3 +191,10 @@ EPS_CACHE_BACKEND=cuda ctest --test-dir build/cuda \
 Without that environment setting the same tests use the Host reference backend.
 Both checks include fresh and restored processes, policy metrics and state
 comparisons. `cuda_state_and_device_results` also checks destination slot reserves.
+
+
+For calibrated CPU/static/frequency/reuse-cost comparisons with fixed hot-set
+changes and complete CPU replay, use `scripts/cache_policy_sweep.py`.
+[The experiment report](CACHE_POLICY_RESULTS.md) records exact moderate/bulk
+commands, source revisions and raw data. A compact Host-reference process check
+runs as `cache_policy_fixed_trace_smoke`; its rates are excluded from GPU results.

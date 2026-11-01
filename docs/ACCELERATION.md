@@ -133,6 +133,7 @@ RPC metrics expose each decision stage. Native/reference-process checks cover
 hot-set shifts, capacity races, failure fallback and exact optimizer restart.
 
 Decisions currently execute on the shard sequencer, so migrations contribute to
-the completing request's latency. New-controller GPU execution and a fixed-trace
-hot-set performance comparison remain to be run. The published capacity curves
-measure earlier manual-placement revisions.
+the completing request's latency. The new controller passes real A6000 process checks. A [fixed-trace
+hot-set comparison](CACHE_POLICY_RESULTS.md) records its calibration, migration,
+throughput and numerical behavior. The capacity curves retain the earlier
+manual-placement revisions.

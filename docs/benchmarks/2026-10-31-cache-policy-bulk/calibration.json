@@ -1,0 +1,8 @@
+{
+  "cpu_step_mean_ms_median": 43.668655671875,
+  "static_step_mean_ms_median": 42.470141984375,
+  "mean_initial_hot_unique_per_step": 5025.328125,
+  "saved_microseconds_per_access": 0.23849461322488344,
+  "calculation": "max(0, (median CPU step ms - median static step ms) * 1000 / initially hot distinct rows per step)",
+  "repeats_per_mode": 3
+}

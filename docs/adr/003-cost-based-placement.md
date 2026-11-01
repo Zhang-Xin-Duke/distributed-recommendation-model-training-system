@@ -1,7 +1,6 @@
 # 003: Choose access and placement by cost
 
-**Status:** Implemented with native/reference-process validation, 2026-10-31.
-Real-device execution/performance of the automatic controller remains to be checked.
+**Status:** Implemented with native, CUDA-process and fixed-trace validation, 2026-10-31.
 
 ## Context
 

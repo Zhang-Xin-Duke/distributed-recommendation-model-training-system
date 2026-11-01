@@ -82,3 +82,12 @@ checks run automatic residency with per-shard/coalesced gathers, train five
 steps with decreasing loss and no retracing, verify policy counters/resident
 rows, and drain at save. Together with the other checks, the native/RPC/TensorFlow
 suite is now 19/19; core ASan/UBSan remains 9/9.
+
+
+## Subsequent real-device evaluation
+
+Source `3a2cd7e` subsequently passed 17/17 Ubuntu CPU/CUDA checks and three
+additional explicitly CUDA-backed process checks. Two fixed-trace profiles
+completed 36 independent runs and 6,528 updates with full feature/final-state
+replay. Current local native/TensorFlow coverage is 20/20. These results and
+cost-model behavior are in [CACHE_POLICY_RESULTS.md](../CACHE_POLICY_RESULTS.md).

@@ -4,7 +4,7 @@
 
 | Environment | Executed suite | Result |
 |---|---|---|
-| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, automatic cache policy, both gather policies and TensorFlow graphs | 19/19 passed |
+| macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2 | Current native core, RPC, cache protocol, adapter, automatic cache policy, both gather policies and TensorFlow graphs | 20/20 passed |
 | macOS arm64, core-only ASan/UBSan | Current core, policies, ownership, control replay, adapter, automatic cache policy and coalesced gathers | 9/9 passed |
 | Ubuntu 22.04, GNU 11.4, BRPC 1.18.0, Protobuf 3.12.4, CUDA 13.0.88, L40 48 GB | CPU/CUDA suite before cross-shard gather coalescing | 12/12 passed |
 | Ubuntu 22.04, A6000 coordinator, shared server/agent at `5a4cdcb` | Initial native CPU/CUDA checks | 13/13 passed |
@@ -29,8 +29,11 @@ batch budgets, atomic reserve enforcement, and failed admission after eviction.
 Two additional TensorFlow graph checks train five dense/sparse steps while
 parameters migrate automatically, verify policy metrics through Python IPC,
 assert decreasing loss without retracing, and drain cache at save.
-The new controller/CUDA reserve changes still require real-device execution;
-the CUDA results below refer to their recorded earlier revisions.
+The current A6000 revision also passes 17/17 CPU/CUDA checks and three additional
+forced-CUDA process checks. The [current CUDA validation artifact](validation/2026-10-31-cache-policy-cuda.json)
+records that evidence separately from the earlier records. Two fixed-trace
+profiles complete 36 independent runs / 6,528 updates with full CPU replay;
+[the policy report](CACHE_POLICY_RESULTS.md) retains phase records and checks.
 
 ## What the checks establish
 

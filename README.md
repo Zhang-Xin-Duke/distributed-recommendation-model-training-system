@@ -38,12 +38,13 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the current macOS native/RPC/TensorFlow suite passes **19/19**,
+**Validation:** the current macOS native/RPC/TensorFlow suite passes **20/20**,
 and the core ASan/UBSan suite passes **9/9**. Automatic replacement, reserved
 capacity, pins, failure fallback and optimizer-exact restart are covered by
-native and external-process reference checks. CUDA state, migration and restore
-were verified on L40/A6000 at the GPU benchmark revisions. See the
-[validation record](docs/VALIDATION.md).
+native and external-process checks. On A6000, the current Ubuntu CPU/CUDA suite
+passes **17/17**, with **3/3 additional CUDA-backed process checks** for automatic
+placement and save/restore. Fixed traces verify all touched parameter/optimizer
+state after 6,528 updates. See the [validation record](docs/VALIDATION.md).
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
 [Implementation progress](docs/plans/2026-10-31-implementation.md)
@@ -145,6 +146,17 @@ shard sequencer; asynchronous preparation and nonblocking agent waits remain
 scheduling work. The [acceleration design](docs/ACCELERATION.md) explains the
 choices and costs.
 
+## Measured cache-policy behavior
+
+![Cache hit rate, throughput and migration cost](docs/assets/cache-policy-moderate-adaptation.svg)
+
+In the 2,048-ID shifted-hot-set profile, reuse-cost placement completes **103.90
+updates/s** with **14.80 ms median trial P99**, versus **71.16 updates/s** and
+**42.62 ms** for frequency placement. Calibration selects a zero admission-savings
+prior in this profile, avoiding new full-state migrations; static placement
+reaches 106.28 updates/s. The report also includes CPU-only baselines and a larger
+8,192-ID profile. [Two-profile results, costs and raw records](docs/CACHE_POLICY_RESULTS.md).
+
 ## Design and code map
 
 - [Service architecture](docs/ARCHITECTURE.md)
@@ -183,8 +195,8 @@ native callers. Clients use the same table/key/gradient contract across tasks.
 
 The [adapter guide](adapters/entropy/README.md) describes integration and gradient
 conventions. The [implementation plan](docs/plans/2026-10-31-implementation.md)
-tracks automatic-policy GPU validation, asynchronous preparation and integrated
-workload evaluation.
+tracks asynchronous preparation, original-framework native integration and
+integrated workload evaluation.
 
 ## References
 
