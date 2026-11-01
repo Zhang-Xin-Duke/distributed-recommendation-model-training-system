@@ -34,7 +34,7 @@ struct HostCacheBackend::Impl {
   detail::OrderedExecutor executor;
 };
 HostCacheBackend::HostCacheBackend(AgentId a,std::uint64_t b):impl_(std::make_unique<Impl>(a,b)){}
-HostCacheBackend::~HostCacheBackend()=default;
+HostCacheBackend::~HostCacheBackend(){impl_->executor.Shutdown();}
 std::future<Result<std::uint64_t>> HostCacheBackend::FreeSlots(TableId table){
   return impl_->executor.Submit<std::uint64_t>([this,table]{
     auto bytes=std::uint64_t(impl_->tables.at(table).dimension)*12+8;

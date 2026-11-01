@@ -57,6 +57,9 @@ class TableAdapter {
   // Called after the framework closes input and completes every Pull lifecycle.
   // A successful save leaves the services drained until restart or explicit resume.
   Result<std::vector<SnapshotMetadata>> Save(std::string snapshot_id);
+  Result<SnapshotChunk> ReadCheckpoint(std::string snapshot_id,std::uint32_t shard,
+      std::uint64_t offset,std::uint32_t max_bytes);
+  Result<Ack> Resume(std::string snapshot_id);
  private:
   struct Impl;
   std::unique_ptr<Impl> impl_;

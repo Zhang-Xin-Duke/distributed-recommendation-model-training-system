@@ -202,8 +202,28 @@ service EmbeddingService {
   rpc ReadState(ReadStateRequest) returns (ReadStateReply);
   rpc CompleteMigration(MigrationCompletion) returns (Ack);
   rpc DrainAndFlush(DrainRequest) returns (SnapshotReply);
+  rpc ReadCheckpoint(SnapshotReadRequest) returns (SnapshotChunkReply);
+  rpc ResumeCheckpoint(CheckpointIdentity) returns (Ack);
   rpc Locations(RowsRequest) returns (LocationsReply);
   rpc MoveRows(MoveRequest) returns (LocationsReply);
+}
+
+message CheckpointIdentity {
+  string run = 1;
+  uint64 partition_epoch = 2;
+  string snapshot_id = 3;
+}
+message SnapshotReadRequest {
+  CheckpointIdentity identity = 1;
+  uint64 offset = 2;
+  uint32 max_bytes = 3;
+}
+message SnapshotChunkReply {
+  Status status = 1;
+  uint64 offset = 2;
+  uint64 total_bytes = 3;
+  bytes data = 4;
+  bool eof = 5;
 }
 
 message StatsRequest {}

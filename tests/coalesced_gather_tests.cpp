@@ -48,6 +48,8 @@ class DelayedLookup final : public ParameterService {
   std::future<Result<std::vector<RowState>>> ReadState(std::vector<LocatedRow> r)override{return target_->ReadState(std::move(r));}
   std::future<Result<Ack>> CompleteMigration(MigrationCompletion r)override{return target_->CompleteMigration(std::move(r));}
   std::future<Result<SnapshotMetadata>> DrainAndFlush(std::string r)override{return target_->DrainAndFlush(std::move(r));}
+  std::future<Result<SnapshotChunk>> ReadCheckpoint(CheckpointIdentity i,std::uint64_t o,std::uint32_t n)override{return target_->ReadCheckpoint(std::move(i),o,n);}
+  std::future<Result<Ack>> ResumeCheckpoint(CheckpointIdentity i)override{return target_->ResumeCheckpoint(std::move(i));}
  private:
   std::shared_ptr<ParameterService> target_;std::shared_future<void> signal_;
 };

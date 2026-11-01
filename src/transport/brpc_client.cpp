@@ -23,6 +23,24 @@ using transport::AckDecoder;
 BrpcParameterService::BrpcParameterService(std::string endpoint,int timeout)
     :impl_(std::make_shared<Impl>(endpoint,timeout)) {}
 BrpcParameterService::~BrpcParameterService()=default;
+std::future<Result<SnapshotChunk>> BrpcParameterService::ReadCheckpoint(
+    CheckpointIdentity identity,std::uint64_t offset,std::uint32_t max_bytes) {
+  return Call<wire::SnapshotReadRequest,wire::SnapshotChunkReply,SnapshotChunk>(impl_,
+    &wire::EmbeddingService_Stub::ReadCheckpoint,
+    [identity=std::move(identity),offset,max_bytes](auto& q,auto&){
+      t::Encode(identity,q.mutable_identity());q.set_offset(offset);q.set_max_bytes(max_bytes);
+    },[offset,max_bytes](const auto& q,const auto&){
+      detail::Require(q.offset()==offset && q.data().size()<=max_bytes &&
+        q.offset()<=q.total_bytes() && q.data().size()<=q.total_bytes()-q.offset() &&
+        q.eof()==(q.offset()+q.data().size()==q.total_bytes()) &&
+        (q.eof() || !q.data().empty()),"invalid checkpoint chunk reply");
+      return SnapshotChunk{q.offset(),q.total_bytes(),q.data(),q.eof()};
+    });
+}
+std::future<Result<Ack>> BrpcParameterService::ResumeCheckpoint(CheckpointIdentity identity) {
+  return Call<wire::CheckpointIdentity,wire::Ack,Ack>(impl_,&wire::EmbeddingService_Stub::ResumeCheckpoint,
+    [identity=std::move(identity)](auto& q,auto&){t::Encode(identity,&q);},AckDecoder);
+}
 std::future<Result<RuntimeStats>> BrpcParameterService::Stats(){
   return Call<wire::StatsRequest,wire::StatsReply,RuntimeStats>(impl_,&wire::EmbeddingService_Stub::Stats,
     [](auto&,auto&){},[](const auto& q,const auto&){RuntimeStats s;

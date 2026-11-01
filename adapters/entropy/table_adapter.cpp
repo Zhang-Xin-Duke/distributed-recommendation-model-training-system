@@ -81,6 +81,7 @@ struct TableAdapter::Impl {
   std::map<std::uint64_t,Batch> live;
   std::map<std::uint64_t,bool> completed;
   bool closed=false;
+  std::optional<std::string> saved_checkpoint,resumed_checkpoint;
 };
 TableAdapter::TableAdapter(AdapterOptions o,std::vector<std::shared_ptr<ParameterService>> s)
     : impl_(std::make_unique<Impl>(std::move(o),std::move(s))) {}
@@ -172,14 +173,43 @@ Result<Ack> TableAdapter::Join() {
 Result<std::vector<SnapshotMetadata>> TableAdapter::Save(std::string id) {
   std::lock_guard lock(impl_->mutex);
   try {
+    detail::Require(!impl_->closed,"adapter input is closed",Error::Code::unavailable);
     detail::Require(impl_->live.empty(),"complete all batches before saving",Error::Code::unavailable);
     Take(impl_->preparation.CloseIfEmpty());
     impl_->closed=true;
+    impl_->saved_checkpoint.reset();impl_->resumed_checkpoint.reset();
     std::vector<std::future<Result<SnapshotMetadata>>> futures;
     for(auto& shard:impl_->shards)futures.push_back(shard->DrainAndFlush(id));
     std::vector<SnapshotMetadata> result;
     for(auto& f:futures)result.push_back(Take(f.get()));
+    impl_->saved_checkpoint=id;
     return result;
   } catch(const detail::Failure& e) {return e.error();}
+}
+Result<SnapshotChunk> TableAdapter::ReadCheckpoint(std::string id,std::uint32_t shard,
+    std::uint64_t offset,std::uint32_t max_bytes) {
+  std::lock_guard lock(impl_->mutex);
+  try {
+    detail::Require(impl_->closed && impl_->saved_checkpoint==id,
+      "export requires the adapter's successful frozen save",Error::Code::unavailable);
+    detail::Require(shard<impl_->shards.size(),"checkpoint shard is out of range");
+    return Take(impl_->shards[shard]->ReadCheckpoint(
+      {impl_->options.run,impl_->options.partition_epoch,std::move(id)},offset,max_bytes).get());
+  }catch(const detail::Failure& e){return e.error();}
+}
+Result<Ack> TableAdapter::Resume(std::string id) {
+  std::lock_guard lock(impl_->mutex);
+  try {
+    if(!impl_->closed && impl_->resumed_checkpoint==id)return Ack{};
+    detail::Require(impl_->closed && impl_->saved_checkpoint==id,
+      "resume requires the adapter's successful frozen save",Error::Code::unavailable);
+    std::vector<std::future<Result<Ack>>> futures;
+    for(auto& shard:impl_->shards)futures.push_back(shard->ResumeCheckpoint(
+      {impl_->options.run,impl_->options.partition_epoch,id}));
+    for(auto& f:futures)Take(f.get());
+    Take(impl_->preparation.Reopen());
+    impl_->resumed_checkpoint=std::move(id);impl_->saved_checkpoint.reset();impl_->closed=false;
+    return Ack{};
+  }catch(const detail::Failure& e){return e.error();}
 }
 }  // namespace eps::entropy

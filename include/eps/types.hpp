@@ -26,6 +26,18 @@ using Result = std::variant<T, Error>;
 
 struct Ack {};
 
+struct CheckpointIdentity {
+  std::string run;
+  std::uint64_t partition_epoch;
+  std::string snapshot_id;
+};
+struct SnapshotChunk {
+  std::uint64_t offset;
+  std::uint64_t total_bytes;
+  std::string data;
+  bool eof;
+};
+
 enum class Phase { lookup, push, release, maintenance };
 enum class Pooling { sum, mean, sequence };
 enum class Placement { cpu, loading, gpu, draining };

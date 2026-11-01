@@ -119,6 +119,27 @@ class Backend {
   }
   void Release(std::uint64_t h) {py::gil_scoped_release release;Take(adapter_->Release(h));}
   void Join() {py::gil_scoped_release release;Take(adapter_->Join());}
+  void Resume(std::string id) {py::gil_scoped_release release;Take(adapter_->Resume(std::move(id)));}
+  py::tuple ReadCheckpoint(std::string id,std::uint32_t shard,std::uint64_t offset,
+      std::uint32_t max_bytes,std::uint64_t checksum,py::bytes previous_tail) {
+    const auto tail=py::cast<std::string>(previous_tail);
+    if(tail.size()!=std::min<std::uint64_t>(offset,8) ||
+       (offset==0 && checksum!=14695981039346656037ULL))
+      throw std::invalid_argument("invalid checkpoint checksum continuation");
+    SnapshotChunk chunk;std::string next_tail;
+    {py::gil_scoped_release release;
+      chunk=Take(adapter_->ReadCheckpoint(std::move(id),shard,offset,max_bytes));
+      const auto combined=tail+chunk.data;const auto body=combined.size()>8?combined.size()-8:0;
+      for(std::size_t i=0;i<body;++i)checksum=(checksum^static_cast<unsigned char>(combined[i]))*1099511628211ULL;
+      next_tail=combined.substr(body);
+      if(chunk.eof) {
+        if(next_tail.size()!=8)throw std::runtime_error("checkpoint checksum trailer missing");
+        std::uint64_t expected=0;for(unsigned i=0;i<8;++i)expected|=std::uint64_t(static_cast<unsigned char>(next_tail[i]))<<(8*i);
+        if(expected!=checksum)throw std::runtime_error("exported checkpoint checksum mismatch");
+      }
+    }
+    return py::make_tuple(chunk.offset,chunk.total_bytes,py::bytes(chunk.data),chunk.eof,checksum,py::bytes(next_tail));
+  }
   std::vector<std::string> Save(std::string id) {
     py::gil_scoped_release release;auto metadata=Take(adapter_->Save(std::move(id)));
     std::vector<std::string> files;
@@ -170,5 +191,6 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("cancel_prepared",&Backend::CancelPrepared).def("preparation_stats",&Backend::PreparationStats)
     .def("push",&Backend::Push).def("release",&Backend::Release).def("join",&Backend::Join)
     .def("save",&Backend::Save).def("stats",&Backend::Stats)
+    .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
     .def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);
 }

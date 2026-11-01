@@ -102,6 +102,9 @@ class CpuParameterService final : public ParameterService {
   // after the framework has completed its coordinated save boundary.
   std::future<Result<Ack>> Restore(std::filesystem::path snapshot_file);
   std::future<Result<Ack>> Resume();
+  std::future<Result<SnapshotChunk>> ReadCheckpoint(CheckpointIdentity,
+      std::uint64_t offset, std::uint32_t max_bytes) override;
+  std::future<Result<Ack>> ResumeCheckpoint(CheckpointIdentity) override;
   std::future<Result<RuntimeStats>> Stats();
   std::future<Result<Ack>> AttachAgent(AgentId id,std::shared_ptr<CacheBackend> backend);
   std::future<Result<Ack>> ConfigureAccess(AgentId agent,AccessRoute fallback,

@@ -30,6 +30,7 @@ class PrepareQueue {
   Result<Ack> Cancel(std::uint64_t token);
   bool Empty() const;
   Result<Ack> CloseIfEmpty();
+  Result<Ack> Reopen();
   void Close();
   entropy::PreparationStats Stats() const;
  private:

@@ -189,6 +189,11 @@ Result<Ack> PrepareQueue::CloseIfEmpty() {
 void PrepareQueue::Close() {
   {std::lock_guard lock(mutex_);closed_=true;CancelAll();}changed_.notify_all();
 }
+Result<Ack> PrepareQueue::Reopen() {
+  std::lock_guard lock(mutex_);
+  if(stopping_ || !pending_.empty())return Error{Error::Code::unavailable,"preparation cannot reopen with pending inputs"};
+  closed_=false;return Ack{};
+}
 entropy::PreparationStats PrepareQueue::Stats() const {
   std::lock_guard lock(mutex_);auto out=stats_;out.pending=pending_.size();
   for(const auto& [token,job]:pending_)out.claimed+=job->claimed;

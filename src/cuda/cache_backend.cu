@@ -343,7 +343,7 @@ struct CudaCacheBackend::Impl {
 };
 
 CudaCacheBackend::CudaCacheBackend(CudaCacheOptions o) : impl_(std::make_unique<Impl>(o)) {}
-CudaCacheBackend::~CudaCacheBackend() = default;
+CudaCacheBackend::~CudaCacheBackend() { impl_->executor->Shutdown(); }
 
 std::future<Result<Ack>> CudaCacheBackend::Define(TableDefinition d) {
   return impl_->executor->Submit<Ack>([this, d] {

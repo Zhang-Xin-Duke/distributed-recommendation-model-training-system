@@ -146,9 +146,12 @@ class ResumableActor {
     }
   }
   ResumableActor(const ResumableActor&)=delete;
-  ~ResumableActor(){
-    {std::lock_guard lock(mutex_);closed_=true;}changed_.notify_all();worker_.join();
-    for(auto& waiter:waiters_)waiter.join();
+  ~ResumableActor(){Shutdown();}
+  void Shutdown(){
+    std::call_once(shutdown_,[this]{
+      {std::lock_guard lock(mutex_);closed_=true;}changed_.notify_all();worker_.join();
+      for(auto& waiter:waiters_)waiter.join();
+    });
   }
   template<class T,class Fn,class DependenciesFn>
   std::future<Result<T>> Submit(Fn fn,DependenciesFn dependencies,std::uint64_t payload=0) {
@@ -364,5 +367,6 @@ class ResumableActor {
   External* wake_head_=nullptr;External* wake_tail_=nullptr;
   Stats stats_;bool closed_=false,waiters_stopping_=false;
   std::vector<std::thread> waiters_;std::thread worker_;
+  std::once_flag shutdown_;
 };
 }  // namespace eps::detail

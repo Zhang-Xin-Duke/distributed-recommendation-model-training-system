@@ -562,6 +562,7 @@ class CpuParameterService::Impl {
                (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
       }), "invalid snapshot ID");
     draining_ = true;
+    saved_checkpoint_.clear();
     Require(tickets_.empty(), "drain in progress: complete or release outstanding tickets",
             Error::Code::unavailable);
     for(;;){
@@ -586,6 +587,7 @@ class CpuParameterService::Impl {
       result.optimizer_contexts.push_back({{options_.run_id, 0, 0, Phase::maintenance},
         options_.shard_id, table, t.optimizer_sequence,
         t.definition.optimizer.learning_rate, t.beta1_power, t.beta2_power});
+    saved_checkpoint_=id;
     co_return result;
   }
 
@@ -610,6 +612,7 @@ class CpuParameterService::Impl {
   std::uint64_t next_move_=0;
   std::string fatal_;
   bool draining_ = false;
+  std::string saved_checkpoint_;
   std::uint64_t ticket_payload_bytes_ = 0;
   // Last member: accepted continuations and completion workers drain before
   // the store, tickets, backends and error observer's state are destroyed.
@@ -618,7 +621,11 @@ class CpuParameterService::Impl {
 
 CpuParameterService::CpuParameterService(RuntimeOptions options)
     : impl_(std::make_unique<Impl>(std::move(options))) {}
-CpuParameterService::~CpuParameterService() = default;
+CpuParameterService::~CpuParameterService() {
+  // Accepted jobs capture this and access impl_; keep the pointer intact until
+  // their actor continuations and completion workers have all finished.
+  impl_->actor_.Shutdown();
+}
 std::future<Result<Ack>> CpuParameterService::CreateTable(TableDefinition table) {
   return impl_->Submit<Ack>([this,table]()->detail::ActorTask<Ack>{
     impl_->Ready();impl_->store_->Create(table);
@@ -672,6 +679,31 @@ std::future<Result<Ack>> CpuParameterService::Restore(std::filesystem::path file
 }
 std::future<Result<Ack>> CpuParameterService::Resume() {
   return impl_->Submit<Ack>([this]{impl_->Ready();impl_->draining_=false;return Ack{};});
+}
+std::future<Result<SnapshotChunk>> CpuParameterService::ReadCheckpoint(
+    CheckpointIdentity identity,std::uint64_t offset,std::uint32_t max_bytes) {
+  return impl_->Submit<SnapshotChunk>([this,identity=std::move(identity),offset,max_bytes]{
+    impl_->Ready();
+    Require(identity.run==impl_->options_.run_id &&
+      identity.partition_epoch==impl_->options_.partition_epoch,
+      "checkpoint run or partition epoch mismatch");
+    Require(impl_->draining_ && !impl_->saved_checkpoint_.empty() &&
+      identity.snapshot_id==impl_->saved_checkpoint_,"checkpoint is not the current frozen save",
+      Error::Code::unavailable);
+    return detail::ReadSnapshotChunk(impl_->options_.snapshot_directory/identity.snapshot_id/
+      ("shard-"+std::to_string(impl_->options_.shard_id)+".bin"),offset,max_bytes);
+  });
+}
+std::future<Result<Ack>> CpuParameterService::ResumeCheckpoint(CheckpointIdentity identity) {
+  return impl_->Submit<Ack>([this,identity=std::move(identity)]{
+    impl_->Ready();
+    Require(identity.run==impl_->options_.run_id &&
+      identity.partition_epoch==impl_->options_.partition_epoch,
+      "checkpoint run or partition epoch mismatch");
+    Require(!impl_->saved_checkpoint_.empty() && identity.snapshot_id==impl_->saved_checkpoint_,
+      "checkpoint resume requires the current successful save",Error::Code::unavailable);
+    impl_->draining_=false;return Ack{};
+  });
 }
 std::future<Result<RuntimeStats>> CpuParameterService::Stats() {
   return impl_->SubmitIndependent<RuntimeStats>([this]{

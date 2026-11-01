@@ -90,6 +90,10 @@ class Backend:
 
     def save(self, snapshot_id):
         return self._call("save", snapshot_id)
+    def resume(self, snapshot_id):
+        return self._call("resume", snapshot_id)
+    def read_checkpoint(self, snapshot_id, shard, offset, max_bytes, checksum, tail):
+        return self._call("read_checkpoint", snapshot_id, shard, offset, max_bytes, checksum, tail)
 
     def cache_endpoints(self, endpoints, coalesce=False):
         return self._call("cache_endpoints", endpoints, bool(coalesce))

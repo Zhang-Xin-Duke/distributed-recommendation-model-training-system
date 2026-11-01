@@ -27,6 +27,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     dense_optimizer.build([dense])
 
     prepared_mode = os.environ.get("EPS_TEST_PREPARE") == "1"
+    periodic_mode = os.environ.get("EPS_TEST_PERIODIC") == "1"
 
     def model_step(handle, embeddings):
         with tf.GradientTape() as tape:
@@ -60,7 +61,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
         assert all(m["lookups"] == 0 and m["live_tickets"] == 0 for m in backend.stats())
         assert backend.preparation_stats()["accepted"] == 2
     losses = []
-    for _ in range(5):
+    for step in range(5):
         if prepared_mode:
             loss, prediction = train(tf.constant(tokens.pop(0), tf.uint64))
             tokens.append(backend.prepare(inputs))
@@ -69,6 +70,54 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
                                      tf.constant([0, 3, 4], tf.int64))
         losses.append(float(loss))
         assert np.isfinite(prediction.numpy()).all()
+        if periodic_mode and step == 2:
+            for token in tokens:
+                backend.cancel_prepared(token)
+            tokens=[]
+            state_files=backend.save("periodic-mid")
+            # Fault injection into a disposable server file: export must detect
+            # its checksum error before publishing a checkpoint-store manifest.
+            corrupt=str(pathlib.Path(snapshot_root)/"corrupt-export")
+            with open(state_files[0],"r+b") as stream:
+                stream.seek(-1,2);original=stream.read(1);stream.seek(-1,2);stream.write(bytes([original[0]^1]))
+            try:
+                try:
+                    backend.export_checkpoint("periodic-mid",corrupt,tf.io.gfile,chunk_bytes=7)
+                except RuntimeError as error:
+                    assert "checksum mismatch" in str(error),str(error)
+                else:
+                    raise AssertionError("corrupt snapshot was exported")
+                assert not tf.io.gfile.exists(corrupt+"/parameter-service.json")
+                assert not tf.io.gfile.glob(corrupt+"/*.pending-*")
+            finally:
+                with open(state_files[0],"r+b") as stream:
+                    stream.seek(-1,2);stream.write(original)
+            dense_path=str(pathlib.Path(snapshot_root)/"dense-mid")
+            tf.train.Checkpoint(dense=dense,optimizer=dense_optimizer).write(dense_path)
+            with tf.io.gfile.GFile(str(pathlib.Path(snapshot_root)/"input-step.json"),"w") as stream:
+                json.dump(dict(next_step=step+1),stream)
+            destination=str(pathlib.Path(snapshot_root)/"exported-mid")
+            manifest=backend.export_checkpoint("periodic-mid",destination,tf.io.gfile,chunk_bytes=7)
+            assert len(manifest["files"])==2
+            assert backend.export_checkpoint("periodic-mid",destination,tf.io.gfile,chunk_bytes=13)==manifest
+            try:
+                backend.prepare(inputs)
+            except RuntimeError as error:
+                assert "closed" in str(error),str(error)
+            else:
+                raise AssertionError("export reopened training before joint commit")
+            try:
+                backend.resume("stale-checkpoint")
+            except RuntimeError:
+                pass
+            else:
+                raise AssertionError("stale checkpoint resumed the adapter")
+            with tf.io.gfile.GFile(str(pathlib.Path(snapshot_root)/"joint-commit.json"),"w") as stream:
+                json.dump(dict(dense=dense_path,parameters=manifest,next_step=step+1),stream)
+            backend.resume("periodic-mid")
+            backend.resume("periodic-mid")
+            if prepared_mode:
+                tokens=[backend.prepare(inputs) for _ in range(2)]
     if prepared_mode:
         try:
             backend.save("must-wait-for-input-cancel")
@@ -79,7 +128,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
         for token in tokens:
             backend.cancel_prepared(token)
         stats = backend.preparation_stats()
-        assert stats["accepted"] == 7 and stats["consumed"] == 5 and stats["cancelled"] == 2 and stats["pending"] == 0, stats
+        assert stats["accepted"] == (9 if periodic_mode else 7) and stats["consumed"] == 5 and stats["cancelled"] == (4 if periodic_mode else 2) and stats["pending"] == 0, stats
     assert losses[-1] < losses[0], losses
     assert train.experimental_get_tracing_count() == 1
 
@@ -105,7 +154,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     automatic = os.environ.get("EPS_TEST_AUTO_CACHE") == "1"
     if automatic:
         assert all(m["gpu_packet_prepare_nanoseconds"] > 0 and m["update_dispatch_nanoseconds"] > 0 and m["agent_wait_nanoseconds"] > 0 and m["cache_maintenance_nanoseconds"] > 0 for m in metrics), metrics
-        assert sum(m["policy_admitted_rows"] for m in metrics) == 2, metrics
+        assert sum(m["policy_admitted_rows"] for m in metrics) == (4 if periodic_mode else 2), metrics
         assert sum(m["cached_rows"] for m in metrics) == 2, metrics
         assert all(m["policy_windows"] == 6 and m["policy_tracked_rows"] == 1 and m["policy_failures"] == 0 for m in metrics), metrics
     if prepared_mode:
@@ -149,6 +198,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
                           cache_route=("automatic_resident_" if automatic else "transfer_unique_")+
                                       os.environ.get("EPS_CACHE_BACKEND", "host") if agent_endpoint else "cpu_pool",
                           train_steps=5, prepared_inputs=prepared_mode, loss_before=losses[0], loss_after=losses[-1],
+                          periodic_checkpoint=periodic_mode,
                           checkpoint_shards=len(files), retraces=0)), flush=True)
     backend.close()
 

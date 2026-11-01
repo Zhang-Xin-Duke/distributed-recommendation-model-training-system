@@ -28,6 +28,9 @@ class ParameterService {
   // The caller first closes input and reaches the framework save boundary.
   virtual std::future<Result<SnapshotMetadata>> DrainAndFlush(
       std::string snapshot_id) = 0;
+  virtual std::future<Result<SnapshotChunk>> ReadCheckpoint(
+      CheckpointIdentity identity, std::uint64_t offset, std::uint32_t max_bytes) = 0;
+  virtual std::future<Result<Ack>> ResumeCheckpoint(CheckpointIdentity identity) = 0;
 };
 
 }  // namespace eps

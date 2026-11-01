@@ -17,6 +17,8 @@ class BrpcServer final : public v1::EmbeddingService {
   EPS_RPC(ReadState, ReadStateRequest, ReadStateReply)
   EPS_RPC(CompleteMigration, MigrationCompletion, Ack)
   EPS_RPC(DrainAndFlush, DrainRequest, SnapshotReply)
+  EPS_RPC(ReadCheckpoint, SnapshotReadRequest, SnapshotChunkReply)
+  EPS_RPC(ResumeCheckpoint, CheckpointIdentity, Ack)
   EPS_RPC(Locations, RowsRequest, LocationsReply)
   EPS_RPC(MoveRows, MoveRequest, LocationsReply)
 #undef EPS_RPC

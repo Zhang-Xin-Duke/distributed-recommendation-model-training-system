@@ -30,6 +30,20 @@ void BrpcServer::Stats(google::protobuf::RpcController* c,const wire::StatsReque
 }
 using namespace eps::transport;
 
+void BrpcServer::ReadCheckpoint(google::protobuf::RpcController* c,const wire::SnapshotReadRequest* q,
+                              wire::SnapshotChunkReply* r,google::protobuf::Closure* done) {
+  Dispatch<SnapshotChunk>(c,q,r,done,[&](const auto&){
+    return service_.ReadCheckpoint(Decode(q->identity()),q->offset(),q->max_bytes());
+  },[](SnapshotChunk chunk,auto* out,auto&){
+    out->set_offset(chunk.offset);out->set_total_bytes(chunk.total_bytes);
+    out->set_data(std::move(chunk.data));out->set_eof(chunk.eof);
+  });
+}
+void BrpcServer::ResumeCheckpoint(google::protobuf::RpcController* c,const wire::CheckpointIdentity* q,
+                                wire::Ack* r,google::protobuf::Closure* done) {
+  Dispatch<Ack>(c,q,r,done,[&](const auto&){return service_.ResumeCheckpoint(Decode(*q));},AckEncode);
+}
+
 void BrpcServer::CreateTable(google::protobuf::RpcController* c,const wire::CreateTableRequest* q,
                            wire::Ack* r,google::protobuf::Closure* done) {
   Dispatch<Ack>(c,q,r,done,[&](const auto&) {return service_.CreateTable(Decode(q->table()));},AckEncode);

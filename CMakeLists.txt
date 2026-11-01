@@ -147,6 +147,9 @@ if(EPS_BUILD_BRPC)
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
     set_tests_properties(cache_agent_process_lifecycle PROPERTIES TIMEOUT 90)
     if(EPS_BUILD_PYTHON)
+      add_test(NAME checkpoint_filesystem_contract
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/checkpoint_store_tests.py")
+      set_tests_properties(checkpoint_filesystem_contract PROPERTIES TIMEOUT 30)
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('tensorflow')"
         RESULT_VARIABLE eps_tensorflow_available OUTPUT_QUIET ERROR_QUIET)
       if(eps_tensorflow_available EQUAL 0)
@@ -180,6 +183,11 @@ if(EPS_BUILD_BRPC)
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
         set_tests_properties(tensorflow_graph_coalesced_cache PROPERTIES TIMEOUT 120
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_COALESCE=1")
+        add_test(NAME tensorflow_graph_periodic_checkpoint
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        set_tests_properties(tensorflow_graph_periodic_checkpoint PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_PREPARE=1;EPS_TEST_AUTO_CACHE=1;EPS_TEST_PERIODIC=1")
       endif()
     endif()
     if(EPS_BUILD_CUDA)
@@ -217,6 +225,10 @@ if(EPS_BUILD_TESTS)
   target_link_libraries(eps_preparation_tests PRIVATE eps_core)
   target_include_directories(eps_preparation_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_test(NAME bounded_asynchronous_preparation COMMAND eps_preparation_tests)
+  add_executable(eps_periodic_checkpoint_tests tests/periodic_checkpoint_tests.cpp)
+  target_link_libraries(eps_periodic_checkpoint_tests PRIVATE eps_core)
+  add_test(NAME periodic_checkpoint_lifecycle COMMAND eps_periodic_checkpoint_tests)
+  set_tests_properties(periodic_checkpoint_lifecycle PROPERTIES TIMEOUT 30)
   add_executable(eps_weight_bounds_tests tests/weight_bounds_tests.cpp)
   target_link_libraries(eps_weight_bounds_tests PRIVATE eps_core)
   add_test(NAME bounded_sparse_optimizer COMMAND eps_weight_bounds_tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/snapshot-v1-unbounded.bin")

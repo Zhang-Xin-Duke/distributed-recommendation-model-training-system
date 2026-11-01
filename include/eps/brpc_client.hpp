@@ -17,6 +17,9 @@ class BrpcParameterService final : public ParameterService {
   std::future<Result<std::vector<RowState>>> ReadState(std::vector<LocatedRow>) override;
   std::future<Result<Ack>> CompleteMigration(MigrationCompletion) override;
   std::future<Result<SnapshotMetadata>> DrainAndFlush(std::string) override;
+  std::future<Result<SnapshotChunk>> ReadCheckpoint(CheckpointIdentity,
+      std::uint64_t offset, std::uint32_t max_bytes) override;
+  std::future<Result<Ack>> ResumeCheckpoint(CheckpointIdentity) override;
   std::future<Result<std::vector<LocatedRow>>> Locations(std::vector<RowKey>);
   std::future<Result<std::vector<LocatedRow>>> MoveRows(MoveRowsRequest);
   std::future<Result<RuntimeStats>> Stats();

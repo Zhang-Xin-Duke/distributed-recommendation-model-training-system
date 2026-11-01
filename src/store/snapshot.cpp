@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <limits>
 #include <system_error>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "common/error.hpp"
@@ -121,6 +122,27 @@ class Binary {
 void Sync(int fd) {
   Require(::fsync(fd) == 0, "snapshot fsync failed", Error::Code::unavailable);
 }
+}
+
+SnapshotChunk ReadSnapshotChunk(const std::filesystem::path& path,
+    std::uint64_t offset, std::uint32_t max_bytes) {
+  Require(max_bytes>0 && max_bytes<=(1U<<20), "checkpoint chunk exceeds 1 MiB limit");
+  File file{::open(path.c_str(),O_RDONLY)};
+  Require(file.fd>=0,"cannot open checkpoint",Error::Code::unavailable);
+  struct stat info{};
+  Require(::fstat(file.fd,&info)==0 && S_ISREG(info.st_mode) && info.st_size>=8,
+          "invalid checkpoint file",Error::Code::unavailable);
+  const auto size=std::uint64_t(info.st_size);
+  Require(offset<=size,"checkpoint offset exceeds file size");
+  const auto count=std::min<std::uint64_t>(max_bytes,size-offset);
+  SnapshotChunk result{offset,size,std::string(count,'\0'),offset+count==size};
+  for(std::size_t done=0;done<count;) {
+    auto n=::pread(file.fd,result.data.data()+done,count-done,off_t(offset+done));
+    if(n<0 && errno==EINTR)continue;
+    Require(n>0,"checkpoint file changed during export",Error::Code::unavailable);
+    done+=std::size_t(n);
+  }
+  return result;
 }
 
 void WriteSnapshot(const std::filesystem::path& path, const std::string& run,

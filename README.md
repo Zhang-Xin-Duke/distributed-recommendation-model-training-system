@@ -97,7 +97,9 @@ flowchart LR
   generation checks and slot reclamation; automatically admit and replace rows
   within configured migration budgets.
 - **Framework integration:** return the tensor layouts expected by the existing
-  training graph and expose a drain/flush operation for its save lifecycle.
+  training graph; expose drain, bounded checkpoint export and matched resume for
+  periodic saves. The controller commits sparse, dense and input state together.
+  [Checkpoint lifecycle](docs/PERIODIC_CHECKPOINTS.md).
 
 ## Implemented optimizations
 

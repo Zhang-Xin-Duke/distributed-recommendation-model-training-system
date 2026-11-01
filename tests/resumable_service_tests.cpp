@@ -213,9 +213,29 @@ void OwnershipInvalidatesQueuedPlan() {
   auto stats=Get(service.Stats());Check(stats.dependency_rebuilds>0 && stats.dependency_prepare_nanoseconds>0 &&
     stats.dependency_payload_bytes==0,"service did not expose/reclaim dependency plans");
 }
+void DestructionDrainsAcceptedContinuations() {
+  RuntimeOptions options;options.run_id="resumable-shutdown";
+  auto root=std::filesystem::temp_directory_path()/("eps-shutdown-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+  options.snapshot_directory=root;
+  auto service=std::make_unique<CpuParameterService>(options);
+  auto backend=std::make_shared<DelayedBackend>(0);Get(service->AttachAgent(0,backend));
+  Get(service->CreateTable(Table(1)));Seed(*service,options.run_id,1,1,0);
+  Get(service->MoveRows({options.run_id,{{1,1}},0,Placement::gpu,{4096,4096,4,0}}));
+  auto request=Get(service->Lookup(Lookup(options.run_id,1,1,1,false)));
+  auto gate=backend->Arm("apply");auto update=service->Push(Push(options.run_id,1,request.ticket));gate.Started();
+  auto checkpoint=service->DrainAndFlush("accepted-before-shutdown");
+  std::promise<void> starting,finished;auto begun=starting.get_future(),closed=finished.get_future();
+  std::thread closer([&]{starting.set_value();service.reset();finished.set_value();});
+  begun.wait();const bool premature=closed.wait_for(30ms)==std::future_status::ready;
+  gate.Open();closer.join();
+  Check(!premature,"service destroyed an accepted suspended update");
+  Get(std::move(update));auto saved=Get(std::move(checkpoint));
+  Check(saved.state_files.size()==1 && std::filesystem::exists(saved.state_files.front()),"shutdown dropped an accepted checkpoint");
+  std::filesystem::remove_all(root);
+}
 }
 int main() {
-  try{UpdateOrderingAndSave();MigrationExclusion();FailureFencesOtherContinuations();AutomaticPolicyKeepsReadProgress();OwnershipInvalidatesQueuedPlan();
+  try{UpdateOrderingAndSave();MigrationExclusion();FailureFencesOtherContinuations();AutomaticPolicyKeepsReadProgress();OwnershipInvalidatesQueuedPlan();DestructionDrainsAcceptedContinuations();
     std::cout<<"PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing\n";return 0;
   }catch(const std::exception& e){std::cerr<<"FAIL resumable service: "<<e.what()<<'\n';return 1;}
 }

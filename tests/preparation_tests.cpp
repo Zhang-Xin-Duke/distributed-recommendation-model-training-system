@@ -80,6 +80,18 @@ void QueueClaimAndFailure(){
  Check(closing->Stats().pending==0 && closing->Stats().reserved_jobs==1,"close reclaimed running buffers early");
  auto destroy=std::async(std::launch::async,[&]{closing.reset();});
  Check(destroy.wait_for(0s)!=std::future_status::ready,"destruction did not join the worker");closing_gate->Open();destroy.get();
+ auto reopen_gate=std::make_shared<Gate>();std::atomic<bool> first=true;
+ entropy::PreparationOptions reopen_options;
+ detail::PrepareQueue reopening(1,reopen_options,[&](auto input)->Result<detail::PreparedAdapterInput>{
+  if(first.exchange(false)){reopen_gate->entered.set_value();reopen_gate->opened.wait();}
+  return detail::PrepareAdapterInput(std::move(input),1,reopen_options.lookup_limits);
+ });
+ auto old_token=Get(reopening.Submit(Features()));reopen_gate->entered.get_future().wait();
+ Get(reopening.Cancel(old_token));Get(reopening.CloseIfEmpty());Get(reopening.Reopen());
+ auto new_token=Get(reopening.Submit(Features()));Check(new_token>old_token,"reopen reused a preparation token");
+ reopen_gate->Open();Get(reopening.Take(new_token));
+ Check(ErrorIs(reopening.Take(old_token),Error::Code::retired_request),"reopen revived a cancelled input");
+ Check(reopening.Stats().reserved_jobs==0 && reopening.Stats().reserved_bytes==0,"reopen leaked cancelled worker buffers");
 }
 struct BlockingService final : ParameterService {
  std::shared_ptr<CpuParameterService> inner;std::shared_ptr<Gate> gate;std::atomic<int> lookups=0;
@@ -94,6 +106,8 @@ struct BlockingService final : ParameterService {
  std::future<Result<std::vector<RowState>>> ReadState(std::vector<LocatedRow> r)override{return inner->ReadState(std::move(r));}
  std::future<Result<Ack>> CompleteMigration(MigrationCompletion r)override{return inner->CompleteMigration(std::move(r));}
  std::future<Result<SnapshotMetadata>> DrainAndFlush(std::string s)override{return inner->DrainAndFlush(std::move(s));}
+ std::future<Result<SnapshotChunk>> ReadCheckpoint(CheckpointIdentity i,std::uint64_t o,std::uint32_t n)override{return inner->ReadCheckpoint(std::move(i),o,n);}
+ std::future<Result<Ack>> ResumeCheckpoint(CheckpointIdentity i)override{return inner->ResumeCheckpoint(std::move(i));}
 };
 void RpcOverlapAndReadBoundary(){
  RuntimeOptions options;options.run_id="prepared-overlap";auto core=std::make_shared<CpuParameterService>(options);auto gate=std::make_shared<Gate>();

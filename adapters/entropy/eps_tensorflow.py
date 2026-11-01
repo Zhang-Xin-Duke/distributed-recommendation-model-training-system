@@ -23,6 +23,10 @@ class Feature:
 
 class ParameterServer:
     def __init__(self, endpoints, run, learner=0, epoch=1, max_live=128, preparation=None):
+        endpoints=tuple(endpoints)
+        self._checkpoint_run=run
+        self._checkpoint_epoch=epoch
+        self._checkpoint_shards=len(endpoints)
         self.backend = Backend(endpoints, run, learner, epoch, max_live, preparation=preparation)
 
     def create_table(self, definition):
@@ -145,6 +149,17 @@ class ParameterServer:
         """Invoke from the existing checkpoint controller after the save barrier."""
         self.backend.join()
         return self.backend.save(snapshot_id)
+
+    def export_checkpoint(self, snapshot_id, destination, filesystem=None, chunk_bytes=1 << 20):
+        """Copy a completed Save through the controller's filesystem; stay paused."""
+        from checkpoint_store import export_checkpoint
+        return export_checkpoint(self.backend,snapshot_id,destination,
+            run=self._checkpoint_run,epoch=self._checkpoint_epoch,
+            shard_count=self._checkpoint_shards,filesystem=filesystem,chunk_bytes=chunk_bytes)
+
+    def resume(self, snapshot_id):
+        """Reopen after the controller commits dense, sparse and input state."""
+        self.backend.resume(snapshot_id)
 
     def close(self):
         self.backend.close()

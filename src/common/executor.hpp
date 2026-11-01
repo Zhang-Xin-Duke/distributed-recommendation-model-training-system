@@ -22,8 +22,13 @@ class OrderedExecutor {
       }
     });
   }
-  ~OrderedExecutor(){
-    {std::lock_guard lock(mutex_);stop_=true;}changed_.notify_all();worker_.join();
+  ~OrderedExecutor(){Shutdown();}
+  // Owners whose callbacks capture their public PImpl must drain before the
+  // public unique_ptr begins destruction, while that pointer is still stable.
+  void Shutdown(){
+    std::call_once(shutdown_,[this]{
+      {std::lock_guard lock(mutex_);stop_=true;}changed_.notify_all();worker_.join();
+    });
   }
   template<typename T,typename F>std::future<Result<T>> Submit(F fn){
     auto p=std::make_shared<std::promise<Result<T>>>();auto f=p->get_future();
@@ -41,6 +46,7 @@ class OrderedExecutor {
   std::size_t limit_;
   std::mutex mutex_;std::condition_variable changed_;
   std::deque<std::function<void()>> jobs_;bool stop_=false;std::thread worker_;
+  std::once_flag shutdown_;
 };
 template<typename T>T Await(std::future<Result<T>> future){
   auto result=future.get();if(auto error=std::get_if<Error>(&result))throw Failure(*error);

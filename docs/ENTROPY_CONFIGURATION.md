@@ -46,6 +46,8 @@ snapshot:
 The configuration mapper and Pull/Push/Join bridge are implemented. Installation
 at the original factory/checkpoint controller, a native original-application
 build and in-process device-tensor interop remain open implementation work.
+The [periodic checkpoint bridge](PERIODIC_CHECKPOINTS.md) provides bounded export
+through the framework filesystem and guarded same-run resume for that controller.
 
 ## Snapshot format
 

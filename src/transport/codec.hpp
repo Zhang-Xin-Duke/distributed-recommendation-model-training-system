@@ -13,6 +13,12 @@
 
 namespace eps::transport {
 namespace wire = ::eps::v1;
+inline void Encode(const CheckpointIdentity& x,wire::CheckpointIdentity* y) {
+  y->set_run(x.run);y->set_partition_epoch(x.partition_epoch);y->set_snapshot_id(x.snapshot_id);
+}
+inline CheckpointIdentity Decode(const wire::CheckpointIdentity& x) {
+  return {x.run(),x.partition_epoch(),x.snapshot_id()};
+}
 constexpr std::uint64_t kMaxAttachment = 16ULL << 20;
 
 template <typename T> constexpr wire::ElementType Element() {

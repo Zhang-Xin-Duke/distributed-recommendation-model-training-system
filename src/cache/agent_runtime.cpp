@@ -46,7 +46,7 @@ struct AgentRuntime::Impl {
 };
 AgentRuntime::AgentRuntime(std::string run,std::shared_ptr<CacheBackend> backend,std::uint64_t bytes)
   :impl_(std::make_unique<Impl>(std::move(run),std::move(backend),bytes)){}
-AgentRuntime::~AgentRuntime()=default;
+AgentRuntime::~AgentRuntime(){impl_->executor.Shutdown();}
 std::future<Result<Ack>> AgentRuntime::Define(AgentCommand id,TableDefinition table){
   return impl_->Command<Ack>(std::move(id),"define",[]{return 0ULL;},[this,table]{
     detail::Await(impl_->backend->Define(table));impl_->tables.insert_or_assign(table.id,table);return Ack{};
