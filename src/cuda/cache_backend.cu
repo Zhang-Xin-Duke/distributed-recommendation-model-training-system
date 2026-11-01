@@ -123,6 +123,20 @@ __global__ void ReduceFeatureGradients(const float* sources,const float* scales,
     gradients[i]=sum;
   }
 }
+__global__ void AddContribution(float* output,const float* source,const std::uint64_t* positions,
+    std::uint64_t values,std::uint32_t dim){
+  for(std::uint64_t i=blockIdx.x*blockDim.x+threadIdx.x;i<values;
+      i+=std::uint64_t(blockDim.x)*gridDim.x){
+    const auto target=positions?positions[i/dim]*dim+i%dim:i;
+    output[target]+=source[i];
+  }
+}
+__global__ void NormalizeMean(float* output,const std::uint64_t* lengths,
+    std::uint64_t values,std::uint32_t dim){
+  for(std::uint64_t i=blockIdx.x*blockDim.x+threadIdx.x;i<values;
+      i+=std::uint64_t(blockDim.x)*gridDim.x)
+    if(lengths[i/dim])output[i]/=lengths[i/dim];
+}
 struct OutputBudget {
   std::atomic<std::uint64_t> used{0};
   std::atomic<std::uint64_t> allocations{0};
@@ -579,6 +593,102 @@ std::future<Result<Ack>> CudaCacheBackend::CommitEviction(MigrationPlan plan) {
       auto& t = impl_->Get(loc.row.table); t.free.push_back(loc.slot); t.rows.erase(loc.row.key);
     }
     return Ack{};
+  });
+}
+std::future<Result<std::vector<DeviceTensorBlock>>> CudaCacheBackend::AssembleFeatures(DeviceAssemblyRequest request){
+  return impl_->executor->Submit<std::vector<DeviceTensorBlock>>([this,request=std::move(request)]{
+    impl_->Activate();
+    detail::Require(request.host.size()==request.layouts.size() && !request.host.empty(),"invalid device assembly features");
+    struct Target{std::uint64_t offset,rows,compact_rows;std::uint32_t dim;const SequenceProjection* projection;};
+    struct Source{const DeviceTensor* tensor;std::size_t target;std::vector<std::uint64_t> positions;};
+    std::map<std::uint32_t,const SequenceProjection*> projections;
+    for(const auto& p:request.projections)detail::Require(projections.emplace(p.feature,&p).second,"duplicate device output projection");
+    std::vector<Target> targets;std::map<std::uint32_t,std::size_t> indices;std::uint64_t total=0;
+    for(std::size_t i=0;i<request.host.size();++i){
+      const auto& host=request.host[i];const auto& layout=request.layouts[i];
+      detail::Require(layout.pooling==Pooling::sum || layout.pooling==Pooling::mean || layout.pooling==Pooling::sequence,"invalid device assembly pooling");
+      detail::Require(host.feature==layout.feature && host.shape.size()==2 && host.shape[1]>0 &&
+        host.shape[1]<=UINT32_MAX && indices.emplace(host.feature,i).second,"invalid device assembly schema");
+      const auto rows=layout.pooling==Pooling::sequence?layout.keys.size():layout.valid_lengths.size();
+      detail::Require(host.shape[0]==rows && rows<=impl_->options.transfer_bytes/(4*host.shape[1]) &&
+        host.values.size()==rows*host.shape[1],"device assembly host shape mismatch");
+      const SequenceProjection* p=nullptr;
+      if(projections.contains(host.feature)){
+        p=projections.at(host.feature);
+        detail::Require(layout.pooling==Pooling::sequence && p->positions.size()==rows,"invalid sequence output projection");
+        for(std::size_t j=0;j<p->positions.size();++j)
+          detail::Require(p->positions[j]<p->rows && (!j || p->positions[j-1]<p->positions[j]),"invalid output sequence position");
+        impl_->Limit(p->positions.size()*8);
+      }
+      const auto output_rows=p?p->rows:rows;
+      detail::Require(output_rows<=impl_->options.transfer_bytes/(4*host.shape[1]),"device assembly output exceeds limit",Error::Code::capacity_exceeded);
+      impl_->Limit((total+output_rows*host.shape[1])*4);
+      targets.push_back({total,output_rows,rows,static_cast<std::uint32_t>(host.shape[1]),p});total+=output_rows*host.shape[1];
+      if(layout.pooling==Pooling::mean)impl_->Limit(layout.valid_lengths.size()*8);
+    }
+    for(const auto& [id,p]:projections)detail::Require(indices.contains(id),"unknown device output projection");
+    std::vector<Source> sources;sources.reserve(request.device.size());
+    for(const auto& contribution:request.device){
+      const auto& block=contribution.block;
+      detail::Require(indices.contains(block.feature) && bool(block.tensor),"unknown/null device contribution");
+      const auto ti=indices.at(block.feature);const auto& target=targets[ti];
+      detail::Require(block.shape.size()==2 && block.shape[1]==target.dim &&
+        block.shape[0]<=impl_->options.transfer_bytes/(4ULL*target.dim) &&
+        block.tensor->elements()==block.shape[0]*target.dim && block.tensor->device()==impl_->options.device,
+        "native contribution device/layout mismatch");
+      Source source{block.tensor.get(),ti,{}};
+      if(contribution.projected){
+        detail::Require(request.layouts[ti].pooling==Pooling::sequence && contribution.positions.size()==block.shape[0],"invalid projected device contribution");
+        source.positions.reserve(contribution.positions.size());
+        for(std::size_t j=0;j<contribution.positions.size();++j){const auto position=contribution.positions[j];
+          detail::Require(position<target.compact_rows && (!j || contribution.positions[j-1]<position),"invalid device contribution position");
+          source.positions.push_back(target.projection?target.projection->positions[position]:position);
+        }
+      }else{
+        detail::Require(contribution.positions.empty() && block.shape[0]==target.compact_rows,"device contribution row mismatch");
+        if(target.projection)source.positions=target.projection->positions;
+      }
+      impl_->Limit(source.positions.size()*8);sources.push_back(std::move(source));
+    }
+    auto allocation=std::make_shared<Allocation>(impl_->options.device,total*4,impl_->output_budget);
+    std::vector<DeviceTensorBlock> output;output.reserve(targets.size());
+    for(std::size_t i=0;i<targets.size();++i){const auto& target=targets[i];
+      output.push_back({request.host[i].feature,{target.rows,target.dim},
+        std::make_shared<TensorView>(allocation,target.offset,target.rows*target.dim)});
+    }
+    try{
+      if(total)Cuda(cudaMemsetAsync(allocation->buffer.pointer,0,total*4,impl_->stream.value));
+      for(std::size_t i=0;i<targets.size();++i){const auto& target=targets[i];const auto& host=request.host[i];
+        if(host.values.empty())continue;
+        auto* destination=allocation->buffer.As<float>()+target.offset;
+        if(!target.projection)Cuda(cudaMemcpyAsync(destination,host.values.data(),host.values.size()*4,cudaMemcpyHostToDevice,impl_->stream.value));
+        else{
+          Cuda(cudaMemcpyAsync(impl_->device_values.pointer,host.values.data(),host.values.size()*4,cudaMemcpyHostToDevice,impl_->stream.value));
+          Cuda(cudaMemcpyAsync(impl_->device_indices.pointer,target.projection->positions.data(),target.projection->positions.size()*8,cudaMemcpyHostToDevice,impl_->stream.value));
+          AddContribution<<<Blocks(host.values.size()),256,0,impl_->stream.value>>>(destination,impl_->device_values.As<float>(),impl_->device_indices.As<std::uint64_t>(),host.values.size(),target.dim);
+          Cuda(cudaGetLastError());
+        }
+      }
+      for(const auto& source:sources){const auto n=source.tensor->elements();if(!n)continue;
+        const auto& target=targets[source.target];source.tensor->WaitOnStream(impl_->stream.value);
+        const std::uint64_t* positions=nullptr;
+        if(!source.positions.empty()){
+          Cuda(cudaMemcpyAsync(impl_->device_indices.pointer,source.positions.data(),source.positions.size()*8,cudaMemcpyHostToDevice,impl_->stream.value));
+          positions=impl_->device_indices.As<std::uint64_t>();
+        }
+        AddContribution<<<Blocks(n),256,0,impl_->stream.value>>>(allocation->buffer.As<float>()+target.offset,
+          static_cast<const float*>(source.tensor->data()),positions,n,target.dim);Cuda(cudaGetLastError());
+      }
+      for(std::size_t i=0;i<targets.size();++i)if(request.layouts[i].pooling==Pooling::mean){
+        const auto& target=targets[i];const auto n=target.rows*target.dim;if(!n)continue;
+        const auto& lengths=request.layouts[i].valid_lengths;
+        Cuda(cudaMemcpyAsync(impl_->device_indices.pointer,lengths.data(),lengths.size()*8,cudaMemcpyHostToDevice,impl_->stream.value));
+        NormalizeMean<<<Blocks(n),256,0,impl_->stream.value>>>(allocation->buffer.As<float>()+target.offset,impl_->device_indices.As<std::uint64_t>(),n,target.dim);
+        Cuda(cudaGetLastError());
+      }
+      Cuda(cudaEventRecord(allocation->ready.value,impl_->stream.value));impl_->Finish();
+    }catch(...){cudaStreamSynchronize(impl_->stream.value);throw;}
+    return output;
   });
 }
 std::future<Result<CudaMemoryStats>> CudaCacheBackend::MemoryStats() {

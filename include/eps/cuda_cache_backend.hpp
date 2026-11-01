@@ -1,5 +1,6 @@
 #pragma once
 #include "eps/cache_agent.hpp"
+#include "eps/device_features.hpp"
 namespace eps {
 struct CudaCacheOptions {
   AgentId agent=0;
@@ -30,6 +31,7 @@ class CudaCacheBackend final : public GpuCacheAgent {
   std::future<Result<std::vector<RowState>>> ReadBack(MigrationPlan) override;
   std::future<Result<Ack>> CommitEviction(MigrationPlan) override;
   std::future<Result<CudaMemoryStats>> MemoryStats();
+  std::future<Result<std::vector<DeviceTensorBlock>>> AssembleFeatures(DeviceAssemblyRequest);
  private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }  // namespace eps

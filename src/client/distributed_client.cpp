@@ -43,7 +43,22 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
 }
 Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uint64_t epoch,
     bool read_only,PreparedLookup prepared) {
+  return LookupImpl(std::move(id),epoch,read_only,std::move(prepared),false,{});
+}
+Result<DistributedBatch> DistributedClient::LookupDevice(LookupRequest request){
+  auto prepared=PrepareLookupInputs(std::move(request.features),shards_.size());
+  if(auto error=std::get_if<Error>(&prepared))return *error;
+  return LookupPreparedDevice(std::move(request.id),request.partition_epoch,request.read_only,
+    std::get<PreparedLookup>(std::move(prepared)));
+}
+Result<DistributedBatch> DistributedClient::LookupPreparedDevice(RequestId id,std::uint64_t epoch,
+    bool read_only,PreparedLookup prepared,std::vector<SequenceProjection> projections){
+  return LookupImpl(std::move(id),epoch,read_only,std::move(prepared),true,std::move(projections));
+}
+Result<DistributedBatch> DistributedClient::LookupImpl(RequestId id,std::uint64_t epoch,
+    bool read_only,PreparedLookup prepared,bool device,std::vector<SequenceProjection> projections) {
   std::lock_guard lock(mutex_);
+  const bool coalesce=coalesce_cache_ || device;
   bool sent=false;
   DistributedBatch out;
   std::vector<std::future<Result<LookupReply>>> futures;
@@ -81,6 +96,7 @@ Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uin
   };
   try {
     detail::Require(!failed_,"client run has failed",Error::Code::run_failed);
+    detail::Require(!device || bool(device_assembler_),"device assembly is not configured");
     detail::Require(id.phase==Phase::lookup && prepared.shard_count_==shards_.size() &&
       !prepared.original_.empty() && prepared.parts_.size()==shards_.size(),"invalid prepared lookup");
     for(const auto& f:prepared.original_)
@@ -92,16 +108,20 @@ Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uin
       out.shards_[shard].positions=std::move(prepared.parts_[shard].positions);
       requests.push_back({id,epoch,read_only,std::move(prepared.parts_[shard].features)});
     }
+    std::uint64_t device_output_bytes=0;
     for(const auto& f:request.features) {
       const auto dim=tables_.at(f.table).dimension;
       const auto rows=f.pooling==Pooling::sequence?f.keys.size():f.valid_lengths.size();
       detail::Require(rows <= (64ULL<<20)/(sizeof(float)*dim),"client feature output exceeds limit");
+      if(device){const auto bytes=rows*dim*sizeof(float);
+        detail::Require(bytes<=(64ULL<<20)-device_output_bytes,"combined device feature staging exceeds limit",Error::Code::capacity_exceeded);
+        device_output_bytes+=bytes;}
       out.features_.push_back({f.feature,{rows,dim},std::vector<float>(rows*dim,0)});
     }
     futures.reserve(shards_.size());
     sent=true;
     for(std::size_t i=0;i<shards_.size();++i)futures.push_back(shards_[i]->Lookup(requests[i]));
-    if(coalesce_cache_)collect(futures.size());
+    if(coalesce)collect(futures.size());
     if(lookup_failure)throw detail::Failure(*lookup_failure);
     using Group=std::tuple<AgentId,std::uint32_t,AccessRoute>;
     std::map<Group,AgentWork> work;
@@ -109,12 +129,12 @@ Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uin
     for(std::size_t fi=0;fi<request.features.size();++fi)
       feature_indices.emplace(request.features[fi].feature,fi);
     for(std::size_t shard=0;shard<shards_.size();++shard) {
-      if(!coalesce_cache_)collect(shard+1);
+      if(!coalesce)collect(shard+1);
       if(lookup_failure)throw detail::Failure(*lookup_failure);
       auto& reply=replies[shard];
       detail::Require(!reply.ticket.empty(),"server returned an empty lookup ticket");
       detail::Require(reply.cpu_contributions.size()==request.features.size(),"server feature count mismatch");
-      if(coalesce_cache_)for(auto& task:reply.agent_work) {
+      if(coalesce)for(auto& task:reply.agent_work) {
         auto found=feature_indices.find(task.feature);
         detail::Require(found!=feature_indices.end(),"unknown cached feature");
         const auto fi=found->second;
@@ -144,7 +164,7 @@ Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uin
           merged.occurrence_to_unique[positions[i]]=base+unique;
         }
       }
-      if(!coalesce_cache_ && !reply.agent_work.empty()) {
+      if(!coalesce && !reply.agent_work.empty()) {
         detail::Require(bool(resolver_),"cached rows require a cache resolver");
         auto parts=Take(resolver_(std::move(reply.agent_work),requests[shard].features));
         for(const auto& part:parts) {
@@ -173,11 +193,15 @@ Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uin
       }
       reply.cpu_contributions.clear();
     }
+    std::vector<DeviceContribution> device_parts;
     if(!work.empty()) {
-      detail::Require(bool(resolver_),"cached rows require a cache resolver");
+      detail::Require(device?bool(device_resolver_):bool(resolver_),"cached rows require a cache resolver");
       std::vector<AgentWork> tasks;tasks.reserve(work.size());
       for(auto& [group,task]:work)tasks.push_back(std::move(task));
-      auto parts=Take(resolver_(std::move(tasks),request.features));
+      std::vector<TensorBlock> parts;
+      if(device){auto resolved=Take(device_resolver_(std::move(tasks),request.features));
+        parts=std::move(resolved.host);device_parts=std::move(resolved.device);}
+      else parts=Take(resolver_(std::move(tasks),request.features));
       for(const auto& part:parts) {
         auto found=feature_indices.find(part.feature);
         detail::Require(found!=feature_indices.end(),"unknown cached contribution");
@@ -187,7 +211,26 @@ Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uin
         for(std::size_t i=0;i<dst.values.size();++i)dst.values[i]+=part.values[i];
       }
     }
-    for(std::size_t fi=0;fi<request.features.size();++fi) {
+    if(device){
+      std::vector<TensorBlock> schema;schema.reserve(out.features_.size());
+      for(const auto& block:out.features_)schema.push_back({block.feature,block.shape,{}});
+      out.device_features_=Take(device_assembler_({std::move(out.features_),std::move(device_parts),request.features,projections}));
+      detail::Require(out.device_features_.size()==schema.size(),"device feature count mismatch");
+      std::unordered_set<std::uint32_t> projected;
+      for(const auto& p:projections){
+        auto it=feature_indices.find(p.feature);
+        detail::Require(it!=feature_indices.end() && projected.insert(p.feature).second &&
+          request.features[it->second].pooling==Pooling::sequence,"invalid sequence output projection");
+      }
+      for(std::size_t i=0;i<schema.size();++i){
+        const auto& block=out.device_features_[i];auto expected=schema[i].shape;
+        for(const auto& p:projections)if(p.feature==schema[i].feature)expected[0]=p.rows;
+        detail::Require(expected[0]<=(64ULL<<20)/(expected[1]*4) && block.feature==schema[i].feature &&
+          block.shape==expected && bool(block.tensor) && block.tensor->elements()==expected[0]*expected[1],
+          "device assembled output layout mismatch");
+      }
+      out.features_=std::move(schema);
+    }else for(std::size_t fi=0;fi<request.features.size();++fi) {
       const auto& f=request.features[fi];auto& tensor=out.features_[fi];
       if(f.pooling==Pooling::mean)for(std::size_t b=0;b<f.valid_lengths.size();++b)
         if(f.valid_lengths[b])for(std::uint64_t d=0;d<tensor.shape[1];++d)
@@ -208,7 +251,7 @@ Result<Ack> DistributedClient::Push(const DistributedBatch& batch,std::vector<Te
     for(const auto& g:gradients)detail::Require(by_id.emplace(g.feature,&g).second,"duplicate gradient feature");
     for(const auto& f:batch.features_) {
       detail::Require(by_id.contains(f.feature),"missing feature gradient");const auto& g=*by_id.at(f.feature);
-      detail::Require(g.shape==f.shape && g.values.size()==f.values.size(),"gradient shape mismatch");
+      detail::Require(g.shape==f.shape && g.values.size()==f.shape[0]*f.shape[1],"gradient shape mismatch");
       for(auto x:g.values)detail::Require(std::isfinite(x),"non-finite gradient");
     }
     std::vector<PushRequest> requests;requests.reserve(shards_.size());
@@ -248,5 +291,8 @@ Result<Ack> DistributedClient::Release(const DistributedBatch& batch) {
 }
 void DistributedClient::SetCacheResolver(CacheResolver resolver,bool coalesce){
   std::lock_guard lock(mutex_);resolver_=std::move(resolver);coalesce_cache_=coalesce;
+}
+void DistributedClient::SetDevicePath(DeviceResolver resolver,DeviceAssembler assembler){
+  std::lock_guard lock(mutex_);device_resolver_=std::move(resolver);device_assembler_=std::move(assembler);
 }
 }  // namespace eps

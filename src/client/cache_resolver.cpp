@@ -121,4 +121,55 @@ DistributedClient::CacheResolver MakeCacheResolver(
     return output;
   };
 }
+DistributedClient::DeviceResolver MakeDeviceCacheResolver(
+    std::map<AgentId,NativeDeviceGather> native,
+    std::map<AgentId,std::shared_ptr<CacheBackend>> remote){
+  return [native=std::move(native),remote=std::move(remote)](std::vector<AgentWork> work,
+      std::vector<FeatureInput> layouts)->Result<ResolvedDeviceFeatures>{
+    std::map<AgentId,Destination> groups;
+    try{
+      for(auto& task:work){
+        detail::Require(native.contains(task.agent)?bool(native.at(task.agent)):
+          remote.contains(task.agent) && bool(remote.at(task.agent)),"unknown device resolver destination");
+        groups[task.agent].work.push_back(std::move(task));
+      }
+      for(auto& [id,destination]:groups)Project(destination,layouts);
+    }catch(const detail::Failure& e){return e.error();}
+     catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"device destination projection allocation failed"};}
+    struct DevicePending{std::future<Result<std::vector<DeviceTensorBlock>>> future;const Destination* destination;};
+    struct HostPending{std::future<Result<std::vector<TensorBlock>>> future;const Destination* destination;};
+    std::vector<DevicePending> devices;std::vector<HostPending> hosts;
+    devices.reserve(groups.size());hosts.reserve(groups.size());std::optional<Error> failure;
+    try{
+      for(auto& [id,destination]:groups){
+        if(native.contains(id))devices.push_back({native.at(id)(std::move(destination.work),std::move(destination.layouts)),&destination});
+        else hosts.push_back({remote.at(id)->GatherHost(std::move(destination.work),std::move(destination.layouts)),&destination});
+      }
+    }catch(const std::exception& e){failure=Error{Error::Code::unavailable,e.what()};}
+    ResolvedDeviceFeatures output;
+    for(auto& pending:devices){
+      try{
+        auto result=pending.future.get();
+        if(auto error=std::get_if<Error>(&result)){if(!failure)failure=*error;}
+        else if(!failure)for(auto& block:std::get<std::vector<DeviceTensorBlock>>(result)){
+          auto p=pending.destination->projections.find(block.feature);
+          detail::Require(p!=pending.destination->projections.end(),"unknown native device feature");
+          const bool sequence=p->second.pooling==Pooling::sequence;
+          output.device.push_back({std::move(block),sequence?p->second.positions:std::vector<std::uint64_t>{},sequence});
+        }
+      }catch(const detail::Failure& e){if(!failure)failure=e.error();}
+       catch(const std::exception& e){if(!failure)failure=Error{Error::Code::unavailable,e.what()};}
+    }
+    for(auto& pending:hosts){
+      try{
+        auto result=pending.future.get();
+        if(auto error=std::get_if<Error>(&result)){if(!failure)failure=*error;}
+        else if(!failure)for(auto& block:std::get<std::vector<TensorBlock>>(result))
+          output.host.push_back(Restore(std::move(block),*pending.destination));
+      }catch(const detail::Failure& e){if(!failure)failure=e.error();}
+       catch(const std::exception& e){if(!failure)failure=Error{Error::Code::unavailable,e.what()};}
+    }
+    if(failure)return *failure;return output;
+  };
+}
 }  // namespace eps

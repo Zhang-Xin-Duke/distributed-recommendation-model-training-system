@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <type_traits>
 #include "common/error.hpp"
 #include "access/prepare_queue.hpp"
 
@@ -43,7 +44,8 @@ struct TableAdapter::Impl {
     detail::Require(!closed,"adapter input is closed",Error::Code::unavailable);
     detail::Require(live.size()<options.max_live_batches,"adapter live-batch limit reached",Error::Code::capacity_exceeded);
   }
-  PullResult Dispatch(detail::PreparedAdapterInput prepared,bool read_only) {
+  template<bool Device=false>
+  std::conditional_t<Device,DevicePullResult,PullResult> Dispatch(detail::PreparedAdapterInput prepared,bool read_only) {
     detail::Require(next!=UINT64_MAX,"adapter request sequence exhausted",Error::Code::capacity_exceeded);
     const auto handle=next;
     Batch batch;batch.read_only=read_only;batch.positions=std::move(prepared.positions);
@@ -53,9 +55,20 @@ struct TableAdapter::Impl {
     catch(...){completed.erase(handle);throw;}
     ++next;bool looked_up=false;
     try {
-      entry->second.batch=Take(client.LookupPrepared({options.run,options.learner,handle,Phase::lookup},
+      if constexpr(Device){
+        std::vector<SequenceProjection> projections;
+        for(std::size_t fi=0;fi<prepared.pooling.size();++fi)if(prepared.pooling[fi]==Pooling::sequence)
+          projections.push_back({prepared.lookup.features()[fi].feature,prepared.original_sizes[fi],entry->second.positions[fi]});
+        entry->second.batch=Take(client.LookupPreparedDevice({options.run,options.learner,handle,Phase::lookup},
+          options.partition_epoch,read_only,std::move(prepared.lookup),std::move(projections)));
+      }else entry->second.batch=Take(client.LookupPrepared({options.run,options.learner,handle,Phase::lookup},
         options.partition_epoch,read_only,std::move(prepared.lookup)));
       looked_up=true;auto& state=entry->second;state.outputs=state.batch.features();
+      if constexpr(Device){
+        state.outputs.clear();
+        for(const auto& output:state.batch.device_features())state.outputs.push_back({output.feature,output.shape,{}});
+        return DevicePullResult{handle,state.batch.device_features()};
+      }else{
       for(std::size_t fi=0;fi<prepared.pooling.size();++fi)if(prepared.pooling[fi]==Pooling::sequence) {
         const auto& compact=state.batch.features()[fi];const auto dim=compact.shape[1];
         detail::Require(prepared.original_sizes[fi]<=(64ULL<<20)/(dim*4),"padded sequence output exceeds limit",Error::Code::capacity_exceeded);
@@ -65,6 +78,7 @@ struct TableAdapter::Impl {
         state.outputs[fi]=std::move(padded);
       }
       return PullResult{handle,state.outputs};
+      }
     }catch(...) {
       // Output reconstruction/allocation can fail after successful RPCs. Release
       // those known tickets before destroying the batch and closing admission.
@@ -95,6 +109,20 @@ void TableAdapter::SetCacheResolver(DistributedClient::CacheResolver resolver,bo
   std::lock_guard lock(impl_->mutex);
   impl_->client.SetCacheResolver(std::move(resolver),coalesce);
 }
+void TableAdapter::SetDevicePath(DistributedClient::DeviceResolver resolver,DistributedClient::DeviceAssembler assembler){
+  std::lock_guard lock(impl_->mutex);impl_->client.SetDevicePath(std::move(resolver),std::move(assembler));
+}
+Result<DevicePullResult> TableAdapter::PullDevice(std::vector<Feature> features,bool read_only){
+  std::lock_guard lock(impl_->mutex);
+  try{
+    impl_->Ready();
+    detail::Require(impl_->preparation.Empty(),"consume or cancel prepared inputs before synchronous Pull",Error::Code::unavailable);
+    return impl_->Dispatch<true>(Take(detail::PrepareAdapterInput(std::move(features),impl_->shards.size(),
+      impl_->options.preparation.lookup_limits)),read_only);
+  }catch(const detail::Failure& e){return e.error();}
+   catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"device Pull allocation failed"};}
+   catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
+}
 Result<PullResult> TableAdapter::Pull(std::vector<Feature> features,bool read_only) {
   std::lock_guard lock(impl_->mutex);
   try {
@@ -118,6 +146,13 @@ Result<PullResult> TableAdapter::PullPrepared(std::uint64_t token,bool read_only
   catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"prepared Pull allocation failed"};}
   catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
 }
+Result<DevicePullResult> TableAdapter::PullPreparedDevice(std::uint64_t token,bool read_only){
+  std::lock_guard lock(impl_->mutex);
+  try{impl_->Ready();return impl_->Dispatch<true>(Take(impl_->preparation.Take(token)),read_only);}
+  catch(const detail::Failure& e){return e.error();}
+  catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"prepared device Pull allocation failed"};}
+  catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
+}
 Result<Ack> TableAdapter::CancelPrepared(std::uint64_t token) {return impl_->preparation.Cancel(token);}
 PreparationStats TableAdapter::PreparationStatus() const {return impl_->preparation.Stats();}
 Result<Ack> TableAdapter::Push(std::uint64_t handle,std::vector<TensorBlock> gradients) {
@@ -137,10 +172,10 @@ Result<Ack> TableAdapter::Push(std::uint64_t handle,std::vector<TensorBlock> gra
       const auto& output=state.outputs[fi];
       detail::Require(by_id.contains(output.feature),"missing adapter gradient");
       auto g=std::move(by_id.at(output.feature));
-      detail::Require(g.shape==output.shape && g.values.size()==output.values.size(),"adapter gradient shape mismatch");
+      detail::Require(g.shape==output.shape && g.values.size()==output.shape[0]*output.shape[1],"adapter gradient shape mismatch");
       const auto& compact=state.batch.features()[fi];
       if(compact.shape!=g.shape) {
-        TensorBlock selected{g.feature,compact.shape,{}}; selected.values.reserve(compact.values.size());
+        TensorBlock selected{g.feature,compact.shape,{}}; selected.values.reserve(compact.shape[0]*compact.shape[1]);
         const auto dim=compact.shape[1];
         for(auto pos:state.positions[fi])
           selected.values.insert(selected.values.end(),g.values.begin()+pos*dim,g.values.begin()+(pos+1)*dim);

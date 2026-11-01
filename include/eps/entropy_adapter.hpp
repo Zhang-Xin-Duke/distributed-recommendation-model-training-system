@@ -16,6 +16,10 @@ struct PullResult {
   std::uint64_t handle;
   std::vector<TensorBlock> features;
 };
+struct DevicePullResult {
+  std::uint64_t handle;
+  std::vector<DeviceTensorBlock> features;
+};
 struct PreparationOptions {
   std::size_t max_pending_batches = 8;
   std::uint64_t payload_bytes = 64ULL << 20;
@@ -43,11 +47,14 @@ class TableAdapter {
   ~TableAdapter();
   Result<Ack> CreateTable(TableDefinition table);
   void SetCacheResolver(DistributedClient::CacheResolver resolver,bool coalesce=false);
+  void SetDevicePath(DistributedClient::DeviceResolver,DistributedClient::DeviceAssembler);
   Result<PullResult> Pull(std::vector<Feature> features, bool read_only = false);
+  Result<DevicePullResult> PullDevice(std::vector<Feature> features,bool read_only=false);
   // Prepares only IDs/layouts; parameter reads begin at PullPrepared. Tokens
   // must be consumed in FIFO order or cancelled before checkpointing.
   Result<std::uint64_t> PrepareAsync(std::vector<Feature> features);
   Result<PullResult> PullPrepared(std::uint64_t token, bool read_only = false);
+  Result<DevicePullResult> PullPreparedDevice(std::uint64_t token,bool read_only=false);
   Result<Ack> CancelPrepared(std::uint64_t token);
   PreparationStats PreparationStatus() const;
   // Gradients are dL/d(completed feature), before mean-pooling unnormalization.

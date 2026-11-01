@@ -11,4 +11,9 @@ namespace eps {
 // the caller can then release its parameter-row pins.
 DistributedClient::CacheResolver MakeCacheResolver(
     std::map<AgentId,std::shared_ptr<CacheBackend>> agents);
+using NativeDeviceGather=std::function<std::future<Result<std::vector<DeviceTensorBlock>>>(
+    std::vector<AgentWork>,std::vector<FeatureInput>)>;
+DistributedClient::DeviceResolver MakeDeviceCacheResolver(
+    std::map<AgentId,NativeDeviceGather> native,
+    std::map<AgentId,std::shared_ptr<CacheBackend>> remote={});
 }  // namespace eps
