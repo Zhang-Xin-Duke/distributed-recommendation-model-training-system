@@ -19,7 +19,7 @@ synchronization remain the training framework's responsibility.
 
 ![Multi-GPU throughput, tail latency and queue wait](docs/assets/current-multigpu-limits.svg)
 
-**Measured operating envelope:** four RTX A6000 agents sustain **119.62
+**Measured operating envelope (runtime `b6d97d3`):** four RTX A6000 agents sustain **119.62
 acknowledged sparse updates/s** with **106.09 ms median trial P99** at eight
 concurrent Learners, across three 20-second windows. The one-/two-agent sustained
 rates are **117.71 / 127.75 updates/s** under the same total workload and
@@ -33,7 +33,7 @@ locate coordination and communication costs. [Operating points, boundaries and
 raw records](docs/CURRENT_MULTIGPU_LIMITS.md).
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
-sparse LazyAdam, CUDA-resident weights and optimizer states, CPU/GPU migration,
+sparse LazyAdam with optional weight clipping, CUDA-resident weights and optimizer states, CPU/GPU migration,
 generation fencing, bounded lookup tickets, and durable snapshots with optimizer
 restore. Pooled gradients travel as feature vectors plus ordered ID references;
 CUDA expands and reduces them at their parameter owner. Independent GPU owners

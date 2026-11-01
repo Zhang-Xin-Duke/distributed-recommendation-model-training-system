@@ -1,0 +1,52 @@
+Internal ctest changing into directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+Test project /home/ubuntu/entropy-bounds-validation/build-cuda
+      Start  1: automatic_cache_external_shards
+ 1/23 Test  #1: automatic_cache_external_shards .............   Passed    0.57 sec
+      Start  2: cache_policy_fixed_trace_smoke
+ 2/23 Test  #2: cache_policy_fixed_trace_smoke ..............   Passed    3.85 sec
+      Start  3: automatic_cache_coalesced_external_shards
+ 3/23 Test  #3: automatic_cache_coalesced_external_shards ...   Passed    0.56 sec
+      Start  4: rpc_cache_backpressure
+ 4/23 Test  #4: rpc_cache_backpressure ......................   Passed    1.24 sec
+      Start  5: two_process_rpc_and_restore
+ 5/23 Test  #5: two_process_rpc_and_restore .................   Passed    0.48 sec
+      Start  6: cache_agent_process_lifecycle
+ 6/23 Test  #6: cache_agent_process_lifecycle ...............   Passed    3.30 sec
+      Start  7: core_correctness
+ 7/23 Test  #7: core_correctness ............................   Passed    0.04 sec
+      Start  8: cost_and_migration_policies
+ 8/23 Test  #8: cost_and_migration_policies .................   Passed    0.01 sec
+      Start  9: cache_ownership_and_updates
+ 9/23 Test  #9: cache_ownership_and_updates .................   Passed    0.03 sec
+      Start 10: automatic_cache_policy_lifecycle
+10/23 Test #10: automatic_cache_policy_lifecycle ............   Passed    0.05 sec
+      Start 11: agent_control_replay
+11/23 Test #11: agent_control_replay ........................   Passed    0.02 sec
+      Start 12: embedding_adapter_lifecycle
+12/23 Test #12: embedding_adapter_lifecycle .................   Passed    0.02 sec
+      Start 13: service_phase_timing
+13/23 Test #13: service_phase_timing ........................   Passed    0.01 sec
+      Start 14: bounded_asynchronous_preparation
+14/23 Test #14: bounded_asynchronous_preparation ............   Passed    0.03 sec
+      Start 15: bounded_sparse_optimizer
+15/23 Test #15: bounded_sparse_optimizer ....................   Passed    0.02 sec
+      Start 16: resumable_actor_dependencies
+16/23 Test #16: resumable_actor_dependencies ................   Passed    0.17 sec
+      Start 17: resumable_shard_operations
+17/23 Test #17: resumable_shard_operations ..................   Passed    0.09 sec
+      Start 18: concurrent_multi_agent_updates
+18/23 Test #18: concurrent_multi_agent_updates ..............   Passed    0.01 sec
+      Start 19: coalesced_cross_shard_gathers
+19/23 Test #19: coalesced_cross_shard_gathers ...............   Passed    0.04 sec
+      Start 20: compact_feature_gradient_semantics
+20/23 Test #20: compact_feature_gradient_semantics ..........   Passed    0.02 sec
+      Start 21: resumable_cuda_shard_operations
+21/23 Test #21: resumable_cuda_shard_operations .............   Passed    4.19 sec
+      Start 22: cuda_state_and_device_results
+22/23 Test #22: cuda_state_and_device_results ...............   Passed    4.26 sec
+      Start 23: cuda_concurrent_checked_reads
+23/23 Test #23: cuda_concurrent_checked_reads ...............   Passed    6.26 sec
+
+100% tests passed, 0 tests failed out of 23
+
+Total Test time (real) =  25.30 sec

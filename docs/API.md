@@ -23,6 +23,19 @@ dependency-plan preparation/rebuild/cache-hit counters.
 the service protocol. The adapter groups requests by home shard and holds the
 resulting shard-local tickets as one framework operation.
 
+## Table optimizer configuration
+
+Table optimizer configuration accepts an optional `weight_bounds: [minimum,
+maximum]` JSON field. Both endpoints must be finite and ordered. Missing bounds
+retain unbounded updates; `[0, 0]` fixes weights to zero. CPU initialization and
+CPU/Host/CUDA Adam updates apply the interval to weights. Moments and optimizer
+clocks retain their existing update rules. Bounds travel with the immutable
+Protobuf table definition and persist in format-2 snapshots; format-1 snapshots
+load as unbounded tables. All participating peers must support the option.
+
+The [Entropy configuration mapper](ENTROPY_CONFIGURATION.md) preserves the
+original optimizer's learning rate, beta powers, epsilon and default interval.
+
 ## Lookup contract
 
 The request carries a table ID, feature ID, flat keys, bag offsets, valid lengths

@@ -1,0 +1,33 @@
+Test project PROJECT_ROOT/build/asan
+      Start  1: core_correctness
+ 1/14 Test  #1: core_correctness .....................   Passed    0.20 sec
+      Start  2: cost_and_migration_policies
+ 2/14 Test  #2: cost_and_migration_policies ..........   Passed    0.03 sec
+      Start  3: cache_ownership_and_updates
+ 3/14 Test  #3: cache_ownership_and_updates ..........   Passed    0.13 sec
+      Start  4: automatic_cache_policy_lifecycle
+ 4/14 Test  #4: automatic_cache_policy_lifecycle .....   Passed    0.18 sec
+      Start  5: agent_control_replay
+ 5/14 Test  #5: agent_control_replay .................   Passed    0.06 sec
+      Start  6: embedding_adapter_lifecycle
+ 6/14 Test  #6: embedding_adapter_lifecycle ..........   Passed    0.13 sec
+      Start  7: service_phase_timing
+ 7/14 Test  #7: service_phase_timing .................   Passed    0.14 sec
+      Start  8: bounded_asynchronous_preparation
+ 8/14 Test  #8: bounded_asynchronous_preparation .....   Passed    0.15 sec
+      Start  9: bounded_sparse_optimizer
+ 9/14 Test  #9: bounded_sparse_optimizer .............   Passed    0.13 sec
+      Start 10: resumable_actor_dependencies
+10/14 Test #10: resumable_actor_dependencies .........   Passed    0.23 sec
+      Start 11: resumable_shard_operations
+11/14 Test #11: resumable_shard_operations ...........   Passed    0.22 sec
+      Start 12: concurrent_multi_agent_updates
+12/14 Test #12: concurrent_multi_agent_updates .......   Passed    0.13 sec
+      Start 13: coalesced_cross_shard_gathers
+13/14 Test #13: coalesced_cross_shard_gathers ........   Passed    0.17 sec
+      Start 14: compact_feature_gradient_semantics
+14/14 Test #14: compact_feature_gradient_semantics ...   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 14
+
+Total Test time (real) =   1.94 sec

@@ -1,5 +1,31 @@
 # Validation record
 
+## Entropy optimizer bounds — November 1, 2026
+
+Source `ab22ca3` preserves optional sparse Adam weight bounds through CPU row
+initialization, CPU/Host/CUDA updates, JSON/Protobuf table configuration and
+versioned snapshots. The original optimizer constructor is source-executed for
+five mapping checks; its options storage is a local stand-in, with the complete
+native framework import still pending.
+
+| Environment | Checks | Result |
+| --- | --- | --- |
+| macOS, native/RPC/TensorFlow | Complete suite, including zero-valued bounds in the graph/JSON/native/RPC path | 27/27 |
+| macOS, ASan/UBSan | Complete core suite, including bounded state and legacy restore | 14/14 |
+| Ubuntu, GNU 11.4, A6000, CUDA 13.0.88 | Native CPU/CUDA suite | 23/23 |
+| Same A6000, TensorFlow 2.20.0 | Complete native/CUDA/TensorFlow suite | 30/30 |
+| Same build, forced CUDA | External cache lifecycle, automatic placement and prepared graph | 5/5 |
+| Same build, focused checks | Bounded optimizer and actual CUDA result/state checks | 2/2 |
+
+CUDA assertions check that updated weights reach a configured boundary, remain
+inside the interval and match Host weights, moments and counters. Imported rows
+retain their supplied state until updated. Overflow validation precedes clipping
+and leaves rejected updates unchanged. Snapshot checks preserve the bounds,
+restore optimizer state and read an independently encoded format-1 fixture.
+
+[Configuration and remaining framework hooks](ENTROPY_CONFIGURATION.md) ·
+[Source/binary/log hashes and verified rental deletion](validation/2026-11-01-entropy-bounds.json).
+
 ## Executed correctness checks — October 31, 2026
 
 The [current multi-GPU study](CURRENT_MULTIGPU_LIMITS.md) records runtime

@@ -1,0 +1,66 @@
+Internal ctest changing into directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+Test project /home/ubuntu/entropy-bounds-validation/build-cuda
+      Start  1: automatic_cache_external_shards
+ 1/30 Test  #1: automatic_cache_external_shards ..............   Passed    0.63 sec
+      Start  2: cache_policy_fixed_trace_smoke
+ 2/30 Test  #2: cache_policy_fixed_trace_smoke ...............   Passed    3.85 sec
+      Start  3: automatic_cache_coalesced_external_shards
+ 3/30 Test  #3: automatic_cache_coalesced_external_shards ....   Passed    0.58 sec
+      Start  4: rpc_cache_backpressure
+ 4/30 Test  #4: rpc_cache_backpressure .......................   Passed    1.50 sec
+      Start  5: two_process_rpc_and_restore
+ 5/30 Test  #5: two_process_rpc_and_restore ..................   Passed    0.45 sec
+      Start  6: cache_agent_process_lifecycle
+ 6/30 Test  #6: cache_agent_process_lifecycle ................   Passed    3.11 sec
+      Start  7: tensorflow_graph_external_shards
+ 7/30 Test  #7: tensorflow_graph_external_shards .............   Passed    7.82 sec
+      Start  8: tensorflow_graph_cache_external_shards
+ 8/30 Test  #8: tensorflow_graph_cache_external_shards .......   Passed    7.27 sec
+      Start  9: tensorflow_graph_automatic_cache
+ 9/30 Test  #9: tensorflow_graph_automatic_cache .............   Passed    7.56 sec
+      Start 10: tensorflow_graph_automatic_coalesced_cache
+10/30 Test #10: tensorflow_graph_automatic_coalesced_cache ...   Passed    7.57 sec
+      Start 11: tensorflow_graph_prepared_external_shards
+11/30 Test #11: tensorflow_graph_prepared_external_shards ....   Passed    7.43 sec
+      Start 12: tensorflow_graph_prepared_automatic_cache
+12/30 Test #12: tensorflow_graph_prepared_automatic_cache ....   Passed    7.31 sec
+      Start 13: tensorflow_graph_coalesced_cache
+13/30 Test #13: tensorflow_graph_coalesced_cache .............   Passed    7.63 sec
+      Start 14: core_correctness
+14/30 Test #14: core_correctness .............................   Passed    0.04 sec
+      Start 15: cost_and_migration_policies
+15/30 Test #15: cost_and_migration_policies ..................   Passed    0.01 sec
+      Start 16: cache_ownership_and_updates
+16/30 Test #16: cache_ownership_and_updates ..................   Passed    0.02 sec
+      Start 17: automatic_cache_policy_lifecycle
+17/30 Test #17: automatic_cache_policy_lifecycle .............   Passed    0.04 sec
+      Start 18: agent_control_replay
+18/30 Test #18: agent_control_replay .........................   Passed    0.02 sec
+      Start 19: embedding_adapter_lifecycle
+19/30 Test #19: embedding_adapter_lifecycle ..................   Passed    0.02 sec
+      Start 20: service_phase_timing
+20/30 Test #20: service_phase_timing .........................   Passed    0.01 sec
+      Start 21: bounded_asynchronous_preparation
+21/30 Test #21: bounded_asynchronous_preparation .............   Passed    0.03 sec
+      Start 22: bounded_sparse_optimizer
+22/30 Test #22: bounded_sparse_optimizer .....................   Passed    0.02 sec
+      Start 23: resumable_actor_dependencies
+23/30 Test #23: resumable_actor_dependencies .................   Passed    0.17 sec
+      Start 24: resumable_shard_operations
+24/30 Test #24: resumable_shard_operations ...................   Passed    0.09 sec
+      Start 25: concurrent_multi_agent_updates
+25/30 Test #25: concurrent_multi_agent_updates ...............   Passed    0.01 sec
+      Start 26: coalesced_cross_shard_gathers
+26/30 Test #26: coalesced_cross_shard_gathers ................   Passed    0.04 sec
+      Start 27: compact_feature_gradient_semantics
+27/30 Test #27: compact_feature_gradient_semantics ...........   Passed    0.02 sec
+      Start 28: resumable_cuda_shard_operations
+28/30 Test #28: resumable_cuda_shard_operations ..............   Passed    4.34 sec
+      Start 29: cuda_state_and_device_results
+29/30 Test #29: cuda_state_and_device_results ................   Passed    4.29 sec
+      Start 30: cuda_concurrent_checked_reads
+30/30 Test #30: cuda_concurrent_checked_reads ................   Passed    6.85 sec
+
+100% tests passed, 0 tests failed out of 30
+
+Total Test time (real) =  78.76 sec

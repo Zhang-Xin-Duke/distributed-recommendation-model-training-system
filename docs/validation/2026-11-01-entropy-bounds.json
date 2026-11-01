@@ -1,0 +1,117 @@
+{
+  "source_commit": "ab22ca3541d35cb90d5a9c607370aeb608c36db4",
+  "scope": "Optional sparse Adam weight bounds, Entropy optimizer-option mapping and snapshot compatibility",
+  "environment": {
+    "source_commit": "ab22ca3541d35cb90d5a9c607370aeb608c36db4",
+    "binary_sha256": {
+      "eps_server": "b58e817b432cd420a37ef32684d59b13974dd505ce1f2485b946157dd904b7b0",
+      "eps_cache_agent": "efb7b47fbed219b942a40167158e27f59e95a6a7abb91d57873ad4cdf679a36c",
+      "eps_weight_bounds_tests": "402805ee7fedbf20aafccfde82de25eec4ad808ce8e1fe2d80ad5e5c30c33424",
+      "eps_cuda_tests": "bc2ac20e3d1930cd1a19879177cd56db9a739ddaf7011342b6ffddf75bbe72b4"
+    },
+    "source_sha256": {
+      "include/eps/types.hpp": "c33424ac611cb3777986b9d19e24b06da8f360f6b5eea739901f8cd97c9b537e",
+      "src/cuda/cache_backend.cu": "7e158984e182f18829323541adaa5dcfd59325aeb1f5c94d7c9940f34aaa4daf",
+      "tests/cuda_tests.cpp": "10559d39d23e846389440688c001029b97f8ad5a19b5bffb3fbe4ba3643088ce",
+      "src/store/snapshot.cpp": "765fbb23eed8aabbee0eac5b8ddc1b5784973471b273c0af533226f08aac5d1e",
+      "tests/weight_bounds_tests.cpp": "9598b7d33070e215eb2c204fc779a85beca5a09d26c6208f5cde9a007bab3089"
+    },
+    "gpu": "NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "native_cuda_tests": 23,
+    "full_tests": 30,
+    "forced_cuda_tests": 5,
+    "focused_bounds_cuda_tests": 2
+  },
+  "logs": [
+    {
+      "name": "ubuntu-native-cuda",
+      "passed": 23,
+      "log_file": "validation/2026-11-01-entropy-bounds/ubuntu-native-cuda.log",
+      "sha256": "e9a032e4610e05f928a35f8fb85aefff37389b262e237edadeae9859a81a0fbd"
+    },
+    {
+      "name": "ubuntu-full-cuda-tensorflow",
+      "passed": 30,
+      "log_file": "validation/2026-11-01-entropy-bounds/ubuntu-full-cuda-tensorflow.log",
+      "sha256": "2f9419f6da67ba3aa401055ee049b32f9abb184f176ec914065c52a6e0e2ace6"
+    },
+    {
+      "name": "ubuntu-forced-cuda",
+      "passed": 5,
+      "log_file": "validation/2026-11-01-entropy-bounds/ubuntu-forced-cuda.log",
+      "sha256": "5de24ce073f8f825576ac49cb42fe7b95decd99ad31ab4972446e8b2cb4f034b"
+    },
+    {
+      "name": "ubuntu-bounds-cuda",
+      "passed": 2,
+      "log_file": "validation/2026-11-01-entropy-bounds/ubuntu-bounds-cuda.log",
+      "sha256": "1b94bd2b5b1a39aef76efbcbf550cd3110bdbb0f76caafb4877774897d45546d"
+    },
+    {
+      "name": "macos-native-tensorflow",
+      "passed": 27,
+      "log_file": "validation/2026-11-01-entropy-bounds/macos-native-tensorflow.log",
+      "sha256": "11601d88fcc8448f842e494ba7f8d777accb7b5dc48159a495f3b672c031cebe"
+    },
+    {
+      "name": "macos-asan-ubsan",
+      "passed": 14,
+      "log_file": "validation/2026-11-01-entropy-bounds/macos-asan-ubsan.log",
+      "sha256": "7574ffa52aed88c9c464c521015fe0e6e7d7fec56f21f2d9025bac6847c09c0a"
+    },
+    {
+      "name": "source-executed-optimizer-mapping",
+      "passed": 5,
+      "log_file": "validation/2026-11-01-entropy-bounds/entropy-configuration.log",
+      "sha256": "5a7ef8fee433d62afd7ec508a7f54daef2409258976b850b91bbda4e579de55d"
+    }
+  ],
+  "source_sha256": {
+    "include/eps/types.hpp": "c33424ac611cb3777986b9d19e24b06da8f360f6b5eea739901f8cd97c9b537e",
+    "src/cuda/cache_backend.cu": "7e158984e182f18829323541adaa5dcfd59325aeb1f5c94d7c9940f34aaa4daf",
+    "tests/cuda_tests.cpp": "10559d39d23e846389440688c001029b97f8ad5a19b5bffb3fbe4ba3643088ce",
+    "src/store/snapshot.cpp": "765fbb23eed8aabbee0eac5b8ddc1b5784973471b273c0af533226f08aac5d1e",
+    "tests/weight_bounds_tests.cpp": "9598b7d33070e215eb2c204fc779a85beca5a09d26c6208f5cde9a007bab3089"
+  },
+  "upstream_constructor": {
+    "source_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+    "classes": [
+      "Optimizer",
+      "SparseLazyAdam"
+    ],
+    "options_storage": "local Options stand-in; complete native module not imported"
+  },
+  "fixture": {
+    "file": "tests/fixtures/snapshot-v1-unbounded.bin",
+    "sha256": "4382056a19b0a0dacf06f50564be156f2bca8d900548132d4e1279b4067a8121",
+    "independent_original_format": true
+  },
+  "archive_sha256": "47f87ca1a72fb6c2c78841e2b6ac238873b264ae00ae610541a3f7592a623e28",
+  "cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793507727.839254
+  },
+  "tensorflow_model_device": "CPU host-callback model; forced CUDA tests execute the parameter cache on A6000",
+  "coverage": [
+    "clipped initialization",
+    "saturated signed updates",
+    "unclipped Adam moments",
+    "row update counters",
+    "CPU/Host-owner parity",
+    "actual CUDA clipping and Host parity",
+    "atomic overflow rejection",
+    "zero-valued bounds across JSON/native/RPC/TensorFlow",
+    "bounded snapshot restore",
+    "legacy unbounded snapshot restore",
+    "invalid bound rejection before drain"
+  ],
+  "remaining_framework_work": [
+    "original table-factory and checkpoint-controller installation",
+    "native original-application build",
+    "in-process device-tensor interop"
+  ],
+  "log_normalization": "Workspace paths replaced with PROJECT_ROOT; trailing whitespace removed. Original archive hash retained."
+}

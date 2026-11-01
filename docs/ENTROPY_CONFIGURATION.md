@@ -61,3 +61,8 @@ reversed ranges and legacy snapshots. TensorFlow process checks also exercise a
 zero-valued interval across the JSON/native/RPC path. CUDA test coverage compares
 bounded and unbounded tables with the Host reference and asserts that clipping
 occurs; execution evidence is recorded separately.
+
+The A6000 execution passes 23/23 native CPU/CUDA checks, 30/30 complete
+native/CUDA/TensorFlow checks and five additional forced-CUDA cases. The
+[validation artifact](validation/2026-11-01-entropy-bounds.json) records the
+compiled source, device, binary/log hashes and rental cleanup.

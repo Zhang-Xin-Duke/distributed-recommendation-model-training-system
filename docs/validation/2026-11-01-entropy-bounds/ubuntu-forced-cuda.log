@@ -1,0 +1,80 @@
+Internal ctest changing into directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+UpdateCTestConfiguration  from :/home/ubuntu/entropy-bounds-validation/build-cuda/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/ubuntu/entropy-bounds-validation/build-cuda/DartConfiguration.tcl
+Test project /home/ubuntu/entropy-bounds-validation/build-cuda
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start  1: automatic_cache_external_shards
+
+1: Test command: /home/ubuntu/entropy-bounds-validation/environment/bin/python "/home/ubuntu/entropy-bounds-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_server" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_cache_agent"
+1: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+1: Test timeout computed to be: 120
+1: PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+1: PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+1/5 Test  #1: automatic_cache_external_shards .............   Passed    2.59 sec
+test 3
+    Start  3: automatic_cache_coalesced_external_shards
+
+3: Test command: /home/ubuntu/entropy-bounds-validation/environment/bin/python "/home/ubuntu/entropy-bounds-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_server" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_cache_agent"
+3: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+3: Environment variables:
+3:  EPS_COALESCE_GATHERS=1
+3: Test timeout computed to be: 120
+3: PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+3: PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+2/5 Test  #3: automatic_cache_coalesced_external_shards ...   Passed    2.71 sec
+test 6
+    Start  6: cache_agent_process_lifecycle
+
+6: Test command: /home/ubuntu/entropy-bounds-validation/environment/bin/python "/home/ubuntu/entropy-bounds-validation/source/tests/cache_rpc_processes.py" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_server" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_rpc_checks" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_cache_agent"
+6: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+6: Environment variables:
+6:  EPS_CACHE_BACKEND=cuda
+6: Test timeout computed to be: 90
+6: CACHE_BACKEND=cuda
+6: PASS two-shard lookup, mean, sequence, updates and retry
+6: PASS two-shard restore trajectory
+3/5 Test  #6: cache_agent_process_lifecycle ...............   Passed    2.86 sec
+test 12
+    Start 12: tensorflow_graph_prepared_automatic_cache
+
+12: Test command: /home/ubuntu/entropy-bounds-validation/environment/bin/python "/home/ubuntu/entropy-bounds-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_server" "/home/ubuntu/entropy-bounds-validation/build-cuda/eps_cache_agent"
+12: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+12: Environment variables:
+12:  PYTHONPATH=/home/ubuntu/entropy-bounds-validation/build-cuda/python:/home/ubuntu/entropy-bounds-validation/source/adapters/entropy
+12:  EPS_TEST_PREPARE=1
+12:  EPS_TEST_AUTO_CACHE=1
+12:  EPS_TEST_COALESCE=1
+12: Test timeout computed to be: 120
+12: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+12: E0000 00:00:1793507705.887210   18104 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+12: W0000 00:00:1793507705.981851   18104 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+12: Skipping registering GPU devices...
+12: {"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_cuda", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "checkpoint_shards": 2, "retraces": 0}
+4/5 Test #12: tensorflow_graph_prepared_automatic_cache ...   Passed    8.33 sec
+test 28
+    Start 28: resumable_cuda_shard_operations
+
+28: Test command: /home/ubuntu/entropy-bounds-validation/build-cuda/eps_resumable_service_tests
+28: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+28: Environment variables:
+28:  EPS_RESUMABLE_BACKEND=cuda
+28: Test timeout computed to be: 90
+28: PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+5/5 Test #28: resumable_cuda_shard_operations .............   Passed    4.18 sec
+
+The following tests passed:
+	automatic_cache_external_shards
+	automatic_cache_coalesced_external_shards
+	cache_agent_process_lifecycle
+	tensorflow_graph_prepared_automatic_cache
+	resumable_cuda_shard_operations
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  20.68 sec

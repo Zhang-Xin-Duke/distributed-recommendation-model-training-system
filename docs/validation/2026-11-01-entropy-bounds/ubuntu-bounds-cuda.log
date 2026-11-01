@@ -1,0 +1,34 @@
+Internal ctest changing into directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+UpdateCTestConfiguration  from :/home/ubuntu/entropy-bounds-validation/build-cuda/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/ubuntu/entropy-bounds-validation/build-cuda/DartConfiguration.tcl
+Test project /home/ubuntu/entropy-bounds-validation/build-cuda
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 22
+    Start 22: bounded_sparse_optimizer
+
+22: Test command: /home/ubuntu/entropy-bounds-validation/build-cuda/eps_weight_bounds_tests "/home/ubuntu/entropy-bounds-validation/source/tests/fixtures/snapshot-v1-unbounded.bin"
+22: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+22: Test timeout computed to be: 30
+22: PASS bounded initialization, Adam moments, mixed-owner updates and snapshot metadata
+1/2 Test #22: bounded_sparse_optimizer .........   Passed    0.02 sec
+test 29
+    Start 29: cuda_state_and_device_results
+
+29: Test command: /home/ubuntu/entropy-bounds-validation/build-cuda/eps_cuda_tests
+29: Working Directory: /home/ubuntu/entropy-bounds-validation/build-cuda
+29: Test timeout computed to be: 60
+29: PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
+2/2 Test #29: cuda_state_and_device_results ....   Passed    4.24 sec
+
+The following tests passed:
+	bounded_sparse_optimizer
+	cuda_state_and_device_results
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   4.27 sec

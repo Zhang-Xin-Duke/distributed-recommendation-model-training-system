@@ -1,5 +1,10 @@
 # Embedding Pull/Push/Join adapter
 
+[Entropy optimizer configuration](../../docs/ENTROPY_CONFIGURATION.md) maps the
+original SparseLazyAdam options, including default weight clipping, to external
+table definitions. The original framework factory and checkpoint-controller
+installation remain separate integration work.
+
 This adapter replaces the parameter-access boundary in a training application.
 Dataset readers, feature construction, the model, loss scaling, dense optimizer,
 collectives and job controller remain with that application.
