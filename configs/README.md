@@ -28,7 +28,10 @@ the numeric state-array budget. Automatic-policy history is bounded by
 
 Missing IDs are initialized from the configured seeded distribution. Cache
 admission changes placement while keeping the same sparse optimizer and update
-boundaries. `entropy-adapter.example.json` describes framework-adapter settings;
+boundaries. `entropy-adapter.example.json` supplies the executable job-hook
+schema: ordered `endpoints`, `run`, epoch, explicit table names/IDs and the
+original learner/thread ID stride. It replaces the earlier descriptive adapter
+outline. [Installation and controller flow](../docs/ENTROPY_TABLE_HOOKS.md);
 the portable TensorFlow host bridge and its commands are documented under
 [adapters/entropy](../adapters/entropy/README.md).
 

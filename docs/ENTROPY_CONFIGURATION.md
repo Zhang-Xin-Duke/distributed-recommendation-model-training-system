@@ -43,9 +43,11 @@ snapshot:
 | Checkpoint | Training checkpoint controller and `SparseTable.checkpoint` | Drain sparse updates at the existing barrier and commit with dense/input state |
 | Restore | `worker_restore_sparse` and `SparseTable.restore` | Restore the matching sparse snapshot before continuing the existing job |
 
-The configuration mapper and Pull/Push/Join bridge are implemented. Installation
-at the original factory/checkpoint controller, a native original-application
-build and in-process device-tensor interop remain open implementation work.
+The configuration mapper, Pull/Push/Join bridge and
+[original table/Runner hooks](ENTROPY_TABLE_HOOKS.md) are implemented. Source-level
+Session graph checks exercise the original methods with real external shards.
+A native original-application build, multi-peer framework execution, remote
+restore staging and in-process device-tensor interop remain open work.
 The [periodic checkpoint bridge](PERIODIC_CHECKPOINTS.md) provides bounded export
 through the framework filesystem and guarded same-run resume for that controller.
 

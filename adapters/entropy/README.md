@@ -2,8 +2,10 @@
 
 [Entropy optimizer configuration](../../docs/ENTROPY_CONFIGURATION.md) maps the
 original SparseLazyAdam options, including default weight clipping, to external
-table definitions. The original framework factory and checkpoint-controller
-installation remain separate integration work.
+table definitions. [Original table and Runner hooks](../../docs/ENTROPY_TABLE_HOOKS.md)
+install the service into selected table names while preserving the original class
+and gradient dispatcher. The native original-application build, remote restore
+staging and device interop retain their own integration work.
 
 This adapter replaces the parameter-access boundary in a training application.
 Dataset readers, feature construction, the model, loss scaling, dense optimizer,

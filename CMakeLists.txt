@@ -147,12 +147,22 @@ if(EPS_BUILD_BRPC)
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
     set_tests_properties(cache_agent_process_lifecycle PROPERTIES TIMEOUT 90)
     if(EPS_BUILD_PYTHON)
+      add_test(NAME entropy_table_hook_configuration
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_install_tests.py")
       add_test(NAME checkpoint_filesystem_contract
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/checkpoint_store_tests.py")
       set_tests_properties(checkpoint_filesystem_contract PROPERTIES TIMEOUT 30)
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('tensorflow')"
         RESULT_VARIABLE eps_tensorflow_available OUTPUT_QUIET ERROR_QUIET)
       if(eps_tensorflow_available EQUAL 0)
+        add_test(NAME entropy_original_table_external_shards
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py" $<TARGET_FILE:eps_server>)
+        add_test(NAME entropy_original_table_cache
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        set_tests_properties(entropy_original_table_external_shards entropy_original_table_cache PROPERTIES
+          TIMEOUT 120 SKIP_RETURN_CODE 77
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_graph_external_shards
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py" $<TARGET_FILE:eps_server>)
         add_test(NAME tensorflow_graph_cache_external_shards
