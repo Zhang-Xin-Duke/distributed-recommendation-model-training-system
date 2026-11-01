@@ -1,0 +1,131 @@
+{
+  "source_commit": "ea743b994ea0ff3a6d827cc2d3ec626e5a42d670",
+  "scope": "Original SparseTable/InputBuilder and Runner checkpoint source-level integration",
+  "environment": {
+    "platform": "macOS arm64",
+    "python": "3.11.14",
+    "tensorflow": "2.20.0",
+    "parameter_shards": 2,
+    "cache_backends": [
+      "none",
+      "Host reference"
+    ]
+  },
+  "source_sha256": {
+    "adapters/entropy/entropy_install.py": "83f2f95bfa652e3d3db599f52a14901f4a27e57b6c9bccd78b58a3074dcfb58b",
+    "adapters/entropy/entropy_launch.py": "3b13f92c6c546fc000eead3a13d6aec3968d2cb8f21f93091c1ad3a8c870ca20",
+    "tests/entropy_hooks_processes.py": "2d85e6474f344ecc3343932e196bb2d507c41e8f1cd89d1d85426867bbb04397",
+    "tests/entropy_install_tests.py": "4aeaca41afd582cdd886eda540b3c5fb30d779f7c94f0de33a0f941860f8e3ac",
+    "tests/entropy_source_contract.py": "ec54bb9bfaaa8205d23e8a85e0269957b5396f4c9331f7469fbf04ed1c1faded",
+    "configs/entropy-adapter.example.json": "e7c80517ffd009cddcd6979cc28f1cbd46f06745e44589ed7f22bf992e6dee21",
+    "CMakeLists.txt": "ed1dcdae14fa860d63282157df248094d4662475e5ce9e1e70305bc695c95d35"
+  },
+  "binary_sha256": {
+    "eps_server": "9b4ae2bc9af5978177660047c7a6700732ce39471b948b7735f83db81b30d91c",
+    "eps_cache_agent": "5f6a4fab022014eab80e15e16bf524b8651d30d281ac5691bbec28c0f1e0f33e",
+    "_eps_native.cpython-311-darwin.so": "5cb3f8bc7b7d01fec6d8e4503d082401c2cacce14b14657cfe537e396975caa2"
+  },
+  "logs": [
+    {
+      "name": "macos-native-rpc-tensorflow",
+      "passed": 33,
+      "file": "validation/2026-11-01-entropy-hooks/macos-native-tensorflow.log",
+      "sha256": "106b2112a2d85fac9026f8f6aa61878fd31608b718648e023beb17cecd128c26"
+    }
+  ],
+  "source_contract_records": [
+    {
+      "test": "entropy_original_table_graph",
+      "train_steps": 6,
+      "reference_checked_steps": 5,
+      "max_reference_absolute_error": 0.0,
+      "loss_before": 0.1697656214237213,
+      "loss_after": 0.09437486529350281,
+      "parameter_shards": 2,
+      "callback_tls_independent": true,
+      "prediction_repetitions": 12,
+      "missing_gradient_zero_fill": true,
+      "unused_feature_releases": 12,
+      "same_learner_graph_recreation": true,
+      "original_runner_midrun_checkpoint": true,
+      "failed_dense_save_stays_frozen": true,
+      "table_class_preserved": true,
+      "backend_learner_ids": [
+        0,
+        10
+      ],
+      "cache_backend": "none",
+      "source": {
+        "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+        "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+        "executed": [
+          "SparseTable",
+          "SparseLazyAdam",
+          "per_learner_once_attr",
+          "cluster_specific",
+          "add_var_collections",
+          "InputBuilder.sparse_vars",
+          "InputBuilder.apply_sparse_grads",
+          "_MultiDatasetRunner.checkpoint",
+          "_MultiDatasetRunner.prepare_path",
+          "checkpoint"
+        ],
+        "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported"
+      }
+    },
+    {
+      "test": "entropy_original_table_graph",
+      "train_steps": 6,
+      "reference_checked_steps": 5,
+      "max_reference_absolute_error": 0.0,
+      "loss_before": 0.1697656214237213,
+      "loss_after": 0.09437486529350281,
+      "parameter_shards": 2,
+      "callback_tls_independent": true,
+      "prediction_repetitions": 12,
+      "missing_gradient_zero_fill": true,
+      "unused_feature_releases": 12,
+      "same_learner_graph_recreation": true,
+      "original_runner_midrun_checkpoint": true,
+      "failed_dense_save_stays_frozen": true,
+      "table_class_preserved": true,
+      "backend_learner_ids": [
+        0,
+        10
+      ],
+      "cache_backend": "host",
+      "source": {
+        "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+        "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+        "executed": [
+          "SparseTable",
+          "SparseLazyAdam",
+          "per_learner_once_attr",
+          "cluster_specific",
+          "add_var_collections",
+          "InputBuilder.sparse_vars",
+          "InputBuilder.apply_sparse_grads",
+          "_MultiDatasetRunner.checkpoint",
+          "_MultiDatasetRunner.prepare_path",
+          "checkpoint"
+        ],
+        "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported"
+      }
+    }
+  ],
+  "private_source_absence": {
+    "exit_code": 77,
+    "reason": "SKIP: preserved Entropy source is required for the original-method contract"
+  },
+  "framework_barrier_scope": "single-participant event-recording stand-in; multi-peer original framework barriers not executed",
+  "native_framework_scope": "preserved original class/functions are source-executed; native config/save/feeder APIs use explicit stand-ins; complete module not imported",
+  "dense_checkpoint_scope": "actual TensorFlow Saver and checkpoint reader compare the dense variable exactly",
+  "native_runtime_unchanged_from": "dc726627a6e32f3f32f0b59802a10e65d00fcecf",
+  "current_turn_gpu_rentals": 0,
+  "remaining": [
+    "remote-store staging and original selected-table restore connection",
+    "native original-application build and execution",
+    "multi-peer original framework checkpoint/barrier execution",
+    "in-process device-tensor integration"
+  ]
+}

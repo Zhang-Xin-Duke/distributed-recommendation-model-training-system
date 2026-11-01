@@ -117,10 +117,11 @@ EPS_CACHE_BACKEND=cuda ctest --test-dir build/cuda -V \
   -R tensorflow_graph_periodic_checkpoint
 ```
 
-The original Entropy factory and checkpoint-controller installation, native
-original-application build and in-process device-tensor integration remain
-separate implementation work. The portable TensorFlow lifecycle exercises the
-service APIs and filesystem bridge described here.
+The [original table/Runner hooks](ENTROPY_TABLE_HOOKS.md) now install this lifecycle
+at the original source boundaries. Their source-level Session checks preserve
+the original directory preparation, dense/input save flow and gradient dispatcher.
+The native original-application build, multi-peer framework execution, remote
+restore staging and in-process device-tensor integration remain separate work.
 
 Executed checks at source `dc72662`: 30/30 local native/RPC/TensorFlow,
 15/15 ASan/UBSan, 15/15 ThreadSanitizer, 24/24 A6000 native CPU/CUDA,

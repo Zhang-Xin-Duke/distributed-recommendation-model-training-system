@@ -10,6 +10,6 @@
 2. Extended BRPC and the native adapter/isolated bridge to export chunks and resume after coordinated commit.
 3. Added export through the existing framework filesystem API, embedded checksum verification and per-shard metadata.
 4. Added repeated save/resume, stale run/epoch/checkpoint tokens, live-ticket refusal, partial-save fencing, prepared-input reopening, exported-file restore and uninterrupted optimizer-equivalence checks. A portable TensorFlow graph saves and continues mid-run. Executor shutdown now drains while public PImpl pointers remain valid; a suspended-update regression covers the discovered destruction race.
-5. Pending: install the backend at the original table factory and Pull/Push/Join boundaries, preserving the existing model/data paths. Connect periodic checkpoint orchestration after the lifecycle support is verified.
+5. Implemented named-table hooks and original Runner checkpoint coordination. Source-level checks execute the original class, InputBuilder dispatcher and Runner/module save functions against external shards, including continued training and failed-dense-save fencing.
 
-Original native-application build, original controller end-to-end execution and in-process GPU tensor interop remain completion requirements. The new lifecycle APIs do not by themselves establish those integrations.
+Remote restore staging, native original-application build/execution, multi-peer framework checkpoint execution and in-process GPU tensor interop remain completion requirements. Source-level controller checks and portable lifecycle checks retain their documented scopes.

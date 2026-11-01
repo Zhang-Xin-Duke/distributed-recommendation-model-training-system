@@ -1,5 +1,41 @@
 # Validation record
 
+## Original Entropy table and Runner hooks — November 1, 2026
+
+Source `ea743b9` installs the external backend on selected original table names,
+preserves `SparseTable` class identity and registration, and leaves the original
+`InputBuilder` gradient dispatcher in place. The Runner hook freezes external
+updates, executes original directory preparation before export, runs the original
+checkpoint body, commits the parameter-manifest hash and resumes training.
+
+The complete local native/RPC/TensorFlow suite passes **33/33**. Both new
+original-method process checks execute, with two external BRPC shards and either
+CPU access or the Host cache Agent. Five paired steps have **zero maximum
+absolute feature error** against direct reference tables. Six train steps cross
+an original-Runner mid-run checkpoint; paired-step loss decreases from
+0.1697656214237213 to 0.09437486529350281. The saved dense variable matches an
+actual TensorFlow checkpoint reader exactly.
+
+Additional cases preserve valid zero IDs, uint64 padding, mean/sequence shapes,
+bucket aliases, missing-gradient policy, all-unused handle release, prediction
+release, graph recreation and separate learner IDs. Callbacks run while original
+learner TLS is deliberately unavailable. An injected dense-save failure leaves
+parameter admission frozen and publishes no external joint-commit marker.
+
+The source contract executes preserved original classes/functions with explicit
+native environment/save/feeder stand-ins and single-participant barrier event
+records. The complete native module and multi-peer framework barriers are not
+executed in this check. Public configuration/launcher tests contain four cases;
+missing private source is separately verified to return skip code 77. No GPU is
+rented for this Python integration revision; the native C++/CUDA source is
+unchanged from `dc72662`.
+
+[Installation and protocol](ENTROPY_TABLE_HOOKS.md) ·
+[Source provenance, binary/log hashes and execution scope](validation/2026-11-01-entropy-hooks.json).
+Remaining work includes remote restore staging, the original selected-table
+restore connection, native original-application execution, multi-peer framework
+checkpoint execution and in-process device tensors.
+
 ## Periodic checkpoint lifecycle — November 1, 2026
 
 Source `dc72662` adds frozen snapshot reads, framework-filesystem export and

@@ -17,6 +17,11 @@ framework. The supplied TensorFlow bridge uses stateful host callbacks and an
 isolated native RPC client. Dataset readers, model computation and dense gradient
 synchronization remain the training framework's responsibility.
 
+[Named Entropy table and Runner hooks](docs/ENTROPY_TABLE_HOOKS.md) install that
+boundary before the existing job entry point builds its graph. Source-level
+Session checks execute the original methods against independent parameter shards,
+including a mid-run original-controller checkpoint.
+
 ![Multi-GPU throughput, tail latency and queue wait](docs/assets/current-multigpu-limits.svg)
 
 **Measured operating envelope (runtime `b6d97d3`):** four RTX A6000 agents sustain **119.62
