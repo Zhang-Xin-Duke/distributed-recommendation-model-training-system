@@ -185,6 +185,7 @@ class Backend {
       EPS_STAT(lookup_prepare_nanoseconds) EPS_STAT(gradient_prepare_nanoseconds) EPS_STAT(gpu_packet_prepare_nanoseconds) EPS_STAT(update_dispatch_nanoseconds) EPS_STAT(cpu_optimizer_nanoseconds) EPS_STAT(agent_wait_nanoseconds) EPS_STAT(migration_nanoseconds) EPS_STAT(cache_maintenance_nanoseconds)
       EPS_STAT(active_operations) EPS_STAT(waiting_operations) EPS_STAT(active_payload_bytes) EPS_STAT(dependency_payload_bytes)
       EPS_STAT(dependency_prepare_nanoseconds) EPS_STAT(dependency_rebuilds) EPS_STAT(dependency_cache_hits)
+      EPS_STAT(queued_observations) EPS_STAT(completed_observations) EPS_STAT(rejected_observations) EPS_STAT(dependency_budget_waits)
 #undef EPS_STAT
       result.push_back(std::move(row));
     }

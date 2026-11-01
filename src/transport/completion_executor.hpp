@@ -35,39 +35,44 @@ class CompletionExecutor {
    private:CompletionExecutor* owner_;
   };
   static CompletionExecutor& Instance(){static CompletionExecutor executor;return executor;}
+  static CompletionExecutor& Observations(){static CompletionExecutor executor(32,2);return executor;}
+  struct Stats {std::size_t outstanding=0,running=0;};
+  Stats Snapshot(){std::lock_guard lock(mutex_);return {outstanding_,running_};}
   ~CompletionExecutor(){
     {std::lock_guard lock(mutex_);stopping_=true;}
     changed_.notify_all();for(auto& worker:workers_)worker.join();
   }
  private:
-  CompletionExecutor(){
-    workers_.reserve(4);
-    try{for(int i=0;i<4;++i)workers_.emplace_back([this]{
+  CompletionExecutor():CompletionExecutor(4096,4){}
+  CompletionExecutor(std::size_t limit,std::size_t workers):limit_(limit){
+    workers_.reserve(workers);
+    try{for(std::size_t i=0;i<workers;++i)workers_.emplace_back([this]{
       for(;;){
         std::unique_ptr<Task> task;
         {std::unique_lock lock(mutex_);changed_.wait(lock,[&]{return stopping_ || bool(head_);});
           if(!head_ && stopping_)return;
           task=std::move(head_);head_=std::move(task->next);if(!head_)tail_=nullptr;
+          ++running_;
         }
         // Pending owns a closure guard, so its response is completed even if
         // encoding throws. Keep the executor available for other requests.
         try{task->Run();}catch(...){}
-        Release();
+        Release(true);
       }
     });}catch(...){
       {std::lock_guard lock(mutex_);stopping_=true;}
       changed_.notify_all();for(auto& worker:workers_)worker.join();throw;
     }
   }
-  void Release(){std::lock_guard lock(mutex_);--outstanding_;}
+  void Release(bool running=false){std::lock_guard lock(mutex_);--outstanding_;if(running)--running_;}
   void Post(std::unique_ptr<Task> task) noexcept {
     {std::lock_guard lock(mutex_);auto* next=task.get();
       if(tail_)tail_->next=std::move(task);else head_=std::move(task);tail_=next;
     }changed_.notify_one();
   }
-  const std::size_t limit_=4096;
+  const std::size_t limit_;
   std::mutex mutex_;std::condition_variable changed_;
   std::unique_ptr<Task> head_;Task* tail_=nullptr;
-  std::size_t outstanding_=0;bool stopping_=false;std::vector<std::thread> workers_;
+  std::size_t outstanding_=0,running_=0;bool stopping_=false;std::vector<std::thread> workers_;
 };
 }  // namespace eps::transport

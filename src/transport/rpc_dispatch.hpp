@@ -29,13 +29,14 @@ struct Pending final : CompletionExecutor::Task {
 template <typename T,typename Req,typename Rsp,typename Start,typename EncodeFn>
 void Dispatch(google::protobuf::RpcController* raw,const Req* request,Rsp* response,
               google::protobuf::Closure* done,Start start,EncodeFn encode,
-              std::shared_ptr<void> completion_owner={}) {
+              std::shared_ptr<void> completion_owner={},
+              CompletionExecutor& completions=CompletionExecutor::Instance()) {
   brpc::ClosureGuard guard(done);
   auto* controller=static_cast<brpc::Controller*>(raw);
   try {
     detail::Require(controller->request_attachment().size()<=kMaxAttachment &&
                     request->ByteSizeLong() <= (1ULL<<20),"RPC payload exceeds limit");
-    CompletionExecutor::Reservation reservation(CompletionExecutor::Instance());
+    CompletionExecutor::Reservation reservation(completions);
     auto p=std::make_unique<Pending<T,Rsp>>();
     p->completion_owner=std::move(completion_owner);
     p->controller=controller;p->response=response;p->done=done;

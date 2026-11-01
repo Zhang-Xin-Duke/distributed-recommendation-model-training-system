@@ -122,7 +122,7 @@ void UpdateOrderingAndSave() {
   auto same_table=service.Push(Push(options.run_id,2,independent.ticket,.02f));
   auto other=Get(service.Lookup(Lookup(options.run_id,4,2,9,false)));Get(service.Push(Push(options.run_id,4,other.ticket)));
   Check(same_table.wait_for(0s)!=std::future_status::ready,"same-table optimizer context overtook a pending update");
-  auto during=Get(service.Stats());Check(during.waiting_operations==1 && during.active_operations>=2 &&
+  auto during=Get(service.Stats());Check(during.waiting_operations==1 && during.active_operations==1 &&
     during.active_payload_bytes>0 && during.dependency_payload_bytes>0,"pending service state was not observable");
   auto duplicate=service.Push(Push(options.run_id,1,first.ticket));
   auto dependent_release=service.Release({{options.run_id,3,0,Phase::release},"3/0"});
@@ -233,9 +233,33 @@ void DestructionDrainsAcceptedContinuations() {
   Check(saved.state_files.size()==1 && std::filesystem::exists(saved.state_files.front()),"shutdown dropped an accepted checkpoint");
   std::filesystem::remove_all(root);
 }
+void StatisticsDuringBudgetLimitedUpdate() {
+  RuntimeOptions options;options.run_id="observed-overload";options.max_active_operations=1;
+  options.dependency_payload_bytes=256;
+  CpuParameterService service(options);auto backend=std::make_shared<DelayedBackend>(0);
+  Get(service.AttachAgent(0,backend));Get(service.CreateTable(Table(1)));Seed(service,options.run_id,1,1,0);
+  Get(service.MoveRows({options.run_id,{{1,1}},0,Placement::gpu,{4096,4096,4,0}}));
+  auto training=Get(service.Lookup(Lookup(options.run_id,1,1,1,false)));
+  auto gate=backend->Arm("apply");auto update=service.Push(Push(options.run_id,1,training.ticket));gate.Started();
+  std::vector<std::future<Result<LookupReply>>> pending;
+  for(unsigned i=2;i<34;++i)pending.push_back(service.Lookup(Lookup(options.run_id,i,1,1)));
+  auto stats=Get(service.Stats());
+  Check(stats.active_operations==1 && stats.waiting_operations==1 && stats.live_tickets==1,
+    "statistics waited for the occupied data slot or changed the lookup lifecycle");
+  Check(update.wait_for(0s)!=std::future_status::ready,"observation released an unfinished GPU update");
+  gate.Open();Get(std::move(update));
+  for(unsigned i=2;i<34;++i){auto result=Get(std::move(pending[i-2]));Release(service,options.run_id,i,result.ticket);}
+  auto after=Get(service.Stats());Check(after.live_tickets==0 && after.active_operations==0 &&
+    after.dependency_payload_bytes==0 && after.completed_observations>=1,"observed update failed to drain");
+  RuntimeOptions reference_options;reference_options.run_id="observed-reference";CpuParameterService reference(reference_options);
+  Get(reference.CreateTable(Table(1)));auto input=Get(reference.Lookup(Lookup(reference_options.run_id,1,1,1,false)));
+  Get(reference.Push(Push(reference_options.run_id,1,input.ticket)));
+  Match(Get(service.ReadState(Get(service.Locations({{1,1}})))).at(0),
+    Get(reference.ReadState(Get(reference.Locations({{1,1}})))).at(0));
+}
 }
 int main() {
-  try{UpdateOrderingAndSave();MigrationExclusion();FailureFencesOtherContinuations();AutomaticPolicyKeepsReadProgress();OwnershipInvalidatesQueuedPlan();DestructionDrainsAcceptedContinuations();
+  try{UpdateOrderingAndSave();MigrationExclusion();FailureFencesOtherContinuations();AutomaticPolicyKeepsReadProgress();OwnershipInvalidatesQueuedPlan();DestructionDrainsAcceptedContinuations();StatisticsDuringBudgetLimitedUpdate();
     std::cout<<"PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing\n";return 0;
   }catch(const std::exception& e){std::cerr<<"FAIL resumable service: "<<e.what()<<'\n';return 1;}
 }

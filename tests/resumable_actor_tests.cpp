@@ -165,9 +165,69 @@ void DependencyPlanCache() {
   Check(younger.wait_for(30ms)!=std::future_status::ready && rebuilt>=2,"an incomplete plan was cached as a stable dependency set");
   held.result.set_value(1);Get(std::move(first));Get(std::move(late));Get(std::move(younger));
 }
+void OverloadObservationsAndPlanRetention() {
+  ResumableActor::Options options;options.max_active=2;options.max_queued=128;
+  options.dependency_bytes=9*sizeof(ActorResource);
+  ResumableActor actor(options);Gate held;
+  auto active=actor.Submit<int>([&]{return Waiting(actor,held);},[]{return Rows({1});});WaitStarted(held);
+  std::atomic<unsigned> builds{0};std::vector<std::future<Result<int>>> queued;
+  for(unsigned i=0;i<32;++i)queued.push_back(actor.Submit<int>([i]{return int(i);},[&,i]{++builds;return Rows({1,100+i});}));
+  // Empty-dependency observations must pass the blocked, budget-limited prefix.
+  for(unsigned i=0;i<16;++i) {
+    auto snapshot=Get(actor.Observe<ResumableActor::Stats>([&]{return actor.Snapshot();}));
+    Check(snapshot.active==1 && snapshot.waiting==1 && snapshot.queued==32 &&
+      snapshot.dependency_bytes<=options.dependency_bytes,"observation changed held data work or escaped its budget");
+  }
+  auto before=Get(actor.Observe<unsigned>([&]{return builds.load();}));
+  held.result.set_value(9);Get(std::move(active));
+  for(unsigned i=0;i<32;++i)Check(Get(std::move(queued[i]))==int(i),"budget-limited FIFO request changed");
+  Check(before<=5,"blocked prefix plans were repeatedly discarded/rebuilt");
+  Check(actor.Snapshot().dependency_bytes==0,"plan retention leaked after drain");
+
+  options.max_active=1;ResumableActor full(options);Gate gate;
+  auto first=full.Submit<int>([&]{return Waiting(full,gate);});WaitStarted(gate);
+  auto stats=Get(full.Observe<ResumableActor::Stats>([&]{return full.Snapshot();}));
+  gate.result.set_value(1);Get(std::move(first));
+  Check(stats.active==1 && stats.waiting==1,"full active set prevented state observation");
+}
+void BoundedObservationFairness() {
+  ResumableActor::Options options;options.max_observations=2;
+  ResumableActor actor(options);std::promise<void> entered,release;
+  auto started=entered.get_future(),open=release.get_future();std::vector<int> order;
+  auto held=actor.Submit<int>([&]{entered.set_value();open.wait();return 0;});started.wait();
+  auto a=actor.Observe<int>([&]{order.push_back(1);return 1;});
+  auto data=actor.Submit<int>([&]{order.push_back(2);return 2;});
+  auto b=actor.Observe<int>([&]{order.push_back(3);return 3;});
+  auto rejected=actor.Observe<int>([]{return 4;});
+  const auto snapshot=actor.Snapshot();release.set_value();
+  Get(std::move(held));Get(std::move(a));Get(std::move(data));Get(std::move(b));
+  Check(ErrorOf(std::move(rejected)).code==Error::Code::capacity_exceeded &&
+    snapshot.queued_observations==2 && snapshot.rejected_observations==1,"observation admission was unbounded");
+  Check(order==std::vector<int>({1,2,3}),"observations starved runnable data work");
+  Check(ErrorOf(actor.Observe<int>([]()->int{throw std::bad_alloc();})).code==Error::Code::capacity_exceeded,
+    "observation allocation failure was lost");
+  Check(Get(actor.Submit<int>([]{return 7;}))==7,"failed observation poisoned data work");
+  actor.Shutdown();
+  Check(ErrorOf(actor.Observe<int>([]{return 0;})).code==Error::Code::unavailable,"observation accepted after shutdown");
+}
+void GrowingOldestPlanReclaimsYoungerCache() {
+  ResumableActor::Options options;options.dependency_bytes=4*sizeof(ActorResource);
+  ResumableActor actor(options);Gate held;bool grew=false;std::promise<void> planned;
+  auto seen=planned.get_future();bool notified=false;
+  auto active=actor.Submit<int>([&]()->ActorTask<int>{
+    co_await Waiting(actor,held);grew=true;actor.InvalidateDependencies();co_return 1;
+  },[]{return Rows({1});});WaitStarted(held);
+  auto oldest=actor.Submit<int>([]{return 2;},[&]{return grew?Rows({1,2,3}):Rows({1});});
+  auto younger=actor.Submit<int>([]{return 3;},[&]{if(!notified){notified=true;planned.set_value();}return Rows({1,4});});
+  Check(seen.wait_for(3s)==std::future_status::ready,"younger cached plan was not prepared");
+  held.result.set_value(1);Get(std::move(active));
+  Check(Get(std::move(oldest))==2 && Get(std::move(younger))==3,
+    "growing oldest plan stalled behind younger cached reservations");
+  Check(actor.Snapshot().dependency_bytes==0,"reclaimed younger cache leaked bytes");
+}
 }
 int main() {
-  try{IndependentAndFair();BarrierAndPayload();NestedAndFailureCleanup();ExclusiveUpgrade();DependencyPlanCache();ShutdownDrains();
+  try{IndependentAndFair();BarrierAndPayload();NestedAndFailureCleanup();ExclusiveUpgrade();DependencyPlanCache();OverloadObservationsAndPlanRetention();BoundedObservationFairness();GrowingOldestPlanReclaimsYoungerCache();ShutdownDrains();
     std::cout<<"PASS resumable actor: independent progress, FIFO conflicts, barriers, bounded admission, nested continuations and drain\n";return 0;
   }catch(const std::exception& e){std::cerr<<"FAIL actor: "<<e.what()<<'\n';return 1;}
 }

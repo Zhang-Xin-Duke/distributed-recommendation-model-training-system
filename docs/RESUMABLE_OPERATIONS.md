@@ -33,7 +33,7 @@ sequenceDiagram
 | ReadState | Referenced rows and their current cache agents |
 | MoveRows | Moving rows and the destination/source cache-agent control stream |
 | Locations | Inspected rows |
-| Stats | No parameter dependency |
+| Stats | Read-only observation on the actor thread, outside data-slot admission |
 | Create/configure/restore/save/resume | Full shard barrier |
 
 A younger operation can pass a blocked request only when their dependencies are
@@ -50,6 +50,13 @@ acquired dependencies. A Push whose ticket does not exist yet remains uncached
 until its preceding Lookup supplies that layout. Optimizer/agent keys are checked
 before long row lists, so common control conflicts can stop comparison early.
 This uses bounded retained metadata to reduce CPU scheduling work.
+
+At the shared metadata limit, the scheduler retains plans for the blocked FIFO
+prefix. It can evict optional plans belonging to younger requests to admit an
+older plan, including after an ownership epoch changes that plan's size. If
+active/older reservations still prevent admission, it records the required byte
+count and waits for progress instead of sorting and discarding the same prefix
+on every wake. A single oversized dependency plan still rejects before execution.
 
 Moving rows stay excluded through loading, writeback and acknowledged eviction.
 New locations/generations publish at the existing acknowledgement boundary.
@@ -84,11 +91,13 @@ The JSON launcher accepts these `limits` fields; C++ uses the corresponding
 | `queue_payload_bytes` | 64 MiB | Combined queued and active input payload reservations |
 | `dependency_payload_bytes` | 64 MiB | Queued and active dependency-vector capacity |
 | `cache_dependencies` | true | Reuse stable dependency plans for queued requests |
+| `max_observation_operations` | 16 | Queued synchronous actor-state observations |
 
 Suspension retains the input reservation; it cannot be used to admit unlimited
 additional payloads. Queued and active plans share the dependency byte budget.
-If optional queued plans consume that budget, the scheduler evicts those plans
-and retries after active progress; a single oversized plan is rejected.
+Younger optional plans can be reclaimed without discarding the blocked prefix;
+remaining budget pressure waits for active/older progress. Required-size hints
+use constant per-job metadata and expire when the dependency epoch changes.
 The scheduler bounds retained scan metadata separately from its temporary builder.
 Operation count limits bound headers and coroutine records; these payload budgets
 are separate from parameter state, lookup tickets, allocator overhead and agent
@@ -107,6 +116,26 @@ External futures are completed by transport/agent workers. Nested actor work
 composes an `ActorTask` directly, keeping it on the same execution owner.
 
 ## Failure and observation
+
+Statistics use a separately bounded synchronous observation queue. The same
+state-owning thread executes each observation between actor events, interleaving
+with runnable data work. Observations consume no asynchronous data slot and can
+inspect an in-flight operation or checkpoint at a consistent actor yield point.
+They do not mutate parameters, release lookup tickets or bypass mutation ordering.
+The snapshot counts data operations only; it no longer counts the statistics
+request itself as an active data operation. Observation execution is excluded
+from data executor busy time.
+
+RPC statistics also use an independent completion executor with two native
+waiters and at most 32 outstanding replies. Four data completion waiters can
+therefore wait on unfinished mutations without preventing a ready statistics
+reply. The actor observation queue rejects excess queries explicitly; shutdown
+closes admission and drains accepted work. Existing save, restore and mutation
+barriers keep their ordering.
+
+`queued_observations`, `completed_observations`, `rejected_observations` and
+`dependency_budget_waits` are exposed through native, BRPC and Python statistics.
+The completed-observation count excludes the snapshot currently being returned.
 
 An ambiguous cache-owner failure fences the run. A different suspended operation
 checks that fence before committing its CPU portion or acknowledging completion.

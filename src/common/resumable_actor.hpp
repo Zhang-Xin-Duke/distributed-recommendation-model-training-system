@@ -45,11 +45,14 @@ class ResumableActor {
     std::size_t max_queued=1024,max_active=16,waiters=4;
     std::uint64_t payload_bytes=64ULL<<20,dependency_bytes=64ULL<<20;
     bool cache_dependencies=true;
+    std::size_t max_observations=16;
   };
   struct Stats {
     std::uint64_t queued=0,active=0,waiting=0,queued_payload=0,active_payload=0,
       dependency_bytes=0,rejected=0,peak_queued=0,completed=0,queue_wait_ns=0,busy_ns=0,
       dependency_prepare_ns=0,dependency_rebuilds=0,dependency_cache_hits=0;
+    std::uint64_t queued_observations=0,completed_observations=0,rejected_observations=0,
+      dependency_budget_waits=0;
   };
  private:
   struct Job;
@@ -71,6 +74,7 @@ class ResumableActor {
     bool finished=false;
     bool dependencies_valid=false;
     std::uint64_t dependencies_epoch=0;
+    std::uint64_t required_dependency_bytes=0,required_dependency_epoch=0;
     std::coroutine_handle<> exclusive_continuation{};
     std::uint64_t payload=0;
     std::chrono::steady_clock::time_point queued;
@@ -110,6 +114,19 @@ class ResumableActor {
     std::promise<Result<T>> promise;
     std::optional<ActorTask<T>> task;
   };
+  struct Observation {
+    virtual ~Observation()=default;
+    virtual void Execute() noexcept=0;
+    std::unique_ptr<Observation> next;
+  };
+  template<class T,class Fn> struct TypedObservation final:Observation {
+    explicit TypedObservation(Fn f):fn(std::move(f)){}
+    void Execute() noexcept override {
+      try{promise.set_value(fn());}
+      catch(...){try{promise.set_value(CurrentError());}catch(...){std::terminate();}}
+    }
+    Fn fn;std::promise<Result<T>> promise;
+  };
   template<class T> struct BatchWait final:External {
     explicit BatchWait(std::size_t n){futures.reserve(n);results.reserve(n);}
     bool Ready() {
@@ -134,7 +151,8 @@ class ResumableActor {
     :options_(options),on_error_(std::move(observer)) {
     Require(options_.max_queued>0 && options_.max_queued<=1048576 &&
       options_.max_active>0 && options_.max_active<=1024 && options_.waiters>0 && options_.waiters<=64 &&
-      options_.payload_bytes>0 && options_.dependency_bytes>0,"invalid actor bounds");
+      options_.payload_bytes>0 && options_.dependency_bytes>0 &&
+      options_.max_observations>0 && options_.max_observations<=1024,"invalid actor bounds");
     active_.reserve(options_.max_active);scratch_.reserve(options_.max_queued);
     waiters_.reserve(options_.waiters);
     try {
@@ -176,6 +194,27 @@ class ResumableActor {
   }
   template<class T,class Fn> std::future<Result<T>> Submit(Fn fn,std::uint64_t payload=0) {
     return Submit<T>(std::move(fn),[]{return ActorResources{true,{}};},payload);
+  }
+  // Synchronous, read-only actor-state access. Observations run between actor
+  // events and cannot park, mutate state or acquire data-operation dependencies.
+  template<class T,class Fn> std::future<Result<T>> Observe(Fn fn) {
+    static_assert(!IsActorTask<std::invoke_result_t<Fn>>::value,
+      "observations must complete synchronously");
+    auto job=std::make_unique<TypedObservation<T,Fn>>(std::move(fn));
+    auto future=job->promise.get_future();
+    {
+      std::lock_guard lock(mutex_);
+      if(closed_ || stats_.queued_observations>=options_.max_observations) {
+        ++stats_.rejected_observations;
+        job->promise.set_value(Error{closed_?Error::Code::unavailable:Error::Code::capacity_exceeded,
+          closed_?"shard observation queue is closed":"shard observation queue is full"});
+        return future;
+      }
+      auto* tail=job.get();
+      if(observation_tail_)observation_tail_->next=std::move(job);else observation_head_=std::move(job);
+      observation_tail_=tail;++stats_.queued_observations;
+    }
+    changed_.notify_one();return future;
   }
   template<class T,class Producer> class AwaitBatch {
    public:
@@ -256,6 +295,10 @@ class ResumableActor {
     while(*link) {
       auto& candidate=**link;
       if(!options_.cache_dependencies || !candidate.dependencies_valid || candidate.dependencies_epoch!=dependency_epoch_) {
+        if(candidate.required_dependency_bytes && candidate.required_dependency_epoch==dependency_epoch_ &&
+           candidate.required_dependency_bytes>options_.dependency_bytes-stats_.dependency_bytes) {
+          ++stats_.dependency_budget_waits;scratch_.clear();return {};
+        }
         stats_.dependency_bytes-=candidate.resources.bytes();
         candidate.resources=ActorResources{};candidate.dependencies_valid=false;
         ActorResources resources;
@@ -279,14 +322,20 @@ class ResumableActor {
           failed->Reject({Error::Code::capacity_exceeded,"shard dependency budget exceeded"});continue;
         }
         if(bytes>options_.dependency_bytes-stats_.dependency_bytes) {
-          // Reclaim optional queued plans instead of rejecting accepted work.
-          // With active work, its next completion wakes this bounded scan.
-          for(auto* job=head_.get();job;job=job->next.get()) {
+          // Preserve the blocked FIFO prefix. Only younger optional plans can
+          // be reclaimed; rebuilding the whole prefix on every wake can starve
+          // completions and make large queues repeatedly sort the same rows.
+          for(auto* job=candidate.next.get();job &&
+              bytes>options_.dependency_bytes-stats_.dependency_bytes;job=job->next.get()) {
             stats_.dependency_bytes-=job->resources.bytes();job->resources=ActorResources{};
             job->dependencies_valid=false;
           }
-          scratch_.clear();return {};
+          if(bytes>options_.dependency_bytes-stats_.dependency_bytes) {
+            candidate.required_dependency_bytes=bytes;candidate.required_dependency_epoch=dependency_epoch_;
+            ++stats_.dependency_budget_waits;scratch_.clear();return {};
+          }
         }
+        candidate.required_dependency_bytes=0;
         candidate.resources=std::move(resources);stats_.dependency_bytes+=bytes;
         candidate.dependencies_valid=candidate.resources.cacheable;candidate.dependencies_epoch=dependency_epoch_;
       }else ++stats_.dependency_cache_hits;
@@ -317,29 +366,43 @@ class ResumableActor {
     }
   }
   void Run() {
+    bool observation_turn=true;
     for(;;) {
       std::coroutine_handle<> continuation{};std::unique_ptr<Job> next;Job* owner=nullptr;
+      std::unique_ptr<Observation> observation;
       {
         std::unique_lock lock(mutex_);
         for(;;) {
           if(wake_head_) {
             auto* ready=wake_head_;wake_head_=ready->next;if(!wake_head_)wake_tail_=nullptr;
-            ready->next=nullptr;continuation=ready->continuation;owner=ready->owner;--stats_.waiting;break;
+            ready->next=nullptr;continuation=ready->continuation;owner=ready->owner;--stats_.waiting;observation_turn=true;break;
           }
           if(active_.size()==1 && active_.front()->exclusive_continuation) {
             owner=active_.front().get();continuation=std::exchange(owner->exclusive_continuation,{});
-            --stats_.waiting;break;
+            --stats_.waiting;observation_turn=true;break;
           }
+          auto take_observation=[&]{
+            observation=std::move(observation_head_);observation_head_=std::move(observation->next);
+            if(!observation_head_)observation_tail_=nullptr;
+            --stats_.queued_observations;observation_turn=false;
+          };
+          if(observation_turn && observation_head_){take_observation();break;}
           const auto planning_begin=std::chrono::steady_clock::now();
           next=TakeRunnable();
           stats_.busy_ns+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-planning_begin).count();
-          if(next)break;
+          if(next){observation_turn=true;break;}
+          if(observation_head_){take_observation();break;}
           if(!active_.size() && head_)continue;
           if(closed_ && !head_ && active_.empty()) {
             waiters_stopping_=true;lock.unlock();waiter_changed_.notify_all();return;
           }
           changed_.wait(lock);
         }
+      }
+      if(observation) {
+        observation->Execute();
+        {std::lock_guard lock(mutex_);++stats_.completed_observations;}
+        continue;
       }
       auto begin=std::chrono::steady_clock::now();
       if(next) {
@@ -359,6 +422,7 @@ class ResumableActor {
   Options options_;std::function<void(const Error&)> on_error_;
   mutable std::mutex mutex_;std::condition_variable changed_,waiter_changed_;
   std::unique_ptr<Job> head_;Job* tail_=nullptr;
+  std::unique_ptr<Observation> observation_head_;Observation* observation_tail_=nullptr;
   std::vector<std::unique_ptr<Job>> active_;
   Job* executing_=nullptr;
   std::vector<Job*> scratch_;

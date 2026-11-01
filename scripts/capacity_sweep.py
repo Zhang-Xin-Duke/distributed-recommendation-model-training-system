@@ -41,6 +41,10 @@ def run_topology(args, count, root):
     telemetry = None
     stopped = threading.Event()
     sampler = None
+    def lifecycle(phase):
+        target=output/'lifecycle.json';temporary=target.with_suffix('.next')
+        temporary.write_text(json.dumps(dict(phase=phase,wall_time=time.time(),monotonic=time.monotonic()))+'\n')
+        temporary.replace(target)
     try:
         for agent, device in enumerate(args.devices[:count] if not args.external_agents else []):
             log = (output / f"agent-{agent}.log").open("w+")
@@ -93,6 +97,7 @@ def run_topology(args, count, root):
                    str(args.rows), str(args.dimension), str(args.keys), str(args.bag), args.learners,
                    str(args.seconds), str(args.repeats)]
         (output / "command.json").write_text(json.dumps(command, indent=2)+"\n")
+        lifecycle('running')
         with (output / "raw.jsonl").open("w") as result, (output / "probe.log").open("w+") as log:
             probe = subprocess.Popen(command, stdout=result, stderr=log,
                 env=dict(os.environ, EPS_CAPACITY_ACCESS_PATTERN=args.access_pattern))
@@ -118,6 +123,7 @@ def run_topology(args, count, root):
             print(path.name + ":\n" + path.read_text()[-3000:], file=sys.stderr)
         raise
     finally:
+        lifecycle('stopping')
         stopped.set()
         if sampler:
             sampler.join(timeout=2)

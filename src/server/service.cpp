@@ -35,7 +35,7 @@ class CpuParameterService::Impl {
           options_.shard_count, options_.partition_epoch, options_.state_bytes)),
         actor_({options_.max_queued_operations,options_.max_active_operations,
                 options_.completion_waiters,options_.queue_payload_bytes,options_.dependency_payload_bytes,
-                options_.cache_dependencies},
+                options_.cache_dependencies,options_.max_observation_operations},
           [this](const Error& error){if(error.code==Error::Code::run_failed)fatal_=error.message;}) {
     Require(!options_.run_id.empty() && options_.run_id.size() <= 1024, "invalid run ID");
     Require(options_.request_history >= 4 && options_.max_live_tickets > 0 &&
@@ -720,7 +720,7 @@ std::future<Result<Ack>> CpuParameterService::ResumeCheckpoint(CheckpointIdentit
   });
 }
 std::future<Result<RuntimeStats>> CpuParameterService::Stats() {
-  return impl_->SubmitIndependent<RuntimeStats>([this]{
+  return impl_->actor_.Observe<RuntimeStats>([this]{
     auto s=impl_->stats_;auto scheduling=impl_->actor_.Snapshot();
     s.rows=impl_->store_->rows();s.state_bytes=impl_->store_->bytes();
     s.live_tickets=impl_->tickets_.size();s.ticket_payload_bytes=impl_->ticket_payload_bytes_;
@@ -733,8 +733,10 @@ std::future<Result<RuntimeStats>> CpuParameterService::Stats() {
     s.active_payload_bytes=scheduling.active_payload;s.dependency_payload_bytes=scheduling.dependency_bytes;
     s.dependency_prepare_nanoseconds=scheduling.dependency_prepare_ns;
     s.dependency_rebuilds=scheduling.dependency_rebuilds;s.dependency_cache_hits=scheduling.dependency_cache_hits;
+    s.queued_observations=scheduling.queued_observations;s.completed_observations=scheduling.completed_observations;
+    s.rejected_observations=scheduling.rejected_observations;s.dependency_budget_waits=scheduling.dependency_budget_waits;
     return s;
-  },[]{return detail::ActorResources{};});
+  });
 }
 std::future<Result<Ack>> CpuParameterService::AttachAgent(AgentId id,std::shared_ptr<CacheBackend> backend) {
   return impl_->Submit<Ack>([this,id,backend=std::move(backend)]()->detail::ActorTask<Ack>{

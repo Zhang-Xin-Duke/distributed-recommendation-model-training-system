@@ -30,6 +30,7 @@ struct RuntimeOptions {
   std::uint32_t completion_waiters = 4;
   std::uint64_t dependency_payload_bytes = 64ULL << 20;
   bool cache_dependencies = true;
+  std::uint32_t max_observation_operations = 16;
 };
 
 struct RuntimeStats {
@@ -75,6 +76,10 @@ struct RuntimeStats {
   std::uint64_t dependency_prepare_nanoseconds = 0;
   std::uint64_t dependency_rebuilds = 0;
   std::uint64_t dependency_cache_hits = 0;
+  std::uint64_t queued_observations = 0;
+  std::uint64_t completed_observations = 0;
+  std::uint64_t rejected_observations = 0;
+  std::uint64_t dependency_budget_waits = 0;
 };
 
 // A bounded single-owner actor. Independent operations may run during external

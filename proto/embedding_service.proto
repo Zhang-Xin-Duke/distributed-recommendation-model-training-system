@@ -271,6 +271,10 @@ message StatsReply {
   uint64 dependency_prepare_nanoseconds = 41;
   uint64 dependency_rebuilds = 42;
   uint64 dependency_cache_hits = 43;
+  uint64 queued_observations = 44;
+  uint64 completed_observations = 45;
+  uint64 rejected_observations = 46;
+  uint64 dependency_budget_waits = 47;
 }
 
 message RowKey { uint32 table_id = 1; uint64 key = 2; }
