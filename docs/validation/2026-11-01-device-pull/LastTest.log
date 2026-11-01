@@ -1,0 +1,598 @@
+Start testing: Nov 01 08:23 UTC
+----------------------------------------------------------
+1/33 Testing: in_process_worker_lifecycle
+1/33 Test: in_process_worker_lifecycle
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_worker_agent_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"in_process_worker_lifecycle" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+W1101 08:23:16.506015  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:16.508739  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=46141.
+I1101 08:23:16.509036  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:46141 in web browser.
+I1101 08:23:16.516531  4548     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 08:23:16.548706  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:16.550014  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=46141.
+I1101 08:23:16.550026  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:46141 in web browser.
+I1101 08:23:16.647519  4535 4294969856 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:46141} (0x573e84a39300)
+I1101 08:23:16.647880  4539 4294969856 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/socket.cpp:2645 AfterRevived] Revived Socket{id=1 addr=127.0.0.1:46141} (0x573e84a39300) (Connectable)
+I1101 08:23:16.652700  4527     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"in_process_worker_lifecycle","shared_local_rpc_admission":true,"drained_on_stop":true,"backend_released":true,"endpoint_reused":true}
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"in_process_worker_lifecycle" end time: Nov 01 08:23 UTC
+"in_process_worker_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/33 Testing: distributed_device_pull_cuda
+2/33 Test: distributed_device_pull_cuda
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_device_pull_cuda"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"distributed_device_pull_cuda" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+W1101 08:23:17.706659  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:17.711547  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=41015.
+I1101 08:23:17.711695  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:41015 in web browser.
+W1101 08:23:17.722652  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:17.724671  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=35065.
+I1101 08:23:17.724686  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:35065 in web browser.
+I1101 08:23:18.204472  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 08:23:18.206007  4552     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 08:23:18.305323  4644 4294971136 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=3 addr=127.0.0.1:41015} (0x59ae53cd6e80)
+I1101 08:23:18.306603  4648 4294971137 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=2 addr=127.0.0.1:35065} (0x59ae53cd6b80)
+{"test":"distributed_device_pull","backend":"cuda","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   4.52 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_cuda" end time: Nov 01 08:23 UTC
+"distributed_device_pull_cuda" time elapsed: 00:00:04
+----------------------------------------------------------
+
+3/33 Testing: native_worker_cuda_stream
+3/33 Test: native_worker_cuda_stream
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_worker_agent_cuda"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"native_worker_cuda_stream" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+W1101 08:23:21.923351  4719     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:21.928105  4719     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=39837.
+I1101 08:23:21.928302  4719     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:39837 in web browser.
+I1101 08:23:22.184258  4719     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"native_worker_cuda_stream","model_stream":"nondefault","remote_control_local_device_reads":true,"full_optimizer_rows_checked":2,"output_budget_enforced":true,"result_outlives_worker":true}
+<end of output>
+Test time =   4.29 sec
+----------------------------------------------------------
+Test Passed.
+"native_worker_cuda_stream" end time: Nov 01 08:23 UTC
+"native_worker_cuda_stream" time elapsed: 00:00:04
+----------------------------------------------------------
+
+4/33 Testing: agent_rpc_admission_queue
+4/33 Test: agent_rpc_admission_queue
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_agent_rpc_admission_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"agent_rpc_admission_queue" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+W1101 08:23:25.507320  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:25.510184  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=41557.
+I1101 08:23:25.510478  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:41557 in web browser.
+I1101 08:23:25.527659  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 08:23:25.529191  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:25.530077  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=34487.
+I1101 08:23:25.530085  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:34487 in web browser.
+I1101 08:23:25.533337  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 08:23:25.534145  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 08:23:25.534304  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=38805.
+I1101 08:23:25.534310  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-7f455uvm-main:38805 in web browser.
+I1101 08:23:25.553173  4851     0 /home/ubuntu/dps-device-pull/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"agent_rpc_admission_burst","independent_clients":8,"requests":256,"active_limit":4,"observed_queued":252,"rejected":0,"state_unchanged":true}
+{"test":"agent_rpc_admission_limits","count_and_byte_rejections":2,"rejected_before_execution":true,"state_unchanged":true}
+{"test":"agent_rpc_admission_optimizer_state","home_streams":8,"updates":256,"host_updates":128,"compact_updates":128,"full_rows_checked":8,"optimizer_state_exact":true,"evicted_rows":8}
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"agent_rpc_admission_queue" end time: Nov 01 08:23 UTC
+"agent_rpc_admission_queue" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/33 Testing: agent_admission_cli
+5/33 Test: agent_admission_cli
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/agent_admission_cli.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"agent_admission_cli" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+{"test": "agent_admission_cli", "active_limit": 2, "pending_limit": 64, "request_bytes_limit": 65536, "http_statistics_verified": true, "oversized_statistics_payload_rejected": true, "invalid_active_limits_rejected": [0, 129]}
+<end of output>
+Test time =   0.20 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_cli" end time: Nov 01 08:23 UTC
+"agent_admission_cli" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/33 Testing: automatic_cache_external_shards
+6/33 Test: automatic_cache_external_shards
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/cache_policy_processes.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_server" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"automatic_cache_external_shards" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.63 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_external_shards" end time: Nov 01 08:23 UTC
+"automatic_cache_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/33 Testing: cache_policy_fixed_trace_smoke
+7/33 Test: cache_policy_fixed_trace_smoke
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/cache_policy_trace_processes.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_policy_probe"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"cache_policy_fixed_trace_smoke" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+<end of output>
+Test time =   4.06 sec
+----------------------------------------------------------
+Test Passed.
+"cache_policy_fixed_trace_smoke" end time: Nov 01 08:23 UTC
+"cache_policy_fixed_trace_smoke" time elapsed: 00:00:04
+----------------------------------------------------------
+
+8/33 Testing: automatic_cache_coalesced_external_shards
+8/33 Test: automatic_cache_coalesced_external_shards
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/cache_policy_processes.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_server" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"automatic_cache_coalesced_external_shards" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.56 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_coalesced_external_shards" end time: Nov 01 08:23 UTC
+"automatic_cache_coalesced_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/33 Testing: rpc_cache_backpressure
+9/33 Test: rpc_cache_backpressure
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/overload_processes.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_server" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_agent" "/home/ubuntu/dps-device-pull/build-cuda/eps_overload_checks"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"rpc_cache_backpressure" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+{"test":"rpc_cache_backpressure","configured_live_ticket_limit":32,"offered":64,"admitted":32,"rejected":32,"retry_after_release":true,"state_preserved":true}
+<end of output>
+Test time =   1.48 sec
+----------------------------------------------------------
+Test Passed.
+"rpc_cache_backpressure" end time: Nov 01 08:23 UTC
+"rpc_cache_backpressure" time elapsed: 00:00:01
+----------------------------------------------------------
+
+10/33 Testing: capacity_failed_point_diagnostics
+10/33 Test: capacity_failed_point_diagnostics
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/capacity_failure_processes.py" "/home/ubuntu/dps-device-pull/build-cuda"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"capacity_failed_point_diagnostics" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+{"acknowledged_steps_before_failure": 332, "after_health_probe_shards": [{"active_operations": 1, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 335, "waiting_operations": 0}], "agent_admission": [{"accepted_requests": 708, "active_limit": 32, "active_operations": 0, "agent": 0, "completed_requests": 708, "dispatch_failures": 0, "peak_active_operations": 1, "peak_pending_operations": 1, "peak_request_bytes": 127531, "pending_limit": 4096, "pending_request_bytes": 0, "queue_wait_nanoseconds": 32536178, "queued_operations": 0, "rejected_requests": 0, "request_bytes_limit": 268435456}], "dimension": 16, "elapsed_seconds": 1.00324942, "error": "live ticket limit reached", "errors": 15, "fresh_read_only_probe": {"completed": true, "finite": true}, "gpu_agents": 1, "keys_per_step": 128, "learners": 16, "optimizer_trajectory_verified": false, "post_failure_shards": [{"active_operations": 1, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 335, "waiting_operations": 0}], "ps_shards": 1, "repeat": 0, "rows": 1024, "sampled_state": {"checked_rows": 16, "completed": true, "finite": true}, "test": "distributed_sparse_training_overload"}
+<end of output>
+Test time =   1.25 sec
+----------------------------------------------------------
+Test Passed.
+"capacity_failed_point_diagnostics" end time: Nov 01 08:23 UTC
+"capacity_failed_point_diagnostics" time elapsed: 00:00:01
+----------------------------------------------------------
+
+11/33 Testing: two_process_rpc_and_restore
+11/33 Test: two_process_rpc_and_restore
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/rpc_processes.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_server" "/home/ubuntu/dps-device-pull/build-cuda/eps_rpc_checks"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"two_process_rpc_and_restore" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   0.44 sec
+----------------------------------------------------------
+Test Passed.
+"two_process_rpc_and_restore" end time: Nov 01 08:23 UTC
+"two_process_rpc_and_restore" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/33 Testing: cache_agent_process_lifecycle
+12/33 Test: cache_agent_process_lifecycle
+Command: "/home/ubuntu/dps-device-pull/environment/bin/python" "/home/ubuntu/dps-device-pull/source/tests/cache_rpc_processes.py" "/home/ubuntu/dps-device-pull/build-cuda/eps_server" "/home/ubuntu/dps-device-pull/build-cuda/eps_rpc_checks" "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"cache_agent_process_lifecycle" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+CACHE_BACKEND=cuda
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   3.11 sec
+----------------------------------------------------------
+Test Passed.
+"cache_agent_process_lifecycle" end time: Nov 01 08:23 UTC
+"cache_agent_process_lifecycle" time elapsed: 00:00:03
+----------------------------------------------------------
+
+13/33 Testing: distributed_device_pull_protocol
+13/33 Test: distributed_device_pull_protocol
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_device_pull_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"distributed_device_pull_protocol" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+{"test":"distributed_device_pull","backend":"cpu_protocol_reference","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_protocol" end time: Nov 01 08:23 UTC
+"distributed_device_pull_protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/33 Testing: agent_admission_lifecycle
+14/33 Test: agent_admission_lifecycle
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_agent_admission_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"agent_admission_lifecycle" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+Agent admission: FIFO, completion lifetime, count/byte limits, exception cleanup and shutdown passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_lifecycle" end time: Nov 01 08:23 UTC
+"agent_admission_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/33 Testing: core_correctness
+15/33 Test: core_correctness
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_core_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"core_correctness" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS pooling and sparse update
+PASS sequence and pinned rows
+PASS invalid update is retryable
+PASS drain and exact optimizer restore
+PASS corrupt snapshot
+PASS partitioning and initializer
+PASS mixed request history
+PASS resource bounds and epoch
+PASS ticket and queue payload limits
+PASS concurrent Learner lifecycles
+PASS numeric rejection without partial updates
+PASS out-of-order lifecycle retirement
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"core_correctness" end time: Nov 01 08:23 UTC
+"core_correctness" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/33 Testing: cost_and_migration_policies
+16/33 Test: cost_and_migration_policies
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_planner_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"cost_and_migration_policies" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS cost model, hysteresis, reuse admission and migration budgets
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"cost_and_migration_policies" end time: Nov 01 08:23 UTC
+"cost_and_migration_policies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/33 Testing: cache_ownership_and_updates
+17/33 Test: cache_ownership_and_updates
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"cache_ownership_and_updates" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS host-reference cache lifecycle, mixed updates, row pins, generations and drain/restore
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"cache_ownership_and_updates" end time: Nov 01 08:23 UTC
+"cache_ownership_and_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/33 Testing: automatic_cache_policy_lifecycle
+18/33 Test: automatic_cache_policy_lifecycle
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_cache_policy_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"automatic_cache_policy_lifecycle" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS automatic cache hot-set replacement, pins, budgets, bounded history, retries, fallback and optimizer restore
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_policy_lifecycle" end time: Nov 01 08:23 UTC
+"automatic_cache_policy_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/33 Testing: agent_control_replay
+19/33 Test: agent_control_replay
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_agent_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"agent_control_replay" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS agent control replay, retired command rejection and acknowledged eviction
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"agent_control_replay" end time: Nov 01 08:23 UTC
+"agent_control_replay" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/33 Testing: embedding_adapter_lifecycle
+20/33 Test: embedding_adapter_lifecycle
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_adapter_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"embedding_adapter_lifecycle" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS embedding adapter padding, mean/sequence gradients, completion and replay
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"embedding_adapter_lifecycle" end time: Nov 01 08:23 UTC
+"embedding_adapter_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/33 Testing: service_phase_timing
+21/33 Test: service_phase_timing
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_phase_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"service_phase_timing" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS sequencer phase times: CPU/mixed ownership, migration, maintenance and duplicate exclusion
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"service_phase_timing" end time: Nov 01 08:23 UTC
+"service_phase_timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/33 Testing: bounded_asynchronous_preparation
+22/33 Test: bounded_asynchronous_preparation
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_preparation_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"bounded_asynchronous_preparation" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS bounded preparation: FIFO/cancellation, RPC overlap, update-read boundary, three-shard optimizer replay, save and ticket cleanup
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_asynchronous_preparation" end time: Nov 01 08:23 UTC
+"bounded_asynchronous_preparation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/33 Testing: periodic_checkpoint_lifecycle
+23/33 Test: periodic_checkpoint_lifecycle
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_periodic_checkpoint_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"periodic_checkpoint_lifecycle" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS repeated checkpoints, chunked export, monotonic identities, exact restore trajectory and partial-save fencing
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"periodic_checkpoint_lifecycle" end time: Nov 01 08:23 UTC
+"periodic_checkpoint_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/33 Testing: restored_snapshot_provenance
+24/33 Test: restored_snapshot_provenance
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_restore_provenance_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"restored_snapshot_provenance" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS validated restore provenance, pristine admission boundary and failed-load publication
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"restored_snapshot_provenance" end time: Nov 01 08:23 UTC
+"restored_snapshot_provenance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/33 Testing: bounded_sparse_optimizer
+25/33 Test: bounded_sparse_optimizer
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_weight_bounds_tests" "/home/ubuntu/dps-device-pull/source/tests/fixtures/snapshot-v1-unbounded.bin"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"bounded_sparse_optimizer" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS bounded initialization, Adam moments, mixed-owner updates and snapshot metadata
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_sparse_optimizer" end time: Nov 01 08:23 UTC
+"bounded_sparse_optimizer" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/33 Testing: resumable_actor_dependencies
+26/33 Test: resumable_actor_dependencies
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_resumable_actor_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"resumable_actor_dependencies" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS resumable actor: independent progress, FIFO conflicts, barriers, bounded admission, nested continuations and drain
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_actor_dependencies" end time: Nov 01 08:23 UTC
+"resumable_actor_dependencies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/33 Testing: resumable_shard_operations
+27/33 Test: resumable_shard_operations
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"resumable_shard_operations" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_shard_operations" end time: Nov 01 08:23 UTC
+"resumable_shard_operations" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/33 Testing: concurrent_multi_agent_updates
+28/33 Test: concurrent_multi_agent_updates
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_multi_agent_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"concurrent_multi_agent_updates" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS concurrent independent owners and sequential per-agent multi-table contexts
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"concurrent_multi_agent_updates" end time: Nov 01 08:23 UTC
+"concurrent_multi_agent_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/33 Testing: coalesced_cross_shard_gathers
+29/33 Test: coalesced_cross_shard_gathers
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_coalesced_gather_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"coalesced_cross_shard_gathers" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS coalesced two-shard/three-agent gathers, mixed routes, parallel dispatch, optimizer trajectory and failure cleanup
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"coalesced_cross_shard_gathers" end time: Nov 01 08:23 UTC
+"coalesced_cross_shard_gathers" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/33 Testing: compact_feature_gradient_semantics
+30/33 Test: compact_feature_gradient_semantics
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_compact_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"compact_feature_gradient_semantics" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS compact gradient ordering, pooling, sequence, payload reduction and validation
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"compact_feature_gradient_semantics" end time: Nov 01 08:23 UTC
+"compact_feature_gradient_semantics" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/33 Testing: resumable_cuda_shard_operations
+31/33 Test: resumable_cuda_shard_operations
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"resumable_cuda_shard_operations" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   4.21 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_cuda_shard_operations" end time: Nov 01 08:23 UTC
+"resumable_cuda_shard_operations" time elapsed: 00:00:04
+----------------------------------------------------------
+
+32/33 Testing: cuda_state_and_device_results
+32/33 Test: cuda_state_and_device_results
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_cuda_tests"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"cuda_state_and_device_results" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
+<end of output>
+Test time =   4.26 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_state_and_device_results" end time: Nov 01 08:23 UTC
+"cuda_state_and_device_results" time elapsed: 00:00:04
+----------------------------------------------------------
+
+33/33 Testing: cuda_concurrent_checked_reads
+33/33 Test: cuda_concurrent_checked_reads
+Command: "/home/ubuntu/dps-device-pull/build-cuda/eps_cuda_stress"
+Directory: /home/ubuntu/dps-device-pull/build-cuda
+"cuda_concurrent_checked_reads" start time: Nov 01 08:23 UTC
+Output:
+----------------------------------------------------------
+{"test":"cuda_checked_read_stress","rows":262144,"dimension":128,"workers":8,"checked_batches":512,"key_occurrences":2097152,"weight_working_set_bytes":134217728,"maximum_absolute_error":0,"device_memory_growth_bytes":267386880,"backend_state_bytes":402653184,"backend_staging_bytes":50331652,"read_phase_output_allocations":0,"wall_seconds_including_reference_checks":0.936063}
+<end of output>
+Test time =   6.27 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_concurrent_checked_reads" end time: Nov 01 08:23 UTC
+"cuda_concurrent_checked_reads" time elapsed: 00:00:06
+----------------------------------------------------------
+
+End testing: Nov 01 08:23 UTC

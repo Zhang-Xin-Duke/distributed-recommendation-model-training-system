@@ -1,0 +1,14 @@
+{
+  "test": "distributed_device_pull",
+  "backend": "cpu_protocol_reference",
+  "shards": 2,
+  "training_steps": 5,
+  "full_optimizer_rows_per_step": 8,
+  "features_per_step": 7,
+  "prepared_inputs": 2,
+  "native_parts": 30,
+  "remote_parts": 10,
+  "mid_run_save_resume": true,
+  "assembly_failure_tickets_released": true,
+  "resolver_failure_drained": true
+}

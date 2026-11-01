@@ -18,7 +18,7 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 |---|---|
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
-| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native original-application/reader execution, multi-peer framework barriers and device interop pending |
+| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; complete native device/prepared-device Pull, global GPU reconstruction and original handle lifecycle verified; native original-application/reader execution, multi-peer framework barriers and TensorFlow device operator pending |
 | 4. GPU cache agent | Standalone CUDA resident gather/Adam, full-state transfer, fencing and restore verified; native worker owner, shared local/RPC admission and model-stream device contributions verified on A6000; original-worker installation and TensorFlow device operator remain pending |
 | 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked; Agent-wide count/byte admission and real 128/192-Learner CUDA backpressure now verified |
 
@@ -216,3 +216,24 @@ and reader execution, and multi-peer framework barriers remain in phases 3/4.
 
 [Worker API](../WORKER_AGENT.md) ·
 [Validation](../validation/2026-11-01-worker-agent.json)
+
+
+## Complete device feature Pull — November 1
+
+At `9353800`, the native adapter returns complete model features on CUDA while
+retaining the original handle lifecycle. Projected native contributions remain on
+device; CPU and remote-host contributions join them in the final assembly. Mean
+denominators apply once, sequence output projections restore padding and Push
+compacts padded gradients. Prepared-device Pull uses the existing input queue.
+The A6000 test compares five steps, seven feature layouts and all eight touched
+optimizer rows with CPU replay; a native CUDA model kernel produces feature
+gradients. Mid-run save/resume, retained outputs, read-error draining and
+output-budget failure cleanup pass. Native 28/28, TensorFlow 42/42, ASan/UBSan
+18/18 and Ubuntu CPU/CUDA 33/33 pass. Artifacts are retrieved and the GPU deleted.
+
+This supplies the native feature boundary required by a framework device
+operator. Original-worker/operator installation, original application/reader and
+multi-peer framework execution remain in the main scope.
+
+[Design and API](../DEVICE_PULL.md) ·
+[Verification](../validation/2026-11-01-device-pull.json)

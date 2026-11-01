@@ -1,0 +1,61 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+      Start  1: in_process_worker_lifecycle
+ 1/28 Test  #1: in_process_worker_lifecycle .................   Passed    0.39 sec
+      Start  2: agent_rpc_admission_queue
+ 2/28 Test  #2: agent_rpc_admission_queue ...................   Passed    0.27 sec
+      Start  3: agent_admission_cli
+ 3/28 Test  #3: agent_admission_cli .........................   Passed    0.59 sec
+      Start  4: automatic_cache_external_shards
+ 4/28 Test  #4: automatic_cache_external_shards .............   Passed    1.95 sec
+      Start  5: cache_policy_fixed_trace_smoke
+ 5/28 Test  #5: cache_policy_fixed_trace_smoke ..............   Passed   10.26 sec
+      Start  6: automatic_cache_coalesced_external_shards
+ 6/28 Test  #6: automatic_cache_coalesced_external_shards ...   Passed    1.67 sec
+      Start  7: rpc_cache_backpressure
+ 7/28 Test  #7: rpc_cache_backpressure ......................   Passed    0.57 sec
+      Start  8: capacity_failed_point_diagnostics
+ 8/28 Test  #8: capacity_failed_point_diagnostics ...........   Passed    1.60 sec
+      Start  9: two_process_rpc_and_restore
+ 9/28 Test  #9: two_process_rpc_and_restore .................   Passed    1.21 sec
+      Start 10: cache_agent_process_lifecycle
+10/28 Test #10: cache_agent_process_lifecycle ...............   Passed    1.32 sec
+      Start 11: distributed_device_pull_protocol
+11/28 Test #11: distributed_device_pull_protocol ............   Passed    0.20 sec
+      Start 12: agent_admission_lifecycle
+12/28 Test #12: agent_admission_lifecycle ...................   Passed    0.15 sec
+      Start 13: core_correctness
+13/28 Test #13: core_correctness ............................   Passed    0.13 sec
+      Start 14: cost_and_migration_policies
+14/28 Test #14: cost_and_migration_policies .................   Passed    0.08 sec
+      Start 15: cache_ownership_and_updates
+15/28 Test #15: cache_ownership_and_updates .................   Passed    0.14 sec
+      Start 16: automatic_cache_policy_lifecycle
+16/28 Test #16: automatic_cache_policy_lifecycle ............   Passed    0.13 sec
+      Start 17: agent_control_replay
+17/28 Test #17: agent_control_replay ........................   Passed    0.07 sec
+      Start 18: embedding_adapter_lifecycle
+18/28 Test #18: embedding_adapter_lifecycle .................   Passed    0.12 sec
+      Start 19: service_phase_timing
+19/28 Test #19: service_phase_timing ........................   Passed    0.13 sec
+      Start 20: bounded_asynchronous_preparation
+20/28 Test #20: bounded_asynchronous_preparation ............   Passed    0.12 sec
+      Start 21: periodic_checkpoint_lifecycle
+21/28 Test #21: periodic_checkpoint_lifecycle ...............   Passed    0.13 sec
+      Start 22: restored_snapshot_provenance
+22/28 Test #22: restored_snapshot_provenance ................   Passed    0.10 sec
+      Start 23: bounded_sparse_optimizer
+23/28 Test #23: bounded_sparse_optimizer ....................   Passed    0.12 sec
+      Start 24: resumable_actor_dependencies
+24/28 Test #24: resumable_actor_dependencies ................   Passed    0.26 sec
+      Start 25: resumable_shard_operations
+25/28 Test #25: resumable_shard_operations ..................   Passed    0.27 sec
+      Start 26: concurrent_multi_agent_updates
+26/28 Test #26: concurrent_multi_agent_updates ..............   Passed    0.13 sec
+      Start 27: coalesced_cross_shard_gathers
+27/28 Test #27: coalesced_cross_shard_gathers ...............   Passed    0.14 sec
+      Start 28: compact_feature_gradient_semantics
+28/28 Test #28: compact_feature_gradient_semantics ..........   Passed    0.07 sec
+
+100% tests passed, 0 tests failed out of 28
+
+Total Test time (real) =  22.35 sec

@@ -97,6 +97,14 @@ The supplied Python bridge currently consumes host-returning contributions;
 native TensorFlow CUDA kernels and device-tensor interop remain a separate
 integration task.
 
+The C++ adapter also provides `SetDevicePath`, `PullDevice` and
+`PullPreparedDevice`. [Device Pull](../../docs/DEVICE_PULL.md) combines native
+device and CPU/remote contributions on the model GPU, applies complete mean
+denominators and restores padded sequence rows. Its ordinary handle closes with
+the same Push/Release/Join operations; padded sequence gradients are compacted
+before the existing sparse update path. This native path is verified with a CUDA
+model-gradient kernel and a complete CPU-reference optimizer trajectory.
+
 ## Checkpoint boundary
 
 Close input, complete the framework's train/save barrier and call `save`.

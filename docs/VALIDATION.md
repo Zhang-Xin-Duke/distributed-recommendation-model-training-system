@@ -1,5 +1,38 @@
 # Validation record
 
+## Complete device Pull — November 1, 2026
+
+Source `9353800` adds destination-projected device reads and CUDA assembly to the
+distributed client and C++ TableAdapter. Local device blocks, CPU parameters and
+host-returning remote Agent contributions produce complete device features;
+global mean normalization and padded sequence reconstruction execute on CUDA.
+Device and prepared-device Pull retain ordinary Push/Release/Join handles.
+
+The native suite passes **28/28**, native/TensorFlow **42/42**, core ASan/UBSan
+**18/18**, and Ubuntu CPU/CUDA **33/33**. The A6000 scenario uses two CPU shard
+objects, two in-process Worker Agents with real BRPC control/remote gather, and
+the native device resolver for the model-local Agent. It covers seven feature
+layouts over five training steps, repeated IDs, means, empty bags, all-padding
+and empty sequences, mixed resident/CPU-pool/unique-transfer routes, two prepared
+inputs and mid-run save/resume with cache writeback/reload.
+
+Each step compares all complete features and all eight touched rows' weights,
+both Adam moments and update counters with CPU replay (absolute tolerance 5e-6).
+A CUDA model kernel consumes assembled features on a nondefault stream to
+generate gradients; the existing host/RPC Push acknowledges updates. Thirty
+native-device contributions and ten remote-host contributions enter assembly.
+Retained initial outputs survive later training and save/reload. A held native
+read verifies error draining; a real output-budget rejection leaves zero live
+lookup tickets and zero charged output. These checks establish a native device
+training boundary. Original framework device-operator/application execution and
+cross-node model execution remain separate requirements.
+
+All results and source/archive/binary hashes are retrieved before deleting the
+single rented A6000; final account inventory is empty.
+
+[Device Pull design](DEVICE_PULL.md) ·
+[Structured results and raw logs](validation/2026-11-01-device-pull.json)
+
 ## Native in-process worker Agent — November 1, 2026
 
 Runtime `e88ce65` adds a worker-owned Agent listener, runtime and injected cache

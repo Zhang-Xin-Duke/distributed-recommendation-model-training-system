@@ -17,6 +17,9 @@ GPU cache agent 在显存中保存权重和 Adam 状态，完成查找、聚合�
 `WorkerCacheAgent` 可由依赖兼容的原生训练进程直接持有，也提供独立进程入口；两者通过同一 BRPC 接口接入参数分片。
 本地设备读取与远端控制共用准入队列和有序执行器；返回的设备结果独立持有显存，供模型 stream 消费。
 [原生 Worker 接入与生命周期](WORKER_AGENT.md) 说明接口、关闭顺序和 TensorFlow 原生设备接入范围。
+原生 C++ 适配器的 `PullDevice` 可将 CPU、本地 GPU 与远端 Agent 的贡献在模型 GPU 上合并，
+完成全局 mean 归一化和 sequence padding 还原，再沿用现有句柄回传梯度；
+`PullPreparedDevice` 复用输入预准备队列。[设备端完整特征路径](DEVICE_PULL.md) 已通过真实 CUDA 训练轨迹对照。
 TensorFlow 适配层已提供 Pull/Push/Join 的 host callback 路径，保留原模型与 dense 优化器。
 
 这样，参数服务可以独立启动、分配 CPU/内存和扩容；训练模型保持原有运行方式。

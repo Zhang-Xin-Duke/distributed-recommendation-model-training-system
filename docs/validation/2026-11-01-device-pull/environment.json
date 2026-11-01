@@ -1,0 +1,29 @@
+{
+  "os": "Linux-6.17.0-35-generic-x86_64-with-glibc2.35",
+  "hardware": "GPU-9572d83b-f310-5d61-a6d5-979cd2faa35b, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+  "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "source_sha256": {
+    "CMakeLists.txt": "1e63f105521501ad643763328919006808eee54628fcfecd5c81ab4f4af5680d",
+    "include/eps/device_features.hpp": "78f2fe952765a537cfef3860558319c201fd32bdc36ba62eaefd10b509647328",
+    "include/eps/distributed_client.hpp": "6855d4e0ba7e13740309cc15eaa695121b7641f942aaf0fc83bef515e338479d",
+    "include/eps/entropy_adapter.hpp": "363a29614cbe6fb4433e44608f2e232beeeb59155cab31dc1ac2615adecc123b",
+    "include/eps/cache_resolver.hpp": "1af350c7f21e06156ae536f9badf21a03063f570d3249f64500ac58af0bd901a",
+    "include/eps/cuda_cache_backend.hpp": "f8c82296ecf2cc5fe87c458a4f1230603d1f379917b1f3442d8d07c85e53c5d3",
+    "src/client/distributed_client.cpp": "4b19c8cd71eb53a5e5c428e96d2f12298ac212bbad929388aa4eb5d131d1b2c9",
+    "src/client/cache_resolver.cpp": "b4e930a8f1643b9c66dd2e8210d27a67c1c48b998313e146634a3111c93a2381",
+    "src/cuda/cache_backend.cu": "f66f0ab74cd4b3be86acab1bb2c6703a9c26464cce34c2ad451d69536ed21f32",
+    "adapters/entropy/table_adapter.cpp": "c76e048453675f87e1f05ff06084da7531056641e4e2aad74353150b926f7236",
+    "tests/device_pull_tests.cpp": "56e0e9880d1724d02c626cb6c97327cd4d91a5aca9dfabeea602788603075d38",
+    "tests/device_pull_model.cu": "e17a4997e35ef65fe3d46bf120d33004629012696f5e1340ff8ed285d0a3d3a1"
+  },
+  "source_archive_sha256": "dacaac8a7d6971d3a6d99987054757cbd676dc2d1cd7471708febfd25da89894",
+  "binary_sha256": {
+    "eps_device_pull_cuda": "10f28974c4088db89be224e9f2c92f0bdbc5f3d77897bebfae760090a127453d",
+    "eps_device_pull_tests": "f11a9427c44fb5176a0538585682a83a8003029ad4e8dcc40e0db7b309b22ec7",
+    "eps_cache_agent": "393467a4bf2f89e97ad52fe1e857163dcc239ab38df68821922b904ddc62adc8"
+  },
+  "ld_preload_environment_present": false,
+  "cuda_architecture": 86,
+  "fused_multiply_add": false,
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n"
+}

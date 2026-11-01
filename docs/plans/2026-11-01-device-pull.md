@@ -48,3 +48,17 @@ the host baseline; the new path assembles local device contributions on CUDA.
 The native device path supplies complete model features. Framework loss/dense
 collectives remain unchanged. Backward still submits feature gradients through
 the existing acknowledged host/RPC update path. No throughput gain is assumed.
+
+
+## Execution record
+
+Implemented at `9353800`. Native CPU/RPC 28/28, native/TensorFlow 42/42 and core
+ASan/UBSan 18/18 pass. The Ubuntu CPU/CUDA suite passes 33/33 on one RTX A6000.
+Both the CPU protocol reference and CUDA device trajectory complete five steps,
+seven features and eight full optimizer rows per step; two prepared inputs,
+mid-run save/resume, mixed native/remote routing and failure cleanup pass.
+The CUDA model kernel consumes final device features directly. Source/binary
+hashes and raw logs are retained and the rental is deleted after retrieval.
+
+[Results](../validation/2026-11-01-device-pull.json). Native framework device
+operator and original application/reader/multi-peer execution remain open.

@@ -13,8 +13,10 @@ recommendation, advertising, knowledge graphs, graph learning and word-embedding
 models.
 
 A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
-process and exposes owned device contributions to its model stream. The standalone
-Agent executable uses the same ownership and admission path.
+process. [Device Pull](docs/DEVICE_PULL.md) combines CPU, native CUDA and remote
+Agent contributions into complete model features on GPU, including global mean
+normalization and padded sequences. It retains the existing Pull/Push/Join
+handles; the standalone Agent uses the same worker ownership and admission path.
 
 A Pull/Push/Join adapter connects embedding operations to an existing training
 framework. The supplied TensorFlow bridge uses stateful host callbacks and an
@@ -54,9 +56,11 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 acknowledged updates / 736 sampled row-counter checks**, with zero update errors,
 zero admission rejections and zero remaining tickets in completed records.
 Maximum preflight feature error is **3.91e-8**. The latest native/TensorFlow suite
-passes **41/41**; the native CPU/CUDA suite passes **31/31**, including in-process
-worker ownership and model-stream device reads.
-[Native worker verification](docs/validation/2026-11-01-worker-agent.json).
+passes **42/42**; the native CPU/CUDA suite passes **33/33**. Device Pull follows
+five training steps across two shards and mixed native/remote cache paths,
+comparing complete features and all touched optimizer rows with CPU replay.
+The core ASan/UBSan suite passes **18/18**.
+[Device Pull verification](docs/validation/2026-11-01-device-pull.json).
 The admission component passes ASan/UBSan and
 ThreadSanitizer checks. [Validation index](docs/validation/2026-11-01-agent-admission.json).
 The [validation record](docs/VALIDATION.md) retains the scope and provenance of
