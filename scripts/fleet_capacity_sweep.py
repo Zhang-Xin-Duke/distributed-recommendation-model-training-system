@@ -144,8 +144,22 @@ def main():
                 command.append("--expanded-gradients")
             if a.host_reference:
                 command.append("--host-reference")
-            script="hardware="+repr(hardware)+"\ncommand="+repr(command)+"\ncoalesce="+repr(a.coalesce_gathers)+"\n"+r'''
-import pathlib,subprocess,os
+            script="hardware="+repr(hardware)+"\ncommand="+repr(command)+"\ncoalesce="+repr(a.coalesce_gathers)+"\nendpoints="+repr(["127.0.0.1:"+str(w['forward_port']) for w in workers])+"\n"+r'''
+import pathlib,subprocess,os,urllib.request,time,json
+output=pathlib.Path(command[command.index('--out')+1]);output.parent.mkdir(parents=True,exist_ok=True)
+health=[]
+for endpoint in endpoints:
+ deadline=time.monotonic()+8;record=dict(endpoint=endpoint,ready=False)
+ while time.monotonic()<deadline:
+  try:
+   with urllib.request.urlopen('http://'+endpoint+'/health',timeout=1) as response:
+    record.update(ready=response.status==200,status=response.status)
+   if record['ready']:break
+  except Exception as error:record['error']=str(error)
+  time.sleep(.1)
+ health.append(record)
+(output.parent/'transport-health.json').write_text(json.dumps(health,indent=2))
+if not all(x['ready'] for x in health):raise RuntimeError('Agent transport preflight failed before capacity workload')
 pathlib.Path(command[command.index('--external-hardware')+1]).write_text(hardware)
 environment=None if coalesce is None else dict(os.environ,EPS_COALESCE_GATHERS=coalesce)
 subprocess.run(command,check=True,env=environment)
