@@ -121,11 +121,12 @@ row counters and table optimizer context. A restored process starts with cold
 cache/history and rebuilds placement from new observations; history is a
 performance hint and is not needed to reproduce the optimizer trajectory.
 
-Decisions and migrations currently execute on the shard sequencer and contribute
-to the completing request's latency. Coarse windows reduce how often that work
-runs. Moving preparation/agent waits off the sequencer requires a separate
-ownership-aware scheduling change; this controller does not claim to remove
-the communication limit measured in the capacity report.
+Decisions and migrations contribute to the completing request's latency. Coarse
+windows reduce how often that work runs. The [resumable actor](RESUMABLE_OPERATIONS.md)
+allows independent reads during ordinary owner waits. Policy completers retain
+one ordered maintenance stream; an actual decision window upgrades to a full
+barrier, drains other active work and then maintains placement. The earlier
+capacity report retains its measured communication costs and source revision.
 
 ## Configuration and metrics
 

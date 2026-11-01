@@ -130,9 +130,44 @@ void ExclusiveUpgrade() {
     "exclusive upgrade crossed an active operation or admitted younger work");
   held.result.set_value(1);Get(std::move(first));Check(Get(std::move(exclusive))==2 && Get(std::move(later))==3,"exclusive upgrade failed to resume after drain");
 }
+void DependencyPlanCache() {
+  for(bool cached:{false,true}) {
+    ResumableActor::Options options;options.cache_dependencies=cached;ResumableActor actor(options);
+    Gate gate;std::atomic<unsigned> builds{0};
+    auto a=actor.Submit<int>([&]{return Waiting(actor,gate);},[]{return Rows({1});});WaitStarted(gate);
+    auto b=actor.Submit<int>([]{return 2;},[&]{++builds;return Rows({1});});
+    for(unsigned n=0;n<12;++n)Get(actor.Submit<int>([]{return 3;},[]{return Rows({3});}));
+    Check(cached?builds==1:builds>1,"queued dependency plans were not cached/selectably rebuilt");
+    if(cached) {
+      Check(actor.Snapshot().dependency_cache_hits>0,"dependency cache hits were not recorded");
+      Get(actor.Submit<int>([&]{actor.InvalidateDependencies();return 0;},[]{return Rows({4});}));
+      Get(actor.Submit<int>([]{return 0;},[]{return Rows({4});}));
+      Check(builds==2,"ownership/policy epoch did not invalidate a queued plan");
+    }
+    gate.result.set_value(1);Get(std::move(a));Get(std::move(b));
+    auto stats=actor.Snapshot();Check(stats.dependency_bytes==0 && stats.dependency_rebuilds>0 &&
+      stats.dependency_prepare_ns>0,"dependency cache accounting or timing was lost");
+  }
+  ResumableActor::Options options;options.dependency_bytes=3*sizeof(ActorResource);ResumableActor bounded(options);Gate gate;
+  auto a=bounded.Submit<int>([&]{return Waiting(bounded,gate);},[]{return Rows({1});});WaitStarted(gate);
+  auto b=bounded.Submit<int>([]{return 2;},[]{return Rows({1});});
+  auto c=bounded.Submit<int>([]{return 3;},[]{return Rows({1,2});});
+  auto d=bounded.Submit<int>([]{return 4;},[]{return Rows({3});});
+  Check(bounded.Snapshot().dependency_bytes<=options.dependency_bytes,"queued plans exceeded their shared byte budget");
+  gate.result.set_value(1);Get(std::move(a));Get(std::move(b));Get(std::move(c));Get(std::move(d));
+  Check(bounded.Snapshot().dependency_bytes==0,"evicted queued plans leaked their reservation");
+
+  ResumableActor unknown({});Gate held;bool barrier=false;std::atomic<unsigned> rebuilt{0};
+  auto first=unknown.Submit<int>([&]{return Waiting(unknown,held);},[]{return Rows({1});});WaitStarted(held);
+  auto late=unknown.Submit<int>([]{return 2;},[&]{++rebuilt;auto r=Rows({1});r.cacheable=false;r.barrier=barrier;return r;});
+  Get(unknown.Submit<int>([&]{barrier=true;return 0;},[]{return Rows({3});}));
+  auto younger=unknown.Submit<int>([]{return 3;},[]{return Rows({4});});
+  Check(younger.wait_for(30ms)!=std::future_status::ready && rebuilt>=2,"an incomplete plan was cached as a stable dependency set");
+  held.result.set_value(1);Get(std::move(first));Get(std::move(late));Get(std::move(younger));
+}
 }
 int main() {
-  try{IndependentAndFair();BarrierAndPayload();NestedAndFailureCleanup();ExclusiveUpgrade();ShutdownDrains();
+  try{IndependentAndFair();BarrierAndPayload();NestedAndFailureCleanup();ExclusiveUpgrade();DependencyPlanCache();ShutdownDrains();
     std::cout<<"PASS resumable actor: independent progress, FIFO conflicts, barriers, bounded admission, nested continuations and drain\n";return 0;
   }catch(const std::exception& e){std::cerr<<"FAIL actor: "<<e.what()<<'\n';return 1;}
 }

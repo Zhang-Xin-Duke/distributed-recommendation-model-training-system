@@ -153,6 +153,7 @@ int main(int argc,char** argv){
       if(failures)throw std::runtime_error("capacity run failed: "+error);
       std::map<std::string,std::uint64_t> phases;
       std::uint64_t busy_ns=0,wait_ns=0,operations=0,admission_failures=0;
+      std::uint64_t dependency_ns=0,dependency_rebuilds=0,dependency_cache_hits=0;
       std::uint64_t expanded_bytes=0,transferred_bytes=0,compact_commands=0;
       for(std::size_t i=0;i<admin.size();++i){auto s=Take(admin[i]->Stats());
         phases["lookup_prepare_nanoseconds"]+=s.lookup_prepare_nanoseconds-stats_before[i].lookup_prepare_nanoseconds;
@@ -167,6 +168,9 @@ int main(int argc,char** argv){
         wait_ns+=s.queue_wait_nanoseconds-stats_before[i].queue_wait_nanoseconds;
         operations+=s.executed_operations-stats_before[i].executed_operations;
         admission_failures+=s.rejected_operations-stats_before[i].rejected_operations;
+        dependency_ns+=s.dependency_prepare_nanoseconds-stats_before[i].dependency_prepare_nanoseconds;
+        dependency_rebuilds+=s.dependency_rebuilds-stats_before[i].dependency_rebuilds;
+        dependency_cache_hits+=s.dependency_cache_hits-stats_before[i].dependency_cache_hits;
         expanded_bytes+=s.expanded_gradient_bytes-stats_before[i].expanded_gradient_bytes;
         transferred_bytes+=s.transferred_gradient_bytes-stats_before[i].transferred_gradient_bytes;
         compact_commands+=s.compact_update_commands-stats_before[i].compact_update_commands;
@@ -192,6 +196,9 @@ int main(int argc,char** argv){
       result["executor_busy_scope"]="actor execution and dependency planning; suspended external waits excluded";
       result["queue_wait_per_operation_ms"]=operations?wait_ns/1e6/operations:0;
       result["rejected_admissions"]=admission_failures;
+      result["dependency_prepare_nanoseconds"]=dependency_ns;
+      result["dependency_rebuilds"]=dependency_rebuilds;
+      result["dependency_cache_hits"]=dependency_cache_hits;
       result["expanded_gradient_bytes"]=expanded_bytes;result["transferred_gradient_bytes"]=transferred_bytes;
       result["compact_update_commands"]=compact_commands;
       result["coalesced_gathers"]=coalesce;

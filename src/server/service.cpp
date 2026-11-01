@@ -34,7 +34,8 @@ class CpuParameterService::Impl {
         store_(std::make_unique<detail::ShardStore>(options_.shard_id,
           options_.shard_count, options_.partition_epoch, options_.state_bytes)),
         actor_({options_.max_queued_operations,options_.max_active_operations,
-                options_.completion_waiters,options_.queue_payload_bytes,options_.dependency_payload_bytes},
+                options_.completion_waiters,options_.queue_payload_bytes,options_.dependency_payload_bytes,
+                options_.cache_dependencies},
           [this](const Error& error){if(error.code==Error::Code::run_failed)fatal_=error.message;}) {
     Require(!options_.run_id.empty() && options_.run_id.size() <= 1024, "invalid run ID");
     Require(options_.request_history >= 4 && options_.max_live_tickets > 0 &&
@@ -115,7 +116,7 @@ class CpuParameterService::Impl {
         Dependency(r,{detail::ActorResource::Kind::optimizer,f.input.table,0});
         for(auto key:f.input.keys)RowDependency(r,{f.input.table,key},true);
       }
-    }
+    }else r.cacheable=false;
     return r;
   }
   detail::ActorResources ReleaseDependencies(const ReleaseRequest& request) const {
@@ -424,6 +425,7 @@ class CpuParameterService::Impl {
       }
     }
     stats_.migration_bytes+=bytes;
+    actor_.InvalidateDependencies();
     std::vector<LocatedRow> result;result.reserve(request.rows.size());
     for(auto row:request.rows)result.push_back(Location(row));
     co_return result;
@@ -683,6 +685,8 @@ std::future<Result<RuntimeStats>> CpuParameterService::Stats() {
     s.queue_wait_nanoseconds=scheduling.queue_wait_ns;s.executor_busy_nanoseconds=scheduling.busy_ns;
     s.active_operations=scheduling.active;s.waiting_operations=scheduling.waiting;
     s.active_payload_bytes=scheduling.active_payload;s.dependency_payload_bytes=scheduling.dependency_bytes;
+    s.dependency_prepare_nanoseconds=scheduling.dependency_prepare_ns;
+    s.dependency_rebuilds=scheduling.dependency_rebuilds;s.dependency_cache_hits=scheduling.dependency_cache_hits;
     return s;
   },[]{return detail::ActorResources{};});
 }
@@ -708,7 +712,7 @@ std::future<Result<Ack>> CpuParameterService::ConfigureCachePolicy(CachePolicyOp
     for(auto agent:policy->options().agents)
       Require(impl_->agents_.contains(agent),"cache policy agent is not attached");
     if(policy->options().mode==CacheAdmissionMode::manual)policy.reset();
-    impl_->cache_policy_=std::move(policy);return Ack{};
+    impl_->cache_policy_=std::move(policy);impl_->actor_.InvalidateDependencies();return Ack{};
   });
 }
 std::future<Result<std::vector<LocatedRow>>> CpuParameterService::Locations(std::vector<RowKey> rows) {

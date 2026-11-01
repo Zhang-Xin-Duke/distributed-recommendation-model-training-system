@@ -18,7 +18,7 @@
 namespace eps::detail {
 
 struct ActorResource {
-  enum class Kind { lifecycle, row, optimizer, agent, maintenance };
+  enum class Kind { lifecycle, optimizer, agent, maintenance, row };
   Kind kind;
   std::uint64_t first=0,second=0;
   auto operator<=>(const ActorResource&) const=default;
@@ -26,6 +26,7 @@ struct ActorResource {
 struct ActorResources {
   bool barrier=false;
   std::vector<ActorResource> keys;
+  bool cacheable=true;
   void Normalize(){std::sort(keys.begin(),keys.end());keys.erase(std::unique(keys.begin(),keys.end()),keys.end());}
   std::uint64_t bytes() const{return keys.capacity()*sizeof(ActorResource);}
   bool Conflicts(const ActorResources& b) const {
@@ -43,10 +44,12 @@ class ResumableActor {
   struct Options {
     std::size_t max_queued=1024,max_active=16,waiters=4;
     std::uint64_t payload_bytes=64ULL<<20,dependency_bytes=64ULL<<20;
+    bool cache_dependencies=true;
   };
   struct Stats {
     std::uint64_t queued=0,active=0,waiting=0,queued_payload=0,active_payload=0,
-      dependency_bytes=0,rejected=0,peak_queued=0,completed=0,queue_wait_ns=0,busy_ns=0;
+      dependency_bytes=0,rejected=0,peak_queued=0,completed=0,queue_wait_ns=0,busy_ns=0,
+      dependency_prepare_ns=0,dependency_rebuilds=0,dependency_cache_hits=0;
   };
  private:
   struct Job;
@@ -66,6 +69,8 @@ class ResumableActor {
     std::unique_ptr<Job> next;
     ActorResources resources;
     bool finished=false;
+    bool dependencies_valid=false;
+    std::uint64_t dependencies_epoch=0;
     std::coroutine_handle<> exclusive_continuation{};
     std::uint64_t payload=0;
     std::chrono::steady_clock::time_point queued;
@@ -214,6 +219,9 @@ class ResumableActor {
    private:ResumableActor& actor_;
   };
   ExclusiveAwaiter Exclusive(){return ExclusiveAwaiter(*this);}
+  // Actor-thread only. Active operations retain their acquired dependencies;
+  // queued plans are rebuilt after ownership or policy interpretation changes.
+  void InvalidateDependencies() noexcept {++dependency_epoch_;}
   Stats Snapshot() const {std::lock_guard lock(mutex_);return stats_;}
  private:
   void Park(External* wait) noexcept {
@@ -240,36 +248,58 @@ class ResumableActor {
   // state; they must be pure and must not submit another operation.
   std::unique_ptr<Job> TakeRunnable() {
     if(active_.size()>=options_.max_active)return {};
-    scratch_.clear();std::uint64_t scratch_bytes=0;
+    scratch_.clear();
     auto* link=&head_;Job* previous=nullptr;
     while(*link) {
-      auto& candidate=**link;ActorResources resources;
-      try{resources=candidate.Dependencies();resources.Normalize();}
-      catch(...){
-        auto failed=std::move(*link);*link=std::move(failed->next);if(!*link)tail_=previous;
-        --stats_.queued;stats_.queued_payload-=failed->payload;
-        auto error=CurrentError();if(error.code==Error::Code::capacity_exceeded)++stats_.rejected;
-        ++stats_.completed;failed->Reject(std::move(error));continue;
-      }
-      const auto bytes=resources.bytes();
-      if(bytes>options_.dependency_bytes) {
-        auto failed=std::move(*link);*link=std::move(failed->next);if(!*link)tail_=previous;
-        --stats_.queued;stats_.queued_payload-=failed->payload;
-        ++stats_.rejected;++stats_.completed;
-        failed->Reject({Error::Code::capacity_exceeded,"shard dependency budget exceeded"});continue;
-      }
-      bool blocked=bytes>options_.dependency_bytes-stats_.dependency_bytes;
+      auto& candidate=**link;
+      if(!options_.cache_dependencies || !candidate.dependencies_valid || candidate.dependencies_epoch!=dependency_epoch_) {
+        stats_.dependency_bytes-=candidate.resources.bytes();
+        candidate.resources=ActorResources{};candidate.dependencies_valid=false;
+        ActorResources resources;
+        const auto begin=std::chrono::steady_clock::now();
+        try{resources=candidate.Dependencies();resources.Normalize();}
+        catch(...){
+          stats_.dependency_prepare_ns+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
+          ++stats_.dependency_rebuilds;
+          auto failed=std::move(*link);*link=std::move(failed->next);if(!*link)tail_=previous;
+          --stats_.queued;stats_.queued_payload-=failed->payload;
+          auto error=CurrentError();if(error.code==Error::Code::capacity_exceeded)++stats_.rejected;
+          ++stats_.completed;failed->Reject(std::move(error));continue;
+        }
+        stats_.dependency_prepare_ns+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
+        ++stats_.dependency_rebuilds;
+        const auto bytes=resources.bytes();
+        if(bytes>options_.dependency_bytes) {
+          auto failed=std::move(*link);*link=std::move(failed->next);if(!*link)tail_=previous;
+          --stats_.queued;stats_.queued_payload-=failed->payload;
+          ++stats_.rejected;++stats_.completed;
+          failed->Reject({Error::Code::capacity_exceeded,"shard dependency budget exceeded"});continue;
+        }
+        if(bytes>options_.dependency_bytes-stats_.dependency_bytes) {
+          // Reclaim optional queued plans instead of rejecting accepted work.
+          // With active work, its next completion wakes this bounded scan.
+          for(auto* job=head_.get();job;job=job->next.get()) {
+            stats_.dependency_bytes-=job->resources.bytes();job->resources=ActorResources{};
+            job->dependencies_valid=false;
+          }
+          scratch_.clear();return {};
+        }
+        candidate.resources=std::move(resources);stats_.dependency_bytes+=bytes;
+        candidate.dependencies_valid=candidate.resources.cacheable;candidate.dependencies_epoch=dependency_epoch_;
+      }else ++stats_.dependency_cache_hits;
+      const auto& resources=candidate.resources;
+      bool blocked=false;
       for(const auto& job:active_)if(resources.Conflicts(job->resources)){blocked=true;break;}
-      for(const auto& older:scratch_)if(resources.Conflicts(older)){blocked=true;break;}
+      for(const auto* older:scratch_)if(resources.Conflicts(older->resources)){blocked=true;break;}
       if(!blocked) {
         auto next=std::move(*link);*link=std::move(next->next);if(!*link)tail_=previous;
         --stats_.queued;stats_.queued_payload-=next->payload;
-        ++stats_.active;stats_.active_payload+=next->payload;stats_.dependency_bytes+=bytes;
+        ++stats_.active;stats_.active_payload+=next->payload;
         stats_.queue_wait_ns+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-next->queued).count();
-        next->resources=std::move(resources);scratch_.clear();return next;
+        scratch_.clear();return next;
       }
-      if(resources.barrier || bytes>options_.dependency_bytes-scratch_bytes)break;
-      scratch_bytes+=bytes;scratch_.push_back(std::move(resources));
+      if(resources.barrier)break;
+      scratch_.push_back(&candidate);
       previous=&candidate;link=&candidate.next;
     }
     scratch_.clear();return {};
@@ -301,6 +331,7 @@ class ResumableActor {
           next=TakeRunnable();
           stats_.busy_ns+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-planning_begin).count();
           if(next)break;
+          if(!active_.size() && head_)continue;
           if(closed_ && !head_ && active_.empty()) {
             waiters_stopping_=true;lock.unlock();waiter_changed_.notify_all();return;
           }
@@ -327,7 +358,8 @@ class ResumableActor {
   std::unique_ptr<Job> head_;Job* tail_=nullptr;
   std::vector<std::unique_ptr<Job>> active_;
   Job* executing_=nullptr;
-  std::vector<ActorResources> scratch_;
+  std::vector<Job*> scratch_;
+  std::uint64_t dependency_epoch_=0;
   External* wait_head_=nullptr;External* wait_tail_=nullptr;
   External* wake_head_=nullptr;External* wake_tail_=nullptr;
   Stats stats_;bool closed_=false,waiters_stopping_=false;

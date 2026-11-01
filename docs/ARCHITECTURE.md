@@ -99,10 +99,11 @@ stateDiagram-v2
 
 A location change requires existing lookup tickets that reference the row to
 finish. The current `MoveRows` rejects pinned rows so its caller can retry later;
-once accepted, the home-shard sequencer remains occupied through the transfer and
-publishes the destination after acknowledgement. This gives one explicit state
-handoff. An asynchronous coordinator that lets unrelated rows progress during a
-move remains planned. Full state moves together; for the
+once accepted, row and agent-stream dependencies remain held through transfer.
+The operation suspends on external futures and publishes the destination after
+acknowledgement. Unrelated rows can progress on the same shard actor during the
+wait. [Resumable operations](RESUMABLE_OPERATIONS.md) describe dependencies,
+maintenance barriers and the completion pool. Full state moves together; for the
 initial sparse LazyAdam policy this includes weights, first/second moments and
 row update metadata. Table/shard optimizer globals are managed by the update
 sequencer rather than independently advanced in CPU and GPU code.

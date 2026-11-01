@@ -72,7 +72,8 @@ def run_topology(args, count, root):
                 access=dict(policy="cpu_only"),
                 limits=dict(cpu_state_bytes=8<<30, max_live_tickets=1024,
                             ticket_payload_bytes=256<<20, queue_payload_bytes=256<<20,
-                            max_active_operations=args.max_active_operations),
+                            max_active_operations=args.max_active_operations,
+                            cache_dependencies=args.dependency_cache=="on"),
                 snapshot_directory=str(output / "snapshots")), indent=2))
             log = (output / f"ps-{shard}.log").open("w+")
             logs.append(log)
@@ -136,6 +137,8 @@ def main():
     parser.add_argument("--ps-shards", type=int, default=2)
     parser.add_argument("--max-active-operations",type=int,default=16,
                         help="Shard operation concurrency; 1 is the serialized scheduling control")
+    parser.add_argument("--dependency-cache",choices=("on","off"),default="on",
+                        help="Reuse queued dependency plans until ownership/policy invalidation")
     parser.add_argument("--rows", type=int, default=262144)
     parser.add_argument("--dimension", type=int, default=128)
     parser.add_argument("--keys", type=int, default=1024)

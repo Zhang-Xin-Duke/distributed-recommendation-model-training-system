@@ -47,7 +47,8 @@
     "max_queued_operations": 1024,
     "max_active_operations": 16,
     "completion_waiters": 4,
-    "dependency_payload_bytes": 67108864
+    "dependency_payload_bytes": 67108864,
+    "cache_dependencies": true
   },
   "snapshot_directory": "./snapshots"
 }

@@ -229,6 +229,9 @@ message StatsReply {
   uint64 waiting_operations = 38;
   uint64 active_payload_bytes = 39;
   uint64 dependency_payload_bytes = 40;
+  uint64 dependency_prepare_nanoseconds = 41;
+  uint64 dependency_rebuilds = 42;
+  uint64 dependency_cache_hits = 43;
 }
 
 message RowKey { uint32 table_id = 1; uint64 key = 2; }

@@ -19,7 +19,7 @@ synchronization remain the training framework's responsibility.
 
 ![Multi-GPU throughput, tail latency and queue wait](docs/assets/multigpu-limits.svg)
 
-**Measured capacity:** the default path with four RTX A6000 agents, four parameter
+**Measured four-agent revision:** the default path with four RTX A6000 agents, four parameter
 shards and eight concurrent Learners completes **116.47 acknowledged sparse updates/s**
 with **102.41 ms median trial P99** across three 20-second windows: **7,094 updates**.
 At 128 Learners, throughput falls to **85.74 updates/s** and P99 rises to **2.15 s**.
@@ -39,9 +39,9 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 
 **Validation:** the latest matrix retains **203 capacity trials and 103,426
 completed updates** across two fleets, with zero training-update errors. Current
-local native/RPC/TensorFlow checks pass **24/24**, ASan/UBSan **11/11** and focused
-ThreadSanitizer checks **2/2**; the current A6000 CPU/CUDA/TensorFlow suite passes
-**26/26**. The capacity fleets pass CPU/CUDA checks **17/17**
+local native/RPC/TensorFlow checks pass **26/26**, ASan/UBSan **13/13** and focused
+ThreadSanitizer checks **5/5**; the current A6000 CPU/CUDA/TensorFlow suite passes
+**29/29**, with five additional forced-CUDA process/graph checks. The capacity fleets pass CPU/CUDA checks **17/17**
 at their recorded source revisions.
 Cache-policy replay checks all touched weights, Adam moments and row counters
 across **4,800 updates**; a separate four-agent positive-cost case exercises
@@ -102,6 +102,12 @@ flowchart LR
 
 ## Implemented optimizations
 
+- **Resumable shard operations:** suspend pending cache calls and resume their
+  continuations on the shard's single state-owning thread. Independent requests
+  can progress; row, optimizer and agent-stream dependencies keep conflicting
+  operations ordered. Automatic maintenance upgrades to a barrier at its decision
+  window; save/restore retain ordered full barriers.
+  [Execution, bounds and validation](docs/RESUMABLE_OPERATIONS.md).
 - **Bounded asynchronous input preparation:** prepare future IDs, padding maps
   and shard layouts on one worker while current model/RPC work runs. Count and
   byte limits bound queued work; FIFO tokens are consumed explicitly. Parameter
@@ -153,8 +159,8 @@ See [benchmark definitions](docs/BENCHMARKS.md#gradient-payload).
 
 The access planner, automatic admission/replacement controller and migration
 budgets and asynchronous input preparation are implemented. Decisions currently
-execute in coarse windows on the shard sequencer; nonblocking agent waits remain
-scheduling work. The [acceleration design](docs/ACCELERATION.md) explains the
+execute in coarse windows under a shard barrier. Agent waits suspend the actor;
+independent work can proceed outside maintenance/save barriers. The [acceleration design](docs/ACCELERATION.md) explains the
 choices and costs.
 
 ## Measured cache-policy behavior

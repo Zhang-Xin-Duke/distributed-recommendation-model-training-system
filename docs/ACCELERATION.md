@@ -136,8 +136,10 @@ Acknowledged migration time updates load/writeback cost priors. Configuration an
 RPC metrics expose each decision stage. Native/reference-process checks cover
 hot-set shifts, capacity races, failure fallback and exact optimizer restart.
 
-Decisions currently execute on the shard sequencer, so migrations contribute to
-the completing request's latency. The new controller passes real A6000 process checks. A [fixed-trace
+Decisions execute under a shard barrier, so migrations contribute to the
+completing request's latency. Ordinary owner waits suspend the shard actor and
+allow independent work; the decision window upgrades to exclusive execution.
+The controller passes real A6000 process checks. A [fixed-trace
 hot-set comparison](CACHE_POLICY_RESULTS.md) records its calibration, migration,
 throughput and numerical behavior. The capacity curves retain the earlier
 manual-placement revisions.

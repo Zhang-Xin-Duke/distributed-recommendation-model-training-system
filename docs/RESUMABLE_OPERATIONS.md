@@ -43,6 +43,14 @@ control operation per home/agent stream is outstanding, preserving its replay
 identity. Lookup tickets remain live while their Push is suspended; a retry waits
 for the same lifecycle and then receives the retained completion.
 
+Queued requests retain their normalized dependency plan, avoiding repeated key
+collection and sorting on every queue wakeup. A placement/policy epoch invalidates
+queued plans when their interpretation changes; active operations keep their
+acquired dependencies. A Push whose ticket does not exist yet remains uncached
+until its preceding Lookup supplies that layout. Optimizer/agent keys are checked
+before long row lists, so common control conflicts can stop comparison early.
+This uses bounded retained metadata to reduce CPU scheduling work.
+
 Moving rows stay excluded through loading, writeback and acknowledged eviction.
 New locations/generations publish at the existing acknowledgement boundary.
 Unrelated rows can be read while the move waits. Store/ticket references are
@@ -74,10 +82,14 @@ The JSON launcher accepts these `limits` fields; C++ uses the corresponding
 | `max_active_operations` | 16 | Started, suspended and resumed operations |
 | `completion_waiters` | 4 | Native workers observing external futures |
 | `queue_payload_bytes` | 64 MiB | Combined queued and active input payload reservations |
-| `dependency_payload_bytes` | 64 MiB | Retained active dependency-vector capacity |
+| `dependency_payload_bytes` | 64 MiB | Queued and active dependency-vector capacity |
+| `cache_dependencies` | true | Reuse stable dependency plans for queued requests |
 
 Suspension retains the input reservation; it cannot be used to admit unlimited
-additional payloads. The scheduler separately bounds temporary dependency scans.
+additional payloads. Queued and active plans share the dependency byte budget.
+If optional queued plans consume that budget, the scheduler evicts those plans
+and retries after active progress; a single oversized plan is rejected.
+The scheduler bounds retained scan metadata separately from its temporary builder.
 Operation count limits bound headers and coroutine records; these payload budgets
 are separate from parameter state, lookup tickets, allocator overhead and agent
 staging. `max_active_operations=1` supplies a serialized scheduling control for
@@ -91,6 +103,8 @@ Waiters do not access shard state. Destruction closes new admission and joins
 accepted work and completion workers before destroying the state they reference.
 External backend methods must return their futures promptly; transport deadlines
 and the existing run controller govern unreachable owners.
+External futures are completed by transport/agent workers. Nested actor work
+composes an `ActorTask` directly, keeping it on the same execution owner.
 
 ## Failure and observation
 
@@ -104,6 +118,10 @@ Stats adds fields 37–40: `active_operations`, `waiting_operations`,
 the Stats operation itself. Waiting includes external futures and a pending
 maintenance barrier upgrade. Queued payload continues to mean not-yet-started
 input; admission considers it together with active payload.
+Fields 41–43 expose `dependency_prepare_nanoseconds`, `dependency_rebuilds` and
+`dependency_cache_hits`. The dependency-byte counter includes queued cached plans
+and active plans under their shared limit. `cache_dependencies=false` provides
+a same-binary cache-off control.
 
 `executor_busy_nanoseconds` now measures dependency planning and executed actor
 segments, excluding parked external/barrier waits. Older capacity revisions
@@ -121,6 +139,13 @@ delayed owner updates and two-way migrations, checks reads and retry order,
 compares Adam state with CPU execution, verifies save ordering and fences other
 continuations after an owner failure. A CUDA build registers the same integration
 case as `resumable_cuda_shard_operations` using real CUDA storage and updates.
+
+The Ubuntu GCC 11 check exposed repeated destruction of a braced owning
+aggregate passed directly in an await expression. A standalone string/vector
+reproducer failed without any service threads or CUDA; naming the request before
+moving it into the child task resolved that case. Migration calls use that form.
+The compiler's [temporary-lifetime discussion](https://gcc.gnu.org/pipermail/gcc-bugs/2022-November/805094.html)
+provides related background; the service's Linux checks validate its actual path.
 
 Use `scripts/capacity_sweep.py --max-active-operations 1` and `16` under the same
 hardware, workload and trial order for a scheduling comparison. The published

@@ -1,0 +1,1270 @@
+{
+  "source_commit": "c52f5168d26a8e9861b9bc7c9fc192213fa0de94",
+  "capacity_trials": 64,
+  "completed_updates": 30696,
+  "errors": 0,
+  "groups": [
+    {
+      "admission": "frequency",
+      "ps_shards": 4,
+      "learners": 8,
+      "max_active_operations": 1,
+      "trials": 2,
+      "completed_updates": 627,
+      "steps_per_second": {
+        "median": 102.14837426864445,
+        "minimum": 102.08199300107249,
+        "maximum": 102.2147555362164
+      },
+      "step_p99_ms": {
+        "median": 128.7105935,
+        "minimum": 120.490597,
+        "maximum": 136.93059
+      },
+      "lookup_p99_ms": {
+        "median": 94.18705700000001,
+        "minimum": 86.916155,
+        "maximum": 101.457959
+      },
+      "push_p99_ms": {
+        "median": 98.197457,
+        "minimum": 87.282755,
+        "maximum": 109.112159
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 20.073735707983083,
+        "minimum": 19.323410830658105,
+        "maximum": 20.824060585308057
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.5185077117278876,
+        "minimum": 0.5027666497460821,
+        "maximum": 0.5342487737096929
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 17.310074035308723,
+        "cache_maintenance_nanoseconds": 10.940461666327487,
+        "cpu_optimizer_nanoseconds": 0.045859412196263584,
+        "gpu_packet_prepare_nanoseconds": 0.960424772818389,
+        "gradient_prepare_nanoseconds": 1.4398408970501446,
+        "lookup_prepare_nanoseconds": 4.086507850192316,
+        "migration_nanoseconds": 0.037530255342097765,
+        "update_dispatch_nanoseconds": 0.6607132710173389
+      }
+    },
+    {
+      "admission": "frequency",
+      "ps_shards": 4,
+      "learners": 8,
+      "max_active_operations": 16,
+      "trials": 2,
+      "completed_updates": 612,
+      "steps_per_second": {
+        "median": 100.60069997063624,
+        "minimum": 99.80544963100317,
+        "maximum": 101.3959503102693
+      },
+      "step_p99_ms": {
+        "median": 134.3698635,
+        "minimum": 133.985372,
+        "maximum": 134.754355
+      },
+      "lookup_p99_ms": {
+        "median": 96.008986,
+        "minimum": 89.856473,
+        "maximum": 102.161499
+      },
+      "push_p99_ms": {
+        "median": 92.63352850000001,
+        "minimum": 84.436249,
+        "maximum": 100.830808
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 19.79051058920887,
+        "minimum": 19.70208813546798,
+        "maximum": 19.878933042949757
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.5784231180807217,
+        "minimum": 0.5770564582947532,
+        "maximum": 0.5797897778666902
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 18.52881481087662,
+        "cache_maintenance_nanoseconds": 11.15383903913192,
+        "cpu_optimizer_nanoseconds": 0.050361079289131916,
+        "gpu_packet_prepare_nanoseconds": 0.9694534441857485,
+        "gradient_prepare_nanoseconds": 1.4894887927417977,
+        "lookup_prepare_nanoseconds": 3.9637695015165755,
+        "migration_nanoseconds": 0.06256096815191388,
+        "update_dispatch_nanoseconds": 0.6575201698564592
+      }
+    },
+    {
+      "admission": "frequency",
+      "ps_shards": 4,
+      "learners": 16,
+      "max_active_operations": 1,
+      "trials": 2,
+      "completed_updates": 693,
+      "steps_per_second": {
+        "median": 111.18994852258317,
+        "minimum": 109.86087773833195,
+        "maximum": 112.5190193068344
+      },
+      "step_p99_ms": {
+        "median": 177.6528355,
+        "minimum": 177.028554,
+        "maximum": 178.277117
+      },
+      "lookup_p99_ms": {
+        "median": 121.141227,
+        "minimum": 117.543143,
+        "maximum": 124.739311
+      },
+      "push_p99_ms": {
+        "median": 121.449557,
+        "minimum": 115.754208,
+        "maximum": 127.144906
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 46.30271147972407,
+        "minimum": 43.124785793509275,
+        "maximum": 49.480637165938866
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.5650938428562596,
+        "minimum": 0.5563795332335186,
+        "maximum": 0.5738081524790006
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 14.961786659446064,
+        "cache_maintenance_nanoseconds": 11.196011702361517,
+        "cpu_optimizer_nanoseconds": 0.044638027959183674,
+        "gpu_packet_prepare_nanoseconds": 0.9376189134693877,
+        "gradient_prepare_nanoseconds": 1.3410636414868804,
+        "lookup_prepare_nanoseconds": 3.8813472587463558,
+        "migration_nanoseconds": 0.007476486559766763,
+        "update_dispatch_nanoseconds": 0.6587639457725948
+      }
+    },
+    {
+      "admission": "frequency",
+      "ps_shards": 4,
+      "learners": 16,
+      "max_active_operations": 16,
+      "trials": 2,
+      "completed_updates": 632,
+      "steps_per_second": {
+        "median": 101.98704079499703,
+        "minimum": 100.87108748774968,
+        "maximum": 103.1029941022444
+      },
+      "step_p99_ms": {
+        "median": 190.4550245,
+        "minimum": 184.684888,
+        "maximum": 196.225161
+      },
+      "lookup_p99_ms": {
+        "median": 106.53039749999999,
+        "minimum": 89.496466,
+        "maximum": 123.564329
+      },
+      "push_p99_ms": {
+        "median": 130.69815599999998,
+        "minimum": 129.540495,
+        "maximum": 131.855817
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 40.537247055536035,
+        "minimum": 39.446224083467094,
+        "maximum": 41.62827002760498
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.702357143176226,
+        "minimum": 0.690355960383657,
+        "maximum": 0.714358325968795
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 13.304381112925844,
+        "cache_maintenance_nanoseconds": 12.832445626258377,
+        "cpu_optimizer_nanoseconds": 0.04375406011659705,
+        "gpu_packet_prepare_nanoseconds": 0.9694476698219991,
+        "gradient_prepare_nanoseconds": 1.3574916577666256,
+        "lookup_prepare_nanoseconds": 4.082720700528894,
+        "migration_nanoseconds": 0.004461218649517685,
+        "update_dispatch_nanoseconds": 0.6732292256263085
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 4,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1381,
+      "steps_per_second": {
+        "median": 110.30883026814796,
+        "minimum": 106.60689762134066,
+        "maximum": 126.3286831874365
+      },
+      "step_p99_ms": {
+        "median": 44.245207,
+        "minimum": 43.568416,
+        "maximum": 48.982583
+      },
+      "lookup_p99_ms": {
+        "median": 28.323741,
+        "minimum": 26.552348,
+        "maximum": 31.636117
+      },
+      "push_p99_ms": {
+        "median": 28.189043,
+        "minimum": 26.174757,
+        "maximum": 30.082434
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 11.845021731158607,
+        "minimum": 10.357549536873156,
+        "maximum": 12.312067704307333
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.6565369599246494,
+        "minimum": 0.6536295128408207,
+        "maximum": 0.6678907972959994
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 3.5353492364864865,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.0345541036036036,
+        "gpu_packet_prepare_nanoseconds": 0.8950965361305361,
+        "gradient_prepare_nanoseconds": 1.0952373962703963,
+        "lookup_prepare_nanoseconds": 2.2648595923423422,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.49481859684684687
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 4,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1443,
+      "steps_per_second": {
+        "median": 120.50542526593038,
+        "minimum": 111.33188176324236,
+        "maximum": 126.76261666161211
+      },
+      "step_p99_ms": {
+        "median": 53.077478,
+        "minimum": 39.603522,
+        "maximum": 55.708873
+      },
+      "lookup_p99_ms": {
+        "median": 29.347534,
+        "minimum": 24.969702,
+        "maximum": 32.877507
+      },
+      "push_p99_ms": {
+        "median": 25.35463,
+        "minimum": 23.886397,
+        "maximum": 30.459943
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 10.10479651699279,
+        "minimum": 9.519499230166502,
+        "maximum": 11.054779772575252
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.7378801074120994,
+        "minimum": 0.7206094893782096,
+        "maximum": 0.7534369720611258
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 3.640825492156863,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.030044626804123713,
+        "gpu_packet_prepare_nanoseconds": 0.7605204762886598,
+        "gradient_prepare_nanoseconds": 0.9685978824742267,
+        "lookup_prepare_nanoseconds": 1.8560873360824743,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.4381494680412371
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 8,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1458,
+      "steps_per_second": {
+        "median": 122.71592712129237,
+        "minimum": 110.13786012741983,
+        "maximum": 126.78025564018198
+      },
+      "step_p99_ms": {
+        "median": 85.8662,
+        "minimum": 70.412076,
+        "maximum": 87.928359
+      },
+      "lookup_p99_ms": {
+        "median": 52.816438,
+        "minimum": 47.789547,
+        "maximum": 58.871538
+      },
+      "push_p99_ms": {
+        "median": 53.393386,
+        "minimum": 48.412742,
+        "maximum": 57.111575
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 26.72340962914573,
+        "minimum": 26.248639736124634,
+        "maximum": 29.882115748049053
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.6744652674565583,
+        "minimum": 0.6353942146134183,
+        "maximum": 0.6850516316273407
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 3.4277513843058354,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.03077050100603622,
+        "gpu_packet_prepare_nanoseconds": 0.815797432748538,
+        "gradient_prepare_nanoseconds": 1.0221094775828459,
+        "lookup_prepare_nanoseconds": 1.9655550916179336,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.4717048596491228
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 8,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1487,
+      "steps_per_second": {
+        "median": 126.3458187888968,
+        "minimum": 109.70869340252145,
+        "maximum": 130.5856557525596
+      },
+      "step_p99_ms": {
+        "median": 71.787885,
+        "minimum": 67.847625,
+        "maximum": 87.691304
+      },
+      "lookup_p99_ms": {
+        "median": 47.420245,
+        "minimum": 45.928153,
+        "maximum": 55.661921
+      },
+      "push_p99_ms": {
+        "median": 48.531501,
+        "minimum": 47.810288,
+        "maximum": 57.56617
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 25.876436778536586,
+        "minimum": 24.90478641627247,
+        "maximum": 29.757118160893853
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.875142433040766,
+        "minimum": 0.870536379482897,
+        "maximum": 0.9077251239016728
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 3.636482794921875,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.023960908203125,
+        "gpu_packet_prepare_nanoseconds": 0.744198328125,
+        "gradient_prepare_nanoseconds": 0.954598310546875,
+        "lookup_prepare_nanoseconds": 1.8065511328125,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.43835122265625
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 16,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1449,
+      "steps_per_second": {
+        "median": 117.85017555528366,
+        "minimum": 106.47643789684861,
+        "maximum": 127.34565616371044
+      },
+      "step_p99_ms": {
+        "median": 155.983217,
+        "minimum": 135.412348,
+        "maximum": 162.547306
+      },
+      "lookup_p99_ms": {
+        "median": 106.740661,
+        "minimum": 95.221254,
+        "maximum": 116.210283
+      },
+      "push_p99_ms": {
+        "median": 104.88492,
+        "minimum": 94.728022,
+        "maximum": 113.766768
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 61.01073738643371,
+        "minimum": 56.55219928122021,
+        "maximum": 67.64358691695108
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.6478766328978717,
+        "minimum": 0.6413125499477338,
+        "maximum": 0.6723979636216808
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 3.502595255144033,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.030404004115226337,
+        "gpu_packet_prepare_nanoseconds": 0.8224374300411523,
+        "gradient_prepare_nanoseconds": 1.038733109053498,
+        "lookup_prepare_nanoseconds": 1.979006061728395,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.4836200308641975
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 16,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1242,
+      "steps_per_second": {
+        "median": 98.99314377499451,
+        "minimum": 94.66238869567745,
+        "maximum": 108.0703199605227
+      },
+      "step_p99_ms": {
+        "median": 189.334523,
+        "minimum": 163.805065,
+        "maximum": 190.711755
+      },
+      "lookup_p99_ms": {
+        "median": 125.551796,
+        "minimum": 114.409131,
+        "maximum": 136.211073
+      },
+      "push_p99_ms": {
+        "median": 139.167162,
+        "minimum": 120.170497,
+        "maximum": 145.17978
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 72.92324509325154,
+        "minimum": 66.73135252631579,
+        "maximum": 76.40246101412066
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.963052099761332,
+        "minimum": 0.9597052759584136,
+        "maximum": 0.9713171076304766
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 5.757902513513514,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.023953159705159707,
+        "gpu_packet_prepare_nanoseconds": 0.7572493120393121,
+        "gradient_prepare_nanoseconds": 0.9825609778869778,
+        "lookup_prepare_nanoseconds": 1.8645509017199018,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.4528801233933162
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 32,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1425,
+      "steps_per_second": {
+        "median": 114.7766617066115,
+        "minimum": 101.17671543616282,
+        "maximum": 121.48034186933272
+      },
+      "step_p99_ms": {
+        "median": 308.1815,
+        "minimum": 295.674121,
+        "maximum": 378.164365
+      },
+      "lookup_p99_ms": {
+        "median": 216.184125,
+        "minimum": 211.039047,
+        "maximum": 252.168522
+      },
+      "push_p99_ms": {
+        "median": 214.989653,
+        "minimum": 207.326051,
+        "maximum": 254.312256
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 129.92288642590674,
+        "minimum": 122.86738725463414,
+        "maximum": 146.62738204866744
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.6649352149252832,
+        "minimum": 0.6564926301421347,
+        "maximum": 0.6730770116133207
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 3.446532371369295,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.032607881742738584,
+        "gpu_packet_prepare_nanoseconds": 0.8627693340248963,
+        "gradient_prepare_nanoseconds": 1.1190821970954357,
+        "lookup_prepare_nanoseconds": 2.067615670124481,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.5052917593360996
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 32,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 893,
+      "steps_per_second": {
+        "median": 67.88700464753948,
+        "minimum": 64.68725163616654,
+        "maximum": 73.27667983927878
+      },
+      "step_p99_ms": {
+        "median": 501.720099,
+        "minimum": 457.7544,
+        "maximum": 523.707827
+      },
+      "lookup_p99_ms": {
+        "median": 401.79953,
+        "minimum": 364.399583,
+        "maximum": 428.475925
+      },
+      "push_p99_ms": {
+        "median": 421.285984,
+        "minimum": 389.232179,
+        "maximum": 448.725777
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 219.155592910017,
+        "minimum": 203.11736801560062,
+        "maximum": 229.80105547406083
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.994609809336124,
+        "minimum": 0.9910905810915923,
+        "maximum": 0.9952437086849568
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 10.505724027210883,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.02651665306122449,
+        "gpu_packet_prepare_nanoseconds": 0.7306533835125448,
+        "gradient_prepare_nanoseconds": 0.9708448537414965,
+        "lookup_prepare_nanoseconds": 1.817130149659864,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.4385120986394558
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 4,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1863,
+      "steps_per_second": {
+        "median": 159.17785046140204,
+        "minimum": 144.2670209675651,
+        "maximum": 159.45456996663194
+      },
+      "step_p99_ms": {
+        "median": 40.928394,
+        "minimum": 37.637381,
+        "maximum": 54.160328
+      },
+      "lookup_p99_ms": {
+        "median": 26.570309,
+        "minimum": 26.029486,
+        "maximum": 38.4307
+      },
+      "push_p99_ms": {
+        "median": 20.590836,
+        "minimum": 19.258397,
+        "maximum": 24.936758
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 3.3703063438719747,
+        "minimum": 2.975771843530787,
+        "maximum": 4.153169245922746
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.29778705667203664,
+        "minimum": 0.2968327938398989,
+        "maximum": 0.3112912901741783
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 14.521313929797191,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.0464469078125,
+        "gpu_packet_prepare_nanoseconds": 1.23528973125,
+        "gradient_prepare_nanoseconds": 1.6399390140625,
+        "lookup_prepare_nanoseconds": 2.594462278125,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.793896071875
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 4,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1799,
+      "steps_per_second": {
+        "median": 151.163111433603,
+        "minimum": 143.08169245697334,
+        "maximum": 153.18299950611936
+      },
+      "step_p99_ms": {
+        "median": 47.553473,
+        "minimum": 44.23491,
+        "maximum": 56.935803
+      },
+      "lookup_p99_ms": {
+        "median": 31.15389,
+        "minimum": 28.286518,
+        "maximum": 34.470546
+      },
+      "push_p99_ms": {
+        "median": 22.525571,
+        "minimum": 20.699352,
+        "maximum": 24.658898
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 3.4124275369244135,
+        "minimum": 3.0515501601784267,
+        "maximum": 3.6938616550944947
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.34388971993746914,
+        "minimum": 0.33062001265805663,
+        "maximum": 0.35459251521691415
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 15.580755102272727,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.047320023026315786,
+        "gpu_packet_prepare_nanoseconds": 1.292678404605263,
+        "gradient_prepare_nanoseconds": 1.7014974817391304,
+        "lookup_prepare_nanoseconds": 2.6474272817391307,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.8331831398026316
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 8,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1865,
+      "steps_per_second": {
+        "median": 151.2843053058275,
+        "minimum": 150.72705724266072,
+        "maximum": 159.54299292086293
+      },
+      "step_p99_ms": {
+        "median": 77.885617,
+        "minimum": 62.19597,
+        "maximum": 78.454788
+      },
+      "lookup_p99_ms": {
+        "median": 53.376588,
+        "minimum": 42.972156,
+        "maximum": 57.321476
+      },
+      "push_p99_ms": {
+        "median": 32.997617,
+        "minimum": 27.318176,
+        "maximum": 40.05828
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 10.016199297443842,
+        "minimum": 9.546919795939294,
+        "maximum": 10.096197362632871
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.2999799279153015,
+        "minimum": 0.298979919321964,
+        "maximum": 0.3339253570820586
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 18.874116091653026,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.04928165891472868,
+        "gpu_packet_prepare_nanoseconds": 1.2381406239737274,
+        "gradient_prepare_nanoseconds": 1.6581866371100162,
+        "lookup_prepare_nanoseconds": 2.642129653027823,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.8004637553366174
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 8,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1777,
+      "steps_per_second": {
+        "median": 145.1972603836375,
+        "minimum": 143.19092254386788,
+        "maximum": 149.5064224721028
+      },
+      "step_p99_ms": {
+        "median": 80.762575,
+        "minimum": 72.245802,
+        "maximum": 96.480707
+      },
+      "lookup_p99_ms": {
+        "median": 57.639775,
+        "minimum": 48.933054,
+        "maximum": 66.722683
+      },
+      "push_p99_ms": {
+        "median": 37.093771,
+        "minimum": 32.884886,
+        "maximum": 38.56075
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 10.358609193480103,
+        "minimum": 9.823850447177074,
+        "maximum": 10.890363988608119
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.4113939968143475,
+        "minimum": 0.3981439560745172,
+        "maximum": 0.4456081146188176
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 20.421254725423726,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.05142660616438356,
+        "gpu_packet_prepare_nanoseconds": 1.296210589041096,
+        "gradient_prepare_nanoseconds": 1.7028211506849316,
+        "lookup_prepare_nanoseconds": 2.685653613559322,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.8342390479452054
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 16,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1926,
+      "steps_per_second": {
+        "median": 158.40483714216296,
+        "minimum": 151.08898465423013,
+        "maximum": 163.20116521542104
+      },
+      "step_p99_ms": {
+        "median": 127.034886,
+        "minimum": 117.236506,
+        "maximum": 128.520613
+      },
+      "lookup_p99_ms": {
+        "median": 78.042885,
+        "minimum": 71.722277,
+        "maximum": 79.610337
+      },
+      "push_p99_ms": {
+        "median": 61.539476,
+        "minimum": 55.21808,
+        "maximum": 70.212117
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 26.808951692323316,
+        "minimum": 20.7963713841234,
+        "maximum": 27.3817763445946
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.3143369804076206,
+        "minimum": 0.3101697090019547,
+        "maximum": 0.315148579513206
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 17.91961200927357,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.04597291114457831,
+        "gpu_packet_prepare_nanoseconds": 1.2657720710973726,
+        "gradient_prepare_nanoseconds": 1.6341126325203252,
+        "lookup_prepare_nanoseconds": 2.588147310664606,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.7963359258114374
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 16,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1814,
+      "steps_per_second": {
+        "median": 146.82046889118172,
+        "minimum": 146.69914978348962,
+        "maximum": 150.42850079921766
+      },
+      "step_p99_ms": {
+        "median": 155.157109,
+        "minimum": 142.412868,
+        "maximum": 165.786553
+      },
+      "lookup_p99_ms": {
+        "median": 91.48002,
+        "minimum": 87.633016,
+        "maximum": 96.603091
+      },
+      "push_p99_ms": {
+        "median": 73.970659,
+        "minimum": 71.803825,
+        "maximum": 79.623387
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 27.935709746893124,
+        "minimum": 26.6817488502445,
+        "maximum": 28.26986249310777
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.5343213589146527,
+        "minimum": 0.5323066398499121,
+        "maximum": 0.5664525487508864
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 20.736359706467663,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.04811399502487562,
+        "gpu_packet_prepare_nanoseconds": 1.164118043478261,
+        "gradient_prepare_nanoseconds": 1.5123356488294315,
+        "lookup_prepare_nanoseconds": 2.4679992073578596,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.7699508010033445
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 32,
+      "max_active_operations": 1,
+      "trials": 3,
+      "completed_updates": 1912,
+      "steps_per_second": {
+        "median": 149.19210471207376,
+        "minimum": 147.24324580074824,
+        "maximum": 164.568242924103
+      },
+      "step_p99_ms": {
+        "median": 266.882481,
+        "minimum": 219.027495,
+        "maximum": 292.941621
+      },
+      "lookup_p99_ms": {
+        "median": 165.854089,
+        "minimum": 145.305555,
+        "maximum": 171.062241
+      },
+      "push_p99_ms": {
+        "median": 140.303008,
+        "minimum": 124.493813,
+        "maximum": 158.624457
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 60.017750800326,
+        "minimum": 59.908014736223365,
+        "maximum": 79.8777610869653
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.3066088794038702,
+        "minimum": 0.3034573564319176,
+        "maximum": 0.3334186350837763
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 19.382178703099513,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.04746742794117647,
+        "gpu_packet_prepare_nanoseconds": 1.283093943457189,
+        "gradient_prepare_nanoseconds": 1.7569431841680128,
+        "lookup_prepare_nanoseconds": 2.6326442,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.8081291857835219
+      }
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 32,
+      "max_active_operations": 16,
+      "trials": 3,
+      "completed_updates": 1770,
+      "steps_per_second": {
+        "median": 137.90467391148235,
+        "minimum": 136.72744233565138,
+        "maximum": 151.21319589519084
+      },
+      "step_p99_ms": {
+        "median": 278.669439,
+        "minimum": 262.283955,
+        "maximum": 278.769431
+      },
+      "lookup_p99_ms": {
+        "median": 177.450358,
+        "minimum": 172.477502,
+        "maximum": 188.582831
+      },
+      "push_p99_ms": {
+        "median": 166.851395,
+        "minimum": 159.280278,
+        "maximum": 187.739336
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 67.16035153102625,
+        "minimum": 64.04006467891513,
+        "maximum": 75.36374414763779
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.6767758910417193,
+        "minimum": 0.635987853189576,
+        "maximum": 0.6840974057678018
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 23.176019656742557,
+        "cache_maintenance_nanoseconds": 0.0,
+        "cpu_optimizer_nanoseconds": 0.03758929071803853,
+        "gpu_packet_prepare_nanoseconds": 0.8359132872154116,
+        "gradient_prepare_nanoseconds": 1.231407010507881,
+        "lookup_prepare_nanoseconds": 1.8275013572679508,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.5738614308231174
+      }
+    },
+    {
+      "admission": "reuse_cost",
+      "ps_shards": 4,
+      "learners": 8,
+      "max_active_operations": 1,
+      "trials": 2,
+      "completed_updates": 579,
+      "steps_per_second": {
+        "median": 93.4734353293353,
+        "minimum": 88.2657304637965,
+        "maximum": 98.68114019487409
+      },
+      "step_p99_ms": {
+        "median": 184.52015,
+        "minimum": 128.167192,
+        "maximum": 240.873108
+      },
+      "lookup_p99_ms": {
+        "median": 144.7600875,
+        "minimum": 92.502557,
+        "maximum": 197.017618
+      },
+      "push_p99_ms": {
+        "median": 93.3308745,
+        "minimum": 90.36626,
+        "maximum": 96.295489
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 21.654921937267737,
+        "minimum": 20.790894928981935,
+        "maximum": 22.51894894555354
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.510160209094453,
+        "minimum": 0.4911195351082621,
+        "maximum": 0.529200883080644
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 18.539847660544257,
+        "cache_maintenance_nanoseconds": 11.602158480245215,
+        "cpu_optimizer_nanoseconds": 0.05323034969497607,
+        "gpu_packet_prepare_nanoseconds": 1.060025404533493,
+        "gradient_prepare_nanoseconds": 1.6128118347667464,
+        "lookup_prepare_nanoseconds": 4.378219588977272,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.7200720806638756
+      }
+    },
+    {
+      "admission": "reuse_cost",
+      "ps_shards": 4,
+      "learners": 8,
+      "max_active_operations": 16,
+      "trials": 2,
+      "completed_updates": 648,
+      "steps_per_second": {
+        "median": 105.8489806353493,
+        "minimum": 102.85473298419107,
+        "maximum": 108.84322828650753
+      },
+      "step_p99_ms": {
+        "median": 119.7206915,
+        "minimum": 109.435002,
+        "maximum": 130.006381
+      },
+      "lookup_p99_ms": {
+        "median": 89.1987845,
+        "minimum": 84.571589,
+        "maximum": 93.82598
+      },
+      "push_p99_ms": {
+        "median": 87.1205695,
+        "minimum": 76.525958,
+        "maximum": 97.715181
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 18.321431909159926,
+        "minimum": 17.466883617716537,
+        "maximum": 19.17598020060332
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.568846663716519,
+        "minimum": 0.5637477952933865,
+        "maximum": 0.5739455321396516
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 18.000113773556855,
+        "cache_maintenance_nanoseconds": 9.942608605297016,
+        "cpu_optimizer_nanoseconds": 0.04595090300399325,
+        "gpu_packet_prepare_nanoseconds": 0.968989350862981,
+        "gradient_prepare_nanoseconds": 1.4591610686143701,
+        "lookup_prepare_nanoseconds": 3.8474737825917065,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.641642416260829
+      }
+    },
+    {
+      "admission": "reuse_cost",
+      "ps_shards": 4,
+      "learners": 16,
+      "max_active_operations": 1,
+      "trials": 2,
+      "completed_updates": 678,
+      "steps_per_second": {
+        "median": 107.78262171575295,
+        "minimum": 107.74199644063026,
+        "maximum": 107.82324699087566
+      },
+      "step_p99_ms": {
+        "median": 191.429076,
+        "minimum": 181.422063,
+        "maximum": 201.436089
+      },
+      "lookup_p99_ms": {
+        "median": 137.14229949999998,
+        "minimum": 131.638469,
+        "maximum": 142.64613
+      },
+      "push_p99_ms": {
+        "median": 134.31343850000002,
+        "minimum": 134.172234,
+        "maximum": 134.454643
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 42.460868639372194,
+        "minimum": 42.25377963828239,
+        "maximum": 42.667957640462
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.5649710729670645,
+        "minimum": 0.563170897284814,
+        "maximum": 0.5667712486493149
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 14.27653484487185,
+        "cache_maintenance_nanoseconds": 11.283357438553589,
+        "cpu_optimizer_nanoseconds": 0.045052891584352286,
+        "gpu_packet_prepare_nanoseconds": 1.0053168865497586,
+        "gradient_prepare_nanoseconds": 1.4356235705495846,
+        "lookup_prepare_nanoseconds": 4.155800590927288,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.6963169990992559
+      }
+    },
+    {
+      "admission": "reuse_cost",
+      "ps_shards": 4,
+      "learners": 16,
+      "max_active_operations": 16,
+      "trials": 2,
+      "completed_updates": 723,
+      "steps_per_second": {
+        "median": 116.19738825512593,
+        "minimum": 108.9338741194309,
+        "maximum": 123.46090239082095
+      },
+      "step_p99_ms": {
+        "median": 218.11902650000002,
+        "minimum": 161.471326,
+        "maximum": 274.766727
+      },
+      "lookup_p99_ms": {
+        "median": 98.033931,
+        "minimum": 90.095564,
+        "maximum": 105.972298
+      },
+      "push_p99_ms": {
+        "median": 160.03740299999998,
+        "minimum": 110.972712,
+        "maximum": 209.102094
+      },
+      "queue_wait_per_operation_ms": {
+        "median": 40.49833230610733,
+        "minimum": 39.10739853673602,
+        "maximum": 41.889266075478645
+      },
+      "sequencer_busy_fraction": {
+        "median": 0.6809403852896279,
+        "minimum": 0.656142830165771,
+        "maximum": 0.7057379404134847
+      },
+      "aggregate_inclusive_phase_ms_per_update": {
+        "agent_wait_nanoseconds": 14.676421369584254,
+        "cache_maintenance_nanoseconds": 9.839219598877674,
+        "cpu_optimizer_nanoseconds": 0.03648791130853614,
+        "gpu_packet_prepare_nanoseconds": 0.8681201821649152,
+        "gradient_prepare_nanoseconds": 1.2140235228037426,
+        "lookup_prepare_nanoseconds": 3.575795981137076,
+        "migration_nanoseconds": 0.0,
+        "update_dispatch_nanoseconds": 0.59294522249493
+      }
+    }
+  ],
+  "paired": [
+    {
+      "admission": "frequency",
+      "ps_shards": 4,
+      "learners": 8,
+      "throughput_ratio": 0.9848487623117925,
+      "p99_ratio": 1.043968952718721,
+      "serialized_updates_per_second": 102.14837426864445,
+      "resumable_updates_per_second": 100.60069997063624
+    },
+    {
+      "admission": "frequency",
+      "ps_shards": 4,
+      "learners": 16,
+      "throughput_ratio": 0.9172325569903741,
+      "p99_ratio": 1.0720629589951014,
+      "serialized_updates_per_second": 111.18994852258317,
+      "resumable_updates_per_second": 101.98704079499703
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 4,
+      "throughput_ratio": 1.0924367974258786,
+      "p99_ratio": 1.1996209668541047,
+      "serialized_updates_per_second": 110.30883026814796,
+      "resumable_updates_per_second": 120.50542526593038
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 8,
+      "throughput_ratio": 1.0295796295782915,
+      "p99_ratio": 0.8360435771001861,
+      "serialized_updates_per_second": 122.71592712129237,
+      "resumable_updates_per_second": 126.3458187888968
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 16,
+      "throughput_ratio": 0.8399914833266983,
+      "p99_ratio": 1.213813425837986,
+      "serialized_updates_per_second": 117.85017555528366,
+      "resumable_updates_per_second": 98.99314377499451
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 1,
+      "learners": 32,
+      "throughput_ratio": 0.5914704578276558,
+      "p99_ratio": 1.6280020020669637,
+      "serialized_updates_per_second": 114.7766617066115,
+      "resumable_updates_per_second": 67.88700464753948
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 4,
+      "throughput_ratio": 0.9496491565593639,
+      "p99_ratio": 1.161869996658066,
+      "serialized_updates_per_second": 159.17785046140204,
+      "resumable_updates_per_second": 151.163111433603
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 8,
+      "throughput_ratio": 0.9597642008542474,
+      "p99_ratio": 1.0369382449650493,
+      "serialized_updates_per_second": 151.2843053058275,
+      "resumable_updates_per_second": 145.1972603836375
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 16,
+      "throughput_ratio": 0.9268685953031557,
+      "p99_ratio": 1.2213740168980038,
+      "serialized_updates_per_second": 158.40483714216296,
+      "resumable_updates_per_second": 146.82046889118172
+    },
+    {
+      "admission": "manual",
+      "ps_shards": 4,
+      "learners": 32,
+      "throughput_ratio": 0.9243429749692516,
+      "p99_ratio": 1.0441653493171776,
+      "serialized_updates_per_second": 149.19210471207376,
+      "resumable_updates_per_second": 137.90467391148235
+    },
+    {
+      "admission": "reuse_cost",
+      "ps_shards": 4,
+      "learners": 8,
+      "throughput_ratio": 1.1323963890105375,
+      "p99_ratio": 0.6488217763751005,
+      "serialized_updates_per_second": 93.4734353293353,
+      "resumable_updates_per_second": 105.8489806353493
+    },
+    {
+      "admission": "reuse_cost",
+      "ps_shards": 4,
+      "learners": 16,
+      "throughput_ratio": 1.0780716446252774,
+      "p99_ratio": 1.1394247470535772,
+      "serialized_updates_per_second": 107.78262171575295,
+      "resumable_updates_per_second": 116.19738825512593
+    }
+  ]
+}

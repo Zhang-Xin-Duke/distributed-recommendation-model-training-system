@@ -99,6 +99,8 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     assert len(metrics) == 2 and all(m["updates"] == 5 and m["live_tickets"] == 0 for m in metrics), metrics
     assert all(m["waiting_operations"] == 0 and m["active_payload_bytes"] == 0 and
                m["active_operations"] >= 1 and m["dependency_payload_bytes"] == 0 for m in metrics), metrics
+    assert all(m["dependency_prepare_nanoseconds"] > 0 and m["dependency_rebuilds"] > 0 and
+               m["dependency_cache_hits"] >= 0 for m in metrics), metrics
     assert all(m["lookup_prepare_nanoseconds"] > 0 and m["gradient_prepare_nanoseconds"] > 0 and m["cpu_optimizer_nanoseconds"] > 0 for m in metrics), metrics
     automatic = os.environ.get("EPS_TEST_AUTO_CACHE") == "1"
     if automatic:

@@ -194,9 +194,28 @@ void AutomaticPolicyKeepsReadProgress() {
   auto stats=Get(service.Stats());Check(stats.updates==1 && stats.policy_windows==2 &&
     stats.policy_failures==0 && stats.live_tickets==0,"exclusive policy window changed request completion or cleanup");
 }
+void OwnershipInvalidatesQueuedPlan() {
+  RuntimeOptions options;options.run_id="resumable-plan-epoch";CpuParameterService service(options);
+  auto backend=std::make_shared<DelayedBackend>(0);Get(service.AttachAgent(0,backend));Get(service.CreateTable(Table(1)));
+  Seed(service,options.run_id,1,1,0);Seed(service,options.run_id,1,3,1);
+  Get(service.MoveRows({options.run_id,{{1,3}},0,Placement::gpu,{4096,4096,4,0}}));
+  auto training=Get(service.Lookup(Lookup(options.run_id,2,1,3,false)));
+  auto load_gate=backend->Arm("load");auto move=service.MoveRows({options.run_id,{{1,1}},0,Placement::gpu,{4096,4096,4,0}});load_gate.Started();
+  // Queue a read for the location this in-flight move will publish. Its first
+  // plan sees CPU ownership; after load it must acquire the new agent stream.
+  auto read=service.ReadState({{{1,1},0,Placement::gpu,0,1,0}});
+  auto read_gate=backend->Arm("readback");auto update=service.Push(Push(options.run_id,2,training.ticket));
+  auto marker=Get(service.Lookup(Lookup(options.run_id,3,1,8)));Release(service,options.run_id,3,marker.ticket);
+  load_gate.Open();Get(std::move(move));read_gate.Started();
+  Check(update.wait_for(30ms)!=std::future_status::ready,"queued plan failed to acquire the newly published agent control stream");
+  read_gate.Open();auto states=Get(std::move(read));Get(std::move(update));
+  Check(states.size()==1 && states[0].weights==std::vector<float>({.25f,.25f}),"readback changed after dependency invalidation");
+  auto stats=Get(service.Stats());Check(stats.dependency_rebuilds>0 && stats.dependency_prepare_nanoseconds>0 &&
+    stats.dependency_payload_bytes==0,"service did not expose/reclaim dependency plans");
+}
 }
 int main() {
-  try{UpdateOrderingAndSave();MigrationExclusion();FailureFencesOtherContinuations();AutomaticPolicyKeepsReadProgress();
+  try{UpdateOrderingAndSave();MigrationExclusion();FailureFencesOtherContinuations();AutomaticPolicyKeepsReadProgress();OwnershipInvalidatesQueuedPlan();
     std::cout<<"PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing\n";return 0;
   }catch(const std::exception& e){std::cerr<<"FAIL resumable service: "<<e.what()<<'\n';return 1;}
 }

@@ -63,6 +63,7 @@ int main(int argc,char** argv) {
       options.max_active_operations=l.value("max_active_operations",options.max_active_operations);
       options.completion_waiters=l.value("completion_waiters",options.completion_waiters);
       options.dependency_payload_bytes=l.value("dependency_payload_bytes",options.dependency_payload_bytes);
+      options.cache_dependencies=l.value("cache_dependencies",options.cache_dependencies);
     }
     CpuParameterService service(options);
     if(!restore.empty())Value(service.Restore(restore));

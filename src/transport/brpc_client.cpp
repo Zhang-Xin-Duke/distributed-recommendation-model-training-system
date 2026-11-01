@@ -38,6 +38,7 @@ std::future<Result<RuntimeStats>> BrpcParameterService::Stats(){
       EPS_STAT(policy_migration_batches) EPS_STAT(policy_migration_bytes) EPS_STAT(policy_failures)
       EPS_STAT(lookup_prepare_nanoseconds) EPS_STAT(gradient_prepare_nanoseconds) EPS_STAT(gpu_packet_prepare_nanoseconds) EPS_STAT(update_dispatch_nanoseconds) EPS_STAT(cpu_optimizer_nanoseconds) EPS_STAT(agent_wait_nanoseconds) EPS_STAT(migration_nanoseconds) EPS_STAT(cache_maintenance_nanoseconds)
       EPS_STAT(active_operations) EPS_STAT(waiting_operations) EPS_STAT(active_payload_bytes) EPS_STAT(dependency_payload_bytes)
+      EPS_STAT(dependency_prepare_nanoseconds) EPS_STAT(dependency_rebuilds) EPS_STAT(dependency_cache_hits)
 #undef EPS_STAT
       return s;});
 }

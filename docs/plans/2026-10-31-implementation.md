@@ -20,7 +20,7 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
 | 3. Framework integration | C++ Pull/Push/Join adapter and portable TensorFlow host bridge implemented; real graph/external-shard check passed; native original-application build and device interop pending |
 | 4. GPU cache agent | CUDA resident gather/Adam, full-state loading/writeback, generation fencing and cache-draining restore verified on L40; individual A6000 checks also passed |
-| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic windowed frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; real CUDA and fixed-trace evaluation checked; bounded asynchronous input preparation and eight service phase counters checked locally and on A6000 |
+| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
