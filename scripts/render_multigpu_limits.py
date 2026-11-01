@@ -51,6 +51,8 @@ def main():
         "Three 4-second windows + full drain per point; median and observed range. One local agent; additional agents use SSH-forwarded BRPC.",fontsize=9)
     args.out.mkdir(parents=True,exist_ok=True)
     fig.savefig(args.out/"multigpu-limits.svg",bbox_inches="tight",facecolor="white",metadata={"Date":None})
+    svg=args.out/"multigpu-limits.svg"
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines())+"\n")
     fig.savefig(args.out/"multigpu-limits.png",bbox_inches="tight",facecolor="white",dpi=160)
 
 
