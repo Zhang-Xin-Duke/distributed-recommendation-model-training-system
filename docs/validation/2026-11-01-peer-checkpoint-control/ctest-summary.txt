@@ -1,0 +1,19 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/tensorflow
+    Start 12: entropy_table_hook_configuration
+1/7 Test #12: entropy_table_hook_configuration .........   Passed    0.09 sec
+    Start 13: checkpoint_filesystem_contract
+2/7 Test #13: checkpoint_filesystem_contract ...........   Passed    0.05 sec
+    Start 14: committed_checkpoint_staging
+3/7 Test #14: committed_checkpoint_staging .............   Passed    0.05 sec
+    Start 15: entropy_original_table_external_shards
+4/7 Test #15: entropy_original_table_external_shards ...   Passed    4.35 sec
+    Start 16: entropy_original_table_cache
+5/7 Test #16: entropy_original_table_cache .............   Passed    3.99 sec
+    Start 17: entropy_original_restore_trajectory
+6/7 Test #17: entropy_original_restore_trajectory ......   Passed   19.41 sec
+    Start 18: entropy_peer_checkpoint_control
+7/7 Test #18: entropy_peer_checkpoint_control ..........   Passed    7.77 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) =  35.71 sec

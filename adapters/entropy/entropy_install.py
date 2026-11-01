@@ -121,6 +121,7 @@ class Installation:
             raise RuntimeError('external table hooks are already installed')
         self._lock=threading.RLock()
         self._backends={}
+        self._administrative_backend=None
         self._states={}
         self._originals={}
         self._wrappers={}
@@ -246,11 +247,26 @@ class Installation:
             values['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)
         return values
 
+    def _control_backend(self):
+        with self._lock:
+            if self._administrative_backend is None:
+                if self.config.backend=='native':
+                    from native_session_backend import NativeSessionBackend
+                    values=dict(run=self.config.run,endpoints=self.config.endpoints,learner=0,
+                        epoch=self.config.epoch,max_live=1,tables=[])
+                    self._administrative_backend=NativeSessionBackend(values,device='/CPU:0',
+                        **{k:v for k,v in self.config.native.items() if k in ('op_library','runtime_library')})
+                else:
+                    from eps_tensorflow import ParameterServer
+                    self._administrative_backend=ParameterServer(self.config.endpoints,self.config.run,0,
+                                                                 self.config.epoch,1)
+            return self._administrative_backend
+
     def _verify_restore(self,path,checkpoint_id):
         import tensorflow as tf
         from checkpoint_restore import verify_restored
         with self._lock:
-            backend=next(iter(self._backends.values())) if self._backends else self._backend(0)
+            backend=next(iter(self._backends.values())) if self._backends else self._control_backend()
         return verify_restored(backend,os.fspath(path),run=self.config.run,epoch=self.config.epoch,
             shard_count=len(self.config.endpoints),filesystem=tf.io.gfile,checkpoint_id=os.fspath(checkpoint_id))
 
@@ -457,9 +473,7 @@ class Installation:
                 if local_backend is not None:local_backend.backend.join()
                 barrier('DRAINED')
                 if leader:
-                    if not self._backends:
-                        raise RuntimeError('the checkpoint leader has no external parameter backend')
-                    backend=local_backend or next(iter(self._backends.values()))
+                    backend=local_backend or next(iter(self._backends.values()),None) or self._control_backend()
                     transaction['snapshot']='entropy-'+uuid.uuid4().hex
                     backend.save(transaction['snapshot'])
                 barrier('FROZEN')
@@ -561,6 +575,11 @@ class Installation:
                 except Exception as error:
                     if failure is None:failure=error
             self._backends.clear();self._states.clear()
+            if self._administrative_backend is not None:
+                try:self._administrative_backend.close()
+                except Exception as error:
+                    if failure is None:failure=error
+                self._administrative_backend=None
             if self._native_owner is not None:
                 try:self._native_owner.close()
                 except Exception as error:

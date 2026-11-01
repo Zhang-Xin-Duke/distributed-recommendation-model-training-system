@@ -33,6 +33,9 @@ including a mid-run original-controller checkpoint.
 [Native table installation](docs/NATIVE_TABLE_INSTALLATION.md) selects Eps
 operations through the same job configuration, with one shared context per
 learner and an early-started GPU owner per worker.
+[Peer-coordinated checkpoints](docs/PEER_CHECKPOINTS.md) also support a chief
+without an external learner table; two-process/four-thread checks cover repeated
+commit, admission control and a failed model save.
 
 ![Large-table multi-GPU scaling](docs/assets/overload-large-table-scaling.svg)
 

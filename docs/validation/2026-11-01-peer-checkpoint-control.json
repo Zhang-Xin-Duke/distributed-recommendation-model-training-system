@@ -1,0 +1,47 @@
+{
+  "base_commit": "1fdd4fc47125574be7cc00346d527421a4df540a",
+  "platform": "macOS arm64",
+  "backend": "portable",
+  "ctest": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "configuration_unit_tests": 6,
+  "regression": {
+    "prior_adapter_commit": "1fdd4fc47125574be7cc00346d527421a4df540a",
+    "prior_adapter_sha256": "82961cd5f063547e7490002ae1fa1c994234bec32d4fc7c6e846ef19b6a53150",
+    "expected_failure": "the checkpoint leader has no external parameter backend",
+    "observed": true
+  },
+  "peer_processes": 2,
+  "learner_threads_per_peer": 2,
+  "parameter_shards": 2,
+  "completed_checkpoints": 2,
+  "global_barrier_rounds": 24,
+  "checks": [
+    "administrative-only chief",
+    "joint marker withheld until all peers complete",
+    "frozen admission during save",
+    "SHA-256 of all exported shards",
+    "repeated save/resume",
+    "dense-save failure remains uncommitted and frozen"
+  ],
+  "original_python_barrier_execution": true,
+  "native_cluster_rendezvous": "bounded test network coordinator",
+  "native_original_application_verified": false,
+  "native_original_reader_verified": false,
+  "native_original_cluster_barrier_verified": false,
+  "native_administrative_context": "mock configuration/lifetime test; native GPU administrative context not executed in this check",
+  "failure_cleanup": "owned peer process groups terminated; original local Python barrier has no cancellation API",
+  "additional_gpu_rentals": 0,
+  "source_and_binary_sha256": {
+    "CMakeLists.txt": "107cd27ba51a9d539adb22626ec941696681a8bbe9aeac8f3665c7291dd33528",
+    "adapters/entropy/entropy_install.py": "6b9843ec468cf6f37458daf1dbc4a7d0d4b23f862e4145b0b876caf6a3e2743b",
+    "tests/entropy_peer_checkpoint.py": "9311b7d6dbcf609795f9fdf889dac2a9f5bc25cff84537849bcc2d6cd426bfd8",
+    "tests/entropy_source_contract.py": "eaff9acbae245fb7525dd1ca47076374899cea2155e0b5a1c1ad48c749ac3eac",
+    "tests/entropy_install_tests.py": "5833e1f3626be74ba741436623aa5743a46d8b558d7091fc9435952057ba6392",
+    "build/tensorflow/eps_server": "5c721a75de83841209abb99f5eb4c2781d313f67fd6c5cc5847d030e43e6c51a",
+    "build/tensorflow/python/_eps_native.cpython-311-darwin.so": "96d8535a1de7ff6bd605a0b8b62c29ac9e96b056dccf217b42a19f8450ab858b"
+  }
+}

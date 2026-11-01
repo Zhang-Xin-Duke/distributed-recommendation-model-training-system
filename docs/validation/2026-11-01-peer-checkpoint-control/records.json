@@ -1,0 +1,106 @@
+[
+  {
+    "test": "peer_checkpoint_repeated_commit",
+    "peers": 2,
+    "learner_threads": 4,
+    "checkpoints": 2,
+    "updates_per_shard": 4,
+    "admission_resumed": true,
+    "precommit_marker_absent": true,
+    "administrative_only_chief": true,
+    "exported_shard_hashes_verified": true,
+    "global_barrier_rounds": 24,
+    "peer_records": [
+      {
+        "peer": 0,
+        "learner_threads": 2,
+        "backend_ids": [],
+        "administrative_backend": true,
+        "source": {
+          "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+          "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "barriers": {
+            "env_sha256": "3f008684a79f5e9d44d8eb9818b2e9b5b76b4980cb9f842d44cd3cd0e7527cbe",
+            "definitions": [
+              "Barrier",
+              "MultiThreadingLearner.current_id",
+              "MultiThreadingLearner.is_chief",
+              "MultiThreadingLearner.barrier",
+              "env.barrier"
+            ],
+            "native_cluster_call": "test network rendezvous; original native C++ cluster library not loaded"
+          },
+          "legacy_executor_learner_context": "test fallback to local chief; native framework TLS not loaded"
+        }
+      },
+      {
+        "peer": 1,
+        "learner_threads": 2,
+        "backend_ids": [
+          4,
+          7
+        ],
+        "administrative_backend": false,
+        "source": {
+          "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+          "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "barriers": {
+            "env_sha256": "3f008684a79f5e9d44d8eb9818b2e9b5b76b4980cb9f842d44cd3cd0e7527cbe",
+            "definitions": [
+              "Barrier",
+              "MultiThreadingLearner.current_id",
+              "MultiThreadingLearner.is_chief",
+              "MultiThreadingLearner.barrier",
+              "env.barrier"
+            ],
+            "native_cluster_call": "test network rendezvous; original native C++ cluster library not loaded"
+          },
+          "legacy_executor_learner_context": "test fallback to local chief; native framework TLS not loaded"
+        }
+      }
+    ]
+  },
+  {
+    "test": "peer_checkpoint_dense_failure",
+    "peers": 2,
+    "learner_threads": 4,
+    "joint_marker_absent": true,
+    "admission_frozen": true,
+    "live_tickets": 0,
+    "recovery": "owned test process groups terminated; original local barriers have no abort API"
+  }
+]

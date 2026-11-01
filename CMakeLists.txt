@@ -275,6 +275,11 @@ if(EPS_BUILD_BRPC)
         add_test(NAME entropy_original_restore_trajectory
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_restore_processes.py"
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent> $<TARGET_FILE:eps_snapshot_compare>)
+        add_test(NAME entropy_peer_checkpoint_control
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_peer_checkpoint.py"
+            $<TARGET_FILE:eps_server>)
+        set_tests_properties(entropy_peer_checkpoint_control PROPERTIES TIMEOUT 180 SKIP_RETURN_CODE 77
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         set_tests_properties(entropy_original_restore_trajectory PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         set_tests_properties(entropy_original_table_external_shards entropy_original_table_cache PROPERTIES

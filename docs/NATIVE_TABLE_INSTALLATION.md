@@ -106,6 +106,10 @@ hex-encoded on this control path. Training tensors continue to use native buffer
 
 The same original restore hooks verify pristine loaded shard identities before
 dense/input continuation. A failed joint save leaves parameter admission frozen.
+If the chief has no selected external table, a separate administrative backend
+performs checkpoint control. Its CPU-only Session has no GPU owner or learner
+lookup state. [Peer coordination](PEER_CHECKPOINTS.md) describes the lifecycle
+and its portable two-process/four-thread checks.
 
 ## Verification scope
 

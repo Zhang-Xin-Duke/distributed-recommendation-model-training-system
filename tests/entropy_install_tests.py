@@ -7,6 +7,7 @@ import sys
 import tempfile
 import types
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'adapters/entropy'))
 from entropy_install import JobConfiguration, install
@@ -83,6 +84,31 @@ class Configuration(unittest.TestCase):
                 '--train-module','example_training','--entry-script',str(root/'entry.py'),'--','--job-name','demo'],
                 env=env,capture_output=True,text=True,timeout=20,check=True)
             self.assertIn('ENTRY_OK',result.stdout)
+
+    def test_native_administrative_context_has_no_gpu_owner(self):
+        class SparseTable:pass
+        for name in ['_create_table','embedding_lookup_and_pooling','vars','output',
+                     'apply_gradients','set_prediction','set_training','set_upsert']:
+            setattr(SparseTable,name,lambda *args,**kwargs:None)
+        events=[]
+        class Owner:
+            def __init__(self,values,**options):events.append(('owner',values,options))
+            def close(self):events.append(('owner_closed',))
+        class Control:
+            def __init__(self,values,**options):events.append(('control',values,options))
+            def close(self):events.append(('control_closed',))
+        values=dict(configuration(),backend='native',native=dict(device='/GPU:0',cuda=dict(agent=3)))
+        modules={'native_worker_owner':types.SimpleNamespace(NativeWorkerOwner=Owner),
+                 'native_session_backend':types.SimpleNamespace(NativeSessionBackend=Control)}
+        with mock.patch.dict(sys.modules,modules):
+            with install(types.SimpleNamespace(SparseTable=SparseTable),values) as hooks:
+                backend=hooks._control_backend()
+                self.assertIs(backend,hooks._control_backend())
+                self.assertEqual(hooks.backends(),{})
+                call=next(e for e in events if e[0]=='control')
+                self.assertNotIn('cuda',call[1]);self.assertNotIn('agents',call[1])
+                self.assertEqual(call[2]['device'],'/CPU:0')
+        self.assertEqual([e[0] for e in events],['owner','control','control_closed','owner_closed'])
 
 
 if __name__ == '__main__':unittest.main()

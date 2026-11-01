@@ -1,5 +1,25 @@
 # Validation record
 
+## Peer/thread checkpoint coordination — November 1, 2026
+
+Seven focused configuration, filesystem, original-method, restore and peer
+checkpoint tests pass on macOS arm64. The new two-peer/four-learner case executes
+preserved Python local/global barrier definitions with a bounded test network
+rendezvous and real TensorFlow Sessions/two BRPC shards. A chief without an
+external learner table uses a separate administrative backend. Two repeated
+checkpoints complete 24 global barrier rounds; the pre-commit hold verifies
+frozen admission and an absent joint marker, and all exported shard hashes verify
+after commit. Injected dense-save failure remains uncommitted and frozen.
+
+The previous adapter reproduces `the checkpoint leader has no external parameter
+backend` under the same chief placement. The native administrative client's
+CPU-only configuration and close order have a mock lifetime check. Full original
+C++ cluster/reader execution still needs its absent native runtime artifacts.
+No additional GPU was rented for these control-path checks.
+
+[Protocol and commands](PEER_CHECKPOINTS.md) ·
+[Structured results and source hashes](validation/2026-11-01-peer-checkpoint-control.json)
+
 ## Native original-table installation — November 1, 2026
 
 Source `fc64812` passes 56/56 Ubuntu TensorFlow/CUDA tests with the selected

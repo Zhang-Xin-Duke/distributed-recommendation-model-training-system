@@ -29,7 +29,10 @@ explicit ticket-budget rejection, drain and responsive statistics at 1,022
 Learners. [Native table installation](../NATIVE_TABLE_INSTALLATION.md) now connects
 the original table/Runner boundary to native CPU/CUDA operators with shared
 learner contexts and pre-entry GPU owner startup. Complete original application,
-native reader and multi-peer framework execution remain open.
+native reader and original C++ multi-peer runtime execution remain open.
+[Peer checkpoint checks](../PEER_CHECKPOINTS.md) now execute preserved Python
+barriers across two processes/four learner threads with a test network
+rendezvous; repeated commits and dense-save failure preserve admission state.
 
 ## 1. Build a standalone CPU parameter service
 

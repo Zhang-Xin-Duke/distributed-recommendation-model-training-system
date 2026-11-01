@@ -134,7 +134,10 @@ ctest --test-dir build/tensorflow -V \
 Original-source tests return the explicit CTest skip code 77 when the private
 source snapshot is absent. `EPS_ENTROPY_SOURCE_ROOT` can select that preserved
 snapshot. Public configuration and launcher tests run without private sources.
-Native original-application/reader execution and multi-peer framework-barrier
-execution remain separate requirements. Native CPU/CUDA table methods, shared
+[Two-peer/four-thread checkpoint checks](PEER_CHECKPOINTS.md) execute the
+preserved Python barriers against a bounded network rendezvous, including a
+chief without an external learner table and a failed dense save. Full native
+application/reader and original C++ cluster-barrier execution remain separate
+requirements. Native CPU/CUDA table methods, shared
 context lifetime and native checkpoint continuation are recorded in the
 [native installation checks](validation/2026-11-01-native-table-installation.json).

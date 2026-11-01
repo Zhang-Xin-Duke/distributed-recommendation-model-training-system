@@ -137,3 +137,23 @@ def load(tf):
                 raise ValueError('original definition slice differs from its provenance')
         provenance['reference_slice']=descriptor
     return module,context,provenance
+
+
+def peer_environment(train,get_learner,native_call):
+    path=source_root()/'tensorswitch/python/tensorswitch/env.py'
+    if not path.is_file():raise FileNotFoundError('preserved env.py is required for the peer barrier contract')
+    tree=ast.parse(path.read_text());namespace=dict(threading=threading,logging=logging,call_local_function=native_call)
+    barrier=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='Barrier')
+    original=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='MultiThreadingLearner')
+    methods=[n for n in original.body if (isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='tls' for t in n.targets)) or
+             (isinstance(n,ast.FunctionDef) and n.name in {'current_id','is_chief','barrier'})]
+    local=ast.ClassDef(name=original.name,bases=[],keywords=[],body=methods,decorator_list=[])
+    global_barrier=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='barrier')
+    exec(compile(ast.fix_missing_locations(ast.Module(body=[barrier,local,global_barrier],type_ignores=[])),str(path),'exec'),namespace)
+    train.MultiThreadingLearner=namespace['MultiThreadingLearner']
+    train.get_default_learner=get_learner;train.env._get_default_learner=get_learner
+    train.env.barrier=namespace['barrier'];train.env.call_local_function=native_call
+    return namespace['Barrier'],dict(env_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        definitions=['Barrier','MultiThreadingLearner.current_id','MultiThreadingLearner.is_chief',
+                     'MultiThreadingLearner.barrier','env.barrier'],
+        native_cluster_call='test network rendezvous; original native C++ cluster library not loaded')
