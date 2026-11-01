@@ -23,6 +23,7 @@ def probe(endpoints,root,run,mode,agent=None):
         'worker_restore_sparse_wait','worker_restore_dense']
     config=dict(schema_version=1,run=run,endpoints=endpoints,learner_id_stride=8,
                 tables=dict(users=dict(id=3,seed=42),hashed=dict(id=7)))
+    if os.environ.get('EPS_ENTROPY_BACKEND')=='native':config.update(backend='native',native=dict(device='/CPU:0'))
     if agent:config['cache_agents']=[dict(id=0,endpoint=agent)]
     with install(train,config) as hooks:
         graph=tf.Graph()
@@ -91,6 +92,7 @@ def probe(endpoints,root,run,mode,agent=None):
                 input_cursor_kind='state written by the original-checkpoint feeder stand-in',
                 dense_max_absolute_error=float(np.max(np.abs(actual-expected))),
                 active_service_rewind_rejected=True,parameter_shards=2,
+                table_backend=config.get('backend','portable'),
                 cache_backend=os.environ.get('EPS_CACHE_BACKEND','host') if agent else 'none',source=provenance)),flush=True)
 
 

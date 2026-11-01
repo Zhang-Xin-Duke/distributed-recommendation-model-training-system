@@ -95,6 +95,8 @@ class NativeSessionBackend:
             try:
                 try:self._call('close')
                 except BaseException:
-                    self._call('abort');raise
+                    try:self._call('abort')
+                    except Exception:pass
+                    raise
             finally:
                 self._closed=True;self._graphs.clear();self._commands.clear();self._session.close()

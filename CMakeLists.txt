@@ -284,6 +284,9 @@ if(EPS_BUILD_BRPC)
           add_test(NAME entropy_original_table_native_cpu COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py" $<TARGET_FILE:eps_server>)
           set_tests_properties(entropy_original_table_native_cpu PROPERTIES TIMEOUT 180 SKIP_RETURN_CODE 77
             ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_ENTROPY_BACKEND=native;EPS_TF_OP_LIBRARY=${eps_tf_operations};EPS_NATIVE_RUNTIME=$<TARGET_FILE:eps_runtime>")
+          add_test(NAME entropy_original_restore_native COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_restore_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent> $<TARGET_FILE:eps_snapshot_compare>)
+          set_tests_properties(entropy_original_restore_native PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_ENTROPY_BACKEND=native;EPS_TF_OP_LIBRARY=${eps_tf_operations};EPS_NATIVE_RUNTIME=$<TARGET_FILE:eps_runtime>")
           if(EPS_BUILD_CUDA)
             add_test(NAME entropy_original_table_native_cuda COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py" $<TARGET_FILE:eps_server>)
             set_tests_properties(entropy_original_table_native_cuda PROPERTIES TIMEOUT 180 SKIP_RETURN_CODE 77

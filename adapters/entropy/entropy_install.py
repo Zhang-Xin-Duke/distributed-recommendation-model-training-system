@@ -219,6 +219,7 @@ class Installation:
                     from native_session_backend import NativeSessionBackend
                     configuration=dict(run=self.config.run,endpoints=self.config.endpoints,learner=identifier,
                         epoch=self.config.epoch,max_live=self.config.max_live,tables=[],release_read_only=True,
+                        coalesce_gather=self.config.coalesce,
                         agents=[dict(id=i,endpoint=e) for i,e in self.config.cache_agents])
                     if 'cuda' in self.config.native:
                         configuration['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)

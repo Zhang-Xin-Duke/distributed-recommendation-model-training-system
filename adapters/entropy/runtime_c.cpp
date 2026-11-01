@@ -94,12 +94,12 @@ struct Runtime {
       detail::Require(!remote.contains(agent),"local Agent duplicates remote Agent");gpu_owner=Worker(run,c);
       auto cuda=gpu_owner->backend;backend=cuda;worker=gpu_owner->worker;
       auto host_endpoints=remote;host_endpoints[agent]=std::make_shared<BrpcCacheBackend>(worker->endpoint(),run,0,agent);
-      adapter->SetCacheResolver(MakeCacheResolver(std::move(host_endpoints)),true);
+      adapter->SetCacheResolver(MakeCacheResolver(std::move(host_endpoints)),config.value("coalesce_gather",true));
       adapter->SetDevicePath(MakeDeviceCacheResolver({{agent,[w=worker](auto work,auto layouts){return w->GatherDevice(std::move(work),std::move(layouts));}}},remote),
         [cuda](auto request){return cuda->AssembleFeatures(std::move(request)).get();});
     }else
 #endif
-    {detail::Require(!config.contains("cuda"),"CUDA native runtime is not available");if(!remote.empty())adapter->SetCacheResolver(MakeCacheResolver(std::move(remote)),true);}
+    {detail::Require(!config.contains("cuda"),"CUDA native runtime is not available");if(!remote.empty())adapter->SetCacheResolver(MakeCacheResolver(std::move(remote)),config.value("coalesce_gather",true));}
     for(const auto& definition:config.at("tables"))Take(adapter->CreateTable(Table(definition,shards.size(),epoch)));
   }
   ~Runtime(){adapter.reset();worker.reset();backend.reset();}
