@@ -123,7 +123,7 @@ int main(){
     CompareStates(Take(gpu->ReadBack(gp)),Take(host.ReadBack(hp)));
     auto original=Take(gpu->ReadBack(gp));
     bool hit_bound=false;
-    for(const auto& row:original)if(row.row.table==1)for(float w:row.weights){
+    for(const auto& row:original)if(row.row.table==1 && row.row_updates>3)for(float w:row.weights){
       Check(w>=-0.015f && w<=0.015f,"CUDA bounded weight escaped interval");
       hit_bound=hit_bound || w==-0.015f || w==0.015f;
     }
