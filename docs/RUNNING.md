@@ -213,3 +213,25 @@ agent's resident accesses and verifies every agent returns its slots on drain.
 The trace is generated independently of topology, so the same IDs and gradients
 can be compared across GPU counts. CPU/static calibration is repeated for each
 topology. The CPU/reference smoke also exercises four separate agent processes.
+
+### Concurrent automatic-admission load
+
+```sh
+python3 scripts/fleet_capacity_sweep.py --fleet /path/to/private-fleet.json \
+  --out-name automatic-frequency --gpu-counts 4 --ps-shards 4 \
+  --learners 8,16,32 --seconds 5 --repeats 2 --cache-admission frequency
+```
+
+`--cache-admission reuse_cost` uses a zero saved-access prior for this
+concurrency control. Each successful automatic-admission run writes
+`post-run-policy.json` with per-shard policy counters from the service's Stats
+endpoint. These counters cover setup, warmup and all timed trials.
+The native probe still checks finite parameters, acknowledged row-update
+counters and ticket cleanup.
+
+For fixed traces across separately hosted agents, use
+`scripts/fleet_cache_policy_sweep.py --fleet /path/to/private-fleet.json
+--out results/policy --out-name fixed-policy --gpu-counts 1,2,4
+--source-commit BUILD_SOURCE_COMMIT`. It restarts all agents between trials,
+repeats CPU/static calibration for each topology and verifies identical trace
+fingerprints across all cache modes and GPU counts.

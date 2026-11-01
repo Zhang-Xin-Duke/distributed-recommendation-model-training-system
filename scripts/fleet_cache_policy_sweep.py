@@ -83,6 +83,8 @@ def main():
     p.add_argument("--repeats", type=int, default=2)
     p.add_argument("--calibration-repeats", type=int, default=2)
     p.add_argument("--source-commit", required=True)
+    p.add_argument("--positive-cost-check",action="store_true",
+        help="One correctness run with a synthetic positive cost prior; excluded from calibrated performance")
     args = p.parse_args()
     fleet = json.loads(args.fleet.read_text())
     counts = [int(x) for x in args.gpu_counts.split(",")]
@@ -94,6 +96,17 @@ def main():
     args.out.mkdir(parents=True, exist_ok=False)
     manifest = dict(source_commit=args.source_commit, transport="SSH-forwarded BRPC", experiments=[],
         workload={k:v for k,v in vars(args).items() if k not in ("fleet","out")})
+    if args.positive_cost_check:
+        if len(counts)!=1:p.error("positive-cost check requires one GPU count")
+        records=trial(fleet,args,counts[0],"reuse_cost",False,10000.0,"positive-cost-correctness")
+        if not sum(r["policy_admitted_rows"] for r in records) or not sum(r["policy_evicted_rows"] for r in records):
+            raise RuntimeError("positive-cost check did not exercise admission and replacement")
+        raw=args.out/"positive-cost.jsonl"
+        raw.write_text("".join(json.dumps(r)+"\n" for r in records))
+        write(args.out/"manifest.json",dict(manifest,purpose="forced-admission correctness",
+            saved_microseconds_per_access=10000.0,raw_file=raw.name,
+            sha256=hashlib.sha256(raw.read_bytes()).hexdigest()))
+        return
     all_records=[]
     for count in counts:
         calibration_records=[]

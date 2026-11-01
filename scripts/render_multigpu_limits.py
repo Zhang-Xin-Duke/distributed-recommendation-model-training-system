@@ -37,7 +37,7 @@ def main():
         xs=sorted(group)
         for ax,field in zip(axes,["steps_per_second","step_p99_ms","queue_wait_per_operation_ms"]):
             values=[[r[field] for r in group[x]] for x in xs]
-            ax.plot(xs,[statistics.median(v) for v in values],"o-",color=color,label=f"{count} GPU agent(s)")
+            ax.plot(xs,[statistics.median(v) for v in values],"o-",color=color,label=f"{count} GPU agent"+("s" if count!=1 else ""))
             ax.fill_between(xs,[min(v) for v in values],[max(v) for v in values],color=color,alpha=.12)
     for ax,title,ylabel in zip(axes,["Throughput plateau","Tail latency","PS queue wait"],
         ["Completed sparse updates / second","Trial P99 (ms)","Mean wait per operation (ms)"]):
@@ -47,7 +47,7 @@ def main():
         ax.set_ylim(bottom=0)
     axes[0].legend(frameon=False)
     fig.suptitle("Fixed-workload multi-GPU parameter-service limits",fontsize=16,fontweight="bold")
-    fig.supxlabel("262,144 rows × 128 FP32 dimensions · 1,024 IDs/step · 4 parameter shards · fixed total cache\n"
+    fig.supxlabel("262,144 rows × 128 FP32 dimensions · 1,024 IDs/step · 4 parameter shards · 131,072 total resident rows\n"
         "Three 4-second windows + full drain per point; median and observed range. One local agent; additional agents use SSH-forwarded BRPC.",fontsize=9)
     args.out.mkdir(parents=True,exist_ok=True)
     fig.savefig(args.out/"multigpu-limits.svg",bbox_inches="tight",facecolor="white",metadata={"Date":None})
