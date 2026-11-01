@@ -9,6 +9,7 @@
 namespace eps::transport {
 template <typename T, typename Rsp>
 struct Pending final : CompletionExecutor::Task {
+  std::shared_ptr<void> completion_owner;
   std::future<Result<T>> future;
   brpc::Controller* controller;
   Rsp* response;
@@ -27,7 +28,8 @@ struct Pending final : CompletionExecutor::Task {
 
 template <typename T,typename Req,typename Rsp,typename Start,typename EncodeFn>
 void Dispatch(google::protobuf::RpcController* raw,const Req* request,Rsp* response,
-              google::protobuf::Closure* done,Start start,EncodeFn encode) {
+              google::protobuf::Closure* done,Start start,EncodeFn encode,
+              std::shared_ptr<void> completion_owner={}) {
   brpc::ClosureGuard guard(done);
   auto* controller=static_cast<brpc::Controller*>(raw);
   try {
@@ -35,6 +37,7 @@ void Dispatch(google::protobuf::RpcController* raw,const Req* request,Rsp* respo
                     request->ByteSizeLong() <= (1ULL<<20),"RPC payload exceeds limit");
     CompletionExecutor::Reservation reservation(CompletionExecutor::Instance());
     auto p=std::make_unique<Pending<T,Rsp>>();
+    p->completion_owner=std::move(completion_owner);
     p->controller=controller;p->response=response;p->done=done;
     p->encode=[encode](T result,const Rsp*,Rsp* out,butil::IOBuf& a) {encode(std::move(result),out,a);};
     p->future=start(controller->request_attachment());

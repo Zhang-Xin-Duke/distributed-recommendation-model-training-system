@@ -12,6 +12,7 @@ int main(int argc,char** argv){
   try{
     std::string run,listen="127.0.0.1:9200",backend="host";
     std::uint64_t bytes=64ULL<<20,rows=4096;std::uint32_t agent=0;int device=0;
+    eps::AgentAdmissionOptions admission;
     for(int i=1;i<argc;++i){
       std::string arg=argv[i];if(i+1>=argc)throw std::runtime_error("missing option value");
       if(arg=="--run")run=argv[++i];else if(arg=="--listen")listen=argv[++i];
@@ -19,6 +20,9 @@ int main(int argc,char** argv){
       else if(arg=="--state-bytes")bytes=std::stoull(argv[++i]);
       else if(arg=="--rows-per-table")rows=std::stoull(argv[++i]);
       else if(arg=="--device")device=std::stoi(argv[++i]);
+      else if(arg=="--max-active-rpcs")admission.max_active=std::stoull(argv[++i]);
+      else if(arg=="--max-pending-rpcs")admission.max_pending=std::stoull(argv[++i]);
+      else if(arg=="--request-bytes")admission.request_bytes=std::stoull(argv[++i]);
       else if(arg=="--backend")backend=argv[++i];else throw std::runtime_error("unknown agent option");
     }
     std::shared_ptr<eps::CacheBackend> cache;
@@ -32,9 +36,11 @@ int main(int argc,char** argv){
 #endif
     else throw std::runtime_error("requested backend is not available in this build");
     std::cerr<<"CACHE_BACKEND="<<backend<<'\n';
-    eps::AgentRuntime runtime(run,cache);eps::transport::BrpcAgentServer service(runtime);brpc::Server server;
+    eps::AgentRuntime runtime(run,cache);eps::transport::BrpcAgentServer service(runtime,admission);brpc::Server server;
     if(server.AddService(&service,brpc::SERVER_DOESNT_OWN_SERVICE)!=0)throw std::runtime_error("cannot register cache agent");
-    brpc::ServerOptions options;options.max_concurrency=128;
+    // Admission owns the finite count/byte budgets and waits before execution.
+    // A transport-level rejection would bypass that queue and fail partial updates.
+    brpc::ServerOptions options;options.max_concurrency=0;
     if(server.Start(listen.c_str(),&options)!=0)throw std::runtime_error("cannot start cache agent");
     std::cout<<"READY "<<butil::endpoint2str(server.listen_address()).c_str()<<std::endl;
     server.RunUntilAskedToQuit();return 0;

@@ -318,7 +318,25 @@ message AgentCompactApplyRequest {
   repeated RowKey rows = 4; PayloadSlice source_values = 5;
   PayloadSlice row_offsets = 6; PayloadSlice source_rows = 7; PayloadSlice scales = 8;
 }
+message AgentAdmissionStatsReply {
+  Status status = 1;
+  uint64 active_operations = 2;
+  uint64 queued_operations = 3;
+  uint64 pending_request_bytes = 4;
+  uint64 peak_active_operations = 5;
+  uint64 peak_pending_operations = 6;
+  uint64 peak_request_bytes = 7;
+  uint64 accepted_requests = 8;
+  uint64 completed_requests = 9;
+  uint64 rejected_requests = 10;
+  uint64 queue_wait_nanoseconds = 11;
+  uint64 dispatch_failures = 12;
+  uint64 active_limit = 13;
+  uint64 pending_limit = 14;
+  uint64 request_bytes_limit = 15;
+}
 service CacheAgentService {
+  rpc AdmissionStats(StatsRequest) returns (AgentAdmissionStatsReply);
   rpc Define(AgentDefineRequest) returns (Ack);
   rpc FreeSlots(AgentCapacityRequest) returns (AgentCapacityReply);
   rpc Load(AgentLoadRequest) returns (LocationsReply);

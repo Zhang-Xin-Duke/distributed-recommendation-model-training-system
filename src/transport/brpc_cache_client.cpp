@@ -17,6 +17,19 @@ struct BrpcCacheBackend::Impl {
 BrpcCacheBackend::BrpcCacheBackend(std::string endpoint,std::string run,ShardId home,AgentId agent,int timeout)
   :impl_(std::make_shared<Impl>(std::move(endpoint),std::move(run),home,agent,timeout)){}
 BrpcCacheBackend::~BrpcCacheBackend()=default;
+std::future<Result<AgentAdmissionStats>> BrpcCacheBackend::AdmissionStats(){
+  return t::Call<wire::StatsRequest,wire::AgentAdmissionStatsReply,AgentAdmissionStats>(
+    impl_,&wire::CacheAgentService_Stub::AdmissionStats,[](auto&,auto&){},
+    [](const auto& q,const auto&){AgentAdmissionStats out;
+#define EPS_STAT(field) out.field=q.field();
+      EPS_STAT(active_operations) EPS_STAT(queued_operations) EPS_STAT(pending_request_bytes)
+      EPS_STAT(peak_active_operations) EPS_STAT(peak_pending_operations) EPS_STAT(peak_request_bytes)
+      EPS_STAT(accepted_requests) EPS_STAT(completed_requests) EPS_STAT(rejected_requests)
+      EPS_STAT(queue_wait_nanoseconds) EPS_STAT(dispatch_failures)
+      EPS_STAT(active_limit) EPS_STAT(pending_limit) EPS_STAT(request_bytes_limit)
+#undef EPS_STAT
+      return out;});
+}
 std::future<Result<Ack>> BrpcCacheBackend::Define(TableDefinition table){
   return t::Call<wire::AgentDefineRequest,wire::Ack,Ack>(impl_,&wire::CacheAgentService_Stub::Define,
     [id=impl_->Next(),table](auto& q,auto&){t::Encode(id,q.mutable_identity());t::Encode(table,q.mutable_table());},t::AckDecoder);

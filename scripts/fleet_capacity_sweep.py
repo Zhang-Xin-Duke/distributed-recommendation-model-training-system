@@ -29,7 +29,7 @@ def remote(node, script, timeout=120):
 def start_worker(node, agent, run, rows, dimension, host_reference=False, cache_slots=None):
     options = dict(root=node["root"], agent=agent, run=run, rows=rows, dimension=dimension,host_reference=host_reference,cache_slots=cache_slots)
     script = "options="+repr(options)+"\n"+r'''
-import os,pathlib,subprocess,json,time
+import os,pathlib,subprocess,json,time,hashlib
 o=options;root=pathlib.Path(o['root']);out=root/'results'/o['run'];out.mkdir(parents=True,exist_ok=True)
 env=os.environ.copy();env['LD_LIBRARY_PATH']=str(root/'agent-bundle/lib')+':'+env.get('LD_LIBRARY_PATH','')
 stdout=open(out/'agent.stdout','w');stderr=open(out/'agent.stderr','w')
@@ -38,7 +38,9 @@ p=subprocess.Popen([str(root/'agent-bundle/bin/eps_cache_agent'),'--run',o['run'
  '--device','0','--agent',str(o['agent']),'--rows-per-table',str(slots),
  '--state-bytes',str(slots*(o['dimension']*12+8)*(2 if o['cache_slots'] else 1)+4096),'--listen','127.0.0.1:19200'],
  stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,env=env,start_new_session=True)
-record=dict(agent=p.pid,monitor=None,cpu_monitor=None,run=o['run'])
+agent_sha256=hashlib.sha256((root/'agent-bundle/bin/eps_cache_agent').read_bytes()).hexdigest()
+(out/'agent-binary-sha256.txt').write_text(agent_sha256+'\n')
+record=dict(agent=p.pid,monitor=None,cpu_monitor=None,run=o['run'],agent_sha256=agent_sha256)
 (out/'processes.json').write_text(json.dumps(record))
 hardware=subprocess.check_output(['nvidia-smi','--query-gpu=uuid,name,compute_cap,driver_version,memory.total','--format=csv,noheader'],text=True)
 (out/'hardware.csv').write_text(hardware)

@@ -48,6 +48,29 @@ int main(int argc,char** argv){
     std::map<AgentId,std::shared_ptr<CacheBackend>> agents;
     for(AgentId id=0;id<agent_endpoints.size();++id)
       agents[id]=std::make_shared<BrpcCacheBackend>(agent_endpoints[id],run,0,id,30000);
+    auto admission_stats=[&](bool drained){
+      nlohmann::json records=nlohmann::json::array();
+      for(const auto& [id,backend]:agents){
+        try{
+          auto agent=std::dynamic_pointer_cast<BrpcCacheBackend>(backend);
+          auto deadline=Clock::now()+std::chrono::seconds(3);
+          auto s=Take(agent->AdmissionStats());
+          while(drained && (s.active_operations || s.queued_operations) && Clock::now()<deadline){
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));s=Take(agent->AdmissionStats());
+          }
+          nlohmann::json out{{"agent",id}};
+#define EPS_STAT(field) out[#field]=s.field;
+          EPS_STAT(active_operations) EPS_STAT(queued_operations) EPS_STAT(pending_request_bytes)
+          EPS_STAT(peak_active_operations) EPS_STAT(peak_pending_operations) EPS_STAT(peak_request_bytes)
+          EPS_STAT(accepted_requests) EPS_STAT(completed_requests) EPS_STAT(rejected_requests)
+          EPS_STAT(queue_wait_nanoseconds) EPS_STAT(dispatch_failures)
+          EPS_STAT(active_limit) EPS_STAT(pending_limit) EPS_STAT(request_bytes_limit)
+#undef EPS_STAT
+          records.push_back(std::move(out));
+        }catch(const std::exception& e){records.push_back({{"agent",id},{"error",e.what()}});}
+      }
+      return records;
+    };
     auto resolve=MakeCacheResolver(agents);
     DistributedClient setup(shards);setup.SetCacheResolver(resolve,coalesce);
     Take(setup.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));
@@ -212,6 +235,7 @@ int main(int argc,char** argv){
           {{"completed",false},{"checked_rows",checked},
            {"finite",checked?nlohmann::json(finite):nlohmann::json(nullptr)},{"error",e.what()}};}
         diagnosis["after_health_probe_shards"]=sample_stats();
+        diagnosis["agent_admission"]=admission_stats(false);
         std::cout<<diagnosis.dump()<<std::endl;
         throw std::runtime_error("capacity run failed: "+error);
       }
@@ -269,6 +293,8 @@ int main(int argc,char** argv){
       result["access_pattern"]=access_pattern;
       result["preflight_values_checked"]=preflight_values;
       result["preflight_max_absolute_error"]=preflight_error;
+      result["agent_admission"]=admission_stats(true);
+      result["agent_admission_scope"]="setup, preflight, warmup and all trials in this probe";
       result["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();
       result["end_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count()+elapsed;
       std::cout<<result.dump()<<std::endl;++group;
