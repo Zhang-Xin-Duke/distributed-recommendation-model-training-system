@@ -81,7 +81,7 @@ class Rendezvous:
             return dict(held=self.held, error=self.error, history=list(self.history))
 
 
-def peer(endpoints, root, run, number, address, failure):
+def peer(endpoints, root, run, number, address, failure, mode='train'):
     import tensorflow as tf
     from entropy_source_contract import load, Learner, peer_environment
     from entropy_install import install
@@ -139,10 +139,11 @@ def peer(endpoints, root, run, number, address, failure):
                     else:
                         # The chief has original tables but no selected external
                         # table, so its global save must use the control backend.
-                        train.SparseTable([4, 2], 'legacy', optimizer=optimizer)
+                        if mode == 'train':
+                            train.SparseTable([4, 2], 'legacy', optimizer=optimizer)
                         step = tf.no_op()
                         if thread == 0:
-                            variable = tf.Variable([.5], dtype=tf.float32)
+                            variable = tf.Variable([.5 if mode == 'train' else -.5], dtype=tf.float32)
                             dense = train.DenseTable(variable)
                             if failure:
                                 def fail(*args):
@@ -159,10 +160,20 @@ def peer(endpoints, root, run, number, address, failure):
                     runner.is_worker = True
                     runner.session = session
                     session.run(initialize)
-                    for iteration in range(1 if failure else 2):
+                    if mode == 'restore':
+                        runner.restore(None, str(root / 'checkpoints'), 'two')
+                        if number == 0 and thread == 0:
+                            assert session.run(variable).tolist() == [.5]
+                    for iteration in range(1 if failure or mode == 'restore' else 2):
                         session.run(step)
                         train.env.barrier('TEST_STEP_' + str(iteration), cluster='all')
-                        runner.checkpoint(str(root / 'checkpoints'), ('one', 'two')[iteration])
+                        if mode == 'restore':
+                            if number == 0 and thread == 0:
+                                backend = hooks._control_backend()
+                                backend.save('restored-final')
+                                backend.export_checkpoint('restored-final', str(root / 'restored-final'), tf.io.gfile)
+                        else:
+                            runner.checkpoint(str(root / 'checkpoints'), ('one', 'two')[iteration])
                         train.env.barrier('TEST_AFTER_' + str(iteration), cluster='all')
             except BaseException as error:
                 errors.append(str(error))
@@ -182,8 +193,10 @@ def peer(endpoints, root, run, number, address, failure):
                 time.sleep(1)
         record = dict(peer=number, learner_threads=2, backend_ids=sorted(hooks.backends()),
                       administrative_backend=hooks._administrative_backend is not None,
+                      dense_restored='dense_restored' in context.events,
                       source=provenance)
-        (root / f'peer-{number}.json').write_text(json.dumps(record, indent=2) + '\n')
+        prefix = 'restored-' if mode == 'restore' else ''
+        (root / f'{prefix}peer-{number}.json').write_text(json.dumps(record, indent=2) + '\n')
 
 
 def run(server, root, failure):
@@ -299,6 +312,124 @@ def run(server, root, failure):
             log.close()
 
 
+def restore_followup(server, comparator, root):
+    import numpy as np
+    from eps_backend import Backend
+    from checkpoint_store import LocalFileSystem
+    from checkpoint_restore import stage_checkpoint
+    coordinator = Rendezvous()
+    BaseManager.register('rendezvous', callable=lambda: coordinator)
+    key = os.urandom(32)
+    manager = BaseManager(address=('127.0.0.1', 0), authkey=key)
+    manager_server = manager.get_server()
+    threading.Thread(target=manager_server.serve_forever, daemon=True).start()
+    processes, peers, logs = [], [], []
+    def start_shards(run_id, restored):
+        endpoints = []
+        for shard in range(2):
+            config = root / f'{run_id}-{shard}.json'
+            config.write_text(json.dumps(dict(schema_version=1, run_id=run_id, listen='127.0.0.1:0',
+                partition=dict(shard_id=shard, shard_count=2, epoch=1), tables=[], cache=dict(enabled=False),
+                snapshot_directory=str(root / (run_id + '-snapshots')))))
+            command = [server, '--config', str(config)]
+            if restored:
+                staged = stage_checkpoint(root / 'checkpoints/two', root / f'staged-{shard}', shard,
+                                          checkpoint_id='two')
+                command += ['--restore', staged['file']]
+            log = open(root / f'{run_id}-{shard}.log', 'w+')
+            logs.append(log)
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=log, text=True)
+            processes.append(process)
+            endpoints.append(ready(process))
+        return endpoints
+    try:
+        endpoints = start_shards('peer-restored', True)
+        env = dict(os.environ, EPS_TEST_RENDEZVOUS_KEY=key.hex())
+        for number in range(2):
+            log = open(root / f'restored-peer-{number}.log', 'w+')
+            logs.append(log)
+            process = subprocess.Popen([sys.executable, __file__, '--peer', *endpoints, str(root),
+                'peer-restored', str(number), str(manager_server.address[1]), '0', 'restore'],
+                stdout=log, stderr=log, env=env, start_new_session=True)
+            peers.append(process)
+        deadline = time.monotonic() + 45
+        while time.monotonic() < deadline:
+            state = coordinator.snapshot()
+            if state['error']:
+                raise AssertionError(state['error'])
+            if all(process.poll() is not None for process in peers):
+                break
+            time.sleep(.02)
+        else:
+            raise AssertionError('restored peers did not finish')
+        assert all(process.returncode == 0 for process in peers)
+        records = [json.loads((root / f'restored-peer-{i}.json').read_text()) for i in range(2)]
+        assert records[0]['backend_ids'] == [] and records[0]['administrative_backend']
+        assert records[0]['dense_restored'] and not records[1]['dense_restored']
+        probe = Backend(endpoints, 'peer-restored', 1000)
+        try:
+            stats = probe.stats()
+            # RPC counters start with the fresh run; persisted row/optimizer
+            # counters include the four saved updates and are compared below.
+            assert all(item['updates'] == 2 and item['live_tickets'] == 0 for item in stats), stats
+        finally:
+            probe.close()
+        reference_endpoints = start_shards('peer-uninterrupted', False)
+        reference = Backend(reference_endpoints, 'peer-uninterrupted', 1001)
+        try:
+            reference.create_table((root / 'table.json').read_text())
+            features = [dict(table=3, feature=0, pooling='sum', keys=np.array([1, 2], np.uint64),
+                             offsets=np.array([0, 2], np.int64))]
+            for _ in range(6):
+                handle, _ = reference.pull(features)
+                reference.push(handle, [0], [np.ones((1, 2), np.float32)])
+            reference.save('uninterrupted')
+            from checkpoint_store import export_checkpoint
+            export_checkpoint(reference, 'uninterrupted', root / 'uninterrupted-final',
+                              run='peer-uninterrupted', epoch=1, shard_count=2, filesystem=LocalFileSystem)
+        finally:
+            reference.close()
+        rows = 0
+        maximum = 0.
+        for shard in range(2):
+            result = subprocess.run([comparator,
+                str(root / 'uninterrupted-final' / f'parameter-shard-{shard}.bin'),
+                str(root / 'restored-final' / f'parameter-shard-{shard}.bin'), str(shard), '2', '1', '3'],
+                capture_output=True, text=True, check=True, timeout=20)
+            record = json.loads(result.stdout)
+            rows += record['checked_rows']
+            maximum = max(maximum, record['max_state_absolute_error'])
+        assert rows == 2 and maximum == 0., (rows, maximum)
+        history = coordinator.snapshot()['history']
+        assert all(item['peers'] == [0, 1] for item in history)
+        return dict(test='peer_checkpoint_restore_continuation', peer_processes=2, learner_threads=4,
+                    parameter_shards=2, saved_updates_per_shard=4, final_updates_per_shard=6,
+                    resumed_run_acknowledged_updates_per_shard=2,
+                    checked_rows=rows, max_state_absolute_error=maximum,
+                    compared=['weights', 'first_moment', 'second_moment', 'row_counters',
+                              'optimizer_sequence', 'beta_powers'],
+                    dense_value_before_restore=-.5, dense_value_after_restore=.5,
+                    administrative_only_chief=True, global_barrier_rounds=len(history),
+                    peer_records=records)
+    except BaseException:
+        for log in logs:
+            log.flush()
+            log.seek(0)
+            print(log.read()[-7000:], file=sys.stderr)
+        raise
+    finally:
+        for process in peers:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            stop(process)
+        for process in processes:
+            stop(process)
+        for log in logs:
+            log.close()
+
+
 def main():
     try:
         assert (source_root() / 'tensorswitch/python/tensorswitch/env.py').is_file()
@@ -306,13 +437,16 @@ def main():
         print('SKIP: preserved train.py and env.py are required')
         return 77
     if sys.argv[1] == '--peer':
-        peer(sys.argv[2:4], pathlib.Path(sys.argv[4]), sys.argv[5], int(sys.argv[6]), int(sys.argv[7]), bool(int(sys.argv[8])))
+        peer(sys.argv[2:4], pathlib.Path(sys.argv[4]), sys.argv[5], int(sys.argv[6]), int(sys.argv[7]),
+             bool(int(sys.argv[8])), sys.argv[9] if len(sys.argv)>9 else 'train')
     else:
         with tempfile.TemporaryDirectory(prefix='eps-peer-checkpoint-') as directory:
             for failure in (False, True):
                 root = pathlib.Path(directory) / ('failure' if failure else 'success')
                 root.mkdir()
                 print(json.dumps(run(sys.argv[1], root, failure)), flush=True)
+                if not failure and len(sys.argv)>2:
+                    print(json.dumps(restore_followup(sys.argv[1], sys.argv[2], root)), flush=True)
     return 0
 
 

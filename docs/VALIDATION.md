@@ -2,6 +2,15 @@
 
 ## Peer/thread checkpoint coordination — November 1, 2026
 
+The subsequent restore check restarts both parameter shards and both peer
+processes, with four learner threads. The administrative-only chief verifies
+the loaded joint checkpoint; original Python restore barriers complete eight
+global rounds. Two more acknowledged updates per shard produce complete
+two-row parameter/Adam state identical to six uninterrupted direct-client
+updates. Dense state changes from the test initializer `-0.5` to saved `0.5`.
+The source fixture still uses the test network rendezvous and native-environment
+stand-ins. [Restore evidence](validation/2026-11-01-peer-restore.json).
+
 Seven focused configuration, filesystem, original-method, restore and peer
 checkpoint tests pass on macOS arm64. The new two-peer/four-learner case executes
 preserved Python local/global barrier definitions with a bounded test network

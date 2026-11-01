@@ -64,6 +64,21 @@ and joint marker absent. The parameter manifest remains available, tickets are
 drained and new lookups remain rejected. The test supervisor terminates its owned
 peer process groups: the preserved local Python barrier has no cancellation API.
 
+The restore follow-up stops the original shards and stages both files from the
+second joint checkpoint, then starts fresh shard and peer processes under a new
+run. The chief's administrative client verifies loaded provenance without
+creating a learner table. Four learner threads cross the original Python
+restore barriers; the actual TensorFlow Saver replaces a deliberately different
+dense initializer (`-0.5`) with the saved value (`0.5`). Each external learner
+then completes one additional update.
+
+The final two parameter rows match six uninterrupted direct-client updates
+exactly: weights, first/second Adam moments, row-update counters, optimizer
+sequence and beta powers all compare with zero difference. Fresh-run RPC
+statistics count the two resumed updates per shard; saved optimizer/row state
+includes the four updates before restart. Restore completes eight global
+barrier rounds. No native data reader or original C++ cluster library is loaded.
+
 ```sh
 ctest --test-dir build/tensorflow --output-on-failure \
   -R 'entropy_peer_checkpoint_control|entropy_table_hook_configuration'
@@ -76,5 +91,12 @@ application, reader and C++ cluster runtime requires its `ts_clib.so` or
 `ts_clib_gpu.so` build artifact; those native artifacts are absent from the
 available source copies.
 
+The preserved top-level BUILD also loads absent `.resources` entrypoint and
+protobuf rules. Building the original runtime requires the complete rule and
+dependency bundle, or a compatible prebuilt runtime/environment.
+[Dependency inventory](validation/2026-11-01-original-native-dependencies.json).
+
 [Validation record and hashes](validation/2026-11-01-peer-checkpoint-control.json)
 retain the successful/failure cases and the prior-adapter regression.
+[Restore continuation evidence](validation/2026-11-01-peer-restore.json) records
+the restarted process topology and full optimizer-state comparison.

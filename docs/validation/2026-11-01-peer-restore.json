@@ -1,0 +1,88 @@
+{
+  "base_commit": "00df6fb32360940de2aa55738d1d0851d1c05c4a",
+  "platform": "macOS arm64",
+  "backend": "portable",
+  "ctest": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "restart_topology": {
+    "parameter_shards": 2,
+    "framework_peers": 2,
+    "learner_threads": 4
+  },
+  "restore_result": {
+    "test": "peer_checkpoint_restore_continuation",
+    "peer_processes": 2,
+    "learner_threads": 4,
+    "parameter_shards": 2,
+    "saved_updates_per_shard": 4,
+    "final_updates_per_shard": 6,
+    "resumed_run_acknowledged_updates_per_shard": 2,
+    "checked_rows": 2,
+    "max_state_absolute_error": 0.0,
+    "compared": [
+      "weights",
+      "first_moment",
+      "second_moment",
+      "row_counters",
+      "optimizer_sequence",
+      "beta_powers"
+    ],
+    "dense_value_before_restore": -0.5,
+    "dense_value_after_restore": 0.5,
+    "administrative_only_chief": true,
+    "global_barrier_rounds": 8
+  },
+  "source_and_binary_sha256": {
+    "CMakeLists.txt": "60101620f979b8933e7efa525b5f9fc8b877850837e8de2d8e1db2704f39ceac",
+    "tests/entropy_peer_checkpoint.py": "ce12c7a0d79d7296320ed7f163ad8ea20521b1b416f76f21ce3eae1e3e82bb68",
+    "tests/entropy_source_contract.py": "eaff9acbae245fb7525dd1ca47076374899cea2155e0b5a1c1ad48c749ac3eac",
+    "tests/snapshot_compare.cpp": "a71f614cd7fbe6da91e7f9ea0d4f5743cc1f2b6535d897c13acc6d3603d23137",
+    "adapters/entropy/entropy_install.py": "6b9843ec468cf6f37458daf1dbc4a7d0d4b23f862e4145b0b876caf6a3e2743b",
+    "adapters/entropy/checkpoint_restore.py": "826714f8fbcf803a77db776c40ec44896dda16aef501672a7ba95b3d74dde2d1",
+    "build/tensorflow/eps_server": "5c721a75de83841209abb99f5eb4c2781d313f67fd6c5cc5847d030e43e6c51a",
+    "build/tensorflow/eps_snapshot_compare": "0bd462d866da206f6affd92d092d71f12656a3f550dfb9c84e883cc3309f20a0"
+  },
+  "source_provenance": {
+    "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+    "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a",
+    "source_definitions": [
+      "SparseTable",
+      "SparseLazyAdam",
+      "per_learner_once_attr",
+      "cluster_specific",
+      "add_var_collections",
+      "InputBuilder.sparse_vars",
+      "InputBuilder.apply_sparse_grads",
+      "_MultiDatasetRunner.checkpoint",
+      "_MultiDatasetRunner.prepare_path",
+      "checkpoint",
+      "_MultiDatasetRunner.restore",
+      "worker_restore",
+      "worker_restore_sparse",
+      "worker_restore_dense"
+    ],
+    "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+    "barriers": {
+      "env_sha256": "3f008684a79f5e9d44d8eb9818b2e9b5b76b4980cb9f842d44cd3cd0e7527cbe",
+      "definitions": [
+        "Barrier",
+        "MultiThreadingLearner.current_id",
+        "MultiThreadingLearner.is_chief",
+        "MultiThreadingLearner.barrier",
+        "env.barrier"
+      ],
+      "native_cluster_call": "test network rendezvous; original native C++ cluster library not loaded"
+    },
+    "legacy_executor_learner_context": "test fallback to local chief; native framework TLS not loaded"
+  },
+  "verification_scope": "Original Python Runner/restore/barrier definitions, real TensorFlow Saver and BRPC parameter processes; test native-environment and network-rendezvous stand-ins",
+  "native_original_application_verified": false,
+  "native_original_reader_verified": false,
+  "native_original_cluster_barrier_verified": false,
+  "additional_gpu_rentals": 0,
+  "owned_test_process_groups_stopped": true,
+  "initial_harness_correction": "Fresh-run RPC statistics count two resumed updates; persisted row and optimizer state includes four saved updates and is compared against six uninterrupted updates"
+}

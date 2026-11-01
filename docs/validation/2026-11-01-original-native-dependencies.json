@@ -1,0 +1,34 @@
+{
+  "scope": "local preserved source dependency inventory; no private bootstrap script executed",
+  "build_file_sha256": "55964f26eec14982e22e4a19a704b5f7e01ca4565cde87d0d10781f856411ac3",
+  "native_loader_sha256": "a4c31a7353820b47de6d7315d73872b737d45a160a80d040492ddbab22ce3387",
+  "missing_paths": [
+    ".resources/rules/entrypoint.bzl",
+    ".resources/rules/contrib/protobuf_ng.bzl",
+    "tensorswitch/python/tensorswitch/ts_clib.so",
+    "tensorswitch/python/tensorswitch/ts_clib_gpu.so"
+  ],
+  "referenced_external_repository_names": [
+    "api",
+    "arrow",
+    "b23",
+    "bgraph",
+    "brpc",
+    "cameron314",
+    "common",
+    "cuda",
+    "googletest",
+    "grpc",
+    "highway",
+    "infiniband",
+    "jemalloc",
+    "mimalloc",
+    "pip",
+    "protobuf",
+    "rdkafka",
+    "rules_python",
+    "tcmalloc",
+    "tensorflow"
+  ],
+  "required_input": "Compatible prebuilt TensorSwitch runtime/environment, or complete build-rule/dependency bundle"
+}

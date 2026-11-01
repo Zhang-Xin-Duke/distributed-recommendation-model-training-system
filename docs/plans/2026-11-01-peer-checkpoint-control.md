@@ -25,3 +25,18 @@ adapter reproduces the administrative-only-chief failure. The public evidence
 index is `../validation/2026-11-01-peer-checkpoint-control.json`. No additional
 GPU rental was required. Complete original native application/reader/cluster
 execution remains pending the runtime artifact.
+
+Follow-up: restart the two parameter shards from the second joint checkpoint
+under a fresh run. Recreate the two peer processes/four learner threads and
+execute the original Runner restore, including the parameter-free chief's
+administrative provenance check and the preserved Python barriers. Continue
+one update per external learner and export the resulting state. Compare all
+weights, Adam moments, counters, optimizer sequence and beta powers with six
+uninterrupted direct-client updates. Restore a deliberately different dense
+initializer from the saved value. Keep the native reader/cluster scope explicit.
+
+Restore follow-up implemented: both PS processes and both peer processes restart;
+four learner threads complete the original restore barriers. After two resumed
+updates per shard, two rows' complete optimizer state matches six uninterrupted
+updates with zero difference. The dense Saver restores `-0.5` to saved `0.5`.
+Native cluster/reader artifacts remain the separate application dependency.

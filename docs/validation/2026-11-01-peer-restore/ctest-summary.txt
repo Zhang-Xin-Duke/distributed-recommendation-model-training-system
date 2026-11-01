@@ -1,0 +1,3 @@
+entropy_peer_checkpoint_control: PASS
+Repeated checkpoint, shard/peer restart and restore continuation, and dense-save failure: PASS
+Total Test time (real) = 12.14 sec
