@@ -22,8 +22,8 @@ class Feature:
 
 
 class ParameterServer:
-    def __init__(self, endpoints, run, learner=0, epoch=1, max_live=128):
-        self.backend = Backend(endpoints, run, learner, epoch, max_live)
+    def __init__(self, endpoints, run, learner=0, epoch=1, max_live=128, preparation=None):
+        self.backend = Backend(endpoints, run, learner, epoch, max_live, preparation=preparation)
 
     def create_table(self, definition):
         self.backend.create_table(json.dumps(definition))
@@ -44,7 +44,7 @@ class ParameterServer:
                                 keys=tensors[2*i].numpy(), offsets=tensors[2*i+1].numpy())
                            for i, f in enumerate(features)]
             handle, outputs = self.backend.pull(descriptors, read_only)
-            return (np.uint64(handle), *outputs)
+            return self._checked_outputs(handle, outputs, [f.dimension for f in features])
 
         outputs = tf.py_function(dispatch, inputs, [tf.uint64] + [tf.float32]*len(features),
                                  name="parameter_server_pull")
@@ -56,6 +56,57 @@ class ParameterServer:
                 rows -= 1
             outputs[i+1].set_shape([rows, f.dimension])
         return outputs[0], tuple(outputs[1:])
+
+    def _checked_outputs(self, handle, outputs, dimensions):
+        try:
+            if len(outputs) != len(dimensions) or any(
+                    value.ndim != 2 or value.shape[1] != dimension
+                    for value, dimension in zip(outputs, dimensions)):
+                raise ValueError("pulled feature layout differs from the requested schema")
+            return (np.uint64(handle), *outputs)
+        except Exception:
+            self.backend.release(handle)
+            raise
+
+    def prepare(self, features):
+        """Enqueue ID/layout preparation in eager input code; no parameters are read.
+
+        Pass the returned token as a scalar uint64 tensor into the existing train
+        function. Prefill the next input before executing the current step.
+        """
+        if not tf.executing_eagerly():
+            raise ValueError("prepare inputs outside tf.function and pass the token into the train step")
+        descriptors = [dict(table=f.table, feature=f.feature, pooling=f.pooling,
+                            padding_key=f.padding_key,
+                            keys=np.asarray(f.keys), offsets=np.asarray(f.offsets)) for f in features]
+        return self.backend.prepare(descriptors)
+
+    def pull_prepared(self, token, dimensions, read_only=False):
+        """Read current parameters for the next FIFO input using its output schema."""
+        dimensions = tuple(int(d) for d in dimensions)
+        if not dimensions or any(d <= 0 for d in dimensions):
+            raise ValueError("provide one positive dimension per prepared feature")
+
+        def dispatch(value):
+            handle, outputs = self.backend.pull_prepared(int(value.numpy()), read_only)
+            return self._checked_outputs(handle, outputs, dimensions)
+
+        outputs = tf.py_function(dispatch, [tf.convert_to_tensor(token, dtype=tf.uint64)],
+                                 [tf.uint64] + [tf.float32]*len(dimensions),
+                                 name="parameter_server_pull_prepared")
+        outputs[0].set_shape([])
+        for value, dimension in zip(outputs[1:], dimensions):
+            value.set_shape([None, dimension])
+        return outputs[0], tuple(outputs[1:])
+
+    def cancel_prepared(self, token):
+        """Cancel an unclaimed input token from the eager input/checkpoint controller."""
+        if not tf.executing_eagerly():
+            raise ValueError("cancel prepared inputs outside tf.function")
+        self.backend.cancel_prepared(int(token))
+
+    def preparation_stats(self):
+        return self.backend.preparation_stats()
 
     def push(self, handle, feature_ids, gradients):
         """Submit unscaled dL/d(feature); mean unpooling occurs once in the service."""

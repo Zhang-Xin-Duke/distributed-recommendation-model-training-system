@@ -26,7 +26,7 @@ def _cleanup(process, connection):
 
 
 class Backend:
-    def __init__(self, endpoints, run, learner=0, epoch=1, max_live=128):
+    def __init__(self, endpoints, run, learner=0, epoch=1, max_live=128, preparation=None):
         parent, child = multiprocessing.Pipe(duplex=True)
         self._process = subprocess.Popen([sys.executable, "-m", "eps_backend_worker", str(child.fileno())],
                                          pass_fds=(child.fileno(),))
@@ -36,7 +36,7 @@ class Backend:
         self._closed = False
         self._cleanup = weakref.finalize(self, _cleanup, self._process, parent)
         try:
-            self._call("initialize", endpoints, run, learner, epoch, max_live)
+            self._call("initialize", endpoints, run, learner, epoch, max_live, dict(preparation or {}))
         except Exception:
             self.close()
             raise
@@ -66,6 +66,18 @@ class Backend:
 
     def pull(self, features, read_only=False):
         return self._call("pull", features, read_only)
+
+    def prepare(self, features):
+        return self._call("prepare", features)
+
+    def pull_prepared(self, token, read_only=False):
+        return self._call("pull_prepared", token, read_only)
+
+    def cancel_prepared(self, token):
+        return self._call("cancel_prepared", token)
+
+    def preparation_stats(self):
+        return self._call("preparation_stats")
 
     def push(self, handle, feature_ids, gradients):
         return self._call("push", handle, feature_ids, gradients)

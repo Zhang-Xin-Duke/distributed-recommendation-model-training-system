@@ -56,6 +56,14 @@ struct RuntimeStats {
   std::uint64_t policy_migration_batches = 0;
   std::uint64_t policy_migration_bytes = 0;
   std::uint64_t policy_failures = 0;
+  std::uint64_t lookup_prepare_nanoseconds = 0;
+  std::uint64_t gradient_prepare_nanoseconds = 0;
+  std::uint64_t gpu_packet_prepare_nanoseconds = 0;
+  std::uint64_t update_dispatch_nanoseconds = 0;
+  std::uint64_t cpu_optimizer_nanoseconds = 0;
+  std::uint64_t agent_wait_nanoseconds = 0;
+  std::uint64_t migration_nanoseconds = 0;
+  std::uint64_t cache_maintenance_nanoseconds = 0;
 };
 
 // A bounded asynchronous shard sequencer. Transport callbacks never execute

@@ -11,6 +11,8 @@ add_library(eps_core
   src/store/shard_store.cpp
   src/store/snapshot.cpp
   src/access/batch_access.cpp
+  src/access/prepared_lookup.cpp
+  src/access/prepare_queue.cpp
   src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
   src/client/distributed_client.cpp
@@ -165,6 +167,14 @@ if(EPS_BUILD_BRPC)
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_AUTO_CACHE=1")
         set_tests_properties(tensorflow_graph_automatic_coalesced_cache PROPERTIES TIMEOUT 120
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_AUTO_CACHE=1;EPS_TEST_COALESCE=1")
+        add_test(NAME tensorflow_graph_prepared_external_shards
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py" $<TARGET_FILE:eps_server>)
+        set_tests_properties(tensorflow_graph_prepared_external_shards PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_PREPARE=1")
+        add_test(NAME tensorflow_graph_prepared_automatic_cache
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        set_tests_properties(tensorflow_graph_prepared_automatic_cache PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_TEST_PREPARE=1;EPS_TEST_AUTO_CACHE=1;EPS_TEST_COALESCE=1")
         add_test(NAME tensorflow_graph_coalesced_cache
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py"
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
@@ -200,6 +210,14 @@ if(EPS_BUILD_TESTS)
   add_executable(eps_adapter_tests tests/adapter_tests.cpp)
   target_link_libraries(eps_adapter_tests PRIVATE eps_core)
   add_test(NAME embedding_adapter_lifecycle COMMAND eps_adapter_tests)
+  add_executable(eps_phase_tests tests/phase_timing_tests.cpp)
+  target_link_libraries(eps_phase_tests PRIVATE eps_core)
+  add_test(NAME service_phase_timing COMMAND eps_phase_tests)
+  add_executable(eps_preparation_tests tests/preparation_tests.cpp)
+  target_link_libraries(eps_preparation_tests PRIVATE eps_core)
+  target_include_directories(eps_preparation_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  add_test(NAME bounded_asynchronous_preparation COMMAND eps_preparation_tests)
+  set_tests_properties(bounded_asynchronous_preparation PROPERTIES TIMEOUT 30)
   add_executable(eps_multi_agent_tests tests/multi_agent_tests.cpp)
   target_link_libraries(eps_multi_agent_tests PRIVATE eps_core)
   add_test(NAME concurrent_multi_agent_updates COMMAND eps_multi_agent_tests)

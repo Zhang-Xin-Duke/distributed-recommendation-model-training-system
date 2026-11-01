@@ -114,3 +114,14 @@ migration. [The cache policy guide](../../docs/CACHE_POLICY.md) describes
 configuration, costs, bounds and saved-state behavior. The automatic-cache graph
 checks verify five dense/sparse updates, resident placement, metrics and cache
 drain at save with both per-shard and coalesced gathers.
+
+## Preparing future inputs
+
+`prepare(features)` performs bounded ID/layout preparation on a native worker.
+`pull_prepared(token, dimensions)` reads current parameters when the existing
+train graph consumes that FIFO token. Pre-enqueue the next input before invoking
+the current step to overlap metadata work with model/RPC execution. Unused
+inputs must be consumed or cancelled before `save`; `join` permits future
+metadata while requiring live Pull handles to be closed.
+
+[Queue lifecycle, limits, graph example and phase-metric definitions](../../docs/ASYNCHRONOUS_PREPARATION.md).

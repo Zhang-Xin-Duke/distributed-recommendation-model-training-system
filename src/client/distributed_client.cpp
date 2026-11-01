@@ -36,6 +36,13 @@ Result<Ack> DistributedClient::CreateTable(TableDefinition table) {
   }catch(const detail::Failure& e){return e.error();}
 }
 Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
+  auto prepared=PrepareLookupInputs(std::move(request.features),shards_.size());
+  if(auto error=std::get_if<Error>(&prepared))return *error;
+  return LookupPrepared(std::move(request.id),request.partition_epoch,request.read_only,
+    std::get<PreparedLookup>(std::move(prepared)));
+}
+Result<DistributedBatch> DistributedClient::LookupPrepared(RequestId id,std::uint64_t epoch,
+    bool read_only,PreparedLookup prepared) {
   std::lock_guard lock(mutex_);
   bool sent=false;
   DistributedBatch out;
@@ -65,8 +72,8 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
     std::vector<std::future<Result<Ack>>> releases;
     for(std::size_t i=0;i<out.shards_.size();++i)if(!out.shards_[i].ticket.empty()) {
       try {
-        auto id=request.id;id.phase=Phase::release;
-        releases.push_back(shards_[i]->Release({id,out.shards_[i].ticket}));
+        auto release_id=id;release_id.phase=Phase::release;
+        releases.push_back(shards_[i]->Release({release_id,out.shards_[i].ticket}));
       }catch(const std::exception&) {}
     }
     for(auto& release:releases)try{(void)release.get();}catch(const std::exception&){}
@@ -74,30 +81,16 @@ Result<DistributedBatch> DistributedClient::Lookup(LookupRequest request) {
   };
   try {
     detail::Require(!failed_,"client run has failed",Error::Code::run_failed);
-    detail::Require(request.id.phase==Phase::lookup && !request.features.empty(),"invalid lookup");
-    std::unordered_set<std::uint32_t> feature_ids;
-    for(const auto& f:request.features) {
-      detail::Require(tables_.contains(f.table) && feature_ids.insert(f.feature).second,"unknown/duplicate feature");
-      detail::Require(f.pooling==Pooling::sum || f.pooling==Pooling::mean || f.pooling==Pooling::sequence,"invalid pooling");
-      detail::Require(!f.offsets.empty() && f.offsets.front()==0 && f.offsets.back()==f.keys.size() &&
-        std::is_sorted(f.offsets.begin(),f.offsets.end()) && f.offsets.size()==f.valid_lengths.size()+1,"invalid feature layout");
-      for(std::size_t b=0;b<f.valid_lengths.size();++b)
-        detail::Require(f.valid_lengths[b]==f.offsets[b+1]-f.offsets[b],"client requires original unpadded bag lengths");
-    }
-    out.original_=request;out.shards_.resize(shards_.size());
-    std::vector<LookupRequest> requests(shards_.size(),request);
+    detail::Require(id.phase==Phase::lookup && prepared.shard_count_==shards_.size() &&
+      !prepared.original_.empty() && prepared.parts_.size()==shards_.size(),"invalid prepared lookup");
+    for(const auto& f:prepared.original_)
+      detail::Require(tables_.contains(f.table),"unknown prepared table");
+    out.original_={id,epoch,read_only,std::move(prepared.original_)};
+    const auto& request=out.original_;out.shards_.resize(shards_.size());
+    std::vector<LookupRequest> requests;requests.reserve(shards_.size());
     for(std::size_t shard=0;shard<shards_.size();++shard) {
-      auto& part=out.shards_[shard];part.positions.resize(request.features.size());
-      for(std::size_t fi=0;fi<request.features.size();++fi) {
-        const auto& f=request.features[fi];auto& dst=requests[shard].features[fi];
-        dst.keys.clear();dst.offsets={0};
-        for(std::size_t b=0;b<f.valid_lengths.size();++b) {
-          for(auto pos=f.offsets[b];pos<f.offsets[b+1];++pos)if(f.keys[pos]%shards_.size()==shard) {
-            dst.keys.push_back(f.keys[pos]);part.positions[fi].push_back(pos);
-          }
-          dst.offsets.push_back(dst.keys.size());
-        }
-      }
+      out.shards_[shard].positions=std::move(prepared.parts_[shard].positions);
+      requests.push_back({id,epoch,read_only,std::move(prepared.parts_[shard].features)});
     }
     for(const auto& f:request.features) {
       const auto dim=tables_.at(f.table).dimension;

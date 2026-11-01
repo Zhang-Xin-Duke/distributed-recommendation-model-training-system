@@ -17,6 +17,7 @@
 #include "cache/reuse_policy.hpp"
 #include "common/error.hpp"
 #include "common/executor.hpp"
+#include "common/phase_timer.hpp"
 #include "eps/compact_gradients.hpp"
 #include "server/request_tracker.hpp"
 #include "store/snapshot.hpp"
@@ -104,7 +105,8 @@ class CpuParameterService::Impl {
                 "row is held by an active lookup",Error::Code::unavailable);
   }
   template<typename T>T AgentResult(std::future<Result<T>> future){
-    auto result=future.get();if(auto error=std::get_if<Error>(&result)){
+    auto result=[&]{detail::PhaseTimer timer(stats_.agent_wait_nanoseconds);return future.get();}();
+    if(auto error=std::get_if<Error>(&result)){
       if(error->code==Error::Code::unavailable || error->code==Error::Code::run_failed ||
          error->code==Error::Code::retired_request)fatal_=error->message;
       throw detail::Failure(*error);
@@ -135,6 +137,7 @@ class CpuParameterService::Impl {
       Require(it != tickets_.end(), "lookup is already released", Error::Code::retired_request);
       return it->second.reply;
     }
+    detail::PhaseTimer timer(stats_.lookup_prepare_nanoseconds);
     try {
       Require(!draining_, "shard is draining", Error::Code::unavailable);
       Require(tickets_.size() < options_.max_live_tickets, "live ticket limit reached",
@@ -229,11 +232,13 @@ class CpuParameterService::Impl {
       auto& ticket = it->second;
       Require(!ticket.read_only && TicketName(request.id) == request.ticket &&
               request.id.learner == ticket.id.learner, "ticket does not belong to update");
+      std::map<TableId,RowGradients> cpu;
+      std::map<std::pair<AgentId,TableId>,RowGradients> device;
+      {
+        detail::PhaseTimer timer(stats_.gradient_prepare_nanoseconds);
       std::uint64_t bytes = 0;
       for (const auto& g : request.feature_gradients) Size(bytes, g.values.size(), sizeof(float));
       auto gradients = detail::ReduceGradients(ticket.features, request.feature_gradients, *store_);
-      std::map<TableId,RowGradients> cpu;
-      std::map<std::pair<AgentId,TableId>,RowGradients> device;
       for(const auto& [table,g]:gradients){
         auto& local=cpu[table];const auto dim=store_->Table(table).definition.dimension;
         for(std::size_t i=0;i<g.rows.size();++i){
@@ -244,10 +249,13 @@ class CpuParameterService::Impl {
         }
       }
       for(const auto& [table,g]:cpu)detail::ValidateLazyAdam(store_->Table(table),g);
+      }
       try{
         struct DeviceUpdate {UpdateContext context;std::variant<RowGradients,CompactGradients> payload;};
         std::map<AgentId,std::deque<DeviceUpdate>> groups;
         std::uint64_t reference_bytes=0,transferred_bytes=0,compact_commands=0;
+        {
+        detail::PhaseTimer timer(stats_.gpu_packet_prepare_nanoseconds,!device.empty());
         for(auto& [owner,g]:device){
           const auto& t=store_->Table(owner.second);
           UpdateContext context{request.id,options_.shard_id,owner.second,t.optimizer_sequence,
@@ -269,7 +277,9 @@ class CpuParameterService::Impl {
           }
           transferred_bytes+=expanded;groups[owner.first].push_back({context,std::move(g)});
         }
+        }
         auto send=[this](AgentId agent,DeviceUpdate update){
+          detail::PhaseTimer timer(stats_.update_dispatch_nanoseconds);
           if(auto* compact=std::get_if<CompactGradients>(&update.payload))
             return agents_.at(agent)->ApplyCompact(update.context,std::move(*compact));
           return agents_.at(agent)->ApplyHost(update.context,std::get<RowGradients>(std::move(update.payload)));
@@ -292,7 +302,8 @@ class CpuParameterService::Impl {
         stats_.expanded_gradient_bytes+=reference_bytes;stats_.transferred_gradient_bytes+=transferred_bytes;
         stats_.compact_update_commands+=compact_commands;
       }catch(const std::exception& e){fatal_=e.what();throw detail::Failure({Error::Code::run_failed,fatal_});}
-      for(const auto& [table,g]:cpu)detail::ApplyLazyAdam(store_->Table(table),g);
+      {detail::PhaseTimer timer(stats_.cpu_optimizer_nanoseconds,!cpu.empty());
+        for(const auto& [table,g]:cpu)detail::ApplyLazyAdam(store_->Table(table),g);}
       tracker_.Complete(request.id);
       ticket_payload_bytes_ -= ticket.payload_bytes;
       tickets_.erase(it); ++stats_.updates;
@@ -336,6 +347,7 @@ class CpuParameterService::Impl {
   }
 
   std::vector<LocatedRow> Move(MoveRowsRequest request){
+    detail::PhaseTimer timer(stats_.migration_nanoseconds);
     Ready();Require(request.run==options_.run_id,"invalid migration run");
     Require(request.destination==Placement::cpu || request.destination==Placement::gpu,"invalid migration destination");
     Require(!request.rows.empty() && request.rows.size()<=4096 && request.budget.max_inflight_batches>0,
@@ -514,6 +526,7 @@ class CpuParameterService::Impl {
   void MaybeMaintainCache() {
     if(!cache_policy_ || draining_ || !fatal_.empty() || !cache_policy_->CompleteRequest())return;
     ++stats_.policy_windows;
+    detail::PhaseTimer timer(stats_.cache_maintenance_nanoseconds);
     try { MaintainCache(); }
     catch(const detail::Failure& e) {
       ++stats_.policy_failures;

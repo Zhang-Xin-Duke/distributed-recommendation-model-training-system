@@ -26,11 +26,9 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     dense_optimizer = tf.keras.optimizers.SGD(0.01)
     dense_optimizer.build([dense])
 
-    @tf.function(input_signature=[tf.TensorSpec([None], tf.int64),
-                                 tf.TensorSpec([None], tf.int64)])
-    def train(ids, splits):
-        handle, embeddings = backend.pull([
-            Feature(1, 0, ids, splits, 2, pooling="mean", padding_key=0)])
+    prepared_mode = os.environ.get("EPS_TEST_PREPARE") == "1"
+
+    def model_step(handle, embeddings):
         with tf.GradientTape() as tape:
             tape.watch(embeddings)
             prediction = embeddings[0] @ dense
@@ -42,12 +40,46 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
         with tf.control_dependencies([done]):
             return tf.identity(loss), tf.identity(prediction)
 
+    if prepared_mode:
+        @tf.function(input_signature=[tf.TensorSpec([], tf.uint64)])
+        def train(token):
+            handle, embeddings = backend.pull_prepared(token, (2,))
+            return model_step(handle, embeddings)
+    else:
+        @tf.function(input_signature=[tf.TensorSpec([None], tf.int64),
+                                     tf.TensorSpec([None], tf.int64)])
+        def train(ids, splits):
+            handle, embeddings = backend.pull([
+                Feature(1, 0, ids, splits, 2, pooling="mean", padding_key=0)])
+            return model_step(handle, embeddings)
+
+    inputs = [Feature(1, 0, np.array([1, 0, 1, 2], np.int64),
+                      np.array([0, 3, 4], np.int64), 2, "mean", 0)]
+    tokens = [backend.prepare(inputs) for _ in range(2)] if prepared_mode else []
+    if prepared_mode:
+        assert all(m["lookups"] == 0 and m["live_tickets"] == 0 for m in backend.stats())
+        assert backend.preparation_stats()["accepted"] == 2
     losses = []
     for _ in range(5):
-        loss, prediction = train(tf.constant([1, 0, 1, 2], tf.int64),
-                                 tf.constant([0, 3, 4], tf.int64))
+        if prepared_mode:
+            loss, prediction = train(tf.constant(tokens.pop(0), tf.uint64))
+            tokens.append(backend.prepare(inputs))
+        else:
+            loss, prediction = train(tf.constant([1, 0, 1, 2], tf.int64),
+                                     tf.constant([0, 3, 4], tf.int64))
         losses.append(float(loss))
         assert np.isfinite(prediction.numpy()).all()
+    if prepared_mode:
+        try:
+            backend.save("must-wait-for-input-cancel")
+        except RuntimeError as error:
+            assert "prepared inputs" in str(error), str(error)
+        else:
+            raise AssertionError("checkpoint passed pending prepared inputs")
+        for token in tokens:
+            backend.cancel_prepared(token)
+        stats = backend.preparation_stats()
+        assert stats["accepted"] == 7 and stats["consumed"] == 5 and stats["cancelled"] == 2 and stats["pending"] == 0, stats
     assert losses[-1] < losses[0], losses
     assert train.experimental_get_tracing_count() == 1
 
@@ -65,18 +97,44 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     assert (values[[1, 2]] > 0.25).all()
     metrics = backend.stats()
     assert len(metrics) == 2 and all(m["updates"] == 5 and m["live_tickets"] == 0 for m in metrics), metrics
+    assert all(m["lookup_prepare_nanoseconds"] > 0 and m["gradient_prepare_nanoseconds"] > 0 and m["cpu_optimizer_nanoseconds"] > 0 for m in metrics), metrics
     automatic = os.environ.get("EPS_TEST_AUTO_CACHE") == "1"
     if automatic:
+        assert all(m["gpu_packet_prepare_nanoseconds"] > 0 and m["update_dispatch_nanoseconds"] > 0 and m["agent_wait_nanoseconds"] > 0 and m["cache_maintenance_nanoseconds"] > 0 for m in metrics), metrics
         assert sum(m["policy_admitted_rows"] for m in metrics) == 2, metrics
         assert sum(m["cached_rows"] for m in metrics) == 2, metrics
         assert all(m["policy_windows"] == 6 and m["policy_tracked_rows"] == 1 and m["policy_failures"] == 0 for m in metrics), metrics
+    if prepared_mode:
+        # A schema error after the native Pull must release its unpublished ticket.
+        token = backend.prepare(inputs)
+        try:
+            backend.pull_prepared(tf.constant(token, tf.uint64), (3,), read_only=True)
+        except tf.errors.OpError as error:
+            assert "layout differs" in str(error), str(error)
+        else:
+            raise AssertionError("prepared output schema mismatch passed")
+        assert all(m["live_tickets"] == 0 for m in backend.stats())
+        token = backend.prepare(inputs)
+        handle, checked = backend.pull_prepared(tf.constant(token, tf.uint64), (2,), read_only=True)
+        backend.release(handle).numpy()
+        assert checked[0].shape == (2, 2)
+        constrained = ParameterServer(endpoints, "tensorflow-check", learner=99,
+                                      preparation=dict(max_pending_batches=1, payload_bytes=64))
+        try:
+            constrained.prepare(inputs)
+        except RuntimeError as error:
+            assert "queue is full" in str(error), str(error)
+        else:
+            raise AssertionError("configured preparation byte budget was ignored")
+        assert constrained.preparation_stats()["rejected"] == 1
+        constrained.close()
     files = backend.save("tf-checkpoint")
     assert len(files) == 2 and all(pathlib.Path(f).is_file() for f in files)
     assert all(m["cached_rows"] == 0 for m in backend.stats())
     print(json.dumps(dict(test="tensorflow_graph_pull_push_join", tensorflow=tf.__version__,
                           cache_route=("automatic_resident_" if automatic else "transfer_unique_")+
                                       os.environ.get("EPS_CACHE_BACKEND", "host") if agent_endpoint else "cpu_pool",
-                          train_steps=5, loss_before=losses[0], loss_after=losses[-1],
+                          train_steps=5, prepared_inputs=prepared_mode, loss_before=losses[0], loss_after=losses[-1],
                           checkpoint_shards=len(files), retraces=0)), flush=True)
     backend.close()
 

@@ -151,3 +151,18 @@ its ordered Load allocation before publishing any row. Updated PS/Agent binaries
 are required for this reserve guarantee. Policy byte/batch budgets, read-only
 completion behavior and Stats counters are defined in
 [CACHE_POLICY.md](CACHE_POLICY.md).
+
+## Prepared input API and stage timing
+
+`PrepareLookupInputs` builds move-only original/shard layouts and position maps
+without parameter access. `DistributedClient::LookupPrepared` validates the
+prepared topology/tables and performs actual reads. `TableAdapter` adds
+`PrepareAsync`, FIFO `PullPrepared`, `CancelPrepared` and `PreparationStatus`;
+its worker also handles padding and original sequence positions. Python exposes
+`prepare`, `pull_prepared`, `cancel_prepared` and `preparation_stats`.
+
+Queued input count and conservative metadata/scratch reservations are bounded.
+Save requires live handles and pending tokens to be closed before atomically
+closing input admission. Stage counters are additive Stats fields 29–36;
+timing scopes and ownership boundaries are defined in
+[asynchronous preparation](ASYNCHRONOUS_PREPARATION.md).

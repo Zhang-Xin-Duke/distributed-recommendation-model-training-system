@@ -28,6 +28,7 @@ TableDefinition Table(std::uint32_t shards,std::uint32_t dimension){
   return {1,dimension,shards,1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42};
 }
 struct Counters {
+  std::map<std::string,std::uint64_t> phases;
   std::uint64_t windows=0,admitted=0,evicted=0,bytes=0,batches=0,failures=0,pinned=0,budget=0,cached=0,tracked=0,updates=0;
 };
 Counters Metrics(const std::vector<std::shared_ptr<BrpcParameterService>>& admin){
@@ -36,7 +37,16 @@ Counters Metrics(const std::vector<std::shared_ptr<BrpcParameterService>>& admin
     out.windows+=s.policy_windows;out.admitted+=s.policy_admitted_rows;out.evicted+=s.policy_evicted_rows;
     out.bytes+=s.policy_migration_bytes;out.batches+=s.policy_migration_batches;out.failures+=s.policy_failures;
     out.pinned+=s.policy_pinned_skips;out.budget+=s.policy_budget_skips;out.cached+=s.cached_rows;
-    out.tracked+=s.policy_tracked_rows;out.updates+=s.updates;}
+    out.tracked+=s.policy_tracked_rows;out.updates+=s.updates;
+    out.phases["lookup_prepare_nanoseconds"]+=s.lookup_prepare_nanoseconds;
+    out.phases["gradient_prepare_nanoseconds"]+=s.gradient_prepare_nanoseconds;
+    out.phases["gpu_packet_prepare_nanoseconds"]+=s.gpu_packet_prepare_nanoseconds;
+    out.phases["update_dispatch_nanoseconds"]+=s.update_dispatch_nanoseconds;
+    out.phases["cpu_optimizer_nanoseconds"]+=s.cpu_optimizer_nanoseconds;
+    out.phases["agent_wait_nanoseconds"]+=s.agent_wait_nanoseconds;
+    out.phases["migration_nanoseconds"]+=s.migration_nanoseconds;
+    out.phases["cache_maintenance_nanoseconds"]+=s.cache_maintenance_nanoseconds;
+}
   return out;
 }
 void WarmAgent(const std::string& endpoint,const std::string& run,std::uint32_t dim,AgentId agent){
@@ -174,6 +184,8 @@ int main(int argc,char** argv){
         {"policy_budget_skips",after.budget-before.budget},{"checked_feature_values",steps*values},{"feature_max_absolute_error",feature_error},
         {"mean_unique_rows_per_step",double(total_unique)/steps},{"mean_initial_hot_unique_per_step",double(initially_hot_unique)/steps},
         {"saved_microseconds_per_access",j.at("saved_microseconds_per_access")},{"coalesced_gathers",coalesce}};
+      record["phase_nanoseconds"]=nlohmann::json::object();
+      for(const auto& [phase,value]:after.phases)record["phase_nanoseconds"][phase]=value-before.phases.at(phase);
       record["resident_occurrences_by_agent"]=nlohmann::json::array();
       for(std::size_t a=0;a<readers.size();++a)record["resident_occurrences_by_agent"].push_back(per_agent_resident[a]-per_agent_begin[a]);
       record["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();

@@ -217,6 +217,14 @@ message StatsReply {
   uint64 policy_pinned_skips = 24; uint64 policy_budget_skips = 25;
   uint64 policy_migration_batches = 26; uint64 policy_migration_bytes = 27;
   uint64 policy_failures = 28;
+  uint64 lookup_prepare_nanoseconds = 29;
+  uint64 gradient_prepare_nanoseconds = 30;
+  uint64 gpu_packet_prepare_nanoseconds = 31;
+  uint64 update_dispatch_nanoseconds = 32;
+  uint64 cpu_optimizer_nanoseconds = 33;
+  uint64 agent_wait_nanoseconds = 34;
+  uint64 migration_nanoseconds = 35;
+  uint64 cache_maintenance_nanoseconds = 36;
 }
 
 message RowKey { uint32 table_id = 1; uint64 key = 2; }

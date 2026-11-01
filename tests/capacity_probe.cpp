@@ -151,9 +151,18 @@ int main(int argc,char** argv){
       const auto begin=Clock::now();deadline=begin+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>(duration));start.count_down();
       for(auto& thread:threads)thread.join();const auto elapsed=Ms(begin)/1000;
       if(failures)throw std::runtime_error("capacity run failed: "+error);
+      std::map<std::string,std::uint64_t> phases;
       std::uint64_t busy_ns=0,wait_ns=0,operations=0,admission_failures=0;
       std::uint64_t expanded_bytes=0,transferred_bytes=0,compact_commands=0;
       for(std::size_t i=0;i<admin.size();++i){auto s=Take(admin[i]->Stats());
+        phases["lookup_prepare_nanoseconds"]+=s.lookup_prepare_nanoseconds-stats_before[i].lookup_prepare_nanoseconds;
+        phases["gradient_prepare_nanoseconds"]+=s.gradient_prepare_nanoseconds-stats_before[i].gradient_prepare_nanoseconds;
+        phases["gpu_packet_prepare_nanoseconds"]+=s.gpu_packet_prepare_nanoseconds-stats_before[i].gpu_packet_prepare_nanoseconds;
+        phases["update_dispatch_nanoseconds"]+=s.update_dispatch_nanoseconds-stats_before[i].update_dispatch_nanoseconds;
+        phases["cpu_optimizer_nanoseconds"]+=s.cpu_optimizer_nanoseconds-stats_before[i].cpu_optimizer_nanoseconds;
+        phases["agent_wait_nanoseconds"]+=s.agent_wait_nanoseconds-stats_before[i].agent_wait_nanoseconds;
+        phases["migration_nanoseconds"]+=s.migration_nanoseconds-stats_before[i].migration_nanoseconds;
+        phases["cache_maintenance_nanoseconds"]+=s.cache_maintenance_nanoseconds-stats_before[i].cache_maintenance_nanoseconds;
         busy_ns+=s.executor_busy_nanoseconds-stats_before[i].executor_busy_nanoseconds;
         wait_ns+=s.queue_wait_nanoseconds-stats_before[i].queue_wait_nanoseconds;
         operations+=s.executed_operations-stats_before[i].executed_operations;
@@ -178,6 +187,7 @@ int main(int argc,char** argv){
         {"id_occurrences_per_second",completed*keys/elapsed},{"step_p50_ms",Percentile(latencies,0.5)},{"step_p95_ms",Percentile(latencies,0.95)},
         {"step_p99_ms",Percentile(latencies,0.99)},{"lookup_p99_ms",Percentile(lookups,0.99)},{"push_p99_ms",Percentile(pushes,0.99)},
         {"checked_parameter_counters",checked}};
+      result["phase_nanoseconds"]=phases;
       result["sequencer_busy_fraction"]=busy_ns/1e9/(elapsed*admin.size());
       result["queue_wait_per_operation_ms"]=operations?wait_ns/1e6/operations:0;
       result["rejected_admissions"]=admission_failures;

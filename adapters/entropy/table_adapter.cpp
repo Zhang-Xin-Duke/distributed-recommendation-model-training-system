@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include "common/error.hpp"
+#include "access/prepare_queue.hpp"
 
 namespace eps::entropy {
 namespace {
@@ -14,9 +15,13 @@ template<typename T>T Take(Result<T> r) {
 }
 struct TableAdapter::Impl {
   Impl(AdapterOptions o, std::vector<std::shared_ptr<ParameterService>> s)
-      : options(std::move(o)), shards(std::move(s)), client(shards) {
+      : options(std::move(o)), shards(std::move(s)), client(shards), preparation(shards.size(),options.preparation) {
     detail::Require(!options.run.empty() && options.max_live_batches>0 &&
       options.completion_history>0,"invalid adapter options");
+  }
+  ~Impl() {
+    preparation.Close();
+    for(auto& [handle,state]:live)try{(void)client.Release(state.batch);}catch(...){}
   }
   struct Batch {
     DistributedBatch batch;
@@ -34,9 +39,43 @@ struct TableAdapter::Impl {
       completed.erase(it);
     }
   }
+  void Ready() {
+    detail::Require(!closed,"adapter input is closed",Error::Code::unavailable);
+    detail::Require(live.size()<options.max_live_batches,"adapter live-batch limit reached",Error::Code::capacity_exceeded);
+  }
+  PullResult Dispatch(detail::PreparedAdapterInput prepared,bool read_only) {
+    detail::Require(next!=UINT64_MAX,"adapter request sequence exhausted",Error::Code::capacity_exceeded);
+    const auto handle=next;
+    Batch batch;batch.read_only=read_only;batch.positions=std::move(prepared.positions);
+    completed.emplace(handle,false);
+    decltype(live)::iterator entry;
+    try {entry=live.emplace(handle,std::move(batch)).first;}
+    catch(...){completed.erase(handle);throw;}
+    ++next;bool looked_up=false;
+    try {
+      entry->second.batch=Take(client.LookupPrepared({options.run,options.learner,handle,Phase::lookup},
+        options.partition_epoch,read_only,std::move(prepared.lookup)));
+      looked_up=true;auto& state=entry->second;state.outputs=state.batch.features();
+      for(std::size_t fi=0;fi<prepared.pooling.size();++fi)if(prepared.pooling[fi]==Pooling::sequence) {
+        const auto& compact=state.batch.features()[fi];const auto dim=compact.shape[1];
+        detail::Require(prepared.original_sizes[fi]<=(64ULL<<20)/(dim*4),"padded sequence output exceeds limit",Error::Code::capacity_exceeded);
+        TensorBlock padded{compact.feature,{prepared.original_sizes[fi],dim},std::vector<float>(prepared.original_sizes[fi]*dim,0)};
+        for(std::size_t i=0;i<state.positions[fi].size();++i)
+          std::copy_n(compact.values.data()+i*dim,dim,padded.values.data()+state.positions[fi][i]*dim);
+        state.outputs[fi]=std::move(padded);
+      }
+      return PullResult{handle,state.outputs};
+    }catch(...) {
+      // Output reconstruction/allocation can fail after successful RPCs. Release
+      // those known tickets before destroying the batch and closing admission.
+      if(looked_up)try{(void)client.Release(entry->second.batch);}catch(...){}
+      closed=true;preparation.Close();live.erase(handle);completed.erase(handle);throw;
+    }
+  }
   AdapterOptions options;
   std::vector<std::shared_ptr<ParameterService>> shards;
   DistributedClient client;
+  detail::PrepareQueue preparation;
   std::mutex mutex;
   std::uint64_t next=0;
   std::map<std::uint64_t,Batch> live;
@@ -47,65 +86,39 @@ TableAdapter::TableAdapter(AdapterOptions o,std::vector<std::shared_ptr<Paramete
     : impl_(std::make_unique<Impl>(std::move(o),std::move(s))) {}
 TableAdapter::~TableAdapter()=default;
 Result<Ack> TableAdapter::CreateTable(TableDefinition table) {
+  std::lock_guard lock(impl_->mutex);
+  if(impl_->closed)return Error{Error::Code::unavailable,"adapter input is closed"};
   return impl_->client.CreateTable(table);
 }
 void TableAdapter::SetCacheResolver(DistributedClient::CacheResolver resolver,bool coalesce) {
+  std::lock_guard lock(impl_->mutex);
   impl_->client.SetCacheResolver(std::move(resolver),coalesce);
 }
 Result<PullResult> TableAdapter::Pull(std::vector<Feature> features,bool read_only) {
   std::lock_guard lock(impl_->mutex);
   try {
-    detail::Require(!impl_->closed,"adapter input is closed",Error::Code::unavailable);
-    detail::Require(impl_->live.size()<impl_->options.max_live_batches,
-      "adapter live-batch limit reached",Error::Code::capacity_exceeded);
-    detail::Require(!features.empty(),"empty adapter Pull");
-    LookupRequest request{{impl_->options.run,impl_->options.learner,impl_->next,Phase::lookup},
-      impl_->options.partition_epoch,read_only,{}};
-    Impl::Batch batch; batch.read_only=read_only;
-    std::vector<std::uint64_t> original_sizes;
-    for (const auto& f:features) {
-      detail::Require(!f.offsets.empty() && f.offsets.front()==0 &&
-        f.offsets.back()==f.keys.size() && std::is_sorted(f.offsets.begin(),f.offsets.end()),
-        "invalid adapter row splits");
-      FeatureInput compact{f.table,f.feature,f.pooling,{},{0},{}};
-      std::vector<std::uint64_t> positions;
-      for(std::size_t b=0;b+1<f.offsets.size();++b) {
-        const auto start=compact.keys.size();
-        for(auto i=f.offsets[b];i<f.offsets[b+1];++i)
-          if(!f.padding_key || f.keys[i]!=*f.padding_key) {
-            compact.keys.push_back(f.keys[i]); positions.push_back(i);
-          }
-        compact.valid_lengths.push_back(compact.keys.size()-start);
-        compact.offsets.push_back(compact.keys.size());
-      }
-      original_sizes.push_back(f.keys.size());
-      batch.positions.push_back(std::move(positions)); request.features.push_back(std::move(compact));
-    }
-    const auto handle=impl_->next;
-    // Reserve bookkeeping before dispatch so allocation failures cannot orphan a
-    // server ticket. A post-dispatch failure closes this adapter run.
-    auto [entry,inserted]=impl_->live.emplace(handle,std::move(batch));
-    impl_->completed.emplace(handle,false);
-    ++impl_->next;
-    try {
-      entry->second.batch=Take(impl_->client.Lookup(std::move(request)));
-      auto& state=entry->second;
-      state.outputs=state.batch.features();
-      for(std::size_t fi=0;fi<features.size();++fi) if(features[fi].pooling==Pooling::sequence) {
-        const auto& compact=state.batch.features()[fi];const auto dim=compact.shape[1];
-        detail::Require(original_sizes[fi]<=(64ULL<<20)/(dim*4),"padded sequence output exceeds limit");
-        TensorBlock padded{compact.feature,{original_sizes[fi],dim},std::vector<float>(original_sizes[fi]*dim,0)};
-        for(std::size_t i=0;i<state.positions[fi].size();++i)
-          std::copy_n(compact.values.data()+i*dim,dim,padded.values.data()+state.positions[fi][i]*dim);
-        state.outputs[fi]=std::move(padded);
-      }
-      return PullResult{handle,state.outputs};
-    } catch(...) {
-      impl_->closed=true;impl_->live.erase(handle);impl_->completed.erase(handle);throw;
-    }
-  } catch(const detail::Failure& e) { return e.error(); }
-    catch(const std::exception& e) { impl_->closed=true;return Error{Error::Code::run_failed,e.what()}; }
+    impl_->Ready();
+    detail::Require(impl_->preparation.Empty(),"consume or cancel prepared inputs before synchronous Pull",Error::Code::unavailable);
+    return impl_->Dispatch(Take(detail::PrepareAdapterInput(std::move(features),impl_->shards.size(),
+      impl_->options.preparation.lookup_limits)),read_only);
+  }catch(const detail::Failure& e){return e.error();}
+  catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"adapter Pull allocation failed"};}
+  catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
 }
+Result<std::uint64_t> TableAdapter::PrepareAsync(std::vector<Feature> features) {
+  return impl_->preparation.Submit(std::move(features));
+}
+Result<PullResult> TableAdapter::PullPrepared(std::uint64_t token,bool read_only) {
+  std::lock_guard lock(impl_->mutex);
+  try {
+    impl_->Ready();
+    return impl_->Dispatch(Take(impl_->preparation.Take(token)),read_only);
+  }catch(const detail::Failure& e){return e.error();}
+  catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"prepared Pull allocation failed"};}
+  catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
+}
+Result<Ack> TableAdapter::CancelPrepared(std::uint64_t token) {return impl_->preparation.Cancel(token);}
+PreparationStats TableAdapter::PreparationStatus() const {return impl_->preparation.Stats();}
 Result<Ack> TableAdapter::Push(std::uint64_t handle,std::vector<TensorBlock> gradients) {
   std::lock_guard lock(impl_->mutex);
   try {
@@ -134,7 +147,10 @@ Result<Ack> TableAdapter::Push(std::uint64_t handle,std::vector<TensorBlock> gra
       }
       gradients.push_back(std::move(g));
     }
-    Take(impl_->client.Push(state.batch,std::move(gradients)));
+    auto pushed=impl_->client.Push(state.batch,std::move(gradients));
+    if(auto error=std::get_if<Error>(&pushed)) {
+      impl_->closed=true;impl_->preparation.Close();return *error;
+    }
     impl_->Finish(handle,true);return Ack{};
   } catch(const detail::Failure& e) {return e.error();}
 }
@@ -157,6 +173,7 @@ Result<std::vector<SnapshotMetadata>> TableAdapter::Save(std::string id) {
   std::lock_guard lock(impl_->mutex);
   try {
     detail::Require(impl_->live.empty(),"complete all batches before saving",Error::Code::unavailable);
+    Take(impl_->preparation.CloseIfEmpty());
     impl_->closed=true;
     std::vector<std::future<Result<SnapshotMetadata>>> futures;
     for(auto& shard:impl_->shards)futures.push_back(shard->DrainAndFlush(id));

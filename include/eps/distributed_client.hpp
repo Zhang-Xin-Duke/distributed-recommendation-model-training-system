@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include "eps/parameter_service.hpp"
+#include "eps/prepared_lookup.hpp"
 
 namespace eps {
 class DistributedBatch {
@@ -29,6 +30,8 @@ class DistributedClient {
   explicit DistributedClient(std::vector<std::shared_ptr<ParameterService>> shards);
   Result<Ack> CreateTable(TableDefinition table);
   Result<DistributedBatch> Lookup(LookupRequest request);
+  Result<DistributedBatch> LookupPrepared(RequestId id,std::uint64_t partition_epoch,
+      bool read_only,PreparedLookup prepared);
   Result<Ack> Push(const DistributedBatch& batch, std::vector<TensorBlock> gradients);
   Result<Ack> Release(const DistributedBatch& batch);
   // Receives shard-local work/layouts by default. With coalesce=true it receives
