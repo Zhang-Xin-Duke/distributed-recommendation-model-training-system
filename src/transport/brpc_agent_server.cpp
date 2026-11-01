@@ -1,6 +1,17 @@
 #include "transport/brpc_agent_server.hpp"
 #include "transport/agent_dispatch.hpp"
+#include "transport/local_agent_dispatch.hpp"
 namespace eps::transport {
+std::future<Result<std::vector<TensorBlock>>> BrpcAgentServer::GatherLocal(std::string run,
+    std::vector<AgentWork> work,std::vector<FeatureInput> layouts){
+  return LocalAgentDispatch<std::vector<TensorBlock>>(admission_,run,std::move(work),std::move(layouts),
+    [this](auto r,auto w,auto f){return runtime_.Gather(std::move(r),std::move(w),std::move(f));});
+}
+std::future<Result<std::vector<DeviceTensorBlock>>> BrpcAgentServer::GatherDeviceLocal(std::string run,
+    std::vector<AgentWork> work,std::vector<FeatureInput> layouts){
+  return LocalAgentDispatch<std::vector<DeviceTensorBlock>>(admission_,run,std::move(work),std::move(layouts),
+    [this](auto r,auto w,auto f){return runtime_.GatherDevice(std::move(r),std::move(w),std::move(f));});
+}
 void BrpcAgentServer::AdmissionStats(google::protobuf::RpcController* raw,const wire::StatsRequest* q,
     wire::AgentAdmissionStatsReply* r,google::protobuf::Closure* done){
   brpc::ClosureGuard complete(done);

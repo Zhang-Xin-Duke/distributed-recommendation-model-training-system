@@ -7,6 +7,10 @@ class BrpcAgentServer final : public v1::CacheAgentService {
  public:
   explicit BrpcAgentServer(AgentRuntime& runtime,AgentAdmissionOptions options={})
     :runtime_(runtime),admission_(options){}
+  std::future<Result<std::vector<TensorBlock>>> GatherLocal(std::string run,std::vector<AgentWork>,std::vector<FeatureInput>);
+  std::future<Result<std::vector<DeviceTensorBlock>>> GatherDeviceLocal(std::string run,std::vector<AgentWork>,std::vector<FeatureInput>);
+  AgentAdmissionStats LocalStats() const {return admission_.Stats();}
+  void CloseAdmission(){admission_.Shutdown();}
 #define EPS_AGENT_RPC(Name,Request,Response) \
   void Name(google::protobuf::RpcController*,const v1::Request*,v1::Response*,google::protobuf::Closure*) override;
   EPS_AGENT_RPC(AdmissionStats,StatsRequest,AgentAdmissionStatsReply)

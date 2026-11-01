@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
-#include <brpc/server.h>
-#include <butil/endpoint.h>
-#include "eps/agent_runtime.hpp"
-#include "transport/brpc_agent_server.hpp"
+#include <brpc/controller.h>
+#include <chrono>
+#include <thread>
+#include "eps/worker_cache_agent.hpp"
 #ifdef EPS_HAS_CUDA
 #include "eps/cuda_cache_backend.hpp"
 #endif
@@ -36,13 +36,9 @@ int main(int argc,char** argv){
 #endif
     else throw std::runtime_error("requested backend is not available in this build");
     std::cerr<<"CACHE_BACKEND="<<backend<<'\n';
-    eps::AgentRuntime runtime(run,cache);eps::transport::BrpcAgentServer service(runtime,admission);brpc::Server server;
-    if(server.AddService(&service,brpc::SERVER_DOESNT_OWN_SERVICE)!=0)throw std::runtime_error("cannot register cache agent");
-    // Admission owns the finite count/byte budgets and waits before execution.
-    // A transport-level rejection would bypass that queue and fail partial updates.
-    brpc::ServerOptions options;options.max_concurrency=0;
-    if(server.Start(listen.c_str(),&options)!=0)throw std::runtime_error("cannot start cache agent");
-    std::cout<<"READY "<<butil::endpoint2str(server.listen_address()).c_str()<<std::endl;
-    server.RunUntilAskedToQuit();return 0;
+    eps::WorkerCacheAgent worker({run,listen,admission},std::move(cache));
+    std::cout<<"READY "<<worker.endpoint()<<std::endl;
+    while(!brpc::IsAskedToQuit())std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    worker.Stop();return 0;
   }catch(const std::exception& e){std::cerr<<"eps_cache_agent: "<<e.what()<<'\n';return 1;}
 }

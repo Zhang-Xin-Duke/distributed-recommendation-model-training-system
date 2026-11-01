@@ -1,4 +1,5 @@
 #include "eps/agent_runtime.hpp"
+#include "eps/cache_agent.hpp"
 
 #include <map>
 #include <typeindex>
@@ -68,6 +69,14 @@ std::future<Result<std::vector<TensorBlock>>> AgentRuntime::Gather(std::string r
   return impl_->executor.Submit<std::vector<TensorBlock>>([this,run=std::move(run),work=std::move(work),layouts=std::move(layouts)]() mutable {
     detail::Require(run==impl_->run,"invalid agent run");
     return detail::Await(impl_->backend->GatherHost(std::move(work),std::move(layouts)));
+  });
+}
+std::future<Result<std::vector<DeviceTensorBlock>>> AgentRuntime::GatherDevice(std::string run,std::vector<AgentWork> work,std::vector<FeatureInput> layouts){
+  return impl_->executor.Submit<std::vector<DeviceTensorBlock>>([this,run=std::move(run),work=std::move(work),layouts=std::move(layouts)]() mutable {
+    detail::Require(run==impl_->run,"invalid agent run");
+    auto gpu=std::dynamic_pointer_cast<GpuCacheAgent>(impl_->backend);
+    detail::Require(bool(gpu),"cache backend does not support device tensors");
+    return detail::Await(gpu->GatherDevice(std::move(work),std::move(layouts)));
   });
 }
 std::future<Result<Ack>> AgentRuntime::Apply(AgentCommand id,UpdateContext context,RowGradients g){
