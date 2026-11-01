@@ -22,20 +22,19 @@ boundary before the existing job entry point builds its graph. Source-level
 Session checks execute the original methods against independent parameter shards,
 including a mid-run original-controller checkpoint.
 
-![Multi-GPU throughput, tail latency and queue wait](docs/assets/current-multigpu-limits.svg)
+![Multi-GPU throughput, tail latency and queue wait](docs/assets/multigpu-boundaries.svg)
 
-**Measured operating envelope (runtime `b6d97d3`):** four RTX A6000 agents sustain **119.62
-acknowledged sparse updates/s** with **106.09 ms median trial P99** at eight
-concurrent Learners, across three 20-second windows. The one-/two-agent sustained
-rates are **117.71 / 127.75 updates/s** under the same total workload and
-coordinator. At 64 Learners, four-agent short-sweep throughput falls to **76.67
-updates/s** and P99 rises to **1.13 s**. All three topology sizes encounter the
-Agent's default in-flight RPC limit during 128-Learner overload probes.
+**Measured operating points:** one, two and four RTX A6000 agents sustain
+**120.19 / 133.44 / 120.40 acknowledged sparse updates/s** at their selected
+4/16/8-Learner loads. Median trial P99 is **45.67 / 165.22 / 108.41 ms** across
+three 20-second windows. The fixed-workload curves show a throughput plateau and
+increasing tail latency as concurrency grows.
 
-A million-row, 512-dimensional control covers **6 GiB of logical parameter/Adam
-state**. Scheduling, hot-shard access, automatic admission and transport controls
-locate coordination and communication costs. [Operating points, boundaries and
-raw records](docs/CURRENT_MULTIGPU_LIMITS.md).
+**Overload and scale:** the study reaches 192 concurrent Learners and a
+million-row, 512-dimensional table with **6 GiB of logical parameter/Adam state**.
+RPC admission failures appear at 128–192 Learners. Failure diagnostics distinguish
+responsive statistics from usable parameter reads and retain outstanding-ticket
+counts. [Operating envelope, scaled workloads and recovery observations](docs/MULTIGPU_BOUNDARIES.md).
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam with optional weight clipping, CUDA-resident weights and optimizer states, CPU/GPU migration,
@@ -46,18 +45,16 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the current study retains **86 completed capacity trials /
-52,173 updates**, with **2,752 sampled row-counter checks**, finite-state and
-live-ticket checks. Three rejected load points retain separate failure records.
-The native CPU/CUDA suite passes **22/22**, and each GPU worker passes its CUDA
-state/device-result check at that capacity revision. Restore revision `ce17f18`
-passes **39/39** native/CUDA/TensorFlow checks and **8/8** additional forced-CUDA
-cases. Fresh services resume an original-method training graph from a committed
-checkpoint, matching selected parameter/Adam state and dense weights exactly.
-All artifacts are fetched and hash-verified before
-rental deletion. The [validation record](docs/VALIDATION.md) also covers
-optimizer-exact restart, TensorFlow integration, sanitizers, fencing, bounded
-tickets and failure cleanup at their recorded source revisions.
+**Validation:** two fleets retain **89 completed capacity trials / 67,425
+acknowledged updates / 2,848 sampled row-counter checks**, plus eight separately
+recorded failed load points. Completed trials pass numerical preflight,
+finite-parameter, update-counter and ticket-cleanup checks; maximum preflight
+feature error is **3.91e-8**. Each fleet passes the **26/26 native CPU/CUDA suite**,
+and each worker separately passes its CUDA state/device-result check. Artifacts
+are retrieved and hash-verified before rental deletion. [Combined study index](docs/validation/2026-11-01-multigpu-study.json).
+The [validation record](docs/VALIDATION.md) also documents checkpoint continuation,
+TensorFlow integration, optimizer-state comparisons, sanitizers and fencing at
+their recorded source revisions.
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
 [Implementation progress](docs/plans/2026-10-31-implementation.md)

@@ -1,0 +1,305 @@
+{
+  "source_commit": "b7b87cf962c7e7f3a7a5127727e28c0ddd992bee",
+  "environment": {
+    "binaries": {
+      "eps_server": "b57760027316d945cb01b25465734d59bfe972ab1e5cbf0d249c39274efc68b1",
+      "eps_cache_agent": "5dc22602c87b1e3a410381444f6cd7bf6edfa51c6ff4fda5537a0eb0cd3fb5c6",
+      "eps_capacity_probe": "4f29365ba41da5dd2d1916af846f916a0cfb3374622fa49c76cbc15ebd3f90ea"
+    },
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "affinity_cpu_count": 6,
+    "cpu_max": "594000 100000",
+    "os": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "source_commit": "b7b87cf962c7e7f3a7a5127727e28c0ddd992bee",
+    "workers": [
+      {
+        "agent_sha256": "5dc22602c87b1e3a410381444f6cd7bf6edfa51c6ff4fda5537a0eb0cd3fb5c6",
+        "gpu": "GPU-2f2b6b91-5102-510c-84bf-140cf93fe4d9, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      },
+      {
+        "agent_sha256": "5dc22602c87b1e3a410381444f6cd7bf6edfa51c6ff4fda5537a0eb0cd3fb5c6",
+        "gpu": "GPU-ab45ad0a-79af-587e-966b-6c36e1a3c6a1, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      },
+      {
+        "agent_sha256": "5dc22602c87b1e3a410381444f6cd7bf6edfa51c6ff4fda5537a0eb0cd3fb5c6",
+        "gpu": "GPU-286ce9e0-35a2-5285-b9f8-5cd1669ad0d7, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      },
+      {
+        "agent_sha256": "5dc22602c87b1e3a410381444f6cd7bf6edfa51c6ff4fda5537a0eb0cd3fb5c6",
+        "gpu": "GPU-17a07e32-35e0-53ed-90b9-5ac92e9af50c, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      }
+    ]
+  },
+  "transport": "one local agent plus SSH-forwarded BRPC to remote agents",
+  "figure_timing": "Two 5-second windows + full drain per point; median and observed range.",
+  "experiments": [
+    {
+      "name": "weak-g1-g1",
+      "suite": "weak-g1",
+      "variant": "cuda",
+      "raw_file": "weak-g1-g1.jsonl",
+      "sha256": "66cefb5ae88009b241807fcb92af8604a4182f232f9a683ae661bf979c1f1e40",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "weak-g1-g1-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        8
+      ]
+    },
+    {
+      "name": "weak-g2-g2",
+      "suite": "weak-g2",
+      "variant": "cuda",
+      "raw_file": "weak-g2-g2.jsonl",
+      "sha256": "6c1770ace894b1ec7bc535717aef28585893f804b5c30ff0852a27c14441a043",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 524288,
+      "dimension": 128,
+      "keys_per_step": 2048,
+      "bag_length": 32,
+      "resources_file": "weak-g2-g2-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        16
+      ]
+    },
+    {
+      "name": "weak-g4-g4",
+      "suite": "weak-g4",
+      "variant": "cuda",
+      "raw_file": "weak-g4-g4.jsonl",
+      "sha256": "66aa3d398ca885e5efa38c0b29d8ae88ab754010c704f581fd0b3f1b1a883cde",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 1048576,
+      "dimension": 128,
+      "keys_per_step": 4096,
+      "bag_length": 32,
+      "resources_file": "weak-g4-g4-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        32
+      ]
+    },
+    {
+      "name": "large-g1",
+      "suite": "large",
+      "variant": "cuda",
+      "raw_file": "large-g1.jsonl",
+      "sha256": "2433ab21027c0a7435cd59bf7c977c66e07591480b597e668cf3c036cf62e808",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "large-g1-resources.json",
+      "trial_count": 4,
+      "learner_levels": [
+        8,
+        32
+      ]
+    },
+    {
+      "name": "large-g4",
+      "suite": "large",
+      "variant": "cuda",
+      "raw_file": "large-g4.jsonl",
+      "sha256": "a88b4eea025dc20b4d60af3ee1973091c7a8024eba78e53ce3a3b5d42ffad0cf",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "large-g4-resources.json",
+      "trial_count": 4,
+      "learner_levels": [
+        8,
+        32
+      ]
+    },
+    {
+      "name": "host-control-g1",
+      "suite": "host-control",
+      "variant": "host",
+      "raw_file": "host-control-g1.jsonl",
+      "sha256": "4616e8a3abcb4837c7fc04ae9a2b020e31524a314dad94e984382165e7311484",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "host-control-g1-resources.json",
+      "trial_count": 4,
+      "learner_levels": [
+        8,
+        32
+      ]
+    },
+    {
+      "name": "host-control-g4",
+      "suite": "host-control",
+      "variant": "host",
+      "raw_file": "host-control-g4.jsonl",
+      "sha256": "2d9a2c18709841863a856c8ba02f6c3974c2e9f80f01b0794ab120a4f8dd7c84",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "host-control-g4-resources.json",
+      "trial_count": 4,
+      "learner_levels": [
+        8,
+        32
+      ]
+    },
+    {
+      "name": "extended-g2",
+      "suite": "extended",
+      "variant": "cuda",
+      "raw_file": "extended-g2.jsonl",
+      "sha256": "65c1a68c6c007b0e4afcc4c2e7f4c634a70a09f214913c9e39b5fcea530c4065",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "extended-g2-resources.json",
+      "trial_count": 2,
+      "learner_levels": [
+        128
+      ]
+    },
+    {
+      "name": "extended-g4",
+      "suite": "extended",
+      "variant": "cuda",
+      "raw_file": "extended-g4.jsonl",
+      "sha256": "8e59c2bcf6210ca5223a421372d5b84c602a96bc5e8850ace5370742a6a269e7",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "extended-g4-resources.json",
+      "trial_count": 2,
+      "learner_levels": [
+        128
+      ]
+    },
+    {
+      "name": "overload-confirm-g2",
+      "suite": "overload-confirm",
+      "variant": "cuda",
+      "raw_file": "overload-confirm-g2.jsonl",
+      "sha256": "2d5ee32e06a04ddb7ba90a1b4e2eadd56429d34cea005af7dba3e8b158806f93",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "overload-confirm-g2-resources.json",
+      "trial_count": 1,
+      "learner_levels": [
+        128
+      ]
+    }
+  ],
+  "rental_estimate_usd": 0.3494,
+  "rental_estimate_scope": "observed creation-to-cleanup interval times published base rate; not an invoice",
+  "trial_count": 30,
+  "completed_updates": 19060,
+  "sampled_counter_checks": 960,
+  "max_preflight_absolute_error": 3.91155481338501e-08,
+  "failed_points": "failed-points.json",
+  "failed_point_count": 6,
+  "original_raw_records": [
+    {
+      "experiment": "weak-g1-g1",
+      "file": "weak-g1-g1-raw.jsonl",
+      "sha256": "7e86ca6f47868f7484dd1816ff17dcaf1112d64f10e94071d2d96736fd2ece5f"
+    },
+    {
+      "experiment": "weak-g2-g2",
+      "file": "weak-g2-g2-raw.jsonl",
+      "sha256": "fc641ad0c0e88b4dde5e493fd8bc7cb9bf60cfdc818b4227e5381db228627c62"
+    },
+    {
+      "experiment": "weak-g4-g4",
+      "file": "weak-g4-g4-raw.jsonl",
+      "sha256": "d2e168597a44bfee50a64ae0be32af0f99f0a411895b32e4877314593856b698"
+    },
+    {
+      "experiment": "large-g1",
+      "file": "large-g1-raw.jsonl",
+      "sha256": "8ffe47d3fdba840188ec27ec952d98fc1a73c24b0ecfafc979267556e700a1b5"
+    },
+    {
+      "experiment": "large-g4",
+      "file": "large-g4-raw.jsonl",
+      "sha256": "5b9837e44e37a43b13d651210285e2a93179f94ebbff5931a665cf29320c8c34"
+    },
+    {
+      "experiment": "host-control-g1",
+      "file": "host-control-g1-raw.jsonl",
+      "sha256": "cc4b8c4ffb5e07f172a31ae7e298a8d00c568a27cf90eb2f0bf82b6cc0d79dcf"
+    },
+    {
+      "experiment": "host-control-g4",
+      "file": "host-control-g4-raw.jsonl",
+      "sha256": "75e76ee7ad15e3311c2245d25ecb3e8951eff09ffc22abd9b6bb7c0fbe8c99cc"
+    },
+    {
+      "experiment": "extended-g1",
+      "file": "extended-g1-raw.jsonl",
+      "sha256": "38ca8db72b966b4925bd9104de686c8639da853ee6edc5c364f37b82f1a95712"
+    },
+    {
+      "experiment": "extended-g2",
+      "file": "extended-g2-raw.jsonl",
+      "sha256": "9a8ba6eba54b57391822d3a413891f5573a0327d720eab86eca1e51a633f01c9"
+    },
+    {
+      "experiment": "extended-g4",
+      "file": "extended-g4-raw.jsonl",
+      "sha256": "0ec458aaf2e50b60bcefc67195fa148f2077a0aa9946be4310946deaf8f09f27"
+    },
+    {
+      "experiment": "overload-confirm-g1",
+      "file": "overload-confirm-g1-raw.jsonl",
+      "sha256": "2e0f6ddbcc20927ae82b5bef752381d946c78de48306ebc4618bfc220e866c51"
+    },
+    {
+      "experiment": "overload-confirm-g2",
+      "file": "overload-confirm-g2-raw.jsonl",
+      "sha256": "34dce4915345975d08f66aad931d5c329cfc54bf9c99d14d73152cfdc108b0ea"
+    },
+    {
+      "experiment": "overload-confirm-g4",
+      "file": "overload-confirm-g4-raw.jsonl",
+      "sha256": "25804cf06954af753bf602ae55ef2522b03fbf20cb7fedbd6cbd0b197bde6621"
+    }
+  ],
+  "transport_control": "transport.json",
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793515097.4044318
+  },
+  "study_exit_code": 0
+}

@@ -1,0 +1,337 @@
+{
+  "source_commit": "955520ea4f8b16e33d1d141a014ef23bb8a5bb14",
+  "environment": {
+    "binaries": {
+      "eps_server": "a2b9bba39a60cad08e9451705912f7611180f360682ed05c89d297381a213f99",
+      "eps_cache_agent": "6188564c286bace5dac52a708d452950d42a35fb7da116ab1ce89c992c23b6fe",
+      "eps_capacity_probe": "5d5436f7b9052648c2506c5ecb8ef129cb6e109be93dafc37b7aac635e37d0aa"
+    },
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "affinity_cpu_count": 6,
+    "cpu_max": "594000 100000",
+    "os": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "source_commit": "955520ea4f8b16e33d1d141a014ef23bb8a5bb14",
+    "workers": [
+      {
+        "agent_sha256": "6188564c286bace5dac52a708d452950d42a35fb7da116ab1ce89c992c23b6fe",
+        "gpu": "GPU-3c1f75b3-3002-527b-837f-7b9db1b4a8fc, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      },
+      {
+        "agent_sha256": "6188564c286bace5dac52a708d452950d42a35fb7da116ab1ce89c992c23b6fe",
+        "gpu": "GPU-ba7422bd-5927-5db8-a100-8fa1729a5459, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      },
+      {
+        "agent_sha256": "6188564c286bace5dac52a708d452950d42a35fb7da116ab1ce89c992c23b6fe",
+        "gpu": "GPU-94287b10-0dd4-50ab-83fc-b1d58a15c3b1, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      },
+      {
+        "agent_sha256": "6188564c286bace5dac52a708d452950d42a35fb7da116ab1ce89c992c23b6fe",
+        "gpu": "GPU-9f99e3ae-81c3-5ffe-a58f-71fc6dc2e600, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB"
+      }
+    ]
+  },
+  "transport": "one local agent plus SSH-forwarded BRPC to remote agents",
+  "figure_timing": "Two 5-second windows + full drain per point; median and observed range.",
+  "experiments": [
+    {
+      "name": "fixed-g1",
+      "suite": "limits-fixed",
+      "variant": "cuda",
+      "raw_file": "fixed-g1.jsonl",
+      "sha256": "8cdf1263cabafa9c18630306715c4bf91f96781942371cc8b24e335a6312bab5",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "fixed-g1-resources.json",
+      "trial_count": 10,
+      "learner_levels": [
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "fixed-g2",
+      "suite": "limits-fixed",
+      "variant": "cuda",
+      "raw_file": "fixed-g2.jsonl",
+      "sha256": "08af645b367f6f8ead61198184db66a6d10e5440d24b9a857d619d0b905ba5dd",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "fixed-g2-resources.json",
+      "trial_count": 10,
+      "learner_levels": [
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "fixed-g4",
+      "suite": "limits-fixed",
+      "variant": "cuda",
+      "raw_file": "fixed-g4.jsonl",
+      "sha256": "1245d93580acbe13899082e8b70cd706a7ed63e09cc1490ddf8a6718f98dc2a4",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "fixed-g4-resources.json",
+      "trial_count": 10,
+      "learner_levels": [
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "sustained-g1-g1",
+      "suite": "sustained-g1",
+      "variant": "cuda",
+      "raw_file": "sustained-g1-g1.jsonl",
+      "sha256": "c97f3e7aa86e0feca5ea46cd5ed023ccf9b5fb1af8079df6121c16cb49df3860",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "sustained-g1-g1-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        4
+      ]
+    },
+    {
+      "name": "sustained-g2-g2",
+      "suite": "sustained-g2",
+      "variant": "cuda",
+      "raw_file": "sustained-g2-g2.jsonl",
+      "sha256": "d90280e4a9d3a9fa8331f0e5aa202e903764c19bb825aeb6c60189c01de67efa",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "sustained-g2-g2-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        16
+      ]
+    },
+    {
+      "name": "sustained-g4-g4",
+      "suite": "sustained-g4",
+      "variant": "cuda",
+      "raw_file": "sustained-g4-g4.jsonl",
+      "sha256": "8b7f3e9022d8ffba7cfb29da9b1506d4d7f261a0a20dec123312f2596894654f",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "sustained-g4-g4-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        8
+      ]
+    },
+    {
+      "name": "threshold-g1",
+      "suite": "threshold",
+      "variant": "cuda",
+      "raw_file": "threshold-g1.jsonl",
+      "sha256": "463cabfc4e512f0794bcf23a9745b5c8a21da0b7fa1d2206e339b9557830dde7",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "threshold-g1-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        80,
+        96,
+        112
+      ]
+    },
+    {
+      "name": "threshold-g2",
+      "suite": "threshold",
+      "variant": "cuda",
+      "raw_file": "threshold-g2.jsonl",
+      "sha256": "e1e69f8fde2db80f95ea056b09fca683c7dc37199995312c4f6e45fc785b32bd",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "threshold-g2-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        80,
+        96,
+        112
+      ]
+    },
+    {
+      "name": "threshold-g4",
+      "suite": "threshold",
+      "variant": "cuda",
+      "raw_file": "threshold-g4.jsonl",
+      "sha256": "bffc93faf0d0275abd40d65c2d85a6e0fbed9807f372d521561e0e5bacb1c41a",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "threshold-g4-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        80,
+        96,
+        112
+      ]
+    },
+    {
+      "name": "overload-g1",
+      "suite": "overload",
+      "variant": "cuda",
+      "raw_file": "overload-g1.jsonl",
+      "sha256": "8001f351ef30bc10068631436c1a6a6adc61714ff7e0b44942ebde958facaf98",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "overload-g1-resources.json",
+      "trial_count": 1,
+      "learner_levels": [
+        128
+      ]
+    },
+    {
+      "name": "overload-g2",
+      "suite": "overload",
+      "variant": "cuda",
+      "raw_file": "overload-g2.jsonl",
+      "sha256": "01322c6477897a7a53086280b836f18ff548377005486e57be37673a1e73b15b",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "overload-g2-resources.json",
+      "trial_count": 1,
+      "learner_levels": [
+        128
+      ]
+    }
+  ],
+  "rental_estimate_usd": 0.3783,
+  "rental_estimate_scope": "observed creation-to-cleanup interval times published base rate; not an invoice",
+  "trial_count": 59,
+  "completed_updates": 48365,
+  "sampled_counter_checks": 1888,
+  "max_preflight_absolute_error": 3.725290298461914e-08,
+  "failed_points": "failed-points.json",
+  "failed_point_count": 2,
+  "original_raw_records": [
+    {
+      "experiment": "fixed-g1",
+      "file": "fixed-g1-raw.jsonl",
+      "sha256": "78203dbf0528c7dfbc5904bf2f94d1b2e89c2a5dadacc8805c926f61d6279342"
+    },
+    {
+      "experiment": "fixed-g2",
+      "file": "fixed-g2-raw.jsonl",
+      "sha256": "6fb2949531e39f7a331964c3558ce31e4161ea00c396cdc4ee2ee383d4ecd9d3"
+    },
+    {
+      "experiment": "fixed-g4",
+      "file": "fixed-g4-raw.jsonl",
+      "sha256": "495f5e5decb4003fe01745c6e7424a2e6dc6375b8c7afef556cd74f208c6d8b5"
+    },
+    {
+      "experiment": "sustained-g1-g1",
+      "file": "sustained-g1-g1-raw.jsonl",
+      "sha256": "8fef788f86dfae634d3f046584bd42756059f792377dd2270887bf166622c954"
+    },
+    {
+      "experiment": "sustained-g2-g2",
+      "file": "sustained-g2-g2-raw.jsonl",
+      "sha256": "09b99df44eb831f453ef7fcd732e24ce65dcec55159ec97b499b63cec71b581b"
+    },
+    {
+      "experiment": "sustained-g4-g4",
+      "file": "sustained-g4-g4-raw.jsonl",
+      "sha256": "4d7cb994cc6c790b4c3821ff22a97a51e558433f204333c7c9a07f471042770d"
+    },
+    {
+      "experiment": "threshold-g1",
+      "file": "threshold-g1-raw.jsonl",
+      "sha256": "719f97b8f528d60655be545bed6444104a18a743cb53ce4a9628a5846a70b47e"
+    },
+    {
+      "experiment": "threshold-g2",
+      "file": "threshold-g2-raw.jsonl",
+      "sha256": "59a9c6fb72e1bdafa5387a0a52dfa6717437c72c0ec847405fb99e0ee4078fcd"
+    },
+    {
+      "experiment": "threshold-g4",
+      "file": "threshold-g4-raw.jsonl",
+      "sha256": "6aab43a4880826f235f7cfb98c44da729937cd8629c7d5a733e410ef956eeecf"
+    },
+    {
+      "experiment": "overload-g1",
+      "file": "overload-g1-raw.jsonl",
+      "sha256": "02bd7f3abaf7d0cf478d581baa8fd5473fc4c9d84c7790b06b55d95b68b76881"
+    },
+    {
+      "experiment": "overload-g2",
+      "file": "overload-g2-raw.jsonl",
+      "sha256": "54c89236cf9dfb8e71113d67e35eadd8f19e3ccc74652b5b72a0cab319df49bc"
+    },
+    {
+      "experiment": "overload-g4",
+      "file": "overload-g4-raw.jsonl",
+      "sha256": "d7844d75d47b381cb189630f7b9d24e0806d6cfd40215a4fa60fecc53b7d9a7c"
+    },
+    {
+      "experiment": "serialized-g4",
+      "file": "serialized-g4-raw.jsonl",
+      "sha256": "784c570ae0871e3428150ca74ceec089bddda3bc537d86e340dd06b625c9ef30"
+    }
+  ],
+  "transport_control": "transport.json",
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793514154.061536
+  },
+  "study_exit_code": 1
+}

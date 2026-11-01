@@ -1,0 +1,43 @@
+{
+  "source_commit": "955520ea4f8b16e33d1d141a014ef23bb8a5bb14",
+  "trial_count": 59,
+  "completed_updates": 48365,
+  "sampled_counter_checks": 1888,
+  "max_preflight_absolute_error": 3.725290298461914e-08,
+  "failed_point_count": 2,
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793514154.061536
+  },
+  "study_exit_code": 1,
+  "local_native_tests_passed": 23,
+  "native_cuda_tests_passed": 26,
+  "binary_sha256": {
+    "eps_server": "a2b9bba39a60cad08e9451705912f7611180f360682ed05c89d297381a213f99",
+    "eps_cache_agent": "6188564c286bace5dac52a708d452950d42a35fb7da116ab1ce89c992c23b6fe",
+    "eps_capacity_probe": "5d5436f7b9052648c2506c5ecb8ef129cb6e109be93dafc37b7aac635e37d0aa"
+  },
+  "archives_sha256": [
+    {
+      "worker": 0,
+      "sha256": "9dec8a7e3601f040bbadf3e9fee526ce72f166ea72c3c20a2d2ef3ba6ab2f865",
+      "bytes": 175668
+    },
+    {
+      "worker": 1,
+      "sha256": "9c85a17749066b0aeefb0530f593c93635b8700c56d4585d983f3cfc8c26d2a0",
+      "bytes": 17683
+    },
+    {
+      "worker": 2,
+      "sha256": "e5b854adb479f697ef4e366a4d6ca33e7a28a67d72a1774de4f36aa483e6e122",
+      "bytes": 9556
+    },
+    {
+      "worker": 3,
+      "sha256": "85897903a3f218f2f3a8fc1cadb20e5192394185194460a297f8763c6abe4acb",
+      "bytes": 9563
+    }
+  ]
+}

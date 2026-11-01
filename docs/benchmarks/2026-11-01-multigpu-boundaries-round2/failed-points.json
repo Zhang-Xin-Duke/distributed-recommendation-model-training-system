@@ -1,0 +1,659 @@
+[
+  {
+    "experiment": "extended-g1",
+    "acknowledged_steps_before_failure": 1389,
+    "after_health_probe_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 1392,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 1392,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 1392,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 1392,
+        "waiting_operations": 0
+      }
+    ],
+    "dimension": 128,
+    "elapsed_seconds": 10.903936954,
+    "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+    "errors": 2,
+    "fresh_read_only_probe": {
+      "completed": true,
+      "finite": true
+    },
+    "gpu_agents": 1,
+    "keys_per_step": 1024,
+    "learners": 128,
+    "optimizer_trajectory_verified": false,
+    "post_failure_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 1392,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 1392,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 1392,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 1392,
+        "waiting_operations": 0
+      }
+    ],
+    "ps_shards": 4,
+    "repeat": 0,
+    "rows": 262144,
+    "sampled_state": {
+      "checked_rows": 16,
+      "completed": true,
+      "finite": true
+    },
+    "test": "distributed_sparse_training_overload"
+  },
+  {
+    "experiment": "extended-g2",
+    "acknowledged_steps_before_failure": 0,
+    "after_health_probe_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 106,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 1704,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 1810,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 1810,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 106,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 1704,
+        "waiting_operations": 0
+      }
+    ],
+    "dimension": 128,
+    "elapsed_seconds": 3.105922066,
+    "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+    "errors": 192,
+    "fresh_read_only_probe": {
+      "completed": false,
+      "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128"
+    },
+    "gpu_agents": 2,
+    "keys_per_step": 1024,
+    "learners": 192,
+    "optimizer_trajectory_verified": false,
+    "post_failure_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 106,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 1704,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 1810,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 1810,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 106,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 1704,
+        "waiting_operations": 0
+      }
+    ],
+    "ps_shards": 4,
+    "repeat": 0,
+    "rows": 262144,
+    "sampled_state": {
+      "checked_rows": 2,
+      "completed": false,
+      "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+      "finite": true
+    },
+    "test": "distributed_sparse_training_overload"
+  },
+  {
+    "experiment": "extended-g4",
+    "acknowledged_steps_before_failure": 0,
+    "after_health_probe_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 140,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 1756,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 1896,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 1896,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 140,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 1756,
+        "waiting_operations": 0
+      }
+    ],
+    "dimension": 128,
+    "elapsed_seconds": 2.595347507,
+    "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+    "errors": 192,
+    "fresh_read_only_probe": {
+      "completed": false,
+      "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128"
+    },
+    "gpu_agents": 4,
+    "keys_per_step": 1024,
+    "learners": 192,
+    "optimizer_trajectory_verified": false,
+    "post_failure_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 140,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 1756,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 1896,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 1896,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 140,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 1756,
+        "waiting_operations": 0
+      }
+    ],
+    "ps_shards": 4,
+    "repeat": 0,
+    "rows": 262144,
+    "sampled_state": {
+      "checked_rows": 2,
+      "completed": false,
+      "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+      "finite": true
+    },
+    "test": "distributed_sparse_training_overload"
+  },
+  {
+    "experiment": "overload-confirm-g1",
+    "acknowledged_steps_before_failure": 0,
+    "after_health_probe_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 130,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 130,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 127,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 3,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 127,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 3,
+        "waiting_operations": 0
+      }
+    ],
+    "dimension": 128,
+    "elapsed_seconds": 0.838839782,
+    "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+    "errors": 128,
+    "fresh_read_only_probe": {
+      "completed": false,
+      "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128"
+    },
+    "gpu_agents": 1,
+    "keys_per_step": 1024,
+    "learners": 128,
+    "optimizer_trajectory_verified": false,
+    "post_failure_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 130,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 130,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 127,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 3,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 127,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 3,
+        "waiting_operations": 0
+      }
+    ],
+    "ps_shards": 4,
+    "repeat": 0,
+    "rows": 262144,
+    "sampled_state": {
+      "checked_rows": 1,
+      "completed": false,
+      "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+      "finite": true
+    },
+    "test": "distributed_sparse_training_overload"
+  },
+  {
+    "experiment": "overload-confirm-g2",
+    "acknowledged_steps_before_failure": 1607,
+    "after_health_probe_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 3405,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 3405,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 3405,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 3405,
+        "waiting_operations": 0
+      }
+    ],
+    "dimension": 128,
+    "elapsed_seconds": 22.090565245,
+    "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+    "errors": 2,
+    "fresh_read_only_probe": {
+      "completed": true,
+      "finite": true
+    },
+    "gpu_agents": 2,
+    "keys_per_step": 1024,
+    "learners": 128,
+    "optimizer_trajectory_verified": false,
+    "post_failure_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 3405,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 3405,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 3405,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 3405,
+        "waiting_operations": 0
+      }
+    ],
+    "ps_shards": 4,
+    "repeat": 1,
+    "rows": 262144,
+    "sampled_state": {
+      "checked_rows": 16,
+      "completed": true,
+      "finite": true
+    },
+    "test": "distributed_sparse_training_overload"
+  },
+  {
+    "experiment": "overload-confirm-g4",
+    "acknowledged_steps_before_failure": 542,
+    "after_health_probe_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 545,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 545,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 545,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 545,
+        "waiting_operations": 0
+      }
+    ],
+    "dimension": 128,
+    "elapsed_seconds": 25.311520867,
+    "error": "[E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R1][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128 [R2][E2004][127.0.1.1:19200][E2004]Reached server's max_concurrency=128",
+    "errors": 1,
+    "fresh_read_only_probe": {
+      "completed": true,
+      "finite": true
+    },
+    "gpu_agents": 4,
+    "keys_per_step": 1024,
+    "learners": 128,
+    "optimizer_trajectory_verified": false,
+    "post_failure_shards": [
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 0,
+        "updates": 545,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 1,
+        "updates": 545,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 2,
+        "updates": 545,
+        "waiting_operations": 0
+      },
+      {
+        "active_operations": 1,
+        "live_tickets": 0,
+        "queued_payload_bytes": 0,
+        "rejected_operations": 0,
+        "responsive": true,
+        "shard": 3,
+        "updates": 545,
+        "waiting_operations": 0
+      }
+    ],
+    "ps_shards": 4,
+    "repeat": 0,
+    "rows": 262144,
+    "sampled_state": {
+      "checked_rows": 16,
+      "completed": true,
+      "finite": true
+    },
+    "test": "distributed_sparse_training_overload"
+  }
+]

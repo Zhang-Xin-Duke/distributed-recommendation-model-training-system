@@ -31,3 +31,21 @@ scope of this service benchmark.
 5. Publish raw records, hashes, a figure and an English report. Distinguish the
    throughput knee, latency degradation, admission failure and recovery
    observations. Delete the owned fleet and verify its absence.
+
+## Execution record
+
+The main fleet completes the fixed sweep, selected sustained points and
+80/96/112-Learner controls. Its four-agent 128-Learner probes reject RPCs and
+preserve post-failure diagnostics. Automatic collection closes that fleet after
+the serialized-control rejection. A second fleet completes the growing-table
+and growing-batch matrix, the large-table and Host controls, and longer overload
+confirmation. Later stages continue after an expected load rejection.
+
+The probe limit increases to 512 Learners; executed trials reach 192 before
+their first-failure stop. Two fleets retain 89 completed trials, 67,425
+acknowledged updates, 2,848 sampled counter checks and eight failed load points.
+Each fleet passes 26/26 native CPU/CUDA checks. All eight owned rentals are
+deleted and the final account inventory is empty.
+
+[Report](../MULTIGPU_BOUNDARIES.md) ·
+[Combined validation](../validation/2026-11-01-multigpu-study.json)

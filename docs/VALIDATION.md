@@ -1,5 +1,30 @@
 # Validation record
 
+
+## Multi-GPU capacity and post-overload state — November 1, 2026
+
+Sources `955520e` and `b7b87cf` run 1/2/4-GPU fleets with distinct CUDA device
+UUIDs and identical Agent binaries within each fleet. The second revision changes
+the probe's maximum Learner count and failure diagnostics; service execution
+code is unchanged. Each fleet passes the 26/26 native CPU/CUDA suite, and every
+worker separately passes the CUDA state/device-result check.
+
+The study retains **89 completed trials / 67,425 acknowledged updates / 2,848
+sampled row-counter checks**, including eight Host-reference control trials.
+Completed records report zero update errors, zero remaining tickets and a maximum
+preflight feature error of **3.91e-8**. Tests reach 192 concurrent Learners and a
+million-row, 512-dimensional table with 6 GiB of logical parameter/Adam state.
+
+Eight failed load points retain separate diagnostics. RPC rejection can leave a
+usable read path with no tickets, or a failed parameter-work run with outstanding
+tickets despite responsive statistics. Failed optimizer trajectories remain
+unverified and are excluded from completed-update totals. All eight rented
+instances are deleted after hash-verified retrieval; final account inventory is
+empty.
+
+[Report and workload contract](MULTIGPU_BOUNDARIES.md) ·
+[Combined validation index](validation/2026-11-01-multigpu-study.json)
+
 ## Committed restore and loaded-state verification — November 1, 2026
 
 Source `ce17f18` connects committed parameter snapshots to fresh service startup

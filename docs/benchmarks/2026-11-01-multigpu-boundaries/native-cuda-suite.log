@@ -1,0 +1,59 @@
+Internal ctest changing into directory: /home/ubuntu/dps-multigpu-boundaries/build-cuda
+Test project /home/ubuntu/dps-multigpu-boundaries/build-cuda
+      Start  1: automatic_cache_external_shards
+ 1/26 Test  #1: automatic_cache_external_shards .............   Passed    0.80 sec
+      Start  2: cache_policy_fixed_trace_smoke
+ 2/26 Test  #2: cache_policy_fixed_trace_smoke ..............   Passed    4.52 sec
+      Start  3: automatic_cache_coalesced_external_shards
+ 3/26 Test  #3: automatic_cache_coalesced_external_shards ...   Passed    0.70 sec
+      Start  4: rpc_cache_backpressure
+ 4/26 Test  #4: rpc_cache_backpressure ......................   Passed    1.29 sec
+      Start  5: capacity_failed_point_diagnostics
+ 5/26 Test  #5: capacity_failed_point_diagnostics ...........   Passed    1.27 sec
+      Start  6: two_process_rpc_and_restore
+ 6/26 Test  #6: two_process_rpc_and_restore .................   Passed    0.58 sec
+      Start  7: cache_agent_process_lifecycle
+ 7/26 Test  #7: cache_agent_process_lifecycle ...............   Passed    3.51 sec
+      Start  8: core_correctness
+ 8/26 Test  #8: core_correctness ............................   Passed    0.04 sec
+      Start  9: cost_and_migration_policies
+ 9/26 Test  #9: cost_and_migration_policies .................   Passed    0.01 sec
+      Start 10: cache_ownership_and_updates
+10/26 Test #10: cache_ownership_and_updates .................   Passed    0.03 sec
+      Start 11: automatic_cache_policy_lifecycle
+11/26 Test #11: automatic_cache_policy_lifecycle ............   Passed    0.05 sec
+      Start 12: agent_control_replay
+12/26 Test #12: agent_control_replay ........................   Passed    0.02 sec
+      Start 13: embedding_adapter_lifecycle
+13/26 Test #13: embedding_adapter_lifecycle .................   Passed    0.02 sec
+      Start 14: service_phase_timing
+14/26 Test #14: service_phase_timing ........................   Passed    0.01 sec
+      Start 15: bounded_asynchronous_preparation
+15/26 Test #15: bounded_asynchronous_preparation ............   Passed    0.03 sec
+      Start 16: periodic_checkpoint_lifecycle
+16/26 Test #16: periodic_checkpoint_lifecycle ...............   Passed    0.05 sec
+      Start 17: restored_snapshot_provenance
+17/26 Test #17: restored_snapshot_provenance ................   Passed    0.03 sec
+      Start 18: bounded_sparse_optimizer
+18/26 Test #18: bounded_sparse_optimizer ....................   Passed    0.03 sec
+      Start 19: resumable_actor_dependencies
+19/26 Test #19: resumable_actor_dependencies ................   Passed    0.18 sec
+      Start 20: resumable_shard_operations
+20/26 Test #20: resumable_shard_operations ..................   Passed    0.13 sec
+      Start 21: concurrent_multi_agent_updates
+21/26 Test #21: concurrent_multi_agent_updates ..............   Passed    0.02 sec
+      Start 22: coalesced_cross_shard_gathers
+22/26 Test #22: coalesced_cross_shard_gathers ...............   Passed    0.04 sec
+      Start 23: compact_feature_gradient_semantics
+23/26 Test #23: compact_feature_gradient_semantics ..........   Passed    0.02 sec
+      Start 24: resumable_cuda_shard_operations
+24/26 Test #24: resumable_cuda_shard_operations .............   Passed    4.22 sec
+      Start 25: cuda_state_and_device_results
+25/26 Test #25: cuda_state_and_device_results ...............   Passed    4.26 sec
+      Start 26: cuda_concurrent_checked_reads
+26/26 Test #26: cuda_concurrent_checked_reads ...............   Passed    6.47 sec
+
+100% tests passed, 0 tests failed out of 26
+
+Total Test time (real) =  28.34 sec
+Sun Nov  1 06:11:16 UTC 2026

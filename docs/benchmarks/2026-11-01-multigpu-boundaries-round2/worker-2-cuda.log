@@ -1,0 +1,1 @@
+PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
