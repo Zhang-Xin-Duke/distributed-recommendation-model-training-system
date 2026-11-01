@@ -60,6 +60,7 @@ class CreateKernel final:public ResourceOpKernel<RuntimeResource> {
   explicit CreateKernel(OpKernelConstruction* c):ResourceOpKernel(c){OP_REQUIRES_OK(c,c->GetAttr("configuration",&configuration_));OP_REQUIRES_OK(c,c->GetAttr("library",&library_));}
  private:
   absl::Status CreateResource(RuntimeResource** r)override{
+    *r=nullptr;
     try{*r=new RuntimeResource(Load(library_),configuration_,library_);return absl::OkStatus();}
     catch(const Failure& e){return e.status;}catch(const std::exception& e){return errors::Internal(e.what());}
   }
@@ -205,6 +206,7 @@ REGISTER_OP("EpsPush").Input("resource: resource").Input("handle: uint64").Input
 REGISTER_OP("EpsCommand").Input("resource: resource").Input("arguments: string").Output("result: string").Attr("method: string").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
 REGISTER_OP("EpsIdCommand").Input("resource: resource").Input("id: uint64").Output("ack: uint64").Attr("method: string").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
 REGISTER_KERNEL_BUILDER(Name("EpsRuntime").Device(DEVICE_CPU),CreateKernel);
+REGISTER_KERNEL_BUILDER(Name("EpsRuntime").Device(DEVICE_GPU).HostMemory("resource"),CreateKernel);
 REGISTER_KERNEL_BUILDER(Name("EpsPull").Device(DEVICE_CPU),PullKernel<false>);
 REGISTER_KERNEL_BUILDER(Name("EpsPullPrepared").Device(DEVICE_CPU),PreparedKernel<false>);
 REGISTER_KERNEL_BUILDER(Name("EpsPrepare").Device(DEVICE_CPU),PrepareKernel);
@@ -213,4 +215,7 @@ REGISTER_KERNEL_BUILDER(Name("EpsCommand").Device(DEVICE_CPU),CommandKernel);
 REGISTER_KERNEL_BUILDER(Name("EpsIdCommand").Device(DEVICE_CPU),IdCommandKernel);
 REGISTER_KERNEL_BUILDER(Name("EpsPull").Device(DEVICE_GPU).HostMemory("resource").HostMemory("keys").HostMemory("offsets").HostMemory("handle"),PullKernel<true>);
 REGISTER_KERNEL_BUILDER(Name("EpsPullPrepared").Device(DEVICE_GPU).HostMemory("resource").HostMemory("token").HostMemory("handle"),PreparedKernel<true>);
+REGISTER_KERNEL_BUILDER(Name("EpsPrepare").Device(DEVICE_GPU).HostMemory("resource").HostMemory("keys").HostMemory("offsets").HostMemory("token"),PrepareKernel);
 REGISTER_KERNEL_BUILDER(Name("EpsPush").Device(DEVICE_GPU).HostMemory("resource").HostMemory("handle").HostMemory("ack"),PushKernel<true>);
+REGISTER_KERNEL_BUILDER(Name("EpsCommand").Device(DEVICE_GPU).HostMemory("resource").HostMemory("arguments").HostMemory("result"),CommandKernel);
+REGISTER_KERNEL_BUILDER(Name("EpsIdCommand").Device(DEVICE_GPU).HostMemory("resource").HostMemory("id").HostMemory("ack"),IdCommandKernel);

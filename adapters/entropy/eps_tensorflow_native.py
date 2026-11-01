@@ -10,7 +10,7 @@ class NativeParameterServer:
         self.ops=tf.load_op_library(str(pathlib.Path(op_library or os.environ['EPS_TF_OP_LIBRARY']).resolve()))
         runtime=str(pathlib.Path(runtime_library or os.environ['EPS_NATIVE_RUNTIME']).resolve())
         self.device=device
-        with tf.device('/CPU:0'):
+        with tf.device(self.device):
             self.resource=self.ops.eps_runtime(configuration=json.dumps(configuration),library=runtime)
 
     @staticmethod
@@ -38,7 +38,7 @@ class NativeParameterServer:
 
     def prepare(self, features):
         features,schema=self._schema(features);keys,offsets=self._inputs(features)
-        with tf.device('/CPU:0'):
+        with tf.device(self.device):
             return self.ops.eps_prepare(self.resource,keys,offsets,**schema)
 
     def pull_prepared(self, token, dimensions, read_only=False):
@@ -57,7 +57,9 @@ class NativeParameterServer:
 
     def command(self, method, arguments=None):
         with tf.device('/CPU:0'):
-            return self.ops.eps_command(self.resource,tf.constant(json.dumps(arguments or {})),method=method)
+            payload=tf.constant(json.dumps(arguments or {}))
+        with tf.device(self.device):
+            return self.ops.eps_command(self.resource,payload,method=method)
 
     def create_table(self, definition):
         return self.command('create_table',definition)
@@ -67,11 +69,11 @@ class NativeParameterServer:
             return self.command('join')
 
     def release(self, handle):
-        with tf.device('/CPU:0'):
+        with tf.device(self.device):
             return self.ops.eps_id_command(self.resource,tf.convert_to_tensor(handle,tf.uint64),method='release')
 
     def cancel_prepared(self, token):
-        with tf.device('/CPU:0'):
+        with tf.device(self.device):
             return self.ops.eps_id_command(self.resource,tf.convert_to_tensor(token,tf.uint64),method='cancel_prepared')
 
     def save(self, snapshot_id):
