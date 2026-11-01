@@ -50,7 +50,7 @@ def main():
                 backends.append(NativeParameterServer(config,op_library=operations,runtime_library=runtime,device='/GPU:0' if gpu and not i else '/CPU:0'))
             features=[Feature(1,10,np.array([1,2,1,0,3,4,0],np.uint64),np.array([0,4,4,7],np.uint64),3,'mean',0),
                 Feature(1,11,np.array([0,4,1,0,5,2,0],np.uint64),np.array([0,2,7],np.uint64),3,'sequence',0),
-                Feature(2,12,np.array([2,1,2,3],np.uint64),np.array([0,2,4],np.uint64),5,'sum',0),
+                Feature(2,12,np.array([2,1,2,7],np.uint64),np.array([0,2,4],np.uint64),5,'sum',0),
                 Feature(2,13,np.array([0,0],np.uint64),np.array([0,0,2],np.uint64),5,'sequence',0),
                 Feature(2,14,np.array([],np.uint64),np.array([0,0],np.uint64),5,'mean',0),
                 Feature(2,15,np.array([],np.uint64),np.array([0,0],np.uint64),5,'sequence',0),
