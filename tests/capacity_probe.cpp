@@ -129,7 +129,7 @@ int main(int argc,char** argv){
     }
     Take(setup.Release(checked_batch));
     std::vector<std::atomic<std::uint64_t>> expected(rows+1);
-    constexpr int max_learners=512;
+    constexpr int max_learners=2048;
     std::vector<std::uint64_t> next_sequences(max_learners,0);
     for(int warm=0;warm<3;++warm){
       FeatureInput f{1,0,Pooling::mean,{},{0},{}};
@@ -147,7 +147,7 @@ int main(int argc,char** argv){
       std::latch ready(learners),start(1);Clock::time_point deadline;
       std::mutex mutex;std::vector<double> latencies,lookups,pushes;std::uint64_t completed=0,failures=0;std::string error;
       std::vector<std::thread> threads;
-      for(int learner=0;learner<learners;++learner)threads.emplace_back([&,learner]{
+      try{for(int learner=0;learner<learners;++learner)threads.emplace_back([&,learner]{
         DistributedClient client(shards);client.SetCacheResolver(resolve,coalesce);
         try{Take(client.CreateTable({1,dim,std::uint32_t(shards.size()),1,{0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));}
         catch(const std::exception& e){std::lock_guard lock(mutex);error=e.what();++failures;ready.count_down();return;}
@@ -178,7 +178,11 @@ int main(int argc,char** argv){
         std::lock_guard lock(mutex);completed+=local_latency.size();
         latencies.insert(latencies.end(),local_latency.begin(),local_latency.end());
         lookups.insert(lookups.end(),local_lookup.begin(),local_lookup.end());pushes.insert(pushes.end(),local_push.begin(),local_push.end());
-      });
+      });}catch(...){
+        // A load-generator thread limit must not destroy joinable threads.
+        // The default deadline prevents mutation when startup is incomplete.
+        start.count_down();for(auto& thread:threads)thread.join();throw;
+      }
       ready.wait();
       for(auto& shard:admin)stats_before.push_back(Take(shard->Stats()));
       const auto begin=Clock::now();deadline=begin+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>(duration));start.count_down();
