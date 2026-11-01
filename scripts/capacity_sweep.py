@@ -75,7 +75,7 @@ def run_topology(args, count, root):
                 agents=[dict(id=i, endpoint=e) for i,e in enumerate(agent_endpoints)],
                 access=dict(policy="cpu_only"),
                 limits=dict(cpu_state_bytes=8<<30, max_live_tickets=1024,
-                            ticket_payload_bytes=256<<20, queue_payload_bytes=256<<20,
+                            ticket_payload_bytes=args.ticket_payload_mib<<20, queue_payload_bytes=256<<20,
                             max_active_operations=args.max_active_operations,
                             cache_dependencies=args.dependency_cache=="on"),
                 snapshot_directory=str(output / "snapshots")), indent=2))
@@ -146,6 +146,8 @@ def main():
                         help="Shard operation concurrency; 1 is the serialized scheduling control")
     parser.add_argument("--dependency-cache",choices=("on","off"),default="on",
                         help="Reuse queued dependency plans until ownership/policy invalidation")
+    parser.add_argument("--ticket-payload-mib",type=int,default=256,
+                        help="Per-shard lookup-ticket payload budget; keep fixed for matched controls")
     parser.add_argument("--rows", type=int, default=262144)
     parser.add_argument("--dimension", type=int, default=128)
     parser.add_argument("--keys", type=int, default=1024)
@@ -180,6 +182,8 @@ def main():
         parser.error("ps-shards must be in 1..16")
     if not 1 <= args.max_active_operations <= 1024:
         parser.error("max-active-operations must be in 1..1024")
+    if not 1 <= args.ticket_payload_mib <= 16384:
+        parser.error("ticket-payload-mib must be in 1..16384")
     if args.external_agents:
         inventory=args.external_hardware.read_text()
     elif not args.host_reference:
