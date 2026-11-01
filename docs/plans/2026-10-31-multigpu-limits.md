@@ -7,3 +7,18 @@ Generalize the fixed-trace policy experiment to multiple cache agents. Replay id
 Use a separate worktree so ongoing asynchronous-preparation edits remain intact. Do not combine old deployment rates with the new fleet. Publish source/binary/raw hashes, workload definitions and negative results. These are parameter-service steps with synthetic gradients; dense-model forward/backward and physical GPU-memory exhaustion are outside this run.
 
 Run local Host protocol checks before rental. Use existing authorization, a bounded lease and a deletion guard; retrieve artifacts and delete all rented resources after execution.
+
+## Deployed topology
+
+The authorized credit supports single-GPU A6000 instances. This round uses four
+such instances: the coordinator runs four local PS processes and one GPU agent;
+additional agents use host-to-host SSH-forwarded BRPC. All topology sizes retain
+the same six-vCPU coordinator allocation. Every agent binary hash is compared
+and all four CUDA UUIDs must be distinct. A matched Host cache-backend control
+and selectable gather coalescing are measured after the main capacity schedule.
+Network transfer controls run on the same loopback/forwarded endpoints.
+
+The independent policy traces keep 10,240 total configured slots and 8,192
+initially resident rows; each agent reserves 32 slots. Each GPU count repeats
+CPU/static calibration and two blocks of all four cache modes. Numerical replay
+checks all touched rows after drain.
