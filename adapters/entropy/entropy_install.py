@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import posixpath
+import re
 import threading
 import uuid
 
@@ -27,7 +28,7 @@ def _integer(value, name, minimum, maximum):
 class JobConfiguration:
     def __init__(self, values):
         allowed={'schema_version','run','endpoints','partition_epoch','tables',
-                 'learner_id_stride','cache_agents','coalesce_gather','max_live_batches'}
+                 'learner_id_stride','cache_agents','coalesce_gather','max_live_batches','backend','native'}
         if not isinstance(values,dict) or set(values)-allowed:
             raise ValueError('unknown parameter-service job option')
         if type(values.get('schema_version')) is not int or values['schema_version'] != 1:
@@ -43,6 +44,30 @@ class JobConfiguration:
         self.epoch=_integer(values.get('partition_epoch',1),'partition epoch',1,UINT64_MAX)
         self.learner_stride=_integer(values.get('learner_id_stride',1),'learner ID stride',1,1024)
         self.max_live=_integer(values.get('max_live_batches',128),'live batch limit',1,1048576)
+        self.backend=values.get('backend','portable')
+        if self.backend not in ('portable','native'):raise ValueError('unknown table backend')
+        self.native=copy.deepcopy(values.get('native',{}))
+        if not isinstance(self.native,dict) or set(self.native)-{'device','cuda','op_library','runtime_library'}:
+            raise ValueError('unknown native backend option')
+        if self.native and self.backend!='native':raise ValueError('native options require the native backend')
+        self.native.setdefault('device','/CPU:0')
+        if not isinstance(self.native['device'],str) or not re.fullmatch(r'/(CPU:0|GPU:[0-9]+)',self.native['device']):
+            raise ValueError('native device must be /CPU:0 or /GPU:index')
+        for name in ('op_library','runtime_library'):
+            if name in self.native and (not isinstance(self.native[name],str) or not self.native[name]):
+                raise ValueError('native library path must be nonempty')
+        if 'cuda' in self.native:
+            c=self.native['cuda']
+            if not isinstance(c,dict) or set(c)-{'agent','device','listen','state_bytes','rows_per_table','transfer_bytes','outstanding_output_bytes'}:
+                raise ValueError('unknown native CUDA owner option')
+            _integer(c.get('agent',0),'native Agent ID',0,2**32-1)
+            _integer(c.get('device',0),'native CUDA device',0,1023)
+            if 'listen' in c and (not isinstance(c['listen'],str) or not c['listen']):raise ValueError('native listener must be nonempty')
+            for name in ('state_bytes','rows_per_table','transfer_bytes','outstanding_output_bytes'):
+                if name in c:_integer(c[name],'native '+name,1,UINT64_MAX)
+        if self.native['device'].startswith('/GPU:') and ('cuda' not in self.native or
+                int(self.native['device'].split(':')[1])!=self.native['cuda'].get('device',0)):
+            raise ValueError('native graph device must match its CUDA owner')
         tables=values.get('tables')
         if not isinstance(tables,dict) or not tables:
             raise ValueError('select at least one table by its original name')
@@ -103,6 +128,7 @@ class Installation:
         self._checkpoint_users=0
         self._checkpoint_key=None
         self._local=threading.local()
+        self._owner_key='eps-worker-'+uuid.uuid4().hex
         self.closed=False
         replacements={
             '_create_table':self._create_table,
@@ -189,11 +215,20 @@ class Installation:
     def _backend(self,identifier):
         with self._lock:
             if identifier not in self._backends:
-                from eps_tensorflow import ParameterServer
-                backend=ParameterServer(self.config.endpoints,self.config.run,identifier,
-                                        self.config.epoch,self.config.max_live)
+                if self.config.backend=='native':
+                    from native_session_backend import NativeSessionBackend
+                    configuration=dict(run=self.config.run,endpoints=self.config.endpoints,learner=identifier,
+                        epoch=self.config.epoch,max_live=self.config.max_live,tables=[],release_read_only=True,
+                        agents=[dict(id=i,endpoint=e) for i,e in self.config.cache_agents])
+                    if 'cuda' in self.config.native:
+                        configuration['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)
+                    backend=NativeSessionBackend(configuration,**{k:v for k,v in self.config.native.items() if k!='cuda'})
+                else:
+                    from eps_tensorflow import ParameterServer
+                    backend=ParameterServer(self.config.endpoints,self.config.run,identifier,
+                                            self.config.epoch,self.config.max_live)
                 try:
-                    if self.config.cache_agents:
+                    if self.config.cache_agents and self.config.backend=='portable':
                         backend.cache_endpoints(self.config.cache_agents,self.config.coalesce)
                 except Exception:
                     backend.close();raise
@@ -303,7 +338,11 @@ class Installation:
             if read_only:
                 state.backend.backend.release(handle)
             return checked
-        values=tf.py_function(dispatch,tensors,[tf.uint64]+[tf.float32]*len(ids),name='external_sparse_pull')
+        if self.config.backend=='native':
+            token,flat=state.backend.pull_graph(descriptors,read_only=build_eval)
+            values=[token,*flat]
+        else:
+            values=tf.py_function(dispatch,tensors,[tf.uint64]+[tf.float32]*len(ids),name='external_sparse_pull')
         handle=values[0];handle.set_shape([])
         output=[]
         for i,(is_sequence,keys) in enumerate(sequence):
@@ -347,10 +386,14 @@ class Installation:
         return state.backend.push(handle,range(len(outputs)),gradients)
 
     def _prediction(self,table):
-        self._state(table).predict=True
+        state=self._state(table)
+        if self.config.backend=='native':state.backend.set_prediction(state.definition['id'],True)
+        state.predict=True
 
     def _training(self,table):
-        self._state(table).predict=False
+        state=self._state(table)
+        if self.config.backend=='native':state.backend.set_prediction(state.definition['id'],False)
+        state.predict=False
 
     def _upsert(self,table):
         raise ValueError('upsert mode requires explicit external parameter updates')

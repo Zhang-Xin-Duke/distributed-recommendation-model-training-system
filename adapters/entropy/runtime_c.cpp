@@ -28,6 +28,10 @@ template<typename F>int Boundary(EpsStatus* status,F fn) noexcept {
   catch(...){return fail(Error::Code::run_failed,"unknown native runtime failure");}
 }
 Json Parse(const char* text){detail::Require(text && strnlen(text,(1<<20)+1)<=(1<<20),"native JSON exceeds limit");return Json::parse(text);}
+std::string Hex(const std::string& data){static const char digits[]="0123456789abcdef";std::string out;out.reserve(data.size()*2);for(unsigned char c:data){out+=digits[c>>4];out+=digits[c&15];}return out;}
+std::string Unhex(const std::string& text){detail::Require(text.size()<=16 && text.size()%2==0,"invalid checksum tail");std::string out;
+  auto digit=[](char c){detail::Require((c>='0' && c<='9') || (c>='a' && c<='f'),"invalid checksum tail");return c<='9'?c-'0':c-'a'+10;};
+  for(std::size_t i=0;i<text.size();i+=2)out+=char((digit(text[i])<<4)|digit(text[i+1]));return out;}
 TableDefinition Table(const Json& t,std::uint32_t shards,std::uint64_t epoch){
   detail::Require(t.value("dtype",std::string("float32"))=="float32" && t.at("optimizer").at("kind")=="sparse_lazy_adam","unsupported native table format");
   const auto& o=t.at("optimizer");const auto& i=t.at("initialization");
@@ -35,16 +39,50 @@ TableDefinition Table(const Json& t,std::uint32_t shards,std::uint64_t epoch){
     {o.at("learning_rate"),o.at("beta1"),o.at("beta2"),o.at("epsilon"),o.at("initial_beta1_power"),o.at("initial_beta2_power")},i.at("min"),i.at("max"),i.at("seed")};
   if(o.contains("weight_bounds")){const auto& b=o.at("weight_bounds");detail::Require(b.is_array() && b.size()==2,"invalid weight bounds");d.optimizer.weight_bounds=WeightBounds{b[0],b[1]};}return d;
 }
+#ifdef EPS_HAS_CUDA
+struct CudaOwner {
+  std::string run;Json configuration;
+  std::shared_ptr<CudaCacheBackend> backend;
+  std::shared_ptr<WorkerCacheAgent> worker;
+  CudaOwner(std::string r,Json values):run(std::move(r)),configuration(std::move(values)){
+    const auto& c=configuration;CudaCacheOptions options;options.agent=c.value("agent",0U);options.device=c.value("device",0);
+    options.state_bytes=c.value("state_bytes",options.state_bytes);options.rows_per_table=c.value("rows_per_table",options.rows_per_table);
+    options.transfer_bytes=c.value("transfer_bytes",options.transfer_bytes);options.outstanding_output_bytes=c.value("outstanding_output_bytes",options.outstanding_output_bytes);options.output_alignment=256;
+    backend=std::make_shared<CudaCacheBackend>(options);worker=std::make_shared<WorkerCacheAgent>(WorkerCacheOptions{run,c.value("listen",std::string("127.0.0.1:0"))},backend);
+  }
+};
+std::shared_ptr<CudaOwner> Worker(const std::string& run,Json configuration){
+  const auto key=configuration.value("owner_key",std::string());configuration.erase("owner_key");
+  if(key.empty())return std::make_shared<CudaOwner>(run,std::move(configuration));
+  static std::mutex mutex;static std::map<std::string,std::weak_ptr<CudaOwner>> owners;
+  std::lock_guard lock(mutex);
+  for(auto it=owners.begin();it!=owners.end();)if(it->second.expired())it=owners.erase(it);else ++it;
+  if(auto owner=owners[key].lock()){detail::Require(owner->run==run && owner->configuration==configuration,"shared native GPU owner configuration mismatch");return owner;}
+  auto owner=std::make_shared<CudaOwner>(run,std::move(configuration));owners[key]=owner;return owner;
+}
+#endif
 struct Runtime {
   std::mutex mutex;
   std::vector<std::shared_ptr<BrpcParameterService>> connections;
   std::shared_ptr<CacheBackend> backend;
   std::shared_ptr<WorkerCacheAgent> worker;
+#ifdef EPS_HAS_CUDA
+  std::shared_ptr<CudaOwner> gpu_owner;
+#endif
   std::unique_ptr<entropy::TableAdapter> adapter;
   int device=-1;
   std::uint64_t epoch=1;
+  bool release_read_only=false;
+  std::map<TableId,bool> prediction;
+  std::map<std::uint64_t,std::vector<TableId>> prepared_tables;
+  bool ReadOnly(const std::vector<TableId>& tables,bool requested){
+    if(requested)return true;
+    bool any=false,all=true;for(auto id:tables){auto it=prediction.find(id);const bool value=it!=prediction.end() && it->second;any|=value;all&=value;}
+    detail::Require(!any || all,"native batch mixes training and prediction tables");return any;
+  }
   explicit Runtime(const Json& config){
     const auto run=config.at("run").get<std::string>();epoch=config.value("epoch",std::uint64_t(1));
+    release_read_only=config.value("release_read_only",false);
     std::vector<std::shared_ptr<ParameterService>> shards;
     for(const auto& endpoint:config.at("endpoints")){auto connection=std::make_shared<BrpcParameterService>(endpoint.get<std::string>());connections.push_back(connection);shards.push_back(connection);}
     adapter=std::make_unique<entropy::TableAdapter>(entropy::AdapterOptions{run,config.value("learner",0U),epoch,config.value("max_live",128U),4096},shards);
@@ -52,16 +90,12 @@ struct Runtime {
     if(config.contains("agents"))for(const auto& a:config.at("agents")){AgentId id=a.at("id");detail::Require(!remote.contains(id),"duplicate native Agent");remote[id]=std::make_shared<BrpcCacheBackend>(a.at("endpoint").get<std::string>(),run,0,id);}
 #ifdef EPS_HAS_CUDA
     if(config.contains("cuda")){
-      const auto& c=config.at("cuda");CudaCacheOptions options;options.agent=c.value("agent",0U);options.device=c.value("device",0);
-      options.state_bytes=c.value("state_bytes",options.state_bytes);options.rows_per_table=c.value("rows_per_table",options.rows_per_table);
-      options.transfer_bytes=c.value("transfer_bytes",options.transfer_bytes);options.outstanding_output_bytes=c.value("outstanding_output_bytes",options.outstanding_output_bytes);
-      options.output_alignment=256;
-      detail::Require(!remote.contains(options.agent),"local Agent duplicates remote Agent");device=options.device;
-      auto cuda=std::make_shared<CudaCacheBackend>(options);backend=cuda;
-      worker=std::make_shared<WorkerCacheAgent>(WorkerCacheOptions{run,c.value("listen",std::string("127.0.0.1:0"))},cuda);
-      auto host_endpoints=remote;host_endpoints[options.agent]=std::make_shared<BrpcCacheBackend>(worker->endpoint(),run,0,options.agent);
+      const auto& c=config.at("cuda");const AgentId agent=c.value("agent",0U);device=c.value("device",0);
+      detail::Require(!remote.contains(agent),"local Agent duplicates remote Agent");gpu_owner=Worker(run,c);
+      auto cuda=gpu_owner->backend;backend=cuda;worker=gpu_owner->worker;
+      auto host_endpoints=remote;host_endpoints[agent]=std::make_shared<BrpcCacheBackend>(worker->endpoint(),run,0,agent);
       adapter->SetCacheResolver(MakeCacheResolver(std::move(host_endpoints)),true);
-      adapter->SetDevicePath(MakeDeviceCacheResolver({{options.agent,[w=worker](auto work,auto layouts){return w->GatherDevice(std::move(work),std::move(layouts));}}},remote),
+      adapter->SetDevicePath(MakeDeviceCacheResolver({{agent,[w=worker](auto work,auto layouts){return w->GatherDevice(std::move(work),std::move(layouts));}}},remote),
         [cuda](auto request){return cuda->AssembleFeatures(std::move(request)).get();});
     }else
 #endif
@@ -69,6 +103,11 @@ struct Runtime {
     for(const auto& definition:config.at("tables"))Take(adapter->CreateTable(Table(definition,shards.size(),epoch)));
   }
   ~Runtime(){adapter.reset();worker.reset();backend.reset();}
+  void Close(){adapter.reset();worker.reset();backend.reset();
+#ifdef EPS_HAS_CUDA
+    gpu_owner.reset();
+#endif
+  }
 };
 Runtime& Get(void* pointer){detail::Require(pointer,"null native runtime");return *static_cast<Runtime*>(pointer);}
 void Ready(Runtime& r){detail::Require(bool(r.adapter),"native runtime is closed",Error::Code::unavailable);}
@@ -100,18 +139,31 @@ template<typename Pull>void Pack(Runtime& runtime,Pull result,EpsBatch* output){
     *output={result.handle,owner->buffers.size(),owner->buffers.data(),owner.get(),ReleaseBatch};owner.release();
   }catch(...){(void)runtime.adapter->Release(result.handle);throw;}
 }
+std::vector<TableId> Tables(const std::vector<entropy::Feature>& features){std::vector<TableId> out;out.reserve(features.size());for(const auto& f:features)out.push_back(f.table);return out;}
+template<typename Pull>void Publish(Runtime& runtime,Pull result,EpsBatch* output,bool read_only){
+  const auto handle=result.handle;Pack(runtime,std::move(result),output);
+  if(read_only && runtime.release_read_only){
+    try{Take(runtime.adapter->Release(handle));output->handle=UINT64_MAX;}
+    catch(...){output->release(output->owner);*output={};throw;}
+  }
+}
 int Create(const char* text,void** output,EpsStatus* status){if(output)*output=nullptr;return Boundary(status,[&]{detail::Require(output,"null runtime output");*output=new Runtime(Parse(text));});}
 void Destroy(void* p){try{delete static_cast<Runtime*>(p);}catch(...){}}
 int Pull(void* p,const EpsFeature* features,std::uint64_t count,int32_t read_only,int32_t device,EpsBatch* output,EpsStatus* status){
   if(output)*output={};return Boundary(status,[&]{detail::Require(output,"null batch output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);auto input=Features(features,count);
-    if(device){detail::Require(r.device>=0,"runtime has no CUDA device");Pack(r,Take(r.adapter->PullDevice(std::move(input),read_only)),output);}
-    else Pack(r,Take(r.adapter->Pull(std::move(input),read_only)),output);});
+    const bool mode=r.ReadOnly(Tables(input),read_only);
+    if(device){detail::Require(r.device>=0,"runtime has no CUDA device");Publish(r,Take(r.adapter->PullDevice(std::move(input),mode)),output,mode);}
+    else Publish(r,Take(r.adapter->Pull(std::move(input),mode)),output,mode);});
 }
-int Prepare(void* p,const EpsFeature* features,std::uint64_t count,std::uint64_t* token,EpsStatus* status){return Boundary(status,[&]{detail::Require(token,"null token output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);*token=Take(r.adapter->PrepareAsync(Features(features,count)));});}
+int Prepare(void* p,const EpsFeature* features,std::uint64_t count,std::uint64_t* token,EpsStatus* status){return Boundary(status,[&]{detail::Require(token,"null token output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);auto input=Features(features,count);auto tables=Tables(input);*token=Take(r.adapter->PrepareAsync(std::move(input)));
+  try{r.prepared_tables.emplace(*token,std::move(tables));}catch(...){(void)r.adapter->CancelPrepared(*token);throw;}});}
 int PullPrepared(void* p,std::uint64_t token,int32_t read_only,int32_t device,EpsBatch* output,EpsStatus* status){
   if(output)*output={};return Boundary(status,[&]{detail::Require(output,"null prepared output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);
-    if(device){detail::Require(r.device>=0,"runtime has no CUDA device");Pack(r,Take(r.adapter->PullPreparedDevice(token,read_only)),output);}
-    else Pack(r,Take(r.adapter->PullPrepared(token,read_only)),output);});
+    auto entry=r.prepared_tables.find(token);detail::Require(entry!=r.prepared_tables.end(),"unknown native prepared token");const bool mode=r.ReadOnly(entry->second,read_only);
+    try{
+      if(device){detail::Require(r.device>=0,"runtime has no CUDA device");Publish(r,Take(r.adapter->PullPreparedDevice(token,mode)),output,mode);}
+      else Publish(r,Take(r.adapter->PullPrepared(token,mode)),output,mode);
+    }catch(...){r.prepared_tables.erase(entry);throw;}r.prepared_tables.erase(entry);});
 }
 int Push(void* p,std::uint64_t handle,const EpsBuffer* input,std::uint64_t count,void* stream,EpsStatus* status){return Boundary(status,[&]{
   auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);detail::Require(input && count>0 && count<=1024,"invalid native gradient count");std::vector<TensorBlock> gradients;gradients.reserve(count);std::uint64_t bytes=0;
@@ -136,13 +188,25 @@ int Command(void* p,const char* command,const char* arguments,EpsText* output,Ep
   if(method=="join")Take(r.adapter->Join());
   else if(method=="create_table")Take(r.adapter->CreateTable(Table(args,r.connections.size(),r.epoch)));
   else if(method=="release")Take(r.adapter->Release(args.at("handle")));
-  else if(method=="cancel_prepared")Take(r.adapter->CancelPrepared(args.at("token")));
+  else if(method=="cancel_prepared"){const std::uint64_t token=args.at("token");Take(r.adapter->CancelPrepared(token));r.prepared_tables.erase(token);}
+  else if(method=="table_mode"){detail::Require(r.release_read_only,"table modes require automatic read-only release");Take(r.adapter->Join());const TableId id=args.at("table");r.prediction[id]=args.at("prediction").get<bool>();}
   else if(method=="save"){auto saved=Take(r.adapter->Save(args.at("id")));result=Json::array();for(const auto& s:saved)for(const auto& file:s.state_files)result.push_back(file);}
   else if(method=="resume")Take(r.adapter->Resume(args.at("id")));
   else if(method=="endpoint")result=r.worker?r.worker->endpoint():std::string();
+  else if(method=="restored_from"){result=Json::array();for(auto& c:r.connections){auto m=Take(c->RestoredFrom());result.push_back({{"loaded",m.loaded},{"pristine",m.pristine},{"run",m.run},{"source_run",m.source_run},{"bytes",m.bytes},{"checksum",m.checksum},{"shard",m.shard},{"shard_count",m.shard_count},{"partition_epoch",m.partition_epoch}});}}
+  else if(method=="read_checkpoint"){
+    const std::uint64_t offset=args.at("offset");std::uint64_t checksum=args.at("checksum");const auto tail=Unhex(args.at("tail"));
+    detail::Require(tail.size()==std::min<std::uint64_t>(offset,8) && (offset || checksum==14695981039346656037ULL),"invalid checkpoint checksum continuation");
+    const auto chunk=Take(r.adapter->ReadCheckpoint(args.at("id"),args.at("shard"),offset,args.at("max_bytes")));
+    const auto combined=tail+chunk.data;const auto body=combined.size()>8?combined.size()-8:0;
+    for(std::size_t i=0;i<body;++i)checksum=(checksum^static_cast<unsigned char>(combined[i]))*1099511628211ULL;
+    const auto next_tail=combined.substr(body);
+    if(chunk.eof){detail::Require(next_tail.size()==8,"checkpoint checksum trailer missing");std::uint64_t expected=0;for(unsigned i=0;i<8;++i)expected|=std::uint64_t(static_cast<unsigned char>(next_tail[i]))<<(8*i);detail::Require(expected==checksum,"exported checkpoint checksum mismatch",Error::Code::run_failed);}
+    result={{"offset",chunk.offset},{"total_bytes",chunk.total_bytes},{"data",Hex(chunk.data)},{"eof",chunk.eof},{"checksum",checksum},{"tail",Hex(next_tail)}};
+  }
   else if(method=="stats"){result=Json::array();for(auto& c:r.connections){auto s=Take(c->Stats());result.push_back({{"updates",s.updates},{"live_tickets",s.live_tickets},{"cached_rows",s.cached_rows}});}}
-  else if(method=="close"){Take(r.adapter->Join());r.adapter.reset();r.worker.reset();r.backend.reset();}
-  else if(method=="abort"){r.adapter.reset();r.worker.reset();r.backend.reset();}
+  else if(method=="close"){Take(r.adapter->Join());r.Close();}
+  else if(method=="abort")r.Close();
   else detail::Require(false,"unknown native control command");
   auto owner=std::make_unique<std::string>(result.dump());*output={owner->data(),owner->size(),owner.get(),ReleaseText};owner.release();
 });}

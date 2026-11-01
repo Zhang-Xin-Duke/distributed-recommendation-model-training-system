@@ -59,10 +59,40 @@ def main():
             command('release',{'handle':prepared.handle});prepared.release(prepared.owner);prepared.owner=None
             assert all(x['live_tickets']==0 for x in command('stats'))
             files=command('save',{'id':'final'});assert len(files)==2
+            for shard in range(2):
+                offset=0;checksum=14695981039346656037;tail='';data=bytearray()
+                while True:
+                    chunk=command('read_checkpoint',dict(id='final',shard=shard,offset=offset,
+                        max_bytes=17,checksum=checksum,tail=tail))
+                    assert chunk['offset']==offset
+                    block=bytes.fromhex(chunk['data']);data.extend(block);offset+=len(block)
+                    checksum=chunk['checksum'];tail=chunk['tail']
+                    if chunk['eof']:break
+                assert len(data)==chunk['total_bytes'] and int.from_bytes(data[-8:],'little')==checksum
+            assert all(not m['loaded'] for m in command('restored_from'))
             command('resume',{'id':'final'});command('close');api.destroy(pointer);pointer=c.c_void_p()
             assert list(values[:6])==[.25]*6,'native buffer did not outlive runtime'
             batch.release(batch.owner);batch.owner=None
-            print(json.dumps(dict(test='native_runtime_c_abi',abi_version=1,shards=2,prepared_input=True,duplicate_push=True,buffer_outlives_runtime=True)))
+            config.update(learner=7,release_read_only=True)
+            assert api.create(json.dumps(config).encode(),c.byref(pointer),c.byref(status))==0,status.message
+            command('table_mode',dict(table=1,prediction=True))
+            assert api.pull(pointer,features,1,0,0,c.byref(batch),c.byref(status))==0,status.message
+            assert batch.handle==2**64-1 and all(m['live_tickets']==0 for m in command('stats'))
+            batch.release(batch.owner);batch.owner=None
+            command('table_mode',dict(table=1,prediction=False))
+            assert api.prepare(pointer,features,1,c.byref(token),c.byref(status))==0,status.message
+            command('table_mode',dict(table=1,prediction=True))
+            assert api.pull_prepared(pointer,token.value,0,0,c.byref(prepared),c.byref(status))==0,status.message
+            assert prepared.handle==2**64-1 and all(m['live_tickets']==0 for m in command('stats'))
+            prepared.release(prepared.owner);prepared.owner=None
+            command('table_mode',dict(table=1,prediction=False))
+            assert api.pull(pointer,features,1,0,0,c.byref(batch),c.byref(status))==0,status.message
+            command('table_mode',dict(table=1,prediction=True),2)
+            assert api.push(pointer,batch.handle,buffers,1,None,c.byref(status))==0,status.message
+            command('close');api.destroy(pointer);pointer=c.c_void_p()
+            batch.release(batch.owner);batch.owner=None
+            print(json.dumps(dict(test='native_runtime_c_abi',abi_version=1,shards=2,prepared_input=True,duplicate_push=True,buffer_outlives_runtime=True,
+                checkpoint_chunk_checksum=True,restore_metadata=True,prediction_auto_release=True,prepared_mode_at_consumption=True,live_mode_change_rejected=True)))
         finally:
             if pointer.value:api.destroy(pointer)
             for b in [prepared,batch]:

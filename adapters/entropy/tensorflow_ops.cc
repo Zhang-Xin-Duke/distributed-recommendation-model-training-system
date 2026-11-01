@@ -45,26 +45,43 @@ const EpsRuntimeApi* Load(const std::string& path){
   Require(api && api->abi_version==EPS_RUNTIME_ABI && api->struct_bytes>=sizeof(EpsRuntimeApi),"EPS runtime ABI mismatch");
   loaded[path]=api;return api;
 }
-class RuntimeResource final:public ResourceBase {
- public:
-  const EpsRuntimeApi* api;void* runtime=nullptr;std::string configuration,library;
-  RuntimeResource(const EpsRuntimeApi* a,std::string config,std::string path):api(a),configuration(std::move(config)),library(std::move(path)){
+struct NativeContext {
+  const EpsRuntimeApi* api;void* runtime=nullptr;
+  std::string configuration,library;
+  NativeContext(const EpsRuntimeApi* a,std::string config,std::string path):api(a),configuration(std::move(config)),library(std::move(path)){
     EpsStatus status{};Native(api->create(configuration.c_str(),&runtime,&status),status);
   }
-  ~RuntimeResource()override{api->destroy(runtime);}
+  ~NativeContext(){api->destroy(runtime);}
+};
+std::shared_ptr<NativeContext> Context(const EpsRuntimeApi* api,const std::string& config,const std::string& path,const std::string& key){
+  if(key.empty())return std::make_shared<NativeContext>(api,config,path);
+  static std::mutex mutex;static std::map<std::string,std::weak_ptr<NativeContext>> contexts;
+  std::lock_guard lock(mutex);
+  for(auto it=contexts.begin();it!=contexts.end();)if(it->second.expired())it=contexts.erase(it);else ++it;
+  if(auto existing=contexts[key].lock()){
+    Require(existing->configuration==config && existing->library==path,"shared EPS context configuration mismatch");return existing;
+  }
+  auto created=std::make_shared<NativeContext>(api,config,path);contexts[key]=created;return created;
+}
+class RuntimeResource final:public ResourceBase {
+ public:
+  std::shared_ptr<NativeContext> context;
+  const EpsRuntimeApi* api;void* runtime;std::string configuration,library,context_key;
+  RuntimeResource(const EpsRuntimeApi* a,std::string config,std::string path,std::string key):
+    context(Context(a,config,path,key)),api(a),runtime(context->runtime),configuration(std::move(config)),library(std::move(path)),context_key(std::move(key)){}
   std::string DebugString()const override{return "EPS native parameter runtime";}
 };
 class CreateKernel final:public ResourceOpKernel<RuntimeResource> {
-  std::string configuration_,library_;
+  std::string configuration_,library_,context_key_;
  public:
-  explicit CreateKernel(OpKernelConstruction* c):ResourceOpKernel(c){OP_REQUIRES_OK(c,c->GetAttr("configuration",&configuration_));OP_REQUIRES_OK(c,c->GetAttr("library",&library_));}
+  explicit CreateKernel(OpKernelConstruction* c):ResourceOpKernel(c){OP_REQUIRES_OK(c,c->GetAttr("configuration",&configuration_));OP_REQUIRES_OK(c,c->GetAttr("library",&library_));OP_REQUIRES_OK(c,c->GetAttr("context_key",&context_key_));}
  private:
   absl::Status CreateResource(RuntimeResource** r)override{
     *r=nullptr;
-    try{*r=new RuntimeResource(Load(library_),configuration_,library_);return absl::OkStatus();}
+    try{*r=new RuntimeResource(Load(library_),configuration_,library_,context_key_);return absl::OkStatus();}
     catch(const Failure& e){return e.status;}catch(const std::exception& e){return errors::Internal(e.what());}
   }
-  absl::Status VerifyResource(RuntimeResource* r)override{return r->configuration==configuration_ && r->library==library_?absl::OkStatus():errors::FailedPrecondition("shared EPS resource configuration mismatch");}
+  absl::Status VerifyResource(RuntimeResource* r)override{return r->configuration==configuration_ && r->library==library_ && r->context_key==context_key_?absl::OkStatus():errors::FailedPrecondition("shared EPS resource configuration mismatch");}
 };
 class IoPool {
   std::mutex mutex_;std::condition_variable changed_;std::deque<std::function<void()>> queue_;bool stop_=false;std::vector<std::thread> workers_;
@@ -196,7 +213,7 @@ class IdCommandKernel final:public AsyncKernel {
 absl::Status Shapes(shape_inference::InferenceContext* c){std::vector<int64_t> dims;TF_RETURN_IF_ERROR(c->GetAttr("dimensions",&dims));int n;TF_RETURN_IF_ERROR(c->GetAttr("N",&n));
   if(dims.size()!=n)return errors::InvalidArgument("EPS dimension count mismatch");c->set_output(0,c->Scalar());for(int i=0;i<n;++i){if(dims[i]<=0)return errors::InvalidArgument("invalid EPS dimension");c->set_output(i+1,c->Matrix(c->UnknownDim(),dims[i]));}return absl::OkStatus();}
 }  // namespace
-REGISTER_OP("EpsRuntime").Output("resource: resource").Attr("configuration: string").Attr("library: string").Attr("container: string = ''").Attr("shared_name: string = ''").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
+REGISTER_OP("EpsRuntime").Output("resource: resource").Attr("configuration: string").Attr("library: string").Attr("context_key: string = ''").Attr("container: string = ''").Attr("shared_name: string = ''").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
 #define EPS_SCHEMA .Attr("N: int >= 1").Attr("tables: list(int)").Attr("features: list(int)").Attr("modes: list(int)").Attr("padding: list(bool)").Attr("padding_keys: list(int)").Attr("dimensions: list(int)")
 REGISTER_OP("EpsPull").Input("resource: resource").Input("keys: N * uint64").Input("offsets: N * uint64").Output("handle: uint64").Output("outputs: N * float") EPS_SCHEMA .Attr("read_only: bool = false").SetIsStateful().SetShapeFn(Shapes);
 REGISTER_OP("EpsPrepare").Input("resource: resource").Input("keys: N * uint64").Input("offsets: N * uint64").Output("token: uint64") EPS_SCHEMA .SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});

@@ -149,9 +149,13 @@ if(EPS_BUILD_BRPC)
         else()
           add_test(NAME native_tensorflow_cpu_graph COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_tensorflow_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" $<TARGET_FILE:eps_snapshot_compare> cpu)
           set_tests_properties(native_tensorflow_cpu_graph PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+          add_test(NAME native_session_context_cpu COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_session_context.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" cpu)
+          set_tests_properties(native_session_context_cpu PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           if(EPS_BUILD_CUDA)
             add_test(NAME native_tensorflow_cuda_graph COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_tensorflow_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" $<TARGET_FILE:eps_snapshot_compare> cuda)
             set_tests_properties(native_tensorflow_cuda_graph PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+            add_test(NAME native_session_context_cuda COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_session_context.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" cuda)
+            set_tests_properties(native_session_context_cuda PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           endif()
         endif()
       endif()
@@ -276,6 +280,16 @@ if(EPS_BUILD_BRPC)
         set_tests_properties(entropy_original_table_external_shards entropy_original_table_cache PROPERTIES
           TIMEOUT 120 SKIP_RETURN_CODE 77
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        if(EPS_BUILD_RUNTIME AND NOT APPLE)
+          add_test(NAME entropy_original_table_native_cpu COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py" $<TARGET_FILE:eps_server>)
+          set_tests_properties(entropy_original_table_native_cpu PROPERTIES TIMEOUT 180 SKIP_RETURN_CODE 77
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_ENTROPY_BACKEND=native;EPS_TF_OP_LIBRARY=${eps_tf_operations};EPS_NATIVE_RUNTIME=$<TARGET_FILE:eps_runtime>")
+          if(EPS_BUILD_CUDA)
+            add_test(NAME entropy_original_table_native_cuda COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py" $<TARGET_FILE:eps_server>)
+            set_tests_properties(entropy_original_table_native_cuda PROPERTIES TIMEOUT 180 SKIP_RETURN_CODE 77
+              ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy;EPS_ENTROPY_BACKEND=native;EPS_ENTROPY_DEVICE=/GPU:0;EPS_TF_OP_LIBRARY=${eps_tf_operations};EPS_NATIVE_RUNTIME=$<TARGET_FILE:eps_runtime>")
+          endif()
+        endif()
         add_test(NAME tensorflow_graph_external_shards
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_processes.py" $<TARGET_FILE:eps_server>)
         add_test(NAME tensorflow_graph_cache_external_shards

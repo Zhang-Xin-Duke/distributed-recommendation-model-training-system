@@ -9,6 +9,7 @@ import concurrent.futures
 import functools
 import hashlib
 import logging
+import json
 import os
 import pathlib
 import threading
@@ -128,4 +129,11 @@ def load(tf):
                   '_MultiDatasetRunner.checkpoint','_MultiDatasetRunner.prepare_path','checkpoint',
                   '_MultiDatasetRunner.restore','worker_restore','worker_restore_sparse','worker_restore_dense'],
         native_environment='learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported')
+    manifest=root/'provenance.json'
+    if manifest.is_file():
+        descriptor=json.loads(manifest.read_text())
+        for name,file in [('train.py',path),('inputs.py',inputs)]:
+            if descriptor['slice'][name]!=hashlib.sha256(file.read_bytes()).hexdigest():
+                raise ValueError('original definition slice differs from its provenance')
+        provenance['reference_slice']=descriptor
     return module,context,provenance

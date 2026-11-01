@@ -38,6 +38,19 @@ class Configuration(unittest.TestCase):
             c=configuration();edit(c)
             with self.subTest(c=c),self.assertRaises(ValueError):JobConfiguration(c)
 
+    def test_native_backend_and_gpu_owner_configuration(self):
+        c=configuration();c.update(backend='native',native=dict(device='/GPU:1',cuda=dict(agent=3,device=1,listen='127.0.0.1:9300')))
+        value=JobConfiguration(c)
+        self.assertEqual(value.backend,'native');self.assertEqual(value.native['cuda']['agent'],3)
+        for options in [dict(backend='unknown'),dict(native=dict(device='/CPU:0')),
+                        dict(backend='native',native=dict(device='/GPU:0')),
+                        dict(backend='native',native=dict(device='/GPU:1',cuda=dict(device=0))),
+                        dict(backend='native',native=dict(cuda=dict(owner_key='injected'))),
+                        dict(backend='native',native=dict(cuda=dict(rows_per_table=0))),
+                        dict(backend='native',native=dict(runtime_library=''))]:
+            with self.subTest(options=options),self.assertRaises(ValueError):
+                JobConfiguration(dict(configuration(),**options))
+
     def test_preserves_class_identity_and_restores_methods(self):
         class SparseTable:
             def __init__(self, name='native'):self._name=name

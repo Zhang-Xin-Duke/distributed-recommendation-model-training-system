@@ -5,6 +5,7 @@ import pathlib
 import subprocess
 import sys
 import tempfile
+import socket
 
 from rpc_processes import ready,stop
 from entropy_source_contract import source_root
@@ -27,7 +28,13 @@ def probe(endpoints,root,agent=None):
     original_runner_checkpoint=train._MultiDatasetRunner.checkpoint
     config=dict(schema_version=1,run='entropy-hooks',endpoints=endpoints,max_live_batches=8,learner_id_stride=8,
                 tables=dict(users=dict(id=3,seed=42),hashed=dict(id=7),unused=dict(id=9)))
-    if agent:config['cache_agents']=[dict(id=0,endpoint=agent)]
+    native_backend=os.environ.get('EPS_ENTROPY_BACKEND')=='native'
+    if native_backend:
+        config.update(backend='native',native=dict(device=os.environ.get('EPS_ENTROPY_DEVICE','/CPU:0')))
+        if config['native']['device'].startswith('/GPU:'):
+            config['native']['cuda']=dict(agent=0,device=0,listen=agent,state_bytes=1 << 20,rows_per_table=64)
+        elif agent:config['cache_agents']=[dict(id=0,endpoint=agent)]
+    elif agent:config['cache_agents']=[dict(id=0,endpoint=agent)]
     reference=Backend(endpoints,'entropy-hooks',1023)
     if agent:reference.cache_endpoints([(0,agent)])
     hooks=install(train,config)
@@ -78,6 +85,10 @@ def probe(endpoints,root,agent=None):
             all_unused=unused.apply_gradients([(None,v) for v in uout],[])
             assert set([users,hashed,native]).issubset(set(context.learner.var_collections.values()))
             initialize=tf.compat.v1.global_variables_initializer()
+        graph_types={op.type for op in graph.get_operations()}
+        if native_backend:
+            assert {'EpsRuntime','EpsPull','EpsPush','EpsIdCommand'}<=graph_types
+            assert not any('PyFunc' in kind for kind in graph_types)
         user_features=[dict(table=103,feature=0,pooling='mean',padding_key=UINT64_MAX,
                             keys=np.array([0,1,UINT64_MAX,1,2],np.uint64),offsets=np.array([0,3,5],np.int64)),
                        dict(table=103,feature=1,pooling='sequence',padding_key=UINT64_MAX,
@@ -168,8 +179,9 @@ def probe(endpoints,root,agent=None):
             missing_gradient_zero_fill=True,unused_feature_releases=12,
             same_learner_graph_recreation=True,
             original_runner_midrun_checkpoint=True,failed_dense_save_stays_frozen=True,
+            table_backend='native' if native_backend else 'portable',graph_python_callbacks=any('PyFunc' in kind for kind in graph_types),
             table_class_preserved=True,backend_learner_ids=sorted(hooks.backends()),
-            cache_backend=os.environ.get('EPS_CACHE_BACKEND','host') if agent else 'none',
+            cache_backend=('cuda' if config.get('native',{}).get('cuda') else os.environ.get('EPS_CACHE_BACKEND','host')) if agent else 'none',
             source=provenance)),flush=True)
     finally:
         context.learner=context.learner or owner
@@ -189,7 +201,10 @@ def main():
     with tempfile.TemporaryDirectory(prefix='eps-entropy-hooks-') as directory:
         root=pathlib.Path(directory);processes=[];logs=[];endpoints=[];agent=None
         try:
-            if agent_binary:
+            native_gpu=os.environ.get('EPS_ENTROPY_BACKEND')=='native' and os.environ.get('EPS_ENTROPY_DEVICE','').startswith('/GPU:')
+            if native_gpu:
+                with socket.socket() as s:s.bind(('127.0.0.1',0));agent='127.0.0.1:'+str(s.getsockname()[1])
+            elif agent_binary:
                 log=open(root/'agent.log','w+');logs.append(log)
                 process=subprocess.Popen([agent_binary,'--run','entropy-hooks','--agent','0','--listen','127.0.0.1:0',
                                           '--backend',os.environ.get('EPS_CACHE_BACKEND','host')],

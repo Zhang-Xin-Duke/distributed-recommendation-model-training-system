@@ -6,12 +6,13 @@ import tensorflow as tf
 
 
 class NativeParameterServer:
-    def __init__(self, configuration, *, op_library=None, runtime_library=None, device='/CPU:0'):
+    def __init__(self, configuration, *, op_library=None, runtime_library=None, device='/CPU:0', context_key=''):
         self.ops=tf.load_op_library(str(pathlib.Path(op_library or os.environ['EPS_TF_OP_LIBRARY']).resolve()))
         runtime=str(pathlib.Path(runtime_library or os.environ['EPS_NATIVE_RUNTIME']).resolve())
         self.device=device
         with tf.device(self.device):
-            self.resource=self.ops.eps_runtime(configuration=json.dumps(configuration),library=runtime)
+            self.resource=self.ops.eps_runtime(configuration=json.dumps(configuration,sort_keys=True),library=runtime,
+                                               context_key=context_key)
 
     @staticmethod
     def _schema(features):
