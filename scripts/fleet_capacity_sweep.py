@@ -90,6 +90,9 @@ def main():
     p.add_argument("--gpu-counts", default="1,2,3")
     p.add_argument("--cache-admission",choices=("manual","frequency","reuse_cost"),default="manual")
     p.add_argument("--ps-shards", type=int, default=2)
+    p.add_argument("--max-active-operations", type=int, default=16,
+                   help="Per-shard active limit; 1 provides the serialized control")
+    p.add_argument("--dependency-cache", choices=("on", "off"), default="on")
     p.add_argument("--rows", type=int, default=262144)
     p.add_argument("--dimension", type=int, default=128)
     p.add_argument("--keys", type=int, default=1024)
@@ -126,6 +129,7 @@ def main():
                 "--external-hardware",str(root/"results"/(run+"-hardware.csv")),"--run-id",run,
                 "--devices",",".join(map(str,range(count))),"--gpu-counts",str(count),
                 "--cache-admission",a.cache_admission,"--ps-shards",str(a.ps_shards),"--rows",str(a.rows),"--dimension",str(a.dimension),
+                "--max-active-operations",str(a.max_active_operations),"--dependency-cache",a.dependency_cache,
                 "--keys",str(a.keys),"--bag",str(a.bag),"--learners",a.learners,
                 "--seconds",str(a.seconds),"--repeats",str(a.repeats)]
             if a.serial_agent_updates:
