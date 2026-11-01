@@ -198,3 +198,18 @@ changes and complete CPU replay, use `scripts/cache_policy_sweep.py`.
 [The experiment report](CACHE_POLICY_RESULTS.md) records exact moderate/bulk
 commands, source revisions and raw data. A compact Host-reference process check
 runs as `cache_policy_fixed_trace_smoke`; its rates are excluded from GPU results.
+
+### Multi-GPU fixed-trace placement evaluation
+
+```sh
+python3 scripts/cache_policy_sweep.py --build build/cuda --out results/policy-four-gpu \
+  --backend cuda --devices 0,1,2,3 --cache-rows 10240 --hot-rows 8192 \
+  --rows 262144 --dimension 512 --keys 8192 --bag 128 --phase-steps 64
+```
+
+`--cache-rows` is the total across agents, divided equally. `--reserve-slots`
+is per agent. The runner checks distinct physical GPU UUIDs, accounts for each
+agent's resident accesses and verifies every agent returns its slots on drain.
+The trace is generated independently of topology, so the same IDs and gradients
+can be compared across GPU counts. CPU/static calibration is repeated for each
+topology. The CPU/reference smoke also exercises four separate agent processes.

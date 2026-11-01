@@ -39,16 +39,16 @@ Counters Metrics(const std::vector<std::shared_ptr<BrpcParameterService>>& admin
     out.tracked+=s.policy_tracked_rows;out.updates+=s.updates;}
   return out;
 }
-void WarmAgent(const std::string& endpoint,const std::string& run,std::uint32_t dim){
+void WarmAgent(const std::string& endpoint,const std::string& run,std::uint32_t dim,AgentId agent){
   // A separate, valid home stream/table warms CUDA kernels without changing
   // the benchmark table or its optimizer. Its only row is evicted before timing.
-  BrpcCacheBackend warm(endpoint,run,1023,0,30000);
+  BrpcCacheBackend warm(endpoint,run,1023,agent,30000);
   auto definition=Table(1024,dim);definition.id=999;Take(warm.Define(definition));
   RowState state{{999,1023},std::vector<float>(dim,0),std::vector<float>(dim,0),std::vector<float>(dim,0),0};
-  MigrationPlan plan{"warmup",0,{{state.row,1023,Placement::loading,0,0,1}},Placement::gpu,dim*12ULL+8};
+  MigrationPlan plan{"warmup",agent,{{state.row,1023,Placement::loading,agent,0,1}},Placement::gpu,dim*12ULL+8};
   auto rows=Take(warm.Load(plan,{state}));
   FeatureInput input{999,0,Pooling::mean,{1023,1023},{0,2},{2}};
-  Take(warm.GatherHost({{0,AccessRoute::resident_gpu,0,rows,{0,0},{}}},{input}));
+  Take(warm.GatherHost({{0,AccessRoute::resident_gpu,agent,rows,{0,0},{}}},{input}));
   Take(warm.ApplyHost({{run,0,0,Phase::push},1023,999,0,0.001f,0.9f,0.999f},
     {{state.row},std::vector<float>(dim,0.01f)}));
   plan.rows=rows;plan.destination=Placement::cpu;
@@ -72,21 +72,28 @@ int main(int argc,char** argv){
     for(const auto& endpoint:j.at("endpoints")){
       auto s=std::make_shared<BrpcParameterService>(endpoint.get<std::string>(),30000);admin.push_back(s);services.push_back(s);
     }
-    const auto agent_endpoint=j.at("agent").get<std::string>();
-    auto reader=std::make_shared<BrpcCacheBackend>(agent_endpoint,run,0,0,30000);
-    auto resolver=MakeCacheResolver({{0,reader}});
+    const auto agent_endpoints=j.contains("agents")?j.at("agents").get<std::vector<std::string>>()
+      :std::vector<std::string>{j.at("agent").get<std::string>()};
+    Check(!agent_endpoints.empty() && agent_endpoints.size()<=8 && slots%agent_endpoints.size()==0 && std::uint64_t(reserve)*agent_endpoints.size()<slots &&
+      std::uint64_t(hot)<=slots-std::uint64_t(reserve)*agent_endpoints.size(),"invalid multi-agent capacity");
+    std::map<AgentId,std::shared_ptr<CacheBackend>> readers;
+    for(AgentId a=0;a<agent_endpoints.size();++a)
+      readers[a]=std::make_shared<BrpcCacheBackend>(agent_endpoints[a],run,0,a,30000);
+    auto resolver=MakeCacheResolver(readers);
     std::uint64_t resident=0,transferred=0,gather_calls=0;
+    std::vector<std::uint64_t> per_agent_resident(readers.size(),0);
     DistributedClient actual(services);
     actual.SetCacheResolver([&](auto work,auto layouts){
       ++gather_calls;
       for(const auto& task:work){const auto count=std::count_if(task.occurrence_to_unique.begin(),task.occurrence_to_unique.end(),[](auto x){return x!=UINT64_MAX;});
-        if(task.route==AccessRoute::resident_gpu)resident+=count;else transferred+=count;}
+        if(task.route==AccessRoute::resident_gpu){resident+=count;per_agent_resident.at(task.agent)+=count;}else transferred+=count;}
       return resolver(std::move(work),std::move(layouts));
     },coalesce);
     Take(actual.CreateTable(Table(services.size(),dim)));
     RuntimeOptions options;options.run_id="trace-reference";options.state_bytes=4ULL<<30;
     auto reference_service=std::make_shared<CpuParameterService>(options);DistributedClient reference({reference_service});
-    Take(reference.CreateTable(Table(1,dim)));WarmAgent(agent_endpoint,run,dim);
+    Take(reference.CreateTable(Table(1,dim)));
+    for(AgentId a=0;a<agent_endpoints.size();++a)WarmAgent(agent_endpoints[a],run,dim,a);
     std::uint64_t setup_sequence=0,sequence=0;
     std::set<Key> touched;std::vector<std::uint64_t> expected_updates(rows+1,0);
     for(std::uint64_t begin=1;begin<=hot;begin+=1024){
@@ -96,10 +103,10 @@ int main(int argc,char** argv){
       auto a=Take(actual.Lookup({{run,999,setup_sequence,Phase::lookup},1,true,{f}}));Take(actual.Release(a));
       auto b=Take(reference.Lookup({{options.run_id,999,setup_sequence++,Phase::lookup},1,true,{f}}));Take(reference.Release(b));
     }
-    if(mode!="cpu_only")for(std::size_t home=0;home<admin.size();++home){
+    if(mode!="cpu_only")for(std::size_t home=0;home<admin.size();++home)for(AgentId agent=0;agent<readers.size();++agent){
       std::vector<RowKey> batch;
-      const auto flush=[&]{if(!batch.empty()){Take(admin[home]->MoveRows({run,std::move(batch),0,Placement::gpu,{16ULL<<20,16ULL<<20,1,reserve}}));batch.clear();}};
-      for(Key key=1;key<=hot;++key)if(key%admin.size()==home){batch.push_back({1,key});if(batch.size()==256)flush();}flush();
+      const auto flush=[&]{if(!batch.empty()){Take(admin[home]->MoveRows({run,std::move(batch),agent,Placement::gpu,{16ULL<<20,16ULL<<20,1,reserve}}));batch.clear();}};
+      for(Key key=1;key<=hot;++key)if(key%admin.size()==home && (key/admin.size())%readers.size()==agent){batch.push_back({1,key});if(batch.size()==256)flush();}flush();
     }
     const auto initial=Metrics(admin);Check(initial.cached==(mode=="cpu_only"?0:hot),"initial cache differs from specification");
     std::vector<nlohmann::json> records;
@@ -130,6 +137,7 @@ int main(int argc,char** argv){
       std::vector<TensorBlock> gradients{{0,{keys/bag,dim},std::vector<float>(values,0.01f)}};
       std::vector<double> latency;latency.reserve(steps);
       const auto before=Metrics(admin);const auto resident_begin=resident,transfer_begin=transferred,gather_begin=gather_calls;
+      const auto per_agent_begin=per_agent_resident;
       const auto first_sequence=sequence;const auto begin=Clock::now();
       for(std::uint32_t step=0;step<steps;++step){
         const auto tick=Clock::now();auto b=Take(actual.Lookup({{run,0,sequence++,Phase::lookup},1,false,{trace[step]}}));
@@ -139,7 +147,7 @@ int main(int argc,char** argv){
       }
       const auto elapsed=Milliseconds(begin)/1000;const auto after=Metrics(admin);
       Check(after.updates-before.updates==std::uint64_t(steps)*admin.size(),"trace update acknowledgement count mismatch");
-      Check(after.cached<=slots-reserve,"cache consumed reserved capacity");
+      Check(after.cached<=slots-std::uint64_t(reserve)*readers.size(),"cache consumed reserved capacity");
       Check(after.bytes<=after.windows*j.at("network_bytes_per_window").get<std::uint64_t>() &&
         after.batches<=after.windows*j.at("max_inflight_batches").get<std::uint64_t>(),"policy window bounds exceeded");
       double feature_error=0;
@@ -154,7 +162,7 @@ int main(int argc,char** argv){
       Check(resident_count+transfer_count<=total,"trace access accounting mismatch");
       nlohmann::json record{{"test","sparse_cache_policy_trace"},{"mode",mode},{"phase",names[phase]},
         {"calibration",calibration},{"rows",rows},{"dimension",dim},{"keys_per_step",keys},{"bag_length",bag},
-        {"hot_rows",hot},{"cache_rows",slots},{"initial_cached_rows",initial.cached},{"ps_shards",admin.size()},{"gpu_agents",1},
+        {"hot_rows",hot},{"cache_rows",slots},{"initial_cached_rows",initial.cached},{"ps_shards",admin.size()},{"gpu_agents",readers.size()},
         {"learners",1},{"completed_steps",steps},{"errors",0},{"elapsed_seconds",elapsed},{"steps_per_second",steps/elapsed},
         {"step_mean_ms",elapsed*1000/steps},{"step_p50_ms",Quantile(latency,.5)},{"step_p99_ms",Quantile(latency,.99)},
         {"input_id_occurrences",total},{"resident_id_occurrences",resident_count},{"transferred_id_occurrences",transfer_count},
@@ -166,12 +174,14 @@ int main(int argc,char** argv){
         {"policy_budget_skips",after.budget-before.budget},{"checked_feature_values",steps*values},{"feature_max_absolute_error",feature_error},
         {"mean_unique_rows_per_step",double(total_unique)/steps},{"mean_initial_hot_unique_per_step",double(initially_hot_unique)/steps},
         {"saved_microseconds_per_access",j.at("saved_microseconds_per_access")},{"coalesced_gathers",coalesce}};
+      record["resident_occurrences_by_agent"]=nlohmann::json::array();
+      for(std::size_t a=0;a<readers.size();++a)record["resident_occurrences_by_agent"].push_back(per_agent_resident[a]-per_agent_begin[a]);
       record["start_monotonic_seconds"]=std::chrono::duration<double>(begin.time_since_epoch()).count();
       record["end_monotonic_seconds"]=record["start_monotonic_seconds"].get<double>()+elapsed;
       records.push_back(std::move(record));std::cerr<<"PHASE "<<names[phase]<<" completed and replayed\n";
     }
     for(const auto& shard:admin)Take(shard->DrainAndFlush("trace-final"));
-    Check(Take(reader->FreeSlots(1))==slots,"trace drain did not restore agent capacity");
+    for(const auto& [id,reader]:readers)Check(Take(reader->FreeSlots(1))==slots/readers.size(),"trace drain did not restore agent capacity");
     double state_error=0;std::uint64_t checked_rows=0,checked_values=0;
     for(std::size_t home=0;home<admin.size();++home){
       std::vector<RowKey> batch;

@@ -26,18 +26,20 @@ def run_trial(args, name, mode, calibration, saved):
     run = "policy-"+uuid.uuid4().hex[:12]
     steps = args.calibration_steps if calibration else args.phase_steps
     try:
-        log = (root / "agent.log").open("w+")
-        logs.append(log)
-        row_bytes = args.dimension*12+8
-        # CUDA preallocates the benchmark and temporary warmup tables. The Host
-        # backend uses one shared pool; only the benchmark remains resident.
-        state_bytes = args.cache_rows*row_bytes*(2 if args.backend == "cuda" else 1)
-        worker = subprocess.Popen([str(args.build / "eps_cache_agent"), "--run", run,
-            "--backend", args.backend, "--device", str(args.device),
-            "--rows-per-table", str(args.cache_rows), "--state-bytes", str(state_bytes),
-            "--listen", "127.0.0.1:0"], stdout=subprocess.PIPE, stderr=log, text=True)
-        processes.append(worker)
-        agent_endpoint = ready(worker, timeout=45)
+        agent_endpoints = []
+        slots = args.cache_rows // len(args.devices)
+        for agent, device in enumerate(args.devices):
+            log = (root / f"agent-{agent}.log").open("w+")
+            logs.append(log)
+            row_bytes = args.dimension*12+8
+            # The benchmark and the separate kernel-warmup table each have a pool.
+            state_bytes = slots*row_bytes*(2 if args.backend == "cuda" else 1)
+            worker = subprocess.Popen([str(args.build / "eps_cache_agent"), "--run", run,
+                "--backend", args.backend, "--device", str(device), "--agent", str(agent),
+                "--rows-per-table", str(slots), "--state-bytes", str(state_bytes),
+                "--listen", "127.0.0.1:0"], stdout=subprocess.PIPE, stderr=log, text=True)
+            processes.append(worker)
+            agent_endpoints.append(ready(worker, timeout=45))
         for shard in range(2):
             cache = dict(enabled=True, admission=mode if mode in ("frequency", "reuse_cost") else "manual",
                 decision_window_requests=args.window_requests, max_tracked_rows=args.max_tracked_rows,
@@ -51,7 +53,7 @@ def run_trial(args, name, mode, calibration, saved):
             config = root / f"ps-{shard}.json"
             dump(config, dict(schema_version=1, run_id=run, listen="127.0.0.1:0",
                 partition=dict(shard_id=shard, shard_count=2, epoch=1), tables=[], cache=cache,
-                agents=[dict(id=0, endpoint=agent_endpoint)], access=dict(policy="cpu_only"),
+                agents=[dict(id=i, endpoint=e) for i,e in enumerate(agent_endpoints)], access=dict(policy="cpu_only"),
                 limits=dict(cpu_state_bytes=4 << 30, max_live_tickets=64,
                             ticket_payload_bytes=128 << 20, queue_payload_bytes=128 << 20),
                 snapshot_directory=str(root / "snapshots")))
@@ -61,7 +63,7 @@ def run_trial(args, name, mode, calibration, saved):
                                        stdout=subprocess.PIPE, stderr=log, text=True)
             processes.append(server)
             endpoints.append(ready(server, timeout=30))
-        config = dict(endpoints=endpoints, agent=agent_endpoint, run=run, mode=mode,
+        config = dict(endpoints=endpoints, agents=agent_endpoints, run=run, mode=mode,
             rows=args.rows, dimension=args.dimension, keys=args.keys, bag=args.bag,
             hot_rows=args.hot_rows, phase_steps=steps, cache_rows=args.cache_rows,
             reserve_slots=args.reserve_slots, calibration=calibration, coalesce=args.coalesce,
@@ -85,6 +87,10 @@ def run_trial(args, name, mode, calibration, saved):
             assert r["checked_final_state_values"] == r["checked_final_rows"]*args.dimension*3
             assert r["resident_id_occurrences"]+r["transferred_id_occurrences"]+r["cpu_pooled_id_occurrences"] == steps*args.keys
             assert r["final_free_slots"] == args.cache_rows
+            assert r["gpu_agents"] == len(args.devices)
+            assert sum(r["resident_occurrences_by_agent"]) == r["resident_id_occurrences"]
+            if mode != "cpu_only" and r["phase"] == "stable":
+                assert all(n > 0 for n in r["resident_occurrences_by_agent"]), "a cache agent was unused"
         shutil.rmtree(root / "snapshots")
         return records
     except Exception:
@@ -104,6 +110,7 @@ def main():
     p.add_argument("--out", type=pathlib.Path, required=True)
     p.add_argument("--backend", choices=("host", "cuda"), default="cuda")
     p.add_argument("--device", type=int, default=0)
+    p.add_argument("--devices", help="Comma-separated CUDA devices; total cache rows remain fixed")
     p.add_argument("--rows", type=int, default=131072)
     p.add_argument("--dimension", type=int, default=512)
     p.add_argument("--keys", type=int, default=2048)
@@ -124,6 +131,9 @@ def main():
     p.add_argument("--smoke", action="store_true")
     p.add_argument("--source-commit", default="local_worktree")
     a = p.parse_args()
+    a.devices = [int(x) for x in a.devices.split(",")] if a.devices else [a.device]
+    if not 1 <= len(a.devices) <= 8 or len(set(a.devices)) != len(a.devices):
+        p.error("provide 1..8 distinct devices")
     if a.smoke:
         for k,v in dict(rows=2048,dimension=4,keys=64,bag=8,hot_rows=64,cache_rows=96,
                         reserve_slots=4,phase_steps=8,calibration_steps=8,window_requests=2,
@@ -134,7 +144,8 @@ def main():
     if not (1024 <= a.rows <= 262144 and 1 <= a.dimension <= 512 and
         4 <= a.keys <= 8192 and a.keys % 4 == 0 and a.bag > 0 and a.keys % a.bag == 0 and
         1 <= a.phase_steps <= 512 and 1 <= a.calibration_steps <= 512 and
-        0 <= a.reserve_slots < a.cache_rows and 0 < a.hot_rows <= a.cache_rows-a.reserve_slots and
+        0 <= a.reserve_slots < a.cache_rows and a.cache_rows % len(a.devices) == 0 and
+        0 < a.hot_rows <= a.cache_rows-a.reserve_slots*len(a.devices) and
         2*a.hot_rows+max(a.phase_steps,a.calibration_steps)*(a.keys//4)<a.rows and
         a.window_requests > 0 and a.max_tracked_rows > 0 and 1 <= a.migration_rows <= 4096 and
         a.window_bytes > 0 and 10 <= a.trial_timeout <= 600):
@@ -149,18 +160,21 @@ def main():
                        ["eps_server","eps_cache_agent","eps_cache_policy_probe"]},
         workload={k:getattr(a,k) for k in ["rows","dimension","keys","bag","hot_rows","cache_rows",
             "reserve_slots","phase_steps","calibration_steps","window_requests","max_tracked_rows",
-            "migration_rows","window_bytes","repeats","calibration_repeats","coalesce"]},
+            "migration_rows","window_bytes","repeats","calibration_repeats","coalesce","devices"]},
         experiments=[])
     if a.backend == "cuda":
         hardware = subprocess.check_output(["nvidia-smi", "--query-gpu=index,name,uuid,compute_cap,driver_version,memory.total", "--format=csv"], text=True)
         (a.out / "hardware.private.csv").write_text(hardware)
         lines = [line.split(",") for line in hardware.splitlines()[1:] if line.strip()]
-        device = next((r for r in lines if int(r[0])==a.device),None)
-        if device is None:p.error("requested GPU is absent")
-        manifest["gpu"] = dict(index=int(device[0]),name=device[1].strip(),compute_cap=device[3].strip(),
-                               driver=device[4].strip(),memory=device[5].strip())
+        selected = [r for r in lines if int(r[0]) in a.devices]
+        if len(selected) != len(a.devices) or len({r[2].strip() for r in selected}) != len(a.devices):
+            p.error("requested devices are absent or share a GPU UUID")
+        manifest["gpus"] = [dict(index=int(r[0]),name=r[1].strip(),compute_cap=r[3].strip(),
+                                driver=r[4].strip(),memory=r[5].strip()) for r in selected]
+        manifest["gpu"] = manifest["gpus"][0] if len(selected)==1 else None
     else:
         manifest["gpu"] = None
+        manifest["gpus"] = []
     all_records = []
     def execute(name,mode,calibration,saved,block):
         print("RUN "+name,flush=True)
