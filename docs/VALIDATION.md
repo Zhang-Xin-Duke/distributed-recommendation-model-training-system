@@ -1,5 +1,33 @@
 # Validation record
 
+## Native TensorFlow CPU/CUDA operations — November 1, 2026
+
+Runtime `5a69840` supplies an isolated C ABI and native resource, Pull, prepared
+Pull, Push and control operations. The Ubuntu TensorFlow 2.20.0/CUDA build
+executes **47 passing tests**, with three original Entropy source tests skipped
+because private reference code is excluded from the uploaded archive. Separate
+macOS suites pass **30/30 native/C-ABI checks** and **42/42 portable TensorFlow
+checks**. macOS native runtime loading has an explicit platform guard.
+
+The native CPU and CUDA graphs each run five model/automatic-gradient steps
+against two external parameter shards, with two additional CPU reference shards.
+Complete weights, both Adam moments and row update counters match CPU replay.
+CUDA model/loss differences are at most 7.45e-9. Graph inspection confirms Eps
+operations without Python callbacks. Prepared input, mid-run dense/input and
+sparse save/resume, retained output lifetime and rejected-schema cleanup execute.
+The Linux runtime exports only `eps_runtime_api_v1`; dynamic BRPC/Protobuf/protoc
+dependencies are absent.
+
+Fixture `1c8f060` repeats the native model trajectory with one, two and four
+physical GPU parameter owners. The local TensorFlow GPU executes the model;
+remote CUDA owners retain and update their parameter rows. Every remote owner
+has resident rows and drains all accepted work. Complete sparse optimizer state
+matches the independent CPU replay in all three topologies.
+
+[Native design and build](NATIVE_TENSORFLOW.md) ·
+[Native test records](validation/2026-11-01-native-tensorflow/native-checks.json) ·
+[Multi-owner model records](validation/2026-11-01-native-tensorflow/multigpu-model-checks.json)
+
 ## Complete device Pull — November 1, 2026
 
 Source `9353800` adds destination-projected device reads and CUDA assembly to the

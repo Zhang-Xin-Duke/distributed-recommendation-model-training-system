@@ -1,0 +1,58 @@
+[
+  {
+    "test": "native_tensorflow_graph",
+    "mode": "cpu",
+    "tensorflow": "2.20.0",
+    "external_ps_processes": 4,
+    "training_steps": 5,
+    "features": 7,
+    "prepared_steps": 2,
+    "checked_parameter_rows": 8,
+    "acknowledged_updates_per_shard": 5,
+    "max_state_absolute_error": 0,
+    "max_model_absolute_error": 0.0,
+    "resident_parameters_observed": false,
+    "native_op_types": [
+      "EpsCommand",
+      "EpsPull",
+      "EpsPullPrepared",
+      "EpsPush"
+    ],
+    "python_callbacks": false,
+    "output_valid_after_runtime_close": true,
+    "mid_run_dense_and_sparse_save_resume": true,
+    "output_schema_failure_tickets_released": true
+  },
+  {
+    "test": "native_tensorflow_graph",
+    "mode": "cuda",
+    "tensorflow": "2.20.0",
+    "external_ps_processes": 4,
+    "training_steps": 5,
+    "features": 7,
+    "prepared_steps": 2,
+    "checked_parameter_rows": 8,
+    "acknowledged_updates_per_shard": 5,
+    "max_state_absolute_error": 0,
+    "max_model_absolute_error": 7.450580596923828e-09,
+    "resident_parameters_observed": true,
+    "native_op_types": [
+      "EpsCommand",
+      "EpsPull",
+      "EpsPullPrepared",
+      "EpsPush"
+    ],
+    "python_callbacks": false,
+    "output_valid_after_runtime_close": true,
+    "mid_run_dense_and_sparse_save_resume": true,
+    "output_schema_failure_tickets_released": true
+  },
+  {
+    "test": "native_runtime_c_abi",
+    "abi_version": 1,
+    "shards": 2,
+    "prepared_input": true,
+    "duplicate_push": true,
+    "buffer_outlives_runtime": true
+  }
+]

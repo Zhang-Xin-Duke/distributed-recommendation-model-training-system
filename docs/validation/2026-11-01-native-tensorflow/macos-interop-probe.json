@@ -1,0 +1,6 @@
+{
+  "unisolated_pybind_tensorflow_exit": 139,
+  "unisolated_dynamic_c_runtime_tensorflow_exit": 139,
+  "supported_native_tensorflow_runtime": "Linux static transport build",
+  "macos_operation_module_guard_verified": true
+}

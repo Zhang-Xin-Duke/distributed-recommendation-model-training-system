@@ -20,7 +20,10 @@ GPU cache agent 在显存中保存权重和 Adam 状态，完成查找、聚合�
 原生 C++ 适配器的 `PullDevice` 可将 CPU、本地 GPU 与远端 Agent 的贡献在模型 GPU 上合并，
 完成全局 mean 归一化和 sequence padding 还原，再沿用现有句柄回传梯度；
 `PullPreparedDevice` 复用输入预准备队列。[设备端完整特征路径](DEVICE_PULL.md) 已通过真实 CUDA 训练轨迹对照。
-TensorFlow 适配层已提供 Pull/Push/Join 的 host callback 路径，保留原模型与 dense 优化器。
+TensorFlow 原生 CPU/CUDA 算子已接通 Pull/Push/Join：直接返回模型可用的特征张量，
+接收自动求导产生的梯度，再等待参数更新确认；模型与 dense 优化器保持原有职责。
+原生模块通过版本化 C 接口隔离 BRPC/Protobuf 与 TensorFlow 的二进制依赖，
+另保留便携 host callback 接入路径。[原生算子与验证](NATIVE_TENSORFLOW.md)。
 
 这样，参数服务可以独立启动、分配 CPU/内存和扩容；训练模型保持原有运行方式。
 
@@ -67,7 +70,8 @@ CPU 与所有 GPU 部分使用该次请求的同一份优化器上下文，不�
 
 C++20 服务核心，BRPC/Protobuf 通信，分块连续参数存储，CUDA 完成显存侧操作。
 便携 TensorFlow 适配层通过本地客户端子进程隔离二进制依赖，接管 Embedding 的 Pull/Push/Join。
-原 Entropy 应用的完整构建与模型/GPU 原生张量接入仍需单独验证。
+Linux TensorFlow 2.20 已验证原生 CPU/GPU 张量接入和自动求导；
+原 Entropy 应用、原始读取器与多节点任务屏障的完整接入仍需单独验证。
 
 已增加按表名选择后端的原接口接入：保留 `SparseTable` 类和 `InputBuilder` 梯度分发，
 由外部服务处理选中表的读取与更新。原 Runner 保存入口先暂停参数更新，执行原目录准备，

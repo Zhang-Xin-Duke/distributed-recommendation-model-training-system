@@ -1,0 +1,1113 @@
+Start testing: Nov 01 09:21 UTC
+----------------------------------------------------------
+1/50 Testing: native_tensorflow_cpu_graph
+1/50 Test: native_tensorflow_cpu_graph
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/native_tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/libeps_runtime.so" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_tensorflow_ops.so" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_snapshot_compare" "cpu"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"native_tensorflow_cpu_graph" start time: Nov 01 09:21 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:21:53.603992: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524917.246055    7525 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+2026-11-01 09:21:58.885992: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: native EPS output shape mismatch
+2026-11-01 09:21:58.909876: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: UNAVAILABLE: native runtime is closed
+{"test": "native_tensorflow_graph", "mode": "cpu", "tensorflow": "2.20.0", "external_ps_processes": 4, "training_steps": 5, "features": 7, "prepared_steps": 2, "checked_parameter_rows": 8, "acknowledged_updates_per_shard": 5, "max_state_absolute_error": 0, "max_model_absolute_error": 0.0, "resident_parameters_observed": false, "native_op_types": ["EpsCommand", "EpsPull", "EpsPullPrepared", "EpsPush"], "python_callbacks": false, "output_valid_after_runtime_close": true, "mid_run_dense_and_sparse_save_resume": true, "output_schema_failure_tickets_released": true}
+I1101 09:21:59.014722  7710 4294969856 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=5 addr=127.0.0.1:39365} (0x431af100)
+I1101 09:21:59.020060  7706 4294969857 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=4 addr=127.0.0.1:42603} (0x431aee00)
+I1101 09:21:59.023324  7710 4294969858 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:32771} (0x431ae500)
+I1101 09:21:59.026479  7706 4294969859 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=0 addr=127.0.0.1:41515} (0x431ae200)
+<end of output>
+Test time =   8.73 sec
+----------------------------------------------------------
+Test Passed.
+"native_tensorflow_cpu_graph" end time: Nov 01 09:22 UTC
+"native_tensorflow_cpu_graph" time elapsed: 00:00:08
+----------------------------------------------------------
+
+2/50 Testing: native_tensorflow_cuda_graph
+2/50 Test: native_tensorflow_cuda_graph
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/native_tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/libeps_runtime.so" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_tensorflow_ops.so" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_snapshot_compare" "cuda"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"native_tensorflow_cuda_graph" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:22:02.316311: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524925.901778    7792 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+W1101 09:22:05.949671  7792     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:05.950950  7792     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=45765.
+I1101 09:22:05.951035  7792     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:45765 in web browser.
+2026-11-01 09:22:07.452112: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: native EPS output shape mismatch
+	 [[{{node EpsPull}}]]
+I1101 09:22:07.484981  8024     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+2026-11-01 09:22:07.571072: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: UNAVAILABLE: native runtime is closed
+{"test": "native_tensorflow_graph", "mode": "cuda", "tensorflow": "2.20.0", "external_ps_processes": 4, "training_steps": 5, "features": 7, "prepared_steps": 2, "checked_parameter_rows": 8, "acknowledged_updates_per_shard": 5, "max_state_absolute_error": 0, "max_model_absolute_error": 7.450580596923828e-09, "resident_parameters_observed": true, "native_op_types": ["EpsCommand", "EpsPull", "EpsPullPrepared", "EpsPush"], "python_callbacks": false, "output_valid_after_runtime_close": true, "mid_run_dense_and_sparse_save_resume": true, "output_schema_failure_tickets_released": true}
+I1101 09:22:07.675361  7967 4294969856 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=7 addr=127.0.0.1:39079} (0x33ef5c40)
+I1101 09:22:07.677997  7966 4294969857 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=6 addr=127.0.0.1:35513} (0x33ef5940)
+I1101 09:22:07.681445  7974 4294969858 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:36085} (0x33ef4a40)
+I1101 09:22:07.684620  7967 4294969859 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=0 addr=127.0.0.1:41017} (0x33ef4740)
+<end of output>
+Test time =   9.51 sec
+----------------------------------------------------------
+Test Passed.
+"native_tensorflow_cuda_graph" end time: Nov 01 09:22 UTC
+"native_tensorflow_cuda_graph" time elapsed: 00:00:09
+----------------------------------------------------------
+
+3/50 Testing: native_runtime_c_abi
+3/50 Test: native_runtime_c_abi
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/runtime_c_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/libeps_runtime.so"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"native_runtime_c_abi" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+{"test": "native_runtime_c_abi", "abi_version": 1, "shards": 2, "prepared_input": true, "duplicate_push": true, "buffer_outlives_runtime": true}
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"native_runtime_c_abi" end time: Nov 01 09:22 UTC
+"native_runtime_c_abi" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/50 Testing: in_process_worker_lifecycle
+4/50 Test: in_process_worker_lifecycle
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_worker_agent_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"in_process_worker_lifecycle" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+W1101 09:22:11.418550  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:11.421373  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=46499.
+I1101 09:22:11.421718  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:46499 in web browser.
+I1101 09:22:11.428895  8188     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 09:22:11.460718  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:11.461891  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=46499.
+I1101 09:22:11.461900  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:46499 in web browser.
+I1101 09:22:11.559812  8174 4294969856 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:46499} (0x62b212ff5e40)
+I1101 09:22:11.560161  8173 4294969856 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2645 AfterRevived] Revived Socket{id=1 addr=127.0.0.1:46499} (0x62b212ff5e40) (Connectable)
+I1101 09:22:11.563834  8167     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"in_process_worker_lifecycle","shared_local_rpc_admission":true,"drained_on_stop":true,"backend_released":true,"endpoint_reused":true}
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"in_process_worker_lifecycle" end time: Nov 01 09:22 UTC
+"in_process_worker_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/50 Testing: distributed_device_pull_cuda
+5/50 Test: distributed_device_pull_cuda
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_device_pull_cuda"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"distributed_device_pull_cuda" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+W1101 09:22:12.309728  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:12.312724  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=38775.
+I1101 09:22:12.312964  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:38775 in web browser.
+W1101 09:22:12.320054  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:12.321535  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=45021.
+I1101 09:22:12.321549  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:45021 in web browser.
+I1101 09:22:12.665292  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 09:22:12.666406  8192     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 09:22:12.766012  8281 4294971136 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=3 addr=127.0.0.1:38775} (0x6441989f2e80)
+I1101 09:22:12.766915  8288 4294971137 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=2 addr=127.0.0.1:45021} (0x6441989f2b80)
+{"test":"distributed_device_pull","backend":"cuda","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   4.58 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_cuda" end time: Nov 01 09:22 UTC
+"distributed_device_pull_cuda" time elapsed: 00:00:04
+----------------------------------------------------------
+
+6/50 Testing: native_worker_cuda_stream
+6/50 Test: native_worker_cuda_stream
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_worker_agent_cuda"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"native_worker_cuda_stream" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+W1101 09:22:16.776356  8365     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:16.779239  8365     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=41997.
+I1101 09:22:16.779414  8365     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:41997 in web browser.
+I1101 09:22:16.799206  8365     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"native_worker_cuda_stream","model_stream":"nondefault","remote_control_local_device_reads":true,"full_optimizer_rows_checked":2,"output_budget_enforced":true,"result_outlives_worker":true}
+<end of output>
+Test time =   4.31 sec
+----------------------------------------------------------
+Test Passed.
+"native_worker_cuda_stream" end time: Nov 01 09:22 UTC
+"native_worker_cuda_stream" time elapsed: 00:00:04
+----------------------------------------------------------
+
+7/50 Testing: agent_rpc_admission_queue
+7/50 Test: agent_rpc_admission_queue
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_agent_rpc_admission_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"agent_rpc_admission_queue" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+W1101 09:22:20.493639  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:20.496624  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=39085.
+I1101 09:22:20.496957  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:39085 in web browser.
+I1101 09:22:20.511867  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 09:22:20.513591  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:20.514607  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=39049.
+I1101 09:22:20.514615  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:39049 in web browser.
+I1101 09:22:20.518280  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 09:22:20.519464  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 09:22:20.519688  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=35805.
+I1101 09:22:20.519695  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-wv7l7bvp-main:35805 in web browser.
+I1101 09:22:20.540511  8504     0 /home/ubuntu/dps-native-tensorflow/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"agent_rpc_admission_burst","independent_clients":8,"requests":256,"active_limit":4,"observed_queued":252,"rejected":0,"state_unchanged":true}
+{"test":"agent_rpc_admission_limits","count_and_byte_rejections":2,"rejected_before_execution":true,"state_unchanged":true}
+{"test":"agent_rpc_admission_optimizer_state","home_streams":8,"updates":256,"host_updates":128,"compact_updates":128,"full_rows_checked":8,"optimizer_state_exact":true,"evicted_rows":8}
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"agent_rpc_admission_queue" end time: Nov 01 09:22 UTC
+"agent_rpc_admission_queue" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/50 Testing: agent_admission_cli
+8/50 Test: agent_admission_cli
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/agent_admission_cli.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"agent_admission_cli" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+{"test": "agent_admission_cli", "active_limit": 2, "pending_limit": 64, "request_bytes_limit": 65536, "http_statistics_verified": true, "oversized_statistics_payload_rejected": true, "invalid_active_limits_rejected": [0, 129]}
+<end of output>
+Test time =   0.20 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_cli" end time: Nov 01 09:22 UTC
+"agent_admission_cli" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/50 Testing: automatic_cache_external_shards
+9/50 Test: automatic_cache_external_shards
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/cache_policy_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"automatic_cache_external_shards" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.62 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_external_shards" end time: Nov 01 09:22 UTC
+"automatic_cache_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/50 Testing: cache_policy_fixed_trace_smoke
+10/50 Test: cache_policy_fixed_trace_smoke
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/cache_policy_trace_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_policy_probe"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"cache_policy_fixed_trace_smoke" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+<end of output>
+Test time =   4.01 sec
+----------------------------------------------------------
+Test Passed.
+"cache_policy_fixed_trace_smoke" end time: Nov 01 09:22 UTC
+"cache_policy_fixed_trace_smoke" time elapsed: 00:00:04
+----------------------------------------------------------
+
+11/50 Testing: automatic_cache_coalesced_external_shards
+11/50 Test: automatic_cache_coalesced_external_shards
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/cache_policy_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"automatic_cache_coalesced_external_shards" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.57 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_coalesced_external_shards" end time: Nov 01 09:22 UTC
+"automatic_cache_coalesced_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/50 Testing: rpc_cache_backpressure
+12/50 Test: rpc_cache_backpressure
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/overload_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_overload_checks"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"rpc_cache_backpressure" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+{"test":"rpc_cache_backpressure","configured_live_ticket_limit":32,"offered":64,"admitted":32,"rejected":32,"retry_after_release":true,"state_preserved":true}
+<end of output>
+Test time =   1.07 sec
+----------------------------------------------------------
+Test Passed.
+"rpc_cache_backpressure" end time: Nov 01 09:22 UTC
+"rpc_cache_backpressure" time elapsed: 00:00:01
+----------------------------------------------------------
+
+13/50 Testing: capacity_failed_point_diagnostics
+13/50 Test: capacity_failed_point_diagnostics
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/capacity_failure_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"capacity_failed_point_diagnostics" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+{"acknowledged_steps_before_failure": 643, "after_health_probe_shards": [{"active_operations": 1, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 646, "waiting_operations": 0}], "agent_admission": [{"accepted_requests": 1330, "active_limit": 32, "active_operations": 0, "agent": 0, "completed_requests": 1330, "dispatch_failures": 0, "peak_active_operations": 1, "peak_pending_operations": 1, "peak_request_bytes": 127531, "pending_limit": 4096, "pending_request_bytes": 0, "queue_wait_nanoseconds": 24438535, "queued_operations": 0, "rejected_requests": 0, "request_bytes_limit": 268435456}], "dimension": 16, "elapsed_seconds": 1.000812546, "error": "live ticket limit reached", "errors": 15, "fresh_read_only_probe": {"completed": true, "finite": true}, "gpu_agents": 1, "keys_per_step": 128, "learners": 16, "optimizer_trajectory_verified": false, "post_failure_shards": [{"active_operations": 1, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 646, "waiting_operations": 0}], "ps_shards": 1, "repeat": 0, "rows": 1024, "sampled_state": {"checked_rows": 16, "completed": true, "finite": true}, "test": "distributed_sparse_training_overload"}
+<end of output>
+Test time =   1.22 sec
+----------------------------------------------------------
+Test Passed.
+"capacity_failed_point_diagnostics" end time: Nov 01 09:22 UTC
+"capacity_failed_point_diagnostics" time elapsed: 00:00:01
+----------------------------------------------------------
+
+14/50 Testing: two_process_rpc_and_restore
+14/50 Test: two_process_rpc_and_restore
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/rpc_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_rpc_checks"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"two_process_rpc_and_restore" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   0.46 sec
+----------------------------------------------------------
+Test Passed.
+"two_process_rpc_and_restore" end time: Nov 01 09:22 UTC
+"two_process_rpc_and_restore" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/50 Testing: cache_agent_process_lifecycle
+15/50 Test: cache_agent_process_lifecycle
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/cache_rpc_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_rpc_checks" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"cache_agent_process_lifecycle" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+CACHE_BACKEND=cuda
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   2.74 sec
+----------------------------------------------------------
+Test Passed.
+"cache_agent_process_lifecycle" end time: Nov 01 09:22 UTC
+"cache_agent_process_lifecycle" time elapsed: 00:00:02
+----------------------------------------------------------
+
+16/50 Testing: entropy_table_hook_configuration
+16/50 Test: entropy_table_hook_configuration
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/entropy_install_tests.py"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"entropy_table_hook_configuration" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.075s
+
+OK
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_table_hook_configuration" end time: Nov 01 09:22 UTC
+"entropy_table_hook_configuration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/50 Testing: checkpoint_filesystem_contract
+17/50 Test: checkpoint_filesystem_contract
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/checkpoint_store_tests.py"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"checkpoint_filesystem_contract" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.010s
+
+OK
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"checkpoint_filesystem_contract" end time: Nov 01 09:22 UTC
+"checkpoint_filesystem_contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/50 Testing: committed_checkpoint_staging
+18/50 Test: committed_checkpoint_staging
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/checkpoint_restore_tests.py"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"committed_checkpoint_staging" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.020s
+
+OK
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"committed_checkpoint_staging" end time: Nov 01 09:22 UTC
+"committed_checkpoint_staging" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/50 Testing: entropy_original_table_external_shards
+19/50 Test: entropy_original_table_external_shards
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/entropy_hooks_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"entropy_original_table_external_shards" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_table_external_shards" end time: Nov 01 09:22 UTC
+"entropy_original_table_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/50 Testing: entropy_original_table_cache
+20/50 Test: entropy_original_table_cache
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/entropy_hooks_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"entropy_original_table_cache" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_table_cache" end time: Nov 01 09:22 UTC
+"entropy_original_table_cache" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/50 Testing: entropy_original_restore_trajectory
+21/50 Test: entropy_original_restore_trajectory
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/entropy_restore_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_snapshot_compare"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"entropy_original_restore_trajectory" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_restore_trajectory" end time: Nov 01 09:22 UTC
+"entropy_original_restore_trajectory" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/50 Testing: tensorflow_graph_external_shards
+22/50 Test: tensorflow_graph_external_shards
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_external_shards" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:22:32.906193: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524956.123005   11051 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46647 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "cpu_pool", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.49 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_external_shards" end time: Nov 01 09:22 UTC
+"tensorflow_graph_external_shards" time elapsed: 00:00:09
+----------------------------------------------------------
+
+23/50 Testing: tensorflow_graph_cache_external_shards
+23/50 Test: tensorflow_graph_cache_external_shards
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_cache_external_shards" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:22:42.471038: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524965.762773   11393 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "transfer_unique_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.72 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_cache_external_shards" end time: Nov 01 09:22 UTC
+"tensorflow_graph_cache_external_shards" time elapsed: 00:00:09
+----------------------------------------------------------
+
+24/50 Testing: tensorflow_graph_automatic_cache
+24/50 Test: tensorflow_graph_automatic_cache
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_automatic_cache" start time: Nov 01 09:22 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:22:52.181758: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524975.473602   11615 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.67 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_automatic_cache" end time: Nov 01 09:23 UTC
+"tensorflow_graph_automatic_cache" time elapsed: 00:00:09
+----------------------------------------------------------
+
+25/50 Testing: tensorflow_graph_automatic_coalesced_cache
+25/50 Test: tensorflow_graph_automatic_coalesced_cache
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_automatic_coalesced_cache" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:23:01.832393: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524985.178450   11853 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.67 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_automatic_coalesced_cache" end time: Nov 01 09:23 UTC
+"tensorflow_graph_automatic_coalesced_cache" time elapsed: 00:00:09
+----------------------------------------------------------
+
+26/50 Testing: tensorflow_graph_prepared_external_shards
+26/50 Test: tensorflow_graph_prepared_external_shards
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_prepared_external_shards" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:23:11.465219: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793524994.757980   12442 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+2026-11-01 09:23:16.970447: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-01 09:23:16.970483: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "cpu_pool", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.64 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_prepared_external_shards" end time: Nov 01 09:23 UTC
+"tensorflow_graph_prepared_external_shards" time elapsed: 00:00:09
+----------------------------------------------------------
+
+27/50 Testing: tensorflow_graph_prepared_automatic_cache
+27/50 Test: tensorflow_graph_prepared_automatic_cache
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_prepared_automatic_cache" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:23:21.131741: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793525004.445059   12733 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+2026-11-01 09:23:26.660673: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-01 09:23:26.660706: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.67 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_prepared_automatic_cache" end time: Nov 01 09:23 UTC
+"tensorflow_graph_prepared_automatic_cache" time elapsed: 00:00:09
+----------------------------------------------------------
+
+28/50 Testing: tensorflow_graph_coalesced_cache
+28/50 Test: tensorflow_graph_coalesced_cache
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_coalesced_cache" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:23:30.807728: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793525013.964444   12995 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "transfer_unique_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.47 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_coalesced_cache" end time: Nov 01 09:23 UTC
+"tensorflow_graph_coalesced_cache" time elapsed: 00:00:09
+----------------------------------------------------------
+
+29/50 Testing: tensorflow_graph_periodic_checkpoint
+29/50 Test: tensorflow_graph_periodic_checkpoint
+Command: "/home/ubuntu/dps-native-tensorflow/environment/bin/python" "/home/ubuntu/dps-native-tensorflow/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_server" "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"tensorflow_graph_periodic_checkpoint" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 09:23:40.311875: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793525023.635295   13240 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0c:00.0, compute capability: 8.6
+2026-11-01 09:23:45.996245: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-01 09:23:45.996280: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-native-tensorflow/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": true, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.88 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_periodic_checkpoint" end time: Nov 01 09:23 UTC
+"tensorflow_graph_periodic_checkpoint" time elapsed: 00:00:09
+----------------------------------------------------------
+
+30/50 Testing: distributed_device_pull_protocol
+30/50 Test: distributed_device_pull_protocol
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_device_pull_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"distributed_device_pull_protocol" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+{"test":"distributed_device_pull","backend":"cpu_protocol_reference","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_protocol" end time: Nov 01 09:23 UTC
+"distributed_device_pull_protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/50 Testing: agent_admission_lifecycle
+31/50 Test: agent_admission_lifecycle
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_agent_admission_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"agent_admission_lifecycle" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+Agent admission: FIFO, completion lifetime, count/byte limits, exception cleanup and shutdown passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_lifecycle" end time: Nov 01 09:23 UTC
+"agent_admission_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/50 Testing: core_correctness
+32/50 Test: core_correctness
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_core_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"core_correctness" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS pooling and sparse update
+PASS sequence and pinned rows
+PASS invalid update is retryable
+PASS drain and exact optimizer restore
+PASS corrupt snapshot
+PASS partitioning and initializer
+PASS mixed request history
+PASS resource bounds and epoch
+PASS ticket and queue payload limits
+PASS concurrent Learner lifecycles
+PASS numeric rejection without partial updates
+PASS out-of-order lifecycle retirement
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"core_correctness" end time: Nov 01 09:23 UTC
+"core_correctness" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/50 Testing: cost_and_migration_policies
+33/50 Test: cost_and_migration_policies
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_planner_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"cost_and_migration_policies" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS cost model, hysteresis, reuse admission and migration budgets
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"cost_and_migration_policies" end time: Nov 01 09:23 UTC
+"cost_and_migration_policies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/50 Testing: cache_ownership_and_updates
+34/50 Test: cache_ownership_and_updates
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"cache_ownership_and_updates" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS host-reference cache lifecycle, mixed updates, row pins, generations and drain/restore
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"cache_ownership_and_updates" end time: Nov 01 09:23 UTC
+"cache_ownership_and_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/50 Testing: automatic_cache_policy_lifecycle
+35/50 Test: automatic_cache_policy_lifecycle
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cache_policy_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"automatic_cache_policy_lifecycle" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS automatic cache hot-set replacement, pins, budgets, bounded history, retries, fallback and optimizer restore
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_policy_lifecycle" end time: Nov 01 09:23 UTC
+"automatic_cache_policy_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/50 Testing: agent_control_replay
+36/50 Test: agent_control_replay
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_agent_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"agent_control_replay" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS agent control replay, retired command rejection and acknowledged eviction
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"agent_control_replay" end time: Nov 01 09:23 UTC
+"agent_control_replay" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/50 Testing: embedding_adapter_lifecycle
+37/50 Test: embedding_adapter_lifecycle
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_adapter_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"embedding_adapter_lifecycle" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS embedding adapter padding, mean/sequence gradients, completion and replay
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"embedding_adapter_lifecycle" end time: Nov 01 09:23 UTC
+"embedding_adapter_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/50 Testing: service_phase_timing
+38/50 Test: service_phase_timing
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_phase_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"service_phase_timing" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS sequencer phase times: CPU/mixed ownership, migration, maintenance and duplicate exclusion
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"service_phase_timing" end time: Nov 01 09:23 UTC
+"service_phase_timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/50 Testing: bounded_asynchronous_preparation
+39/50 Test: bounded_asynchronous_preparation
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_preparation_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"bounded_asynchronous_preparation" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS bounded preparation: FIFO/cancellation, RPC overlap, update-read boundary, three-shard optimizer replay, save and ticket cleanup
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_asynchronous_preparation" end time: Nov 01 09:23 UTC
+"bounded_asynchronous_preparation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/50 Testing: periodic_checkpoint_lifecycle
+40/50 Test: periodic_checkpoint_lifecycle
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_periodic_checkpoint_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"periodic_checkpoint_lifecycle" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS repeated checkpoints, chunked export, monotonic identities, exact restore trajectory and partial-save fencing
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"periodic_checkpoint_lifecycle" end time: Nov 01 09:23 UTC
+"periodic_checkpoint_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/50 Testing: restored_snapshot_provenance
+41/50 Test: restored_snapshot_provenance
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_restore_provenance_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"restored_snapshot_provenance" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS validated restore provenance, pristine admission boundary and failed-load publication
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"restored_snapshot_provenance" end time: Nov 01 09:23 UTC
+"restored_snapshot_provenance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+42/50 Testing: bounded_sparse_optimizer
+42/50 Test: bounded_sparse_optimizer
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_weight_bounds_tests" "/home/ubuntu/dps-native-tensorflow/source/tests/fixtures/snapshot-v1-unbounded.bin"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"bounded_sparse_optimizer" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS bounded initialization, Adam moments, mixed-owner updates and snapshot metadata
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_sparse_optimizer" end time: Nov 01 09:23 UTC
+"bounded_sparse_optimizer" time elapsed: 00:00:00
+----------------------------------------------------------
+
+43/50 Testing: resumable_actor_dependencies
+43/50 Test: resumable_actor_dependencies
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_resumable_actor_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"resumable_actor_dependencies" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS resumable actor: independent progress, FIFO conflicts, barriers, bounded admission, nested continuations and drain
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_actor_dependencies" end time: Nov 01 09:23 UTC
+"resumable_actor_dependencies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+44/50 Testing: resumable_shard_operations
+44/50 Test: resumable_shard_operations
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"resumable_shard_operations" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_shard_operations" end time: Nov 01 09:23 UTC
+"resumable_shard_operations" time elapsed: 00:00:00
+----------------------------------------------------------
+
+45/50 Testing: concurrent_multi_agent_updates
+45/50 Test: concurrent_multi_agent_updates
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_multi_agent_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"concurrent_multi_agent_updates" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS concurrent independent owners and sequential per-agent multi-table contexts
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"concurrent_multi_agent_updates" end time: Nov 01 09:23 UTC
+"concurrent_multi_agent_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+46/50 Testing: coalesced_cross_shard_gathers
+46/50 Test: coalesced_cross_shard_gathers
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_coalesced_gather_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"coalesced_cross_shard_gathers" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS coalesced two-shard/three-agent gathers, mixed routes, parallel dispatch, optimizer trajectory and failure cleanup
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"coalesced_cross_shard_gathers" end time: Nov 01 09:23 UTC
+"coalesced_cross_shard_gathers" time elapsed: 00:00:00
+----------------------------------------------------------
+
+47/50 Testing: compact_feature_gradient_semantics
+47/50 Test: compact_feature_gradient_semantics
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_compact_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"compact_feature_gradient_semantics" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS compact gradient ordering, pooling, sequence, payload reduction and validation
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"compact_feature_gradient_semantics" end time: Nov 01 09:23 UTC
+"compact_feature_gradient_semantics" time elapsed: 00:00:00
+----------------------------------------------------------
+
+48/50 Testing: resumable_cuda_shard_operations
+48/50 Test: resumable_cuda_shard_operations
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"resumable_cuda_shard_operations" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   4.29 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_cuda_shard_operations" end time: Nov 01 09:23 UTC
+"resumable_cuda_shard_operations" time elapsed: 00:00:04
+----------------------------------------------------------
+
+49/50 Testing: cuda_state_and_device_results
+49/50 Test: cuda_state_and_device_results
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cuda_tests"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"cuda_state_and_device_results" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
+<end of output>
+Test time =   4.25 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_state_and_device_results" end time: Nov 01 09:23 UTC
+"cuda_state_and_device_results" time elapsed: 00:00:04
+----------------------------------------------------------
+
+50/50 Testing: cuda_concurrent_checked_reads
+50/50 Test: cuda_concurrent_checked_reads
+Command: "/home/ubuntu/dps-native-tensorflow/build-cuda/eps_cuda_stress"
+Directory: /home/ubuntu/dps-native-tensorflow/build-cuda
+"cuda_concurrent_checked_reads" start time: Nov 01 09:23 UTC
+Output:
+----------------------------------------------------------
+{"test":"cuda_checked_read_stress","rows":262144,"dimension":128,"workers":8,"checked_batches":512,"key_occurrences":2097152,"weight_working_set_bytes":134217728,"maximum_absolute_error":0,"device_memory_growth_bytes":267386880,"backend_state_bytes":402653184,"backend_staging_bytes":50331652,"read_phase_output_allocations":0,"wall_seconds_including_reference_checks":0.607252}
+<end of output>
+Test time =   5.43 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_concurrent_checked_reads" end time: Nov 01 09:24 UTC
+"cuda_concurrent_checked_reads" time elapsed: 00:00:05
+----------------------------------------------------------
+
+End testing: Nov 01 09:24 UTC

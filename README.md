@@ -19,9 +19,12 @@ normalization and padded sequences. It retains the existing Pull/Push/Join
 handles; the standalone Agent uses the same worker ownership and admission path.
 
 A Pull/Push/Join adapter connects embedding operations to an existing training
-framework. The supplied TensorFlow bridge uses stateful host callbacks and an
-isolated native RPC client. Dataset readers, model computation and dense gradient
-synchronization remain the training framework's responsibility.
+framework. [Native TensorFlow CPU/CUDA operations](docs/NATIVE_TENSORFLOW.md)
+return complete feature tensors directly to the model and submit its automatic
+gradients to the service. A versioned C interface isolates private transport
+dependencies from TensorFlow's ABI. A portable callback bridge is also available.
+Dataset readers, model computation and dense gradient synchronization remain the
+training framework's responsibility.
 
 [Named Entropy table and Runner hooks](docs/ENTROPY_TABLE_HOOKS.md) install that
 boundary before the existing job entry point builds its graph. Source-level
@@ -55,8 +58,13 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 **Validation:** the queued CUDA path retains **23 completed trials / 12,950
 acknowledged updates / 736 sampled row-counter checks**, with zero update errors,
 zero admission rejections and zero remaining tickets in completed records.
-Maximum preflight feature error is **3.91e-8**. The latest native/TensorFlow suite
-passes **42/42**; the native CPU/CUDA suite passes **33/33**. Device Pull follows
+Maximum preflight feature error is **3.91e-8**. The latest Ubuntu native,
+TensorFlow and CUDA suite executes **47 passing checks**, with three private
+original-source checks skipped. Local native/C-ABI and portable TensorFlow suites
+pass **30/30** and **42/42**. Native TensorFlow model trajectories with **1/2/4
+physical GPU parameter owners** match the CPU replay's complete sparse optimizer
+state. [Native integration checks](docs/NATIVE_TENSORFLOW.md#executed-verification).
+Device Pull follows
 five training steps across two shards and mixed native/remote cache paths,
 comparing complete features and all touched optimizer rows with CPU replay.
 The core ASan/UBSan suite passes **18/18**.
@@ -92,9 +100,9 @@ sequenceDiagram
 flowchart LR
     subgraph Framework[Training framework]
         G[Model forward / backward] <--> A[Pull / Push / Join adapter]
-        A <--> H[TensorFlow host bridge]
+        A <--> H[Native TensorFlow CPU / GPU operations]
     end
-    H <-->|Local process boundary| C[Native distributed client]
+    H <-->|Versioned C interface| C[Native distributed client]
     C <-->|Batched IDs and gradients| S[Parameter shards]
     C <-->|Resident feature gather| W[CUDA cache agents]
     S <-->|Updates and full-state migration| W
