@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 import uuid
+import urllib.request
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "tests"))
 from rpc_processes import ready, stop
@@ -54,12 +55,19 @@ def run_topology(args, count, root):
             agent_endpoints.append(ready(process, timeout=30))
         if args.external_agents:
             agent_endpoints=args.external_agents[:count]
+        policy = {} if args.cache_admission == "manual" else dict(
+            admission=args.cache_admission, decision_window_requests=16,
+            max_tracked_rows=32768, minimum_accesses=2, minimum_residence_windows=2,
+            max_rows_per_batch=256, network_bytes_per_window=2<<20,
+            staging_bytes_limit=2<<20, max_inflight_batches=8, reserve_slots=32,
+            saved_microseconds_per_access=0.0, load_microseconds_per_byte=0.001,
+            writeback_microseconds_per_byte=0.001, learn_migration_costs=True)
         for shard in range(args.ps_shards):
             config = output / f"ps-{shard}.json"
             config.write_text(json.dumps(dict(schema_version=1, run_id=run, listen="127.0.0.1:0",
                 partition=dict(shard_id=shard, shard_count=args.ps_shards, epoch=1), tables=[],
                 cache=dict(enabled=True,concurrent_agent_updates=not args.serial_agent_updates,
-                           compact_gradients=not args.expanded_gradients),
+                           compact_gradients=not args.expanded_gradients, **policy),
                 agents=[dict(id=i, endpoint=e) for i,e in enumerate(agent_endpoints)],
                 access=dict(policy="cpu_only"),
                 limits=dict(cpu_state_bytes=8<<30, max_live_tickets=1024,
@@ -89,6 +97,18 @@ def run_topology(args, count, root):
             code = probe.wait(timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
             if code:
                 raise subprocess.CalledProcessError(code, command)
+        if args.cache_admission != "manual":
+            stats=[]
+            for endpoint in endpoints:
+                request=urllib.request.Request("http://"+endpoint+"/eps.v1.EmbeddingService/Stats",
+                    data=b"{}",headers={"Content-Type":"application/json"})
+                with urllib.request.urlopen(request,timeout=10) as response:
+                    result=json.load(response)
+                if int(result.get("live_tickets",0)) or int(result.get("policy_windows",0))==0:
+                    raise RuntimeError("automatic policy was inactive or retained a training ticket")
+                stats.append(result)
+            (output/"post-run-policy.json").write_text(json.dumps(dict(
+                admission=args.cache_admission,scope="whole probe including setup and warmup",shards=stats),indent=2)+"\n")
         return [json.loads(line) for line in (output / "raw.jsonl").read_text().splitlines()]
     except Exception:
         for path in output.glob("*.log"):
@@ -121,6 +141,7 @@ def main():
     parser.add_argument("--seconds", type=float, default=2)
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--host-reference", action="store_true")
+    parser.add_argument("--cache-admission",choices=("manual","frequency","reuse_cost"),default="manual")
     parser.add_argument("--serial-agent-updates", action="store_true",
                         help="Ablation: wait for each GPU owner's update before sending the next")
     parser.add_argument("--expanded-gradients", action="store_true",

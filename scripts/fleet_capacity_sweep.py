@@ -88,6 +88,7 @@ def main():
     p.add_argument("--coalesce-gathers", choices=("0", "1"), default=None,
                    help="Set EPS_COALESCE_GATHERS for a probe that supports selectable gather policies")
     p.add_argument("--gpu-counts", default="1,2,3")
+    p.add_argument("--cache-admission",choices=("manual","frequency","reuse_cost"),default="manual")
     p.add_argument("--ps-shards", type=int, default=2)
     p.add_argument("--rows", type=int, default=262144)
     p.add_argument("--dimension", type=int, default=128)
@@ -124,7 +125,7 @@ def main():
                 "--external-agents",",".join("127.0.0.1:"+str(w["forward_port"]) for w in workers),
                 "--external-hardware",str(root/"results"/(run+"-hardware.csv")),"--run-id",run,
                 "--devices",",".join(map(str,range(count))),"--gpu-counts",str(count),
-                "--ps-shards",str(a.ps_shards),"--rows",str(a.rows),"--dimension",str(a.dimension),
+                "--cache-admission",a.cache_admission,"--ps-shards",str(a.ps_shards),"--rows",str(a.rows),"--dimension",str(a.dimension),
                 "--keys",str(a.keys),"--bag",str(a.bag),"--learners",a.learners,
                 "--seconds",str(a.seconds),"--repeats",str(a.repeats)]
             if a.serial_agent_updates:
