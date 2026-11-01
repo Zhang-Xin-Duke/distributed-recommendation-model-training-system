@@ -15,10 +15,11 @@ workers. Reuse the same compiled server, Agent and probe across the fleet.
 4. Confirm the highest useful completed point with three 20-second windows.
    Compare throughput, P99, queue wait, Agent RPC admission, CPU and GPU samples.
    Report a latency operating region separately from the maximum accepted load.
-   Extend the probe ceiling to 2,048 and scan 1,024/2,048 on a separately named
-   probe build if the 512-Learner scan completes. Keep the server/Agent binaries
-   fixed and label probe provenance independently. Load-generator startup failure
-   remains distinct from a service rejection.
+   The service accepts Learner IDs 0–1023. Reserve IDs 1023/1022 for setup and
+   health, then scan 768/1022 training Learners on a separately named probe if
+   the 512-Learner scan completes. Keep server/Agent binaries fixed and label
+   probe provenance independently. Protocol and generator limits remain distinct
+   from service throughput and admission failures.
 5. Retrieve and hash raw logs before deleting the owned rentals. Keep the fleet
    under the standing USD20 project budget; never purchase credits. Report source
    revisions and transport limits with the results.

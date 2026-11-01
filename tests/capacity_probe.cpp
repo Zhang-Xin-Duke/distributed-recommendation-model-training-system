@@ -79,7 +79,7 @@ int main(int argc,char** argv){
       FeatureInput f{1,0,Pooling::sequence,{},{0},{}};
       for(auto key=begin;key<std::min(rows,begin+1024);++key)f.keys.push_back(key+1);
       f.offsets.push_back(f.keys.size());f.valid_lengths.push_back(f.keys.size());
-      auto batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,true,{std::move(f)}}));Take(setup.Release(batch));
+      auto batch=Take(setup.Lookup({{run,1023,sequence++,Phase::lookup},1,true,{std::move(f)}}));Take(setup.Release(batch));
     }
     const auto cached=rows/2;
     // Capture independent CPU-owned weights before migration. The later read
@@ -107,7 +107,7 @@ int main(int argc,char** argv){
       {1,701,Pooling::mean,check_keys,{0,32,32,128},{32,0,96}},
       {1,702,Pooling::sequence,check_keys,{0,0,64,128},{0,64,64}},
       {1,703,Pooling::sum,check_keys,{0,64,128},{64,64}}};
-    auto checked_batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,true,check_features}));
+    auto checked_batch=Take(setup.Lookup({{run,1023,sequence++,Phase::lookup},1,true,check_features}));
     std::uint64_t preflight_values=0;double preflight_error=0;
     for(std::size_t fi=0;fi<check_features.size();++fi) {
       const auto& input=check_features[fi];const auto& output=checked_batch.features().at(fi);
@@ -129,14 +129,15 @@ int main(int argc,char** argv){
     }
     Take(setup.Release(checked_batch));
     std::vector<std::atomic<std::uint64_t>> expected(rows+1);
-    constexpr int max_learners=2048;
+    // IDs 1023 and 1022 are reserved for setup and post-failure health.
+    constexpr int max_learners=1022;
     std::vector<std::uint64_t> next_sequences(max_learners,0);
     for(int warm=0;warm<3;++warm){
       FeatureInput f{1,0,Pooling::mean,{},{0},{}};
       for(std::uint32_t i=0;i<keys;++i){f.keys.push_back(1+i%rows);
         if((i+1)%bag==0){f.offsets.push_back(i+1);f.valid_lengths.push_back(bag);}}
       std::set<Key> unique(f.keys.begin(),f.keys.end());
-      auto batch=Take(setup.Lookup({{run,999,sequence++,Phase::lookup},1,false,{std::move(f)}}));
+      auto batch=Take(setup.Lookup({{run,1023,sequence++,Phase::lookup},1,false,{std::move(f)}}));
       auto gradients=batch.features();for(auto& g:gradients)std::fill(g.values.begin(),g.values.end(),0.01f);
       Take(setup.Push(batch,std::move(gradients)));for(auto key:unique)++expected[key];
     }
@@ -218,7 +219,7 @@ int main(int argc,char** argv){
           FeatureInput f{1,991,Pooling::sum,{},{0},{}};
           for(Key key=1;key<=16;++key)f.keys.push_back(key);
           f.offsets.push_back(f.keys.size());f.valid_lengths.push_back(f.keys.size());
-          auto batch=Take(health.Lookup({{run,1001,0,Phase::lookup},1,true,{std::move(f)}}));
+          auto batch=Take(health.Lookup({{run,1022,0,Phase::lookup},1,true,{std::move(f)}}));
           bool finite=true;
           for(const auto& output:batch.features())for(auto value:output.values)finite&=std::isfinite(value);
           Take(health.Release(batch));
