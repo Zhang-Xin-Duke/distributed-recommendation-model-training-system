@@ -9,6 +9,7 @@ struct CudaCacheOptions {
   std::uint64_t rows_per_table=4096;
   std::uint64_t transfer_bytes=16ULL<<20;
   std::uint64_t outstanding_output_bytes=64ULL<<20;
+  std::uint32_t output_alignment=4;
 };
 struct CudaMemoryStats {
   std::uint64_t resident_state_bytes;

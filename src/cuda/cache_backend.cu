@@ -207,7 +207,9 @@ struct CudaCacheBackend::Impl {
   explicit Impl(CudaCacheOptions o)
       : options(o), stream(o.device), done(o.device),
         output_budget(std::make_shared<OutputBudget>()) {
-    detail::Require(o.rows_per_table > 0 && o.rows_per_table <= (1ULL << 24) &&
+    detail::Require(o.output_alignment>=4 && o.output_alignment<=256 &&
+                    (o.output_alignment&(o.output_alignment-1))==0 &&
+                    o.rows_per_table > 0 && o.rows_per_table <= (1ULL << 24) &&
                     o.transfer_bytes >= 1024 && o.transfer_bytes <= (64ULL << 20),
                     "invalid CUDA cache limits");
     output_budget->limit = o.outstanding_output_bytes;
@@ -621,6 +623,8 @@ std::future<Result<std::vector<DeviceTensorBlock>>> CudaCacheBackend::AssembleFe
         impl_->Limit(p->positions.size()*8);
       }
       const auto output_rows=p?p->rows:rows;
+      const auto alignment=impl_->options.output_alignment/4;
+      total=(total+alignment-1)/alignment*alignment;
       detail::Require(output_rows<=impl_->options.transfer_bytes/(4*host.shape[1]),"device assembly output exceeds limit",Error::Code::capacity_exceeded);
       impl_->Limit((total+output_rows*host.shape[1])*4);
       targets.push_back({total,output_rows,rows,static_cast<std::uint32_t>(host.shape[1]),p});total+=output_rows*host.shape[1];

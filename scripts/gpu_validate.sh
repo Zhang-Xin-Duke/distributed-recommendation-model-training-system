@@ -20,6 +20,11 @@ sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
 python3 -m venv "${dps_work}/environment"
 "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
   'cmake==3.31.6' ninja 'cuda-toolkit[nvcc,cudart,crt,nvvm,cccl]==13.0.3'
+dps_native_tf="${DPS_NATIVE_TF:-OFF}"
+if [[ "${dps_native_tf}" == "ON" ]]; then
+  "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
+    pybind11 'tensorflow[and-cuda]==2.20.0'
+fi
 dps_python="${dps_work}/environment/bin/python"
 dps_cmake="${dps_work}/environment/bin/cmake"
 dps_nvcc="$(find "${dps_work}/environment" -type f -name nvcc -print -quit)"
@@ -67,6 +72,7 @@ export LD_LIBRARY_PATH="${dps_prefix}/lib:${dps_prefix}/lib64:${dps_cuda}/lib:${
   -DCMAKE_CUDA_COMPILER="${dps_nvcc}" -DCUDAToolkit_ROOT="${dps_cuda}" \
   -DCMAKE_CUDA_ARCHITECTURES="${DPS_CUDA_ARCHITECTURE:-89}" \
   -DEPS_BUILD_BRPC=ON -DEPS_BUILD_CUDA=ON -DEPS_BUILD_TESTS=ON -DEPS_SANITIZERS=OFF \
+  -DEPS_BUILD_RUNTIME="${dps_native_tf}" -DEPS_BUILD_PYTHON="${dps_native_tf}" \
   -DPython3_EXECUTABLE="${dps_python}"
 "${dps_cmake}" --build "${dps_work}/build-cuda" -j 6
 "${dps_work}/environment/bin/ctest" --test-dir "${dps_work}/build-cuda" --output-on-failure
