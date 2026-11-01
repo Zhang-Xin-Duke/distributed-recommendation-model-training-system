@@ -1,0 +1,57 @@
+{
+  "source_commit": "426c27b32233e8bcc4894e9947f6d9296cd24405",
+  "orchestration_commit": "01ed75d",
+  "candidate_verified_trials": 23,
+  "candidate_completed_updates": 12950,
+  "candidate_counter_checks": 736,
+  "candidate_max_preflight_absolute_error": 3.91155481338501e-08,
+  "candidate_peak_active": 32,
+  "candidate_peak_pending": 195,
+  "candidate_peak_request_bytes": 6367286,
+  "local_checks": {
+    "native": 26,
+    "tensorflow": 40,
+    "asan_component": 1,
+    "tsan_component": 1
+  },
+  "native_cuda_build_checks": 28,
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793517357.156938
+  },
+  "estimated_base_cost_usd_with_minute_rounding": 0.342,
+  "baseline_failed_load_points": 1,
+  "baseline_source_commit": "b7b87cf962c7e7f3a7a5127727e28c0ddd992bee",
+  "runtime_hardware": [
+    "GPU-e67655b6-8c78-52d5-9189-5ddc748fa78e, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "GPU-3e5c8cc9-143f-5aa2-9150-30ba407c5b3c, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "GPU-30306558-116e-5d53-a5f6-22081734b7a7, NVIDIA L40, 8.9, 610.43.02, 46068 MiB",
+    "GPU-057d0bd3-38a1-5fed-852a-3333876e526e, NVIDIA L40, 8.9, 610.43.02, 46068 MiB"
+  ],
+  "deployment_attempts_summary": "../benchmarks/2026-11-01-agent-admission/deployment-incidents.json",
+  "estimated_total_base_cost_usd_including_deployment_attempts": 0.7187,
+  "total_owned_rentals_deleted": 12,
+  "rpc_optimizer_state_case": {
+    "test": "agent_rpc_admission_optimizer_state",
+    "home_streams": 8,
+    "updates": 256,
+    "host_updates": 128,
+    "compact_updates": 128,
+    "full_rows_checked": 8,
+    "optimizer_state_exact": true,
+    "evicted_rows": 8
+  },
+  "rpc_test_source_sha256": "a11377142b3976141dd2ee4a70bb7bc0e5d7473053d3ec046642a6f8f3b4d251",
+  "local_http_statistics_regression": true,
+  "local_test_source_sha256": {
+    "tests/agent_rpc_admission_tests.cpp": "a11377142b3976141dd2ee4a70bb7bc0e5d7473053d3ec046642a6f8f3b4d251",
+    "tests/agent_admission_cli.py": "c948b5241027533f62ae64cab450747e6cd4ea063aade36e4f744a1858925cf1",
+    "tests/agent_admission_tests.cpp": "2a03bab60f9584ba231c698607152ca7523ad3a426bb61a3db3a9120b580992f"
+  },
+  "local_followup_runtime_change": {
+    "path": "src/transport/brpc_agent_server.cpp",
+    "sha256": "f29b77bd985c95cf40e0a641369ff104cccbb61d76a80d39e62d0911532b43ff",
+    "change": "Accept bounded retained JSON body in HTTP statistics requests; data/control admission code unchanged"
+  }
+}

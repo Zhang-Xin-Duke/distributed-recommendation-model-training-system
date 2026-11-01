@@ -1,0 +1,12 @@
+{
+  "test": "agent_admission_cli",
+  "active_limit": 2,
+  "pending_limit": 64,
+  "request_bytes_limit": 65536,
+  "http_statistics_verified": true,
+  "oversized_statistics_payload_rejected": true,
+  "invalid_active_limits_rejected": [
+    0,
+    129
+  ]
+}

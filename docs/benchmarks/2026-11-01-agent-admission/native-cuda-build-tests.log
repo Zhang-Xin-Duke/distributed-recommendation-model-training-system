@@ -1,0 +1,63 @@
+Internal ctest changing into directory: /home/ubuntu/dps-agent-admission-gpu/build-cuda
+Test project /home/ubuntu/dps-agent-admission-gpu/build-cuda
+      Start  1: agent_rpc_admission_queue
+ 1/28 Test  #1: agent_rpc_admission_queue ...................   Passed    0.06 sec
+      Start  2: automatic_cache_external_shards
+ 2/28 Test  #2: automatic_cache_external_shards .............   Passed    0.61 sec
+      Start  3: cache_policy_fixed_trace_smoke
+ 3/28 Test  #3: cache_policy_fixed_trace_smoke ..............   Passed    4.00 sec
+      Start  4: automatic_cache_coalesced_external_shards
+ 4/28 Test  #4: automatic_cache_coalesced_external_shards ...   Passed    0.61 sec
+      Start  5: rpc_cache_backpressure
+ 5/28 Test  #5: rpc_cache_backpressure ......................   Passed    1.15 sec
+      Start  6: capacity_failed_point_diagnostics
+ 6/28 Test  #6: capacity_failed_point_diagnostics ...........   Passed    1.22 sec
+      Start  7: two_process_rpc_and_restore
+ 7/28 Test  #7: two_process_rpc_and_restore .................   Passed    0.45 sec
+      Start  8: cache_agent_process_lifecycle
+ 8/28 Test  #8: cache_agent_process_lifecycle ...............   Passed    3.06 sec
+      Start  9: agent_admission_lifecycle
+ 9/28 Test  #9: agent_admission_lifecycle ...................   Passed    0.05 sec
+      Start 10: core_correctness
+10/28 Test #10: core_correctness ............................   Passed    0.04 sec
+      Start 11: cost_and_migration_policies
+11/28 Test #11: cost_and_migration_policies .................   Passed    0.01 sec
+      Start 12: cache_ownership_and_updates
+12/28 Test #12: cache_ownership_and_updates .................   Passed    0.03 sec
+      Start 13: automatic_cache_policy_lifecycle
+13/28 Test #13: automatic_cache_policy_lifecycle ............   Passed    0.04 sec
+      Start 14: agent_control_replay
+14/28 Test #14: agent_control_replay ........................   Passed    0.02 sec
+      Start 15: embedding_adapter_lifecycle
+15/28 Test #15: embedding_adapter_lifecycle .................   Passed    0.02 sec
+      Start 16: service_phase_timing
+16/28 Test #16: service_phase_timing ........................   Passed    0.01 sec
+      Start 17: bounded_asynchronous_preparation
+17/28 Test #17: bounded_asynchronous_preparation ............   Passed    0.03 sec
+      Start 18: periodic_checkpoint_lifecycle
+18/28 Test #18: periodic_checkpoint_lifecycle ...............   Passed    0.04 sec
+      Start 19: restored_snapshot_provenance
+19/28 Test #19: restored_snapshot_provenance ................   Passed    0.02 sec
+      Start 20: bounded_sparse_optimizer
+20/28 Test #20: bounded_sparse_optimizer ....................   Passed    0.03 sec
+      Start 21: resumable_actor_dependencies
+21/28 Test #21: resumable_actor_dependencies ................   Passed    0.17 sec
+      Start 22: resumable_shard_operations
+22/28 Test #22: resumable_shard_operations ..................   Passed    0.12 sec
+      Start 23: concurrent_multi_agent_updates
+23/28 Test #23: concurrent_multi_agent_updates ..............   Passed    0.01 sec
+      Start 24: coalesced_cross_shard_gathers
+24/28 Test #24: coalesced_cross_shard_gathers ...............   Passed    0.04 sec
+      Start 25: compact_feature_gradient_semantics
+25/28 Test #25: compact_feature_gradient_semantics ..........   Passed    0.02 sec
+      Start 26: resumable_cuda_shard_operations
+26/28 Test #26: resumable_cuda_shard_operations .............   Passed    4.17 sec
+      Start 27: cuda_state_and_device_results
+27/28 Test #27: cuda_state_and_device_results ...............   Passed    4.35 sec
+      Start 28: cuda_concurrent_checked_reads
+28/28 Test #28: cuda_concurrent_checked_reads ...............   Passed    5.69 sec
+
+100% tests passed, 0 tests failed out of 28
+
+Total Test time (real) =  26.08 sec
+Sun Nov  1 06:57:48 UTC 2026

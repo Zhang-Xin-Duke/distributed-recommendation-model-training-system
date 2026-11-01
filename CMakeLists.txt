@@ -120,6 +120,10 @@ if(EPS_BUILD_BRPC)
     target_include_directories(eps_agent_rpc_admission_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     add_test(NAME agent_rpc_admission_queue COMMAND eps_agent_rpc_admission_tests)
     set_tests_properties(agent_rpc_admission_queue PROPERTIES TIMEOUT 60)
+    add_test(NAME agent_admission_cli
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/agent_admission_cli.py"
+        $<TARGET_FILE:eps_cache_agent>)
+    set_tests_properties(agent_admission_cli PROPERTIES TIMEOUT 30)
     add_executable(eps_rpc_checks tests/rpc_checks.cpp)
     target_link_libraries(eps_rpc_checks PRIVATE eps_brpc)
     target_include_directories(eps_rpc_checks PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

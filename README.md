@@ -22,39 +22,39 @@ boundary before the existing job entry point builds its graph. Source-level
 Session checks execute the original methods against independent parameter shards,
 including a mid-run original-controller checkpoint.
 
-![Multi-GPU throughput, tail latency and queue wait](docs/assets/multigpu-boundaries.svg)
+![Bounded Agent admission throughput and tail latency](docs/assets/agent-admission.svg)
 
-**Measured operating points:** one, two and four RTX A6000 agents sustain
-**120.19 / 133.44 / 120.40 acknowledged sparse updates/s** at their selected
-4/16/8-Learner loads. Median trial P99 is **45.67 / 165.22 / 108.41 ms** across
-three 20-second windows. The fixed-workload curves show a throughput plateau and
-increasing tail latency as concurrency grows.
+**Bounded admission on CUDA:** an Agent-wide queue limits dispatched, unfinished
+RPCs to 32 and retains waiting work within count/byte budgets. On the same
+four-GPU fleet, the previous transport limit rejects 128 concurrent Learners;
+the queued path completes 128/192-Learner runs on one, two and four agents.
+The four-agent, 192-Learner sustained test completes three 20-second windows at
+**59.17 acknowledged updates/s**, with **4.95 s median trial P99** and no remaining
+training tickets. This fleet uses **2 RTX A6000 + 2 L40**.
+[Admission design](docs/AGENT_ADMISSION.md) · [Measurements and raw evidence](docs/AGENT_ADMISSION_RESULTS.md).
 
-**Overload and scale:** the study reaches 192 concurrent Learners and a
-million-row, 512-dimensional table with **6 GiB of logical parameter/Adam state**.
-RPC admission failures appear at 128–192 Learners. Failure diagnostics distinguish
-responsive statistics from usable parameter reads and retain outstanding-ticket
-counts. [Operating envelope, scaled workloads and recovery observations](docs/MULTIGPU_BOUNDARIES.md).
+The workload matrix covers a million-row, 512-dimensional table with **6 GiB of
+logical parameter/Adam state**. Earlier all-A6000 operating points and their
+communication/scheduling controls remain in the [capacity report](docs/MULTIGPU_BOUNDARIES.md).
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam with optional weight clipping, CUDA-resident weights and optimizer states, CPU/GPU migration,
-generation fencing, bounded lookup tickets, and durable snapshots with optimizer
+generation fencing, bounded lookup tickets, Agent-wide RPC admission, and durable snapshots with optimizer
 restore. Pooled gradients travel as feature vectors plus ordered ID references;
 CUDA expands and reduces them at their parameter owner. Independent GPU owners
 execute updates concurrently. CPU pooling and unique-vector transfer are executable access paths;
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** two fleets retain **89 completed capacity trials / 67,425
-acknowledged updates / 2,848 sampled row-counter checks**, plus eight separately
-recorded failed load points. Completed trials pass numerical preflight,
-finite-parameter, update-counter and ticket-cleanup checks; maximum preflight
-feature error is **3.91e-8**. Each fleet passes the **26/26 native CPU/CUDA suite**,
-and each worker separately passes its CUDA state/device-result check. Artifacts
-are retrieved and hash-verified before rental deletion. [Combined study index](docs/validation/2026-11-01-multigpu-study.json).
-The [validation record](docs/VALIDATION.md) also documents checkpoint continuation,
-TensorFlow integration, optimizer-state comparisons, sanitizers and fencing at
-their recorded source revisions.
+**Validation:** the queued CUDA path retains **23 completed trials / 12,950
+acknowledged updates / 736 sampled row-counter checks**, with zero update errors,
+zero admission rejections and zero remaining tickets in completed records.
+Maximum preflight feature error is **3.91e-8**. The native/TensorFlow suite passes
+**40/40**; the deployed CUDA binary build passes **28/28** and each final worker
+separately passes its CUDA check. The admission component passes ASan/UBSan and
+ThreadSanitizer checks. [Validation index](docs/validation/2026-11-01-agent-admission.json).
+The [validation record](docs/VALIDATION.md) retains the scope and provenance of
+checkpoint continuation, optimizer-state comparisons, migration and fencing.
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
 [Implementation progress](docs/plans/2026-10-31-implementation.md)

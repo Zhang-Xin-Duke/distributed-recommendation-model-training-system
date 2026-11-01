@@ -158,7 +158,7 @@ for endpoint in endpoints:
   except Exception as error:record['error']=str(error)
   time.sleep(.1)
  health.append(record)
-(output.parent/'transport-health.json').write_text(json.dumps(health,indent=2))
+(output.parent/(output.name+'-transport-health.json')).write_text(json.dumps(health,indent=2))
 if not all(x['ready'] for x in health):raise RuntimeError('Agent transport preflight failed before capacity workload')
 pathlib.Path(command[command.index('--external-hardware')+1]).write_text(hardware)
 environment=None if coalesce is None else dict(os.environ,EPS_COALESCE_GATHERS=coalesce)

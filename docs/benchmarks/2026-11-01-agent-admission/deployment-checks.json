@@ -1,0 +1,56 @@
+[
+  {
+    "experiment": "baseline-g4",
+    "source_commit": "b7b87cf962c7e7f3a7a5127727e28c0ddd992bee",
+    "agent_sha256": "5dc22602c87b1e3a410381444f6cd7bf6edfa51c6ff4fda5537a0eb0cd3fb5c6",
+    "verified_workers": 4,
+    "retained_health_snapshot": "baseline-transport-health.json",
+    "retained_health_scope": "last topology in this experiment",
+    "retained_health_endpoint_count": 4
+  },
+  {
+    "experiment": "bounded-g1",
+    "source_commit": "426c27b32233e8bcc4894e9947f6d9296cd24405",
+    "agent_sha256": "a36f835f7df5604cd127120c0ed44c1971663045b4d5dff8c52fd9562e968682",
+    "verified_workers": 1,
+    "retained_health_snapshot": "bounded-transport-health.json",
+    "retained_health_scope": "last topology in this experiment",
+    "retained_health_endpoint_count": 4
+  },
+  {
+    "experiment": "bounded-g2",
+    "source_commit": "426c27b32233e8bcc4894e9947f6d9296cd24405",
+    "agent_sha256": "a36f835f7df5604cd127120c0ed44c1971663045b4d5dff8c52fd9562e968682",
+    "verified_workers": 2,
+    "retained_health_snapshot": "bounded-transport-health.json",
+    "retained_health_scope": "last topology in this experiment",
+    "retained_health_endpoint_count": 4
+  },
+  {
+    "experiment": "bounded-g4",
+    "source_commit": "426c27b32233e8bcc4894e9947f6d9296cd24405",
+    "agent_sha256": "a36f835f7df5604cd127120c0ed44c1971663045b4d5dff8c52fd9562e968682",
+    "verified_workers": 4,
+    "retained_health_snapshot": "bounded-transport-health.json",
+    "retained_health_scope": "last topology in this experiment",
+    "retained_health_endpoint_count": 4
+  },
+  {
+    "experiment": "sustained-g4",
+    "source_commit": "426c27b32233e8bcc4894e9947f6d9296cd24405",
+    "agent_sha256": "a36f835f7df5604cd127120c0ed44c1971663045b4d5dff8c52fd9562e968682",
+    "verified_workers": 4,
+    "retained_health_snapshot": "sustained-transport-health.json",
+    "retained_health_scope": "last topology in this experiment",
+    "retained_health_endpoint_count": 4
+  },
+  {
+    "experiment": "large-g4",
+    "source_commit": "426c27b32233e8bcc4894e9947f6d9296cd24405",
+    "agent_sha256": "a36f835f7df5604cd127120c0ed44c1971663045b4d5dff8c52fd9562e968682",
+    "verified_workers": 4,
+    "retained_health_snapshot": "large-transport-health.json",
+    "retained_health_scope": "last topology in this experiment",
+    "retained_health_endpoint_count": 4
+  }
+]

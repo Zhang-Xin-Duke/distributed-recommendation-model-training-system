@@ -19,8 +19,8 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
 | 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native original-application/reader execution, multi-peer framework barriers and device interop pending |
-| 4. GPU cache agent | CUDA resident gather/Adam, full-state loading/writeback, generation fencing and cache-draining restore verified on L40; individual A6000 checks also passed |
-| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked |
+| 4. GPU cache agent | Standalone CUDA resident gather/Adam, full-state transfer, fencing and restore verified; in-process training-worker installation and device-tensor hand-off remain pending |
+| 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked; Agent-wide count/byte admission and real 128/192-Learner CUDA backpressure now verified |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
@@ -175,3 +175,24 @@ profile rejects new admissions after a negative access-savings calibration;
 the larger profile retains its small positive calibration and actual policy
 behavior without retuning. All raw results, including nonfatal policy events,
 are published. The single A6000 instance was deleted after fetch/hash checks.
+
+
+## Agent admission — November 1
+
+A per-Agent FIFO queue bounds dispatched/unfinished RPCs, pending requests and
+retained serialized input. Its completion-owned permit prevents an RPC handler's
+return from releasing execution capacity prematurely. Queueing replaces the
+transport's 128-RPC rejection boundary; explicit application budgets remain.
+
+The latest local suites pass native 26/26 and native/TensorFlow 40/40, including
+expanded RPC mutation and CLI/HTTP checks; the admission component passes
+ASan/UBSan and ThreadSanitizer checks. The Linux/CUDA build from `426c27b`
+passes 28/28 and its identical binaries pass per-worker CUDA checks on the
+final two-A6000/two-L40 fleet. The candidate completes 23 trials, 12,950 updates
+and 736 sampled counters at 1/2/4 GPUs, including 128/192 Learners, with no update
+or admission errors in completed records. Same-fleet baseline 128-Learner
+rejection remains in the evidence. This completes the RPC admission subsystem;
+original native application execution and in-process device integration remain
+open requirements of phases 3 and 4.
+
+[Design](../AGENT_ADMISSION.md) · [CUDA evidence](../AGENT_ADMISSION_RESULTS.md)

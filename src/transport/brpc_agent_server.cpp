@@ -6,7 +6,8 @@ void BrpcAgentServer::AdmissionStats(google::protobuf::RpcController* raw,const 
   brpc::ClosureGuard complete(done);
   try{
     auto* c=static_cast<brpc::Controller*>(raw);
-    detail::Require(c->request_attachment().empty() && q->ByteSizeLong()<=1024,"unexpected Agent statistics payload");
+    // BRPC retains the JSON body in request_attachment for HTTP invocations.
+    detail::Require(c->request_attachment().size()<=1024 && q->ByteSizeLong()<=1024,"unexpected Agent statistics payload");
     auto s=admission_.Stats();
 #define EPS_STAT(field) r->set_##field(s.field);
     EPS_STAT(active_operations) EPS_STAT(queued_operations) EPS_STAT(pending_request_bytes)

@@ -1,0 +1,22 @@
+[
+  {
+    "endpoint": "127.0.0.1:19200",
+    "ready": true,
+    "status": 200
+  },
+  {
+    "endpoint": "127.0.0.1:19201",
+    "ready": true,
+    "status": 200
+  },
+  {
+    "endpoint": "127.0.0.1:19202",
+    "ready": true,
+    "status": 200
+  },
+  {
+    "endpoint": "127.0.0.1:19203",
+    "ready": true,
+    "status": 200
+  }
+]

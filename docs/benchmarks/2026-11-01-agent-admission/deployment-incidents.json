@@ -1,0 +1,75 @@
+{
+  "incidents": [
+    {
+      "deployment": "initial_deployment",
+      "classification": "forwarded SSH transport unavailable",
+      "included_in_primary_capacity_counts": false,
+      "cleanup": {
+        "owned_instances_deleted_and_verified_absent": 4,
+        "account_instance_count_after_deletion": 0,
+        "finished_epoch": 1793516445.853168
+      },
+      "archives": [
+        {
+          "worker": 0,
+          "sha256": "aad15768a2103e34ac4f315011ed3f1448b2206906aebf65fb1764bc4c2b2d42",
+          "bytes": 52050
+        },
+        {
+          "worker": 1,
+          "sha256": "9974ea840a55528e37d6cbe33457a654d4a4bcb428fd7554f7a5effc99ef42a0",
+          "bytes": 2699
+        },
+        {
+          "worker": 2,
+          "sha256": "71d5a4d06b1f26f62293254d8aaf1aa6342d43e3f7535c5a3da0cc002b8ac8c9",
+          "bytes": 2454
+        },
+        {
+          "worker": 3,
+          "sha256": "c7a2c5b65e1db05fffc2f29c03f81a457b212004d28360db24a18af471d7a61c",
+          "bytes": 2455
+        }
+      ],
+      "estimated_base_cost_usd_with_minute_rounding": 0.2847
+    },
+    {
+      "deployment": "link_preflight_deployment",
+      "classification": "forwarded SSH transport unavailable",
+      "included_in_primary_capacity_counts": false,
+      "cleanup": {
+        "owned_instances_deleted_and_verified_absent": 4,
+        "account_instance_count_after_deletion": 0,
+        "finished_epoch": 1793516751.216915
+      },
+      "archives": [
+        {
+          "worker": 0,
+          "sha256": "a8a84b7aeb683457b3df85ac397a5d236626e47fb9f9fe3f221e3b8a8566a7f1",
+          "bytes": 2742
+        },
+        {
+          "worker": 1,
+          "sha256": "850f410d185891183012279e628ed6b4b3198a58ee96e19d9c7d7d0474359f7b",
+          "bytes": 2265
+        },
+        {
+          "worker": 2,
+          "sha256": "3442865cd070ca08d9917c5e051e1e2020ffbeab9836a2c4f346d0301a6da941",
+          "bytes": 2287
+        },
+        {
+          "worker": 3,
+          "sha256": "9022358bc9685152a36db37ad0a310f2d6055adf3fb548c6ca5723161160e96b",
+          "bytes": 2249
+        }
+      ],
+      "estimated_base_cost_usd_with_minute_rounding": 0.092
+    }
+  ],
+  "total_owned_rentals_deleted_this_work": 12,
+  "final_account_instance_count": 0,
+  "estimated_base_cost_usd_including_deployment_attempts": 0.7187,
+  "cost_basis": "Observed rental intervals rounded up to instance-minutes at published base rates; estimate, not invoice",
+  "price_source": "https://www.thundercompute.com/pricing"
+}

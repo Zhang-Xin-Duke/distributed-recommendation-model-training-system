@@ -4,6 +4,7 @@
 #include <butil/endpoint.h>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -109,6 +110,51 @@ int main(){try{
     Check(end.rejected_requests==2 && end.peak_pending_operations==2 && end.peak_active_operations==1 &&
       end.peak_request_bytes<=4096 && end.pending_request_bytes==0 && h.backend->gathers==2,"rejection cleanup accounting");
     std::cout<<"{\"test\":\"agent_rpc_admission_limits\",\"count_and_byte_rejections\":2,\"rejected_before_execution\":true,\"state_unchanged\":true}\n";
+  }
+  {
+    Harness h({2,128,1<<20});BrpcCacheBackend admin(h.endpoint,"admission-test",0,0,15000);
+    TableDefinition table{1,2,8,1,{0.01f,0.9f,0.999f,1e-8f,0.9f,0.999f},0.25f,0.25f,42};
+    Take(admin.Define(table));MigrationPlan load{"mutation-load",0,{},Placement::gpu,192};
+    std::vector<RowState> initial;
+    for(ShardId home=0;home<8;++home){load.rows.push_back({{1,home},home,Placement::loading,0,1,0});
+      initial.push_back({{1,home},{0.25f,0.5f},{0,0},{0,0},0});}
+    auto rows=Take(admin.Load(load,initial));Wait(admin,[](auto s){return s.accepted_requests==s.completed_requests;});
+    HostCacheBackend reference(0,1<<20);Take(reference.Define(table));auto expected=Take(reference.Load(load,initial));
+    std::vector<std::unique_ptr<BrpcCacheBackend>> others;
+    std::vector<BrpcCacheBackend*> clients{&admin};
+    for(ShardId home=1;home<8;++home){others.push_back(std::make_unique<BrpcCacheBackend>(h.endpoint,"admission-test",home,0,15000));clients.push_back(others.back().get());}
+    auto context=[](ShardId home,int step){return UpdateContext{{"admission-test",home,std::uint64_t(step),Phase::push},
+      home,1,std::uint64_t(step),0.01f,std::pow(0.9f,float(step+1)),std::pow(0.999f,float(step+1))};};
+    auto gradient=[](ShardId home,int step){return std::vector<float>{(home+1)*0.01f,-(step+1)*0.001f};};
+    auto entered=h.backend->Pause();
+    auto held=admin.GatherHost({{8,AccessRoute::resident_gpu,0,{rows[0]},{0},{}}},{{1,8,Pooling::sum,{0},{0,1},{1}}});
+    entered.get();std::mutex errors_mutex;std::string error;std::vector<std::thread> producers;
+    try{
+      for(ShardId home=0;home<8;++home)producers.emplace_back([&,home]{try{
+        for(int step=0;step<32;++step){auto g=gradient(home,step);auto c=context(home,step);
+          if(step%2)Take(clients[home]->ApplyCompact(c,{{{1,home}},2,std::move(g),{0,1},{0},{1}}));
+          else Take(clients[home]->ApplyHost(c,{{{1,home}},std::move(g)}));}
+      }catch(const std::exception& e){std::lock_guard lock(errors_mutex);error=e.what();}});
+      auto queued=Wait(admin,[](auto s){return s.accepted_requests>=11;});
+      Check(queued.active_operations==2 && queued.queued_operations==7,"mutating requests bypassed admission");
+      h.backend->Release();Values(std::move(held));
+    }catch(...){h.backend->Release();for(auto& thread:producers)thread.join();throw;}
+    for(auto& thread:producers)thread.join();Check(error.empty(),error.c_str());
+    for(ShardId home=0;home<8;++home){
+      for(int step=0;step<32;++step)Take(reference.ApplyHost(context(home,step),{{{1,home}},gradient(home,step)}));
+      MigrationPlan actual_plan{"actual",0,{rows[home]},Placement::cpu,24};
+      auto actual=Take(clients[home]->ReadBack(actual_plan)).at(0);
+      auto wanted=Take(reference.ReadBack({"reference",0,{expected[home]},Placement::cpu,24})).at(0);
+      Check(actual.row==wanted.row && actual.row_updates==32 && actual.weights==wanted.weights &&
+        actual.first_moment==wanted.first_moment && actual.second_moment==wanted.second_moment,
+        "queued host/compact updates changed full optimizer state");
+      Take(clients[home]->CommitEviction(actual_plan));
+    }
+    Check(Take(admin.FreeSlots(1))==(1<<20)/32,"queued eviction did not return capacity");
+    auto end=Wait(admin,[](auto s){return s.accepted_requests==s.completed_requests;});
+    Check(end.rejected_requests==0 && end.dispatch_failures==0 && end.peak_active_operations==2 &&
+      end.active_operations==0 && end.queued_operations==0 && end.pending_request_bytes==0,"mutation permits leaked");
+    std::cout<<"{\"test\":\"agent_rpc_admission_optimizer_state\",\"home_streams\":8,\"updates\":256,\"host_updates\":128,\"compact_updates\":128,\"full_rows_checked\":8,\"optimizer_state_exact\":true,\"evicted_rows\":8}\n";
   }
   return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL Agent RPC admission: "<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,7 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/tsan
+    Start 1: agent_admission_lifecycle
+1/1 Test #1: agent_admission_lifecycle ........   Passed    0.76 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.77 sec

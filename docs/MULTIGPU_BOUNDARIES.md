@@ -2,6 +2,11 @@
 
 November 1, 2026 · C++20 / BRPC / CUDA · 1, 2 and 4 RTX A6000 agents
 
+This study identifies the original scaling plateau and overload failures. The
+[bounded-admission follow-up](AGENT_ADMISSION_RESULTS.md) adds an Agent-wide
+queue and verifies completion at 128/192 Learners on a later mixed-GPU fleet;
+the measurements below retain their original runtime and hardware scope.
+
 The fixed-workload study sustains **120.19 / 133.44 / 120.40 acknowledged sparse
 updates/s** on one, two and four GPU agents at their selected operating points.
 Four agents provide approximately the same sustained rate as one agent in this

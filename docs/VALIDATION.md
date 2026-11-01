@@ -1,6 +1,37 @@
 # Validation record
 
 
+## Bounded Agent admission — November 1, 2026
+
+Runtime `426c27b` adds a shared FIFO count/byte budget before Agent dispatch and
+retains its permit through asynchronous response completion. The native suite
+passes 26/26; the native/TensorFlow suite passes 40/40. The admission component
+passes its ASan/UBSan and ThreadSanitizer checks. A real BRPC paused-backend test
+admits 256 requests across eight client channels, observes four dispatched and
+252 waiting, then verifies every returned value and unchanged complete row state.
+Separate count/byte cases reject before backend execution.
+
+The same Linux/CUDA binary build passes 28/28 checks and is reused for the final
+fleet. Each final worker independently passes the CUDA state/device check. The
+fleet contains two A6000 and two L40 devices; every deployed Agent hash matches
+its selected baseline/candidate build. The candidate completes **23 CUDA trials /
+12,950 acknowledged updates / 736 sampled counters**, including 1/2/4-agent
+128/192-Learner cases and three sustained four-agent 192-Learner windows. Maximum
+feature preflight error is 3.91e-8. Sampled counters, finite parameters and ticket
+cleanup pass. Admission snapshots show at most 32 dispatched, unfinished RPCs,
+195 total pending requests, 6.07 MiB retained input and zero rejections, dispatcher
+failures or remaining work after drain. The same-fleet old Agent rejects 128
+Learners with E2004; that failed point remains separate.
+
+Two earlier transport-failed deployments are excluded from the primary matrix.
+All rented instances, including those attempts, are deleted after retrieval;
+final account inventory is empty. Runtime/binary provenance, workload conditions,
+health checks and cleanup records are linked from the report.
+
+[CUDA admission report](AGENT_ADMISSION_RESULTS.md) ·
+[Validation index](validation/2026-11-01-agent-admission.json)
+
+
 ## Multi-GPU capacity and post-overload state — November 1, 2026
 
 Sources `955520e` and `b7b87cf` run 1/2/4-GPU fleets with distinct CUDA device

@@ -1,0 +1,3 @@
+{"test":"agent_rpc_admission_burst","independent_clients":8,"requests":256,"active_limit":4,"observed_queued":252,"rejected":0,"state_unchanged":true}
+{"test":"agent_rpc_admission_limits","count_and_byte_rejections":2,"rejected_before_execution":true,"state_unchanged":true}
+{"test":"agent_rpc_admission_optimizer_state","home_streams":8,"updates":256,"host_updates":128,"compact_updates":128,"full_rows_checked":8,"optimizer_state_exact":true,"evicted_rows":8}
