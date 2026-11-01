@@ -207,9 +207,10 @@ int main(int argc,char** argv){
               for(auto value:*values)finite&=std::isfinite(value);
             ++checked;
           }
-          diagnosis["sampled_state"]={{"checked_rows",checked},{"finite",finite}};
+          diagnosis["sampled_state"]={{"completed",true},{"checked_rows",checked},{"finite",finite}};
         }catch(const std::exception& e){diagnosis["sampled_state"]=
-          {{"checked_rows",checked},{"finite",finite},{"error",e.what()}};}
+          {{"completed",false},{"checked_rows",checked},
+           {"finite",checked?nlohmann::json(finite):nlohmann::json(nullptr)},{"error",e.what()}};}
         diagnosis["after_health_probe_shards"]=sample_stats();
         std::cout<<diagnosis.dump()<<std::endl;
         throw std::runtime_error("capacity run failed: "+error);
