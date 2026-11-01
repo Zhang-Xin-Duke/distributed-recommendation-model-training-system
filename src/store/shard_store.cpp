@@ -5,6 +5,7 @@
 #include <limits>
 
 #include "common/error.hpp"
+#include "common/optimizer_bounds.hpp"
 
 namespace eps::detail {
 namespace {
@@ -38,6 +39,7 @@ void ShardStore::Create(TableDefinition d) {
   Require(d.shard_count == count_ && d.partition_epoch == epoch_,
           "table partition does not match server");
   const auto& o = d.optimizer;
+  ValidateWeightBounds(o);
   Require(std::isfinite(o.learning_rate) && o.learning_rate > 0 &&
           o.beta1 >= 0 && o.beta1 < 1 && o.beta2 >= 0 && o.beta2 < 1 &&
           std::isfinite(o.epsilon) && o.epsilon > 0 &&
@@ -105,6 +107,7 @@ std::size_t ShardStore::Ensure(TableId id, Key key) {
     const double u = static_cast<double>(bits >> 11) * 0x1.0p-53;
     row.weights[i] = static_cast<float>(
         (1 - u) * t.definition.initialization_min + u * t.definition.initialization_max);
+    row.weights[i] = BoundWeight(row.weights[i], t.definition.optimizer);
     row.first[i] = row.second[i] = 0;
   }
   *row.updates = 0;

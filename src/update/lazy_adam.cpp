@@ -1,6 +1,7 @@
 #include "update/lazy_adam.hpp"
 #include <cmath>
 #include "common/error.hpp"
+#include "common/optimizer_bounds.hpp"
 
 namespace eps::detail {
 void ValidateLazyAdam(const TableState& t, const RowGradients& g) {
@@ -31,6 +32,7 @@ void ApplyLazyAdam(TableState& t, const RowGradients& g) {
       row.first[d] = o.beta1 * row.first[d] + (1 - o.beta1) * grad;
       row.second[d] = o.beta2 * row.second[d] + (1 - o.beta2) * grad * grad;
       row.weights[d] -= lr * row.first[d] / (std::sqrt(row.second[d]) + o.epsilon);
+      row.weights[d] = BoundWeight(row.weights[d], o);
     }
     ++*row.updates;
   }

@@ -13,7 +13,9 @@ template<typename T>T Take(std::future<Result<T>> f){
 void Check(bool ok,const char* why){if(!ok)throw std::runtime_error(why);}
 void Near(float a,float b){Check(std::isfinite(a)&&std::abs(a-b)<1e-5f,"CUDA/host reference mismatch");}
 TableDefinition Table(TableId id,std::uint32_t dimension){
-  return {id,dimension,1,1,{0.01f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.1f,0.1f,42};
+  TableDefinition result{id,dimension,1,1,{0.01f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.1f,0.1f,42};
+  if(id==1)result.optimizer.weight_bounds=WeightBounds{-0.015f,0.015f};
+  return result;
 }
 std::vector<RowState> States(){
   std::vector<RowState> rows;
@@ -120,6 +122,12 @@ int main(){
     std::reverse(gp.rows.begin(),gp.rows.end());std::reverse(hp.rows.begin(),hp.rows.end());
     CompareStates(Take(gpu->ReadBack(gp)),Take(host.ReadBack(hp)));
     auto original=Take(gpu->ReadBack(gp));
+    bool hit_bound=false;
+    for(const auto& row:original)if(row.row.table==1)for(float w:row.weights){
+      Check(w>=-0.015f && w<=0.015f,"CUDA bounded weight escaped interval");
+      hit_bound=hit_bound || w==-0.015f || w==0.015f;
+    }
+    Check(hit_bound,"CUDA test did not exercise clipping");
     UpdateContext bad{{"cuda-test",0,9,Phase::push},0,1,9,0.01f,b1,b2};
     auto compact_overflow=compact;
     std::fill(compact_overflow.source_values.begin(),compact_overflow.source_values.end(),std::numeric_limits<float>::max());

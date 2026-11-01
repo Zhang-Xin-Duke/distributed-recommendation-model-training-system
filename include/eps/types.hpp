@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -44,6 +45,12 @@ struct RowKey {
   bool operator==(const RowKey&) const = default;
 };
 
+struct WeightBounds {
+  float minimum;
+  float maximum;
+  bool operator==(const WeightBounds&) const = default;
+};
+
 struct OptimizerConfig {
   // Initial implementation: unshared FP32 sparse LazyAdam states.
   float learning_rate;
@@ -52,6 +59,7 @@ struct OptimizerConfig {
   float epsilon;
   float initial_beta1_power;
   float initial_beta2_power;
+  std::optional<WeightBounds> weight_bounds = std::nullopt;
   bool operator==(const OptimizerConfig&) const = default;
 };
 

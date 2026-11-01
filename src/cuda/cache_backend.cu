@@ -6,11 +6,13 @@
 #include <atomic>
 #include <cmath>
 #include <map>
+#include <limits>
 #include <numeric>
 #include <set>
 #include <unordered_map>
 #include <utility>
 #include "common/executor.hpp"
+#include "common/optimizer_bounds.hpp"
 
 namespace eps {
 namespace {
@@ -92,7 +94,8 @@ __global__ void GatherKernel(const float* state, float* output,
 }
 __global__ void AdamKernel(float* state, const float* gradients,
     const std::uint64_t* slots, std::uint64_t count, std::uint32_t dim,
-    float beta1, float beta2, float lr, float epsilon, bool validate, int* invalid) {
+    float beta1, float beta2, float lr, float epsilon, float minimum, float maximum,
+    bool validate, int* invalid) {
   for (std::uint64_t i = blockIdx.x * blockDim.x + threadIdx.x;
        i < count * dim; i += std::uint64_t(blockDim.x) * gridDim.x) {
     const auto base = slots[i / dim] * dim * 3 + i % dim;
@@ -104,7 +107,8 @@ __global__ void AdamKernel(float* state, const float* gradients,
       if (!isfinite(g) || !isfinite(m) || !isfinite(v) || !isfinite(w))
         atomicExch(invalid, 1);
     } else {
-      state[base] = w; state[base + dim] = m; state[base + dim * 2] = v;
+      state[base] = fminf(maximum,fmaxf(minimum,w));
+      state[base + dim] = m; state[base + dim * 2] = v;
     }
   }
 }
@@ -316,14 +320,16 @@ struct CudaCacheBackend::Impl {
     if(rows.empty())return {};
     Cuda(cudaMemsetAsync(invalid.pointer,0,sizeof(int),stream.value));
     const auto& o=t.definition.optimizer;
+    const auto minimum=o.weight_bounds?o.weight_bounds->minimum:-std::numeric_limits<float>::max();
+    const auto maximum=o.weight_bounds?o.weight_bounds->maximum:std::numeric_limits<float>::max();
     const auto lr=context.learning_rate*std::sqrt(1-context.beta2_power)/(1-context.beta1_power);
     AdamKernel<<<Blocks(rows.size()*dim),256,0,stream.value>>>(t.state.As<float>(),device_values.As<float>(),
-      device_indices.As<std::uint64_t>()+slots_offset,rows.size(),dim,o.beta1,o.beta2,lr,o.epsilon,true,invalid.As<int>());
+      device_indices.As<std::uint64_t>()+slots_offset,rows.size(),dim,o.beta1,o.beta2,lr,o.epsilon,minimum,maximum,true,invalid.As<int>());
     Cuda(cudaGetLastError());int rejected=0;
     Cuda(cudaMemcpyAsync(&rejected,invalid.pointer,sizeof(int),cudaMemcpyDeviceToHost,stream.value));Finish();
     detail::Require(!rejected,"CUDA optimizer state would overflow");
     AdamKernel<<<Blocks(rows.size()*dim),256,0,stream.value>>>(t.state.As<float>(),device_values.As<float>(),
-      device_indices.As<std::uint64_t>()+slots_offset,rows.size(),dim,o.beta1,o.beta2,lr,o.epsilon,false,invalid.As<int>());
+      device_indices.As<std::uint64_t>()+slots_offset,rows.size(),dim,o.beta1,o.beta2,lr,o.epsilon,minimum,maximum,false,invalid.As<int>());
     Cuda(cudaGetLastError());Finish();for(auto row:rows)++t.rows.at(row.key).updates;return {};
   }
   CudaCacheOptions options;
@@ -341,6 +347,7 @@ CudaCacheBackend::~CudaCacheBackend() = default;
 
 std::future<Result<Ack>> CudaCacheBackend::Define(TableDefinition d) {
   return impl_->executor->Submit<Ack>([this, d] {
+    detail::ValidateWeightBounds(d.optimizer);
     impl_->Activate();
     detail::Require(d.dimension > 0 && d.dimension <= 65536, "invalid CUDA dimension");
     if (auto it = impl_->tables.find(d.id); it != impl_->tables.end()) {

@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include "common/executor.hpp"
+#include "common/optimizer_bounds.hpp"
 
 namespace eps {
 std::future<Result<Ack>> CacheBackend::ApplyCompact(UpdateContext context,CompactGradients packet){
@@ -42,6 +43,7 @@ std::future<Result<std::uint64_t>> HostCacheBackend::FreeSlots(TableId table){
 }
 std::future<Result<Ack>> HostCacheBackend::Define(TableDefinition t){
   return impl_->executor.Submit<Ack>([this,t]{
+    detail::ValidateWeightBounds(t.optimizer);
     detail::Require(t.dimension>0 && t.dimension<=65536,"invalid cache table dimension");
     auto [it,inserted]=impl_->tables.emplace(t.id,t);
     detail::Require(inserted||it->second==t,"cache table configuration mismatch");return Ack{};
@@ -134,6 +136,7 @@ std::future<Result<Ack>> HostCacheBackend::ApplyHost(UpdateContext c,RowGradient
         row.weights[d]-=lr*row.first_moment[d]/(std::sqrt(row.second_moment[d])+o.epsilon);
         detail::Require(std::isfinite(g)&&std::isfinite(row.weights[d])&&std::isfinite(row.first_moment[d])&&
           std::isfinite(row.second_moment[d]),"cached optimizer overflow");
+        row.weights[d]=detail::BoundWeight(row.weights[d],o);
       }
       ++row.row_updates;updated.push_back(std::move(row));
     }

@@ -20,7 +20,7 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
     backend.create_table(dict(id=1, dimension=2, dtype="float32",
                              optimizer=dict(kind="sparse_lazy_adam", learning_rate=0.01,
                                             beta1=0.9, beta2=0.999, epsilon=1e-8,
-                                            initial_beta1_power=0.9, initial_beta2_power=0.999),
+                                            initial_beta1_power=0.9, initial_beta2_power=0.999, weight_bounds=[-10, 10]),
                              initialization=dict(min=0.25, max=0.25, seed=42)))
     dense = tf.Variable([[0.5], [0.25]], dtype=tf.float32)
     dense_optimizer = tf.keras.optimizers.SGD(0.01)
@@ -132,6 +132,16 @@ def graph_probe(endpoints, snapshot_root, agent_endpoint=None):
             raise AssertionError("configured preparation byte budget was ignored")
         assert constrained.preparation_stats()["rejected"] == 1
         constrained.close()
+    # Zero-valued bounds must retain presence across JSON/native/protobuf.
+    zero_table=dict(id=2,dimension=2,dtype="float32",
+                    optimizer=dict(kind="sparse_lazy_adam",learning_rate=.01,beta1=.9,beta2=.999,
+                                   epsilon=1e-8,initial_beta1_power=.9,initial_beta2_power=.999,
+                                   weight_bounds=[0,0]),initialization=dict(min=.5,max=.5,seed=42))
+    backend.create_table(zero_table)
+    zero_handle, zero_values=backend.pull([Feature(2,7,tf.constant([1,2],tf.int64),
+                                                   tf.constant([0,2],tf.int64),2)],read_only=True)
+    np.testing.assert_array_equal(zero_values[0].numpy(),np.zeros((1,2),np.float32))
+    backend.release(zero_handle).numpy()
     files = backend.save("tf-checkpoint")
     assert len(files) == 2 and all(pathlib.Path(f).is_file() for f in files)
     assert all(m["cached_rows"] == 0 for m in backend.stats())

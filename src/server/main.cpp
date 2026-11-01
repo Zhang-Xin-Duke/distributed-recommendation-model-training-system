@@ -72,10 +72,16 @@ int main(int argc,char** argv) {
          t.at("optimizer").value("kind",std::string())!="sparse_lazy_adam")
         throw std::runtime_error("only FP32 sparse_lazy_adam tables are supported");
       const auto& o=t.at("optimizer");const auto& init=t.at("initialization");
-      Value(service.CreateTable({t.at("id"),t.at("dimension"),options.shard_count,options.partition_epoch,
+      TableDefinition table{t.at("id"),t.at("dimension"),options.shard_count,options.partition_epoch,
         {o.at("learning_rate"),o.at("beta1"),o.at("beta2"),o.at("epsilon"),
          o.at("initial_beta1_power"),o.at("initial_beta2_power")},
-        init.at("min"),init.at("max"),init.at("seed")}));
+        init.at("min"),init.at("max"),init.at("seed")};
+      if(o.contains("weight_bounds")) {
+        const auto& b=o.at("weight_bounds");
+        if(!b.is_array() || b.size()!=2)throw std::runtime_error("weight_bounds requires [minimum, maximum]");
+        table.optimizer.weight_bounds=WeightBounds{b.at(0),b.at(1)};
+      }
+      Value(service.CreateTable(table));
     }
     if(caching)for(const auto& agent:j.at("agents")){
       const AgentId id=agent.at("id");

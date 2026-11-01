@@ -54,10 +54,18 @@ inline void Encode(const OptimizerConfig& x, wire::OptimizerConfig* y) {
   y->set_learning_rate(x.learning_rate); y->set_beta1(x.beta1); y->set_beta2(x.beta2);
   y->set_epsilon(x.epsilon); y->set_initial_beta1_power(x.initial_beta1_power);
   y->set_initial_beta2_power(x.initial_beta2_power);
+  y->clear_weight_bounds();
+  if(x.weight_bounds) {
+    y->mutable_weight_bounds()->set_minimum(x.weight_bounds->minimum);
+    y->mutable_weight_bounds()->set_maximum(x.weight_bounds->maximum);
+  }
 }
 inline OptimizerConfig Decode(const wire::OptimizerConfig& x) {
-  return {x.learning_rate(),x.beta1(),x.beta2(),x.epsilon(),
+  OptimizerConfig result{x.learning_rate(),x.beta1(),x.beta2(),x.epsilon(),
           x.initial_beta1_power(),x.initial_beta2_power()};
+  if(x.has_weight_bounds())result.weight_bounds=WeightBounds{
+      x.weight_bounds().minimum(),x.weight_bounds().maximum()};
+  return result;
 }
 inline void Encode(const TableDefinition& x, wire::TableDefinition* y) {
   y->set_table_id(x.id); y->set_dimension(x.dimension); y->set_shard_count(x.shard_count);

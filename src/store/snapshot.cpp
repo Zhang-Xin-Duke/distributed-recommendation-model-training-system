@@ -17,6 +17,7 @@ namespace {
 constexpr std::uint64_t kOffset = 14695981039346656037ULL;
 constexpr std::uint64_t kPrime = 1099511628211ULL;
 constexpr std::uint64_t kMagic = 0x3153504541524853ULL;
+constexpr std::uint64_t kMagicV2 = 0x3253504541524853ULL;
 struct File {
   int fd;
   ~File() { if (fd >= 0) ::close(fd); }
@@ -72,7 +73,7 @@ class Binary {
     if (!write) value.resize(n);
     Bytes(value.data(), n, write);
   }
-  void Definition(TableDefinition& d, bool write) {
+  void Definition(TableDefinition& d, bool write, bool with_bounds = true) {
     std::uint64_t id = d.id, dim = d.dimension, count = d.shard_count;
     U64(id, write); U64(dim, write); U64(count, write);
     Require(id <= UINT32_MAX && dim <= 65536 && count <= UINT32_MAX,
@@ -83,6 +84,14 @@ class Binary {
     Float(o.learning_rate, write); Float(o.beta1, write); Float(o.beta2, write);
     Float(o.epsilon, write); Float(o.initial_beta1_power, write);
     Float(o.initial_beta2_power, write);
+    if(with_bounds) {
+      std::uint64_t enabled = o.weight_bounds.has_value(); U64(enabled, write);
+      Require(enabled <= 1, "invalid snapshot weight-bounds flag");
+      if(enabled) {
+        if(!write)o.weight_bounds=WeightBounds{};
+        Float(o.weight_bounds->minimum,write); Float(o.weight_bounds->maximum,write);
+      } else o.weight_bounds.reset();
+    }
     Float(d.initialization_min, write); Float(d.initialization_max, write);
     U64(d.initialization_seed, write);
   }
@@ -122,7 +131,7 @@ void WriteSnapshot(const std::filesystem::path& path, const std::string& run,
   Require(file.fd >= 0, "cannot create snapshot staging file", Error::Code::unavailable);
   try {
     Binary b(file.fd);
-    auto magic = kMagic; b.U64(magic, true);
+    auto magic = kMagicV2; b.U64(magic, true);
     auto run_copy = run; b.String(run_copy, true);
     std::uint64_t shard = store.shard(), count = store.shard_count(), epoch = store.epoch();
     b.U64(shard, true); b.U64(count, true); b.U64(epoch, true);
@@ -158,7 +167,7 @@ std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& path,
   Require(file.fd >= 0, "cannot open snapshot", Error::Code::unavailable);
   Binary b(file.fd);
   std::uint64_t magic = 0; b.U64(magic, false);
-  Require(magic == kMagic, "unsupported snapshot format");
+  Require(magic == kMagic || magic == kMagicV2, "unsupported snapshot format");
   std::string old_run; b.String(old_run, false);
   Require(old_run != new_run, "restore requires a new run ID");
   std::uint64_t old_shard = 0, old_count = 0, old_epoch = 0;
@@ -169,7 +178,7 @@ std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& path,
   std::uint64_t tables = 0; b.U64(tables, false);
   Require(tables <= 1024, "snapshot table count exceeds limit");
   for (std::uint64_t i = 0; i < tables; ++i) {
-    TableDefinition d{}; b.Definition(d, false); store->Create(d);
+    TableDefinition d{}; b.Definition(d, false, magic == kMagicV2); store->Create(d);
     auto& t = store->Table(d.id);
     b.U64(t.optimizer_sequence, false); b.Float(t.beta1_power, false); b.Float(t.beta2_power, false);
     Require(t.beta1_power >= 0 && t.beta1_power < 1 &&

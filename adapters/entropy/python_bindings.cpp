@@ -47,6 +47,11 @@ class Backend {
       {o.at("learning_rate"),o.at("beta1"),o.at("beta2"),o.at("epsilon"),
        o.at("initial_beta1_power"),o.at("initial_beta2_power")},
       init.at("min"),init.at("max"),init.at("seed")};
+    if(o.contains("weight_bounds")) {
+      const auto& b=o.at("weight_bounds");
+      if(!b.is_array() || b.size()!=2)throw std::invalid_argument("weight_bounds requires [minimum, maximum]");
+      table.optimizer.weight_bounds=WeightBounds{b.at(0),b.at(1)};
+    }
     py::gil_scoped_release release;Take(adapter_->CreateTable(table));
   }
   std::vector<entropy::Feature> Parse(const py::list& descriptors) {

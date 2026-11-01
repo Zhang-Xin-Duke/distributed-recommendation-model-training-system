@@ -47,6 +47,11 @@ message Status {
   string message = 2;
 }
 
+message WeightBounds {
+  float minimum = 1;
+  float maximum = 2;
+}
+
 message OptimizerConfig {
   float learning_rate = 1;
   float beta1 = 2;
@@ -54,6 +59,7 @@ message OptimizerConfig {
   float epsilon = 4;
   float initial_beta1_power = 5;
   float initial_beta2_power = 6;
+  WeightBounds weight_bounds = 7;
 }
 
 message TableDefinition {
