@@ -1,0 +1,4479 @@
+{
+  "summary": {
+    "exit_code": 1,
+    "active_observations": 440,
+    "errors": 0,
+    "boundary_observations": 8,
+    "median_ms": 9.950355626642704,
+    "p99_ms": 107.81870037317276,
+    "max_ms": 1041.5750797837973,
+    "budget_waits": 484
+  },
+  "samples": [
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.640439301729202,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 13.25823925435543,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.488432228565216,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.287372559309006,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.7668308466672897,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.655157819390297,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.502191811800003,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.034595236182213,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.0452553182840347,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.852922797203064,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.919061437249184,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.115300416946411,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.1263064593076706,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8107965588569641,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.614641562104225,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9109826534986496,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.223756328225136,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.7373414486646652,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.4566669017076492,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.1692998707294464,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.2947883009910583,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.405233681201935,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8442776054143906,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.540959045290947,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.6035478115081787,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.698400989174843,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.1901000291109085,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.606896683573723,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.985655710101128,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 7.803115993738174,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.545972406864166,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.983992367982864,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.317438557744026,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.413388833403587,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2130551040172577,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9359663128852844,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.097275272011757,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.4899691343307495,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.4969447404146194,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2465717047452927,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.088219091296196,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.4502426385879517,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.622053027153015,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.6001352816820145,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.65301051735878,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.8724968433380127,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.5778339952230453,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.858102485537529,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.1105708330869675,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.278452903032303,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.926373854279518,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.4384986609220505,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.5973916053771973,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.868343472480774,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.692740738391876,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.3953787535429,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.833595499396324,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.308350220322609,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.6953481137752533,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.6261452585458755,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 1
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.6003941893577576,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9979197531938553,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6959458589553833,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3151075690984726,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.2979585230350494,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8611680716276169,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7667710781097412,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4366880059242249,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.6439280956983566,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2007524967193604,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7212126404047012,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7920956015586853,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.324535071849823,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.3214127868413925,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.763937994837761,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5774182975292206,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.188759416341782,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7150044441223145,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7251763492822647,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.574752852320671,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.802977830171585,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2724438458681107,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7739050090312958,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6813445836305618,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.9963205605745316,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.1496936678886414,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.985158771276474,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6984585672616959,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.9444309920072556,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9335988909006119,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2467821836471558,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5891585499048233,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.894531220197678,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6948562115430832,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5610512346029282,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4612339437007904,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.17433300614357,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8768105655908585,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8222127109766006,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4797896146774292,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.485534608364105,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9755885004997253,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2562721967697144,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.715024933218956,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.246768593788147,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.226540818810463,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6995947808027267,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4746356755495071,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.091066360473633,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.024570971727371,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4432910829782486,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1547841131687164,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.9124014377594,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.897598013281822,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3517644256353378,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5452969819307327,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.862590745091438,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.87842969596386,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.41235813498497,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1474452912807465,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.702950716018677,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.609139800071716,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.303231343626976,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3298708945512772,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.825436398386955,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.48846460878849,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.513652503490448,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4016460627317429,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.317672207951546,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.9091711193323135,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.679636538028717,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1845547705888748,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.658212170004845,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.062582463026047,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6381125897169113,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3513006269931793,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.305076837539673,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.554112166166306,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6151722520589828,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.394525170326233,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.362003162503242,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.113103151321411,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6226358711719513,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3043638318777084,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.800117626786232,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.631248027086258,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6502328217029572,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.230841502547264,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.62011905014515,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.136637836694717,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.098599448800087,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.145562157034874,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.438920766115189,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.615061968564987,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.3880526423454285,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2943614274263382,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.26530410349369,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.106155812740326,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.608817234635353,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2908857315778732,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.02670468389988,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.105974808335304,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.517087712883949,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.0683760046958923,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.776625782251358,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.460151359438896,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.677299574017525,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.0013934224843979,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.969483897089958,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.018859386444092,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.113993003964424,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1326689273118973,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.270843118429184,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.016316547989845,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.403079256415367,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1547356843948364,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.6271430850029,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.63358411192894,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 7.8388843685388565,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.0321829468011856,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.013602510094643,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.006360545754433,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 7.4354857206344604,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2546684592962265,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.696247220039368,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.211774915456772,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.534264147281647,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.218324527144432,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.806510224938393,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.332308873534203,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.467909276485443,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.0759010910987854,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.801521897315979,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.225187987089157,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.260231792926788,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5530847012996674,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.226655587553978,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.164324030280113,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.137373581528664,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.707306295633316,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.840307593345642,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.94610583782196,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.425185784697533,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.5255271941423416,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.158552020788193,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.093778535723686,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.393451735377312,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 4.311619326472282,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.000391095876694,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.76836884021759,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.673416942358017,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.723239853978157,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.233214125037193,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.737366810441017,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.375320747494698,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.102468818426132,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.740939527750015,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.913586243987083,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.455651372671127,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 7.940521463751793,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.171596124768257,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.2270877212286,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.106600984930992,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.791139349341393,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.139869689941406,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.740477591753006,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.921308606863022,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.979402646422386,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.475188821554184,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.075438931584358,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.131027713418007,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.164676398038864,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 66.5962565690279,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 67.39676371216774,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 68.21814551949501,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 65.81651791930199,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 91.78411215543747,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 90.01911990344524,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 89.11040984094143,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 98.64963591098785,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 100.60181841254234,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 4
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 98.32976385951042,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 3
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 96.86726704239845,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 2
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 97.92361222207546,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 2
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 195.00147551298141,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 18
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 93.34699623286724,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 16
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 103.52997668087482,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 19
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 92.84600988030434,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 17
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 107.1518287062645,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 30
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 95.71858495473862,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 34
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 96.03160992264748,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 34
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 99.47091341018677,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 34
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 98.6933596432209,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 42
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 30.86998499929905,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 42
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.624120011925697,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 43
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.167347267270088,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 45
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 107.81870037317276,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 55
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 103.10058854520321,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 43
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 100.58875009417534,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 44
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 97.68318757414818,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 53
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 190.58515317738056,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 64
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.557096615433693,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 43
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 101.5360988676548,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 44
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 102.89001651108265,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 70
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 93.97654235363007,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 69
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 94.46409903466702,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 43
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 94.68645602464676,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 44
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 94.77507136762142,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 86
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 105.41980713605881,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 81
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 97.00634516775608,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 55
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 98.86473789811134,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 47
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 96.09333239495754,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 101
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 103.34285162389278,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 92
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 98.80086034536362,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 74
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 97.41066582500935,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 64
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.78834943473339,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 118
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 106.52179829776287,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 102
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 99.75661337375641,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 89
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 94.32476758956909,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 79
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 99.19772483408451,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 135
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.579896211624146,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 126
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 20.329376682639122,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 114
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.252146378159523,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 111
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.20652225613594,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 168
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.839435160160065,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 177
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.328431010246277,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 162
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.575169533491135,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 174
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.542873620986938,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 234
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 18.373971804976463,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 229
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.750744491815567,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 230
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.10435277223587,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 249
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.670844465494156,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 311
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.435101464390755,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 275
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.579793438315392,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 303
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.026761054992676,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 326
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.667068883776665,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 386
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.67665284872055,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 336
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.269718244671822,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 373
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.198054507374763,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 400
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.46011596918106,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 458
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.587551355361938,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 386
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.863885939121246,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 443
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.717076852917671,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 475
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.390352129936218,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 532
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 49.4112279266119,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 433
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.636091396212578,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 509
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 44.33801583945751,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 549
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 48.645928502082825,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 605
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.33999989926815,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 490
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.867716908454895,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 572
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.696545407176018,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 619
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.950543150305748,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 673
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.00079408288002,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 547
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.81610843539238,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 633
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.299012064933777,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 685
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.717243283987045,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 737
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.801913380622864,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 619
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.876302003860474,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 701
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.381972253322601,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 761
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.311972513794899,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 808
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 44.630857184529305,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 687
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.524014338850975,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 772
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.163562372326851,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 837
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.452004313468933,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 878
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 13.441890478134155,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 746
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.264672994613647,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 837
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.457273572683334,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 880
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.337064042687416,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 878
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.026110991835594,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 805
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.43742150068283,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 874
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.011432856321335,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 0,
+      "live_tickets": 880
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1041.5750797837973,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 5,
+      "live_tickets": 878
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 675.4766590893269,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 1,
+      "live_tickets": 877
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 358.7473351508379,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 5,
+      "live_tickets": 873
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.604856371879578,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 8,
+      "live_tickets": 874
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.494162052869797,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 171,
+      "live_tickets": 865
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.420908272266388,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 34,
+      "live_tickets": 845
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.997779831290245,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 68,
+      "live_tickets": 820
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.038786455988884,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 107,
+      "live_tickets": 794
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.757377535104752,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 253,
+      "live_tickets": 783
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.8215751349926,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 65,
+      "live_tickets": 814
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.554568514227867,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 104,
+      "live_tickets": 785
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.315075844526291,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 142,
+      "live_tickets": 759
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.146031975746155,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 288,
+      "live_tickets": 747
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 24.969497695565224,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 99,
+      "live_tickets": 779
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.661835506558418,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 140,
+      "live_tickets": 748
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.44583660364151,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 178,
+      "live_tickets": 723
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.555276811122894,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 324,
+      "live_tickets": 708
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 20.27873694896698,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 124,
+      "live_tickets": 753
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.760494396090508,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 174,
+      "live_tickets": 713
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.256131947040558,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 213,
+      "live_tickets": 683
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.350063279271126,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 358,
+      "live_tickets": 673
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.785845160484314,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 149,
+      "live_tickets": 727
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.06758464872837,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 207,
+      "live_tickets": 679
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.133405983448029,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 247,
+      "live_tickets": 648
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.404070511460304,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 391,
+      "live_tickets": 638
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 23.885875940322876,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 177,
+      "live_tickets": 698
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.614404127001762,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 241,
+      "live_tickets": 645
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.844142943620682,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 280,
+      "live_tickets": 614
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.544900178909302,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 425,
+      "live_tickets": 603
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.57919755578041,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 210,
+      "live_tickets": 661
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.214584276080132,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 277,
+      "live_tickets": 609
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.838132351636887,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 315,
+      "live_tickets": 578
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 13.441164046525955,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 459,
+      "live_tickets": 569
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 13.771302998065948,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 244,
+      "live_tickets": 627
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.849416092038155,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 313,
+      "live_tickets": 573
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.438798815011978,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 351,
+      "live_tickets": 542
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.44302587211132,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 533
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 13.406133279204369,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 277,
+      "live_tickets": 594
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.585837230086327,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 537
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 17.107844352722168,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 506
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.89154726266861,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 497
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 17.354100942611694,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 309,
+      "live_tickets": 561
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.115379303693771,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 501
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.675408601760864,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 470
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.411957114934921,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 484,
+      "live_tickets": 460
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.933063924312592,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 525
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.061151400208473,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 463
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.10737195611,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 434
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.125091955065727,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 424
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.701695621013641,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 489
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.51806116104126,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 427
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.43708348274231,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 397
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.688452377915382,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 388
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 20.76767571270466,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 458
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.097833186388016,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 394
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.131247341632843,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 365
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 17.75011606514454,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 355
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.07934319972992,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 426
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.547161757946014,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 360
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.725475683808327,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 332
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.506987407803535,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 484,
+      "live_tickets": 322
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.14299465715885,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 392
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.443560615181923,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 327
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.980201721191406,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 299
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.256070479750633,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 289
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 18.948977813124657,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 364
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 13.665692880749702,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 293
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.775578811764717,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 265
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.838286951184273,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 255
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.53295487165451,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 315,
+      "live_tickets": 329
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.002328738570213,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 257
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.139670059084892,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 229
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.517373517155647,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 219
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 18.66169273853302,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 296
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.659144148230553,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 222
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.121090173721313,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 353,
+      "live_tickets": 193
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.623117581009865,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 184
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.69139875471592,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 262
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.135743767023087,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 188
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.033940017223358,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 159
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.718623504042625,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 149
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 18.27114075422287,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 228
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.109728202223778,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 154
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.866269141435623,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 126
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 11.49270310997963,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 115
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.408843263983727,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 195
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.287338867783546,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 120
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 16.212966293096542,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 91
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.036514028906822,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 81
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.54393669962883,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 159
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.18625108897686,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 348,
+      "live_tickets": 83
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 15.021806582808495,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 55
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.446269065141678,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 45
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 12.352127581834793,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 124
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.771162644028664,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 49
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.875860884785652,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 353,
+      "live_tickets": 20
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.287571534514427,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 484,
+      "live_tickets": 11
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.31294821202755,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 315,
+      "live_tickets": 86
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 14.01415467262268,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 348,
+      "live_tickets": 11
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.353170171380043,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 353,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.096639230847359,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 484,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.919369593262672,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 48
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.362280532717705,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 348,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.819658637046814,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 353,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 9.903639554977417,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 484,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 8.982876315712929,
+      "completed": true,
+      "active": 1,
+      "waiting": 1,
+      "budget_waits": 315,
+      "live_tickets": 9
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.190827772021294,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 348,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.958723723888397,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 353,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 10.164914652705193,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 484,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 11.660918593406677,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 315,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 11.15226000547409,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 348,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 10.870752856135368,
+      "completed": true,
+      "active": 0,
+      "waiting": 0,
+      "budget_waits": 353,
+      "live_tickets": 0
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 179.03160862624645,
+      "completed": false,
+      "error": "[Errno 104] Connection reset by peer"
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 147.41669967770576,
+      "completed": false,
+      "error": "[Errno 104] Connection reset by peer"
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 1.2792069464921951,
+      "completed": false,
+      "error": "<urlopen error [Errno 111] Connection refused>"
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 1.0627936571836472,
+      "completed": false,
+      "error": "<urlopen error [Errno 111] Connection refused>"
+    },
+    {
+      "phase_before": "stopping",
+      "phase_after": "stopping",
+      "latency_ms": 0.7330756634473801,
+      "completed": false,
+      "error": "<urlopen error [Errno 111] Connection refused>"
+    }
+  ]
+}

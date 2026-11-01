@@ -134,7 +134,7 @@ closes admission and drains accepted work. Existing save, restore and mutation
 barriers keep their ordering.
 
 `queued_observations`, `completed_observations`, `rejected_observations` and
-`dependency_budget_waits` are exposed through native, BRPC and Python statistics.
+`dependency_budget_waits` are exposed through C++ runtime, BRPC and portable Python statistics.
 The completed-observation count excludes the snapshot currently being returned.
 
 An ambiguous cache-owner failure fences the run. A different suspended operation
@@ -143,14 +143,14 @@ Already submitted device work is still observed. Known tickets can be explicitly
 released after fencing; checkpoint recovery uses a new run ID.
 
 Stats adds fields 37–40: `active_operations`, `waiting_operations`,
-`active_payload_bytes` and `dependency_payload_bytes`. The active count includes
-the Stats operation itself. Waiting includes external futures and a pending
+`active_payload_bytes` and `dependency_payload_bytes`. The active count covers data operations and excludes synchronous observations. Waiting includes external futures and a pending
 maintenance barrier upgrade. Queued payload continues to mean not-yet-started
 input; admission considers it together with active payload.
 Fields 41–43 expose `dependency_prepare_nanoseconds`, `dependency_rebuilds` and
 `dependency_cache_hits`. The dependency-byte counter includes queued cached plans
 and active plans under their shared limit. `cache_dependencies=false` provides
-a same-binary cache-off control.
+a same-binary cache-off control. Fields 44–47 add the bounded-observation
+counters and `dependency_budget_waits` described above.
 
 `executor_busy_nanoseconds` now measures dependency planning and executed actor
 segments, excluding parked external/barrier waits. Older capacity revisions
@@ -180,3 +180,5 @@ Use `scripts/capacity_sweep.py --max-active-operations 1` and `16` under the sam
 hardware, workload and trial order for a scheduling comparison. The published
 four-agent capacity study keeps its original source revision; it is not a
 performance claim for this implementation.
+
+[Overload repair, held-owner regressions and measured bounds](OVERLOAD_SCHEDULING.md).

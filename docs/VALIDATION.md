@@ -1,6 +1,27 @@
 # Validation record
 
-## Current multi-GPU operating envelope — November 1, 2026
+## Observable overload and three-owner follow-up — November 1, 2026
+
+Runtime `0e46929` retains dependency plans under metadata pressure and separates
+actor observations and Stats RPC completion from data waits. Local native/C-ABI
+31/31, portable TensorFlow 43/43, core ASan/UBSan 18/18 and resumable TSan 2/2 pass.
+Ubuntu TensorFlow/CUDA executes 48 passing checks and skips three private-source
+checks. Native two-/three-A6000 model trajectories match complete touched
+optimizer state and model outputs with zero difference.
+
+The new study preserves 21 completed large-input windows, 12,227 acknowledged
+updates and 672 sampled row-counter checks. Three explicit ticket-byte capacity
+failures and one incomplete baseline probe remain separate. The repaired runtime
+answers all 6,292 running-phase statistics queries. At 1,022 Learners, increasing
+the per-shard ticket budget from 256 to 512 MiB enables completed single- and
+three-owner windows. Four twenty-second three-owner windows at 128/512 Learners
+also complete. All three rentals are deleted after hash-verified retrieval.
+
+[Results and bounds](OVERLOAD_SCHEDULING.md) ·
+[Structured validation and hashes](validation/2026-11-01-overload-repair.json) ·
+[Local regression records](validation/2026-11-01-overload-scheduling/local-validation.json)
+
+## Earlier native multi-GPU operating envelope — November 1, 2026
 
 Runtime `5a69840` and corrected probe `9fe0ac6` retain **63 completed windows /
 62,363 acknowledged sparse updates / 2,016 sampled row-counter checks** across

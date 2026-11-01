@@ -1,0 +1,35 @@
+Completed 3 agent(s), 4 parameter shard(s)
+[
+  {
+    "gpu_agents": 3,
+    "learners": 128,
+    "ps_shards": 4,
+    "repetitions": 2,
+    "steps_per_second_median": 30.300064515897276,
+    "steps_per_second_min": 30.255459243021903,
+    "steps_per_second_max": 30.34466978877265,
+    "step_p99_ms_median": 4723.150575,
+    "lookup_p99_ms_median": 3303.63105,
+    "push_p99_ms_median": 3181.8533205,
+    "sequencer_busy_fraction_median": 0.658381752483251,
+    "queue_wait_per_operation_ms_median": 1555.0968052201038,
+    "total_completed_steps": 1452,
+    "errors": 0
+  },
+  {
+    "gpu_agents": 3,
+    "learners": 512,
+    "ps_shards": 4,
+    "repetitions": 2,
+    "steps_per_second_median": 29.31583420409502,
+    "steps_per_second_min": 29.090694208198833,
+    "steps_per_second_max": 29.5409741999912,
+    "step_p99_ms_median": 17057.508586,
+    "lookup_p99_ms_median": 11492.0331905,
+    "push_p99_ms_median": 11447.9204205,
+    "sequencer_busy_fraction_median": 0.6831567376513878,
+    "queue_wait_per_operation_ms_median": 6327.006854220153,
+    "total_completed_steps": 2048,
+    "errors": 0
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "bytes": 420680,
+    "sha256": "04d51fabdcf3b3bb73efa53807d88e54011a4b183659127a57a86a438ea20b08",
+    "worker": 0
+  },
+  {
+    "bytes": 25384,
+    "sha256": "ad40621e69a99411e5bb48245027cffffaa0a7949695c24fa31f5292cb3a94ca",
+    "worker": 1
+  },
+  {
+    "bytes": 21739,
+    "sha256": "ba5edf097ca36e41c1768b68e0198a3fa7bd3a671d32ac64b3c637e644332253",
+    "worker": 2
+  }
+]

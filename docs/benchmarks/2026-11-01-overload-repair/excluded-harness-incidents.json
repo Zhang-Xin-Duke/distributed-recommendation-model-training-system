@@ -1,0 +1,9 @@
+{
+  "excluded_attempt": "Initial fleet wrapper preflight only; no completed training windows",
+  "errors": [
+    "The Agent log directory and capacity output directory used the same run name; capacity output must be new.",
+    "The two/three-owner calls omitted the distinct device list required by the capacity parser."
+  ],
+  "correction": "Separate owner run names, fresh capacity output names, explicit 0..count-1 device list; v2 records are measured independently",
+  "initial_driver": "An earlier assertion expected exit zero from a legitimate resource-capacity rejection; the native failed-point record is retained."
+}

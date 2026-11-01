@@ -1,0 +1,594 @@
+{
+  "runtime_source_commit": "0e46929d0457a60af1ba87f949d5e68e2dc6e8ad",
+  "completed_windows": 21,
+  "acknowledged_updates": 12227,
+  "sampled_row_counter_checks": 672,
+  "failed_points": 3,
+  "incomplete_points": 1,
+  "native_cuda_suite": {
+    "passed": 48,
+    "skipped": 3
+  },
+  "native_model_owners": [
+    2,
+    3
+  ],
+  "native_model_max_state_error": 0,
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 3,
+    "account_instance_count_after_deletion": 0,
+    "base_rate_duration_estimate_usd": 0.3820266103645166,
+    "finished_epoch": 1793529924.117847
+  },
+  "estimated_base_cost_usd": 0.3967,
+  "cost_basis": "Observed duration rounded up to minutes at lease base rates; estimate, not invoice",
+  "current_rpc_status_checked_observations": 6292,
+  "current_observation_errors": 0,
+  "current_control_maximum_ms": 1235.1975794881582,
+  "artifacts": [
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/archives.json",
+      "sha256": "ee68e6af2ce97971530fe8d7da6f80c6517008dcf33902440c950015b726858a"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-command.json",
+      "sha256": "4b81b9b9ecdd873a21327e6b4bf5b6808ae6062f9b1f47e60c26c26b031193c9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-configuration.json",
+      "sha256": "905fa0bb112538d725f8900faec444512bab61cffab269effb0faddb204c00ef"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-gpu-telemetry.csv",
+      "sha256": "4134b54385489b0b82b42eedd4435897fb4f2876e4027a4aabc73e3e2024bb54"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-lifecycle.json",
+      "sha256": "27172d2c01e36810e3686a5c864e1e454471af77111372bc074f0847ebc2bde3"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-ps-0.json",
+      "sha256": "2c0ad7a8869414f54e4d8a54e3aa7c23e8274d4f5acb4c91970f4ac844e3d66e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-ps-1.json",
+      "sha256": "80b2b6b26120a908b01c614f2d384ccbedcc905224dd04cf3d530747a4ff7dcd"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-ps-2.json",
+      "sha256": "4936262bcad7e89fe9c6539b68c44627d03ee720af746e569621f1d8b0475bc0"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-ps-3.json",
+      "sha256": "1ba6b180f3e08e14ecf21cfe7afedacb7d64d383209475e99f8e6dacd2d08393"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-gpu-1-shards-4-raw.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-observations.json",
+      "sha256": "a8f5919497d6b5a7df5a9840551dda1b2fd9263196eec05e55baf2f6730c20b7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/baseline-large-orchestration.log",
+      "sha256": "8965b4d40b4a661d861204fd215cc51421ea76f6c2e582da1c11b2d650fd54f9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/budget-terminal.json",
+      "sha256": "5113eb2ee9e3e62324e7655ad33eac63c721e99f2a27fbdb78fbe4a8a3ca420b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/candidate-terminal.json",
+      "sha256": "08278ff878a7a66cb8553f0c064ec56dcfafa66a816c429f6a24f3160aa9be76"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/cleanup.json",
+      "sha256": "3d2d625e39c98387e6eea011ea61ecb25ac5be8c8b3638689ef3c405661cd6b2"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/environment.json",
+      "sha256": "1ee955f0ad6a5a78fa358adef3eda68b2203d44a885f5dc135fad93b2a3e198c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/excluded-harness-incidents.json",
+      "sha256": "38c8945161b4426e5d1492cce0ec64007dbcba57c36a3484808722dba3d1150c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/excluded-harness-pressure-results.json",
+      "sha256": "51b08e20fad3de561c76b7d1bafea98af4ab243a92578141622f7038cb870e15"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/failed-points.json",
+      "sha256": "c446f86ea13d9b0af90baf26c6caf1b5cfccb5eef0a02df4cf71284aaaf309c6"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/followup-exit.json",
+      "sha256": "f020884996285971577ce717ad29fb825ec45445852ce79421647821c49b8bd9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/followup-results.json",
+      "sha256": "6dc0e9b1e8ec52269ed07c6f0870496109448b3c606a300307c01fb279ce2fec"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/gpu-sampling.json",
+      "sha256": "4c22729961e43e433906f1e2fdd1047af739d1c766726616f595318e42837515"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/hardware.json",
+      "sha256": "13305271e52320c4f3d0a8150ddf177d3ab211aa8f9d6cc27a69a708b59af045"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/incomplete-points.json",
+      "sha256": "4413ec107858c2e9dd3e68c337f9f81701b159ec763b728e8a5249fbaf6f0ffd"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/manifest.json",
+      "sha256": "9fd3e9b3de27c6cb6431699babe335d2e0f6d61af6eb2debbc8ee6856b40136f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/model-checks.json",
+      "sha256": "1cd7a4ead2a2ae7c8e158c4660bb8de77193e81f65f353ca704012ae5c3ec318"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/models-exit.json",
+      "sha256": "121416534568544dd105379ee30a66d1c0b95f8bfadae5e8bbd347b04ddc9521"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/paired-result.json",
+      "sha256": "efaa8ad7840618d80fc87d4b6c3a570dc38a4adc5cdf784847b0a91e1e0ab787"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/pressure-results.json",
+      "sha256": "e53bb5151cb51c95c45ce3615126679724fe30a043ada8299ee36789833fb536"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/pressure-study-exit.json",
+      "sha256": "465406395621052355eac48a6f92d191ea8fb5392a95b606a94c1c350a669ded"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-command.json",
+      "sha256": "c7e487d10f28fae5f72504e794079712e4ec7fe6b3c180dcb3db9624f2ae37bd"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-configuration.json",
+      "sha256": "df71556d8f09f3f07b89613f96fd71747f75c80579c4987bae3ff9d37e609f9f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-gpu-telemetry.csv",
+      "sha256": "1d788019b146b2701b303a306ae48ed25dbc48a61414dafb4854e2930dea5c91"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-lifecycle.json",
+      "sha256": "7044ba9e74bf6ad591ac200a20b212d179aaa53124b31b778cfcd4e83ffe1452"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-ps-0.json",
+      "sha256": "39ed9b9e402ce7b5fb187f79910e48e1ab0d7fbf5638ebe5a6256a058b1961ea"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-ps-1.json",
+      "sha256": "d2829f707db82b20983e40340ed6138e99656e448cbbcd2bc1efb42c2b257166"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-ps-2.json",
+      "sha256": "fa815e0d2f8642bc30ba6d4c0ad980f4ff6358f488c7e11b51201e532bee4366"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-ps-3.json",
+      "sha256": "fa6104eff6462046367941d0a49d9e4ff74471d5b51281407abc29e4afa1d6f0"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-raw.jsonl",
+      "sha256": "0d286a2c4b81383b47068261bd3016b524cf4b92303a37ca984cc6bacce2e292"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-gpu-1-shards-4-resources.json",
+      "sha256": "f41b2eadc706719d56ac0d4d5fcfa625a15e5ab01d720bbe42c738ac858da606"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-observations.json",
+      "sha256": "85baa6dbbd8aa0bd6f60528968eb23c534db57ed297ebf8e0a33ef30c1c92b25"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-budget512-orchestration.log",
+      "sha256": "32b581b87c04c038feed58b01939100fbdf4ae8c8e6b8b9489d41fbae19b50c6"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-command.json",
+      "sha256": "50291e17e6038516066ec782f9055416975b78369fcfa9cd8bcf2f9a224e333c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-configuration.json",
+      "sha256": "265ddc2098b1759e6d345519de497aa4b1bcb0104602894c3727692c3cabdc3d"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-lifecycle.json",
+      "sha256": "eb7d14124fb6345ef0acad6e0609728709fdfeec6265a23e685843b2ca8d41e9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-probe.log",
+      "sha256": "55337bd9d583625b713e0f1f5257aabd69495eb0984e2a0dddfbc05904ed488a"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-ps-0.json",
+      "sha256": "883b9585ab7c8bbf284a989855a75a30f949eb8793408258d07f8caecffe9691"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-ps-1.json",
+      "sha256": "b1603b52cbc60956aee9f2bb25270fad7e4d34b44656d0f21a185ceffd7756ae"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-ps-2.json",
+      "sha256": "6aa411f98b1429f884b7f08d987d0772750ffcc914669492410ef7e53abc7aad"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-ps-3.json",
+      "sha256": "2cd441cbaa17925f1b8bb0786f58eec1b3cd26a0fb269de976bf684c0c7b7543"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-raw.jsonl",
+      "sha256": "48bca0d8f9d342732d194289aa4fde5c25581cc59173a1bf082a0e60c059d1a7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-observations.json",
+      "sha256": "6b9f2399a688df626f67012bab9ba29da619e83c71b0d9ae2f5651945061d1c2"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-1gpu-l1022-b256-orchestration.log",
+      "sha256": "73f8ba1e1ad4f962d99b2c02df000e0224a59d15e84576e98358b928de60eebe"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-command.json",
+      "sha256": "ff3f8a2dfdc64401baabbd83c2c0ac81160ce9c5a91ed39bcf5430d8695dde11"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-configuration.json",
+      "sha256": "ec941162351066e7745f41588542c6f9ebc0dd3934e878c3a30d27c682f75ee8"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-lifecycle.json",
+      "sha256": "61a1ee0fd1218fb90ff9a41847a8171d9c2a7429df9ea7b72446c1f2634fa5d3"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-ps-0.json",
+      "sha256": "76780a8e26434f2ebc35a6f34411b8de8f24c72b9a0902224aaf924149e3357c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-ps-1.json",
+      "sha256": "90e20032337b1dae3b0b9161ec5f0001ae92b8c37fc5141cbc7d9a8cd7bb8e84"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-ps-2.json",
+      "sha256": "fc56200836e9baa9b3c7ed8e55576b94269df795346d77f9c737324a968005eb"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-ps-3.json",
+      "sha256": "f665ab15750fbb16b81f094a8d1a0914fad794677f67b5d3c04d3a985e380698"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-raw.jsonl",
+      "sha256": "7a0fb80b8235ace9c2560a7e4aab0e115ca778cf8fbda993cf99242a59ea38c4"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-resources.json",
+      "sha256": "049e3f909ed3e41f373a2b4cf1632296cc598303c95f6213eaf3fe8344dc4760"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-observations.json",
+      "sha256": "da53c45d20b6152425b7b418559156c3d579742bf901f305fcb620b8fa9cae48"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-followup-3gpu-l128_512-b256-orchestration.log",
+      "sha256": "84da9110126e80b6e26b5769362e620c7282503dfd525336a79caa5622ee1229"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-command.json",
+      "sha256": "6de46ef62b7ca9bbdf1c54ea064b2e357b4a00fa4c8a85a55f6eec5d8bbc9a1c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-configuration.json",
+      "sha256": "56655abd911568efa90fab105b04a9bda8bb42308d35b2d52946f31cda5dfff7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-gpu-telemetry.csv",
+      "sha256": "fce641e726380eb0ae6e5f971de05845837d6bb44c5082159eac7dd75a549483"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-lifecycle.json",
+      "sha256": "ca1a0aafc8b31fcebefcd68d323f3eee46e87a443fc842311073ccde5e23d2c5"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-probe.log",
+      "sha256": "55337bd9d583625b713e0f1f5257aabd69495eb0984e2a0dddfbc05904ed488a"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-ps-0.json",
+      "sha256": "bc703e2def1fb6b9c6b26ab7af327d6316409841660888f47f2abcd734278266"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-ps-1.json",
+      "sha256": "31b3f8e533ea4116e29bc73f6e7b560277f1c0746bd105f4a8ca349a5f67a9f6"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-ps-2.json",
+      "sha256": "19f6c747655f4395381e45c3d9e77781365f78810ec04fa2267ad3ae513c3052"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-ps-3.json",
+      "sha256": "2f52409fbc919a92cd6d875c7b08bf90b682fc921e34ea4ee97cb3e3a7f4b5f7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-raw.jsonl",
+      "sha256": "73605d003b718f961d515461ed438e1405c1d0bbf2be2a1afafbfef351aa55f2"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-gpu-1-shards-4-resources.json",
+      "sha256": "16064897dfa859bd184cc455d8c16533a0be3df5e4dc36cf898587520bda8c83"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-observations.json",
+      "sha256": "4e95cd48deb395138bde0fd519eef85eb4463223e485a0914c2650ebde249a57"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-large-orchestration.log",
+      "sha256": "4443577db2c3f6fee8f0344bdc673d5f4525b513e524f9ba8d32d0584ebd4756"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-command.json",
+      "sha256": "ce045281f5ca3d9f896458a865183ee72435ffc8036b6041b69dedff32658d2d"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-configuration.json",
+      "sha256": "b758528e218051634f86f6c1c4c61c8095f11b89a2ccf0f43af2c63a3e096318"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-lifecycle.json",
+      "sha256": "36d44472444793f29b8f061eb78273b9d3b2781c5f6d0e8769758be659f4e8e7"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-ps-0.json",
+      "sha256": "3bcc00ec25db4fc9d013963c059968d66f0b8ff4d574bbbfbf65faf8e02829eb"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-ps-1.json",
+      "sha256": "38cc60b226a2752150bcd94b38c819b7986cd22818121c1eaa3a3d711331a19b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-ps-2.json",
+      "sha256": "98a5f4fbbc5b41369d6b3dc2b84d9628085dbb72286e7a7c82d6bbc7d26fc87f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-ps-3.json",
+      "sha256": "74169e45e6b3f03c3a16aa0e296a4ef8d8d731669900d06192c49269fbf1349b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-raw.jsonl",
+      "sha256": "50f089504c55bf7f22f1166f43dff12c2711284cd0057b6b408768515cccb842"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-resources.json",
+      "sha256": "38fce0aa9f935775561199bad53ffc266149f58ece9a7648060bc6035a59f76d"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-observations.json",
+      "sha256": "7bc582a31a2e13b144f952a9e494c44d9296f6b750395d04650d0b81bfb91f2e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-1gpu-l128_512-b256-orchestration.log",
+      "sha256": "9fc8c0b7baf950aea85af0eac122622528346e18dd7a606d64a94ee607bb57cc"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-command.json",
+      "sha256": "eac0fcf2010f811963f91ca9fef01d8d562e7d9dc4e0f4b8527aff9ab5786a63"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-configuration.json",
+      "sha256": "6492d86ae9a82148449380ed2285276110ed56fe5a2ba9404bfe8afdfa337bd3"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-lifecycle.json",
+      "sha256": "0a5d13684e2461527f3eae2a8263ff22eddaa121ca537a4e1b9f730acc4bf9e8"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-ps-0.json",
+      "sha256": "fcf47d97b63480bc0df0e1244952026d7e3fa7e37e73b428f26b29c78105bc38"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-ps-1.json",
+      "sha256": "e70763329426f4e80596d2a2b08a3aec2697679ddd03281eede0485981ed0c4f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-ps-2.json",
+      "sha256": "141cdbc645421c9c153b508df590d393e8b622798dbf7b6f4a69b68eecfcefc5"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-ps-3.json",
+      "sha256": "8d045ae063d57ba531ef782f5799c4d56ca7125bb9c628b1c6c297e75e127a96"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-raw.jsonl",
+      "sha256": "cb3a64ed9969ab2b6ede1aaf7719f328a6943a816ded143c4d92f2db5c1dbf21"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-resources.json",
+      "sha256": "5d40e1d9de731394c1c311d5ee3ada14a34e5e1d0035286213266ed1c7e015e3"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-observations.json",
+      "sha256": "da219727b509fde84bf5e2a7be270d8f8c71c4478fa002b5b1705e6da8dc9d37"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-2gpu-l128_512-b256-orchestration.log",
+      "sha256": "74215dcb3e603ef20a718ce7b25fe62b2963fe2e04f7b3a8f1e9e398c9af7743"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-command.json",
+      "sha256": "44b1835d9cad5f8aec13c46ba118795172123f70ce12b8bf78bafd67068cc512"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-configuration.json",
+      "sha256": "d0f7dd9a1e59c82b0afcacafabc47a23a369f434609f4fe2b4105248d28f081b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-lifecycle.json",
+      "sha256": "c80a7ac63f674a01ac3c1bd5d2fed23e928b4f1fef592ba549449317d9dba768"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-probe.log",
+      "sha256": "55337bd9d583625b713e0f1f5257aabd69495eb0984e2a0dddfbc05904ed488a"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-ps-0.json",
+      "sha256": "3aadb74a9fdef6cea16439b16e66809207269147231660c6ad11bfb703f5128f"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-ps-1.json",
+      "sha256": "85bd220c588f759d9ee074f7b5c1ae0d8d73c47b740e116f2452678f1c6126f9"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-ps-2.json",
+      "sha256": "5ddf206225ddddf7f3b4d0c0c598a446ac69a5dabbbb8401c43ff61fe8933bbf"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-ps-3.json",
+      "sha256": "32b6af2fbf89924405d31b32405f8401fd291f7ec12967a8045ff3477cb79cc4"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-raw.jsonl",
+      "sha256": "09d091472f22e69650507b1f6c963c1b1233fb3f4f091d0473d3616167498d41"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-observations.json",
+      "sha256": "67355457608b1a9d03e6594d3fa8440509381162f4dfa96d07031af4e7367201"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b256-orchestration.log",
+      "sha256": "9562d837b96a819d00365e069ccc840cb750b107eacc297e4f0b7d7053ab0c7e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-command.json",
+      "sha256": "ba6a7743e48968d015dd16f3795ef91ceb9f9714ec729a8aa5f4ef35b83641eb"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-configuration.json",
+      "sha256": "9a61d7a07c94466b1e74788c7eaef496a79be51fb84dafdfe18f0699983b28d5"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-lifecycle.json",
+      "sha256": "8867cafdc1abd79b2de27c1285feb8db99bd5f5d684b0e742cca40a85f7bd7b1"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-ps-0.json",
+      "sha256": "bb0da4773b75d51caaf973c319d792368d356fb2e975abe1162c4280a9bb1c15"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-ps-1.json",
+      "sha256": "dd1ee9de7cc0ba8a78ed173459b1c810bb30c9441659fc85438baab9127eca56"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-ps-2.json",
+      "sha256": "25de1fe89c9e8dd54ed40b3be6e766ce63548761c65982d4386fef58743b8c3a"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-ps-3.json",
+      "sha256": "421eb4a8c41fe074e5f8696671f14960a09d4871f5157bda357ba1169ac19c92"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-raw.jsonl",
+      "sha256": "f62615d6491f2ce90b61b74566f481e5cd51877d6a8360e539e8a2506a34c619"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-resources.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-observations.json",
+      "sha256": "e7ea1ab200b7118f754ff90905ad8335132a4e795275974c7299add02b442ed0"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l1022-b512-orchestration.log",
+      "sha256": "358a86978277f73221c8dadb8e74af4f3ccd7a34717dc72204e097bd0e2fffcd"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-command.json",
+      "sha256": "1747585f8364fc5c510dc316d5b1feeda634f71fca3bad0e03e845210764896a"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-configuration.json",
+      "sha256": "a1965b8cce58f44fbf9157efb3be44da390841ee022c2c36dbf8d22745cdce9e"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-lifecycle.json",
+      "sha256": "e58a0f38b2fac4db4ec7f01b5407d9e8ebfd5e52c6f87908e68fb1ebeb30b697"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-probe.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-ps-0.json",
+      "sha256": "4efe7d0dc8d19171f817d2243df8a94ed507a11f7c024cb2eee094823097f10b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-ps-1.json",
+      "sha256": "72201e888a4990f1d05032e6fb454c3a9793b13b239821e7805cb3eca70e8fbf"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-ps-2.json",
+      "sha256": "b9318435e76dbca812dfe56e2afccce33ac79c2a888babe61d50464d68109e9b"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-ps-3.json",
+      "sha256": "cef3e189c68064877f5fe2a7487a363826bdca3a0e5306fae6d72ebee308cd02"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-raw.jsonl",
+      "sha256": "ad93fd2291676c6b8be394a1bfca9e15a8b9a6ec09cf77c3a18cbbe24b1977de"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-resources.json",
+      "sha256": "bbef624c831efb057a7d6d99e5d2dff98de28b0f315cb78a7d8224c72466d93c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-observations.json",
+      "sha256": "b6949887e0b40130cb5ef351496445f35d4327c5634fe7583ab6007d6ee7b28c"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/repaired-v2-3gpu-l128_512-b256-orchestration.log",
+      "sha256": "61581e3e9a1e9708f59e3310aa0b3a7d4319662d5dc15a2a9f9432b0d511bef8"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/summary.json",
+      "sha256": "b14bf084f9cd4e537534459c6f6f654d0d84859a6b6b2722023d4284da9c83df"
+    },
+    {
+      "file": "benchmarks/2026-11-01-overload-repair/transport-control.json",
+      "sha256": "d59fb3c75a006a8ce5d18b86ae3318f0266a326bd013bd2d4c6d137ba6557e6d"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "exit_code": 0,
+  "profiles": [
+    {
+      "name": "repaired-followup-1gpu-l1022-b256",
+      "gpu_owners": 1,
+      "learners": "1022",
+      "ticket_payload_mib": 256,
+      "exit_code": 1,
+      "active_observations": 440,
+      "errors": 0,
+      "boundary_observations": 8,
+      "median_ms": 9.950355626642704,
+      "p99_ms": 107.81870037317276,
+      "max_ms": 1041.5750797837973,
+      "budget_waits": 484
+    },
+    {
+      "name": "repaired-followup-3gpu-l128_512-b256",
+      "gpu_owners": 3,
+      "learners": "128,512",
+      "ticket_payload_mib": 256,
+      "exit_code": 0,
+      "active_observations": 1232,
+      "errors": 0,
+      "boundary_observations": 4,
+      "median_ms": 8.815472014248371,
+      "p99_ms": 180.3308892995119,
+      "max_ms": 601.4560274779797,
+      "budget_waits": 0
+    }
+  ],
+  "finished_epoch": 1793529885.475157
+}

@@ -31,27 +31,26 @@ boundary before the existing job entry point builds its graph. Source-level
 Session checks execute the original methods against independent parameter shards,
 including a mid-run original-controller checkpoint.
 
-![Multi-GPU update throughput and tail latency](docs/assets/native-multigpu-capacity.svg)
+![Large-table multi-GPU scaling](docs/assets/overload-large-table-scaling.svg)
 
-**Measured multi-GPU operating envelope:** with a fixed table and eight concurrent
-Learners, one, two and four GPU owners complete **123.28 / 103.53 / 90.19
-acknowledged sparse updates/s**. The four-owner, 32-Learner sustained test records
-**89.17 updates/s** and **729.77 ms median trial P99** across three 20-second
-windows. Higher concurrency increases queueing and tail latency; the report
-separates useful operating points, accepted load and protocol/deadline bounds.
-All three topologies complete three additional 20-second windows at **1,022
-concurrent Learners**, with median trial P99 ranging from **6.56 to 25.12 seconds**.
-The fleet uses **3 RTX A6000 + 1 L40** on separate hosts with SSH-forwarded BRPC.
-[Current results and raw evidence](docs/NATIVE_MULTIGPU_RESULTS.md).
+**Measured operating envelope:** a fixed million-row, 512-dimensional table
+represents **6 GiB of logical parameter/Adam state**. With 8,192 IDs/update and
+512 concurrent Learners, one/two/three RTX A6000 owners complete
+**36.56 / 30.33 / 26.52 acknowledged sparse updates/s**, with median trial P99
+**12.82 / 15.70 / 17.99 seconds**. These are medians of two five-second submission
+windows followed by full drain, using four parameter shards and SSH-forwarded
+BRPC between cloud instances. More owners add communication and coordination
+cost in this deployment. [Scaling, overload and raw measurements](docs/OVERLOAD_SCHEDULING.md).
 
-The workload matrix also covers a million-row, 512-dimensional table with
-**6 GiB of logical parameter/Adam state**. At 8,192 IDs/update, one/four-owner
-512-Learner cases complete, while 1,022-Learner cases expose RPC/probe timeouts
-and delayed shard-statistics responses. Failed cohorts remain separate from
-verified throughput; overload response is a current repair priority.
-The [earlier admission comparison](docs/AGENT_ADMISSION_RESULTS.md)
-and [all-A6000 capacity study](docs/MULTIGPU_BOUNDARIES.md) retain their own runtime
-and deployment provenance.
+**Observable overload:** bounded dependency-plan retention and an independent
+statistics path keep parameter shards inspectable while data operations wait.
+The 256 MiB/shard lookup-ticket budget produces an explicit capacity rejection
+at 1,022 large-input Learners; the failed cohort's tickets and Agent queues drain.
+With 512 MiB/shard, single-owner and three-owner controls complete
+1,022-Learner windows; the three-owner trial records **23.61 updates/s** and
+**35.47 s P99**.
+[Earlier 1/2/4-owner measurements](docs/NATIVE_MULTIGPU_RESULTS.md) retain their
+runtime, longer-duration small-input results and original overload failures.
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam with optional weight clipping, CUDA-resident weights and optimizer states, CPU/GPU migration,
@@ -65,11 +64,11 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 **Validation:** completed pressure-test windows inspect finite sampled weights,
 exact sampled row-update counters and drained lookup/Agent queues. Native model
 checks separately compare complete touched optimizer state. The latest Ubuntu native,
-TensorFlow and CUDA suite executes **47 passing checks**, with three private
+TensorFlow and CUDA suite executes **48 passing checks**, with three private
 original-source checks skipped. Local native/C-ABI and portable TensorFlow suites
-pass **30/30** and **42/42**. Native TensorFlow model trajectories with **1/2/4
-physical GPU parameter owners** match the CPU replay's complete sparse optimizer
-state. [Native integration checks](docs/NATIVE_TENSORFLOW.md#executed-verification).
+pass **31/31** and **43/43**. Native TensorFlow model trajectories with **1/2/3 physical GPU parameter
+owners** match the CPU replay's complete touched sparse optimizer state; the
+earlier runtime separately verifies four owners. [Native integration checks](docs/NATIVE_TENSORFLOW.md#executed-verification).
 Device Pull follows
 five training steps across two shards and mixed native/remote cache paths,
 comparing complete features and all touched optimizer rows with CPU replay.

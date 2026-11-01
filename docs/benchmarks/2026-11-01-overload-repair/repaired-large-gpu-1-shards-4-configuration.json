@@ -1,0 +1,26 @@
+{
+  "build": "/home/ubuntu/dps-overload-repair/build-cuda",
+  "out": "/home/ubuntu/dps-overload-repair/results/repaired-large",
+  "devices": [
+    0
+  ],
+  "gpu_counts": "1",
+  "ps_shards": 4,
+  "max_active_operations": 16,
+  "dependency_cache": "on",
+  "rows": 1048576,
+  "dimension": 512,
+  "keys": 8192,
+  "bag": 128,
+  "learners": "512,1022",
+  "access_pattern": "resident_mixture",
+  "seconds": 5.0,
+  "repeats": 2,
+  "host_reference": false,
+  "cache_admission": "manual",
+  "serial_agent_updates": false,
+  "expanded_gradients": false,
+  "external_agents": [],
+  "run_id": "",
+  "external_hardware": null
+}

@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "active_observations": 688,
+  "errors": 0,
+  "boundary_observations": 12,
+  "median_ms": 10.844766162335873,
+  "p99_ms": 366.81751534342766,
+  "max_ms": 1108.763376250863,
+  "budget_waits": 1119
+}

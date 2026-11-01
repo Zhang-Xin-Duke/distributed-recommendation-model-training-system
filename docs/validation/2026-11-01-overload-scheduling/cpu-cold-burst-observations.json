@@ -1,0 +1,231 @@
+{
+  "summary": {
+    "scope": "CPU Host reference; metadata/observation correctness, no GPU throughput claim",
+    "exit_code": 1,
+    "observations": 24,
+    "errors": 0,
+    "boundary_observations": 0,
+    "median_ms": 1.9671244081109762,
+    "p99_ms": 19.95120896026492,
+    "maximum_ms": 19.994708010926843,
+    "dependency_budget_waits": 0
+  },
+  "samples": [
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.994708010926843,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.95120896026492,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.726458005607128,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.610374933108687,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9913751166313887,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9704578444361687,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7195839900523424,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2288340367376804,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.0544998589903116,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 5655496,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8029578495770693,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 7756208,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8947080243378878,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 17513936,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9637909717857838,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 17761864,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.066999837756157,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 68896,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.409749897196889,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2173160,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7755001317709684,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 12136280,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5976668801158667,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 12268768,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.549332868307829,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4415420591831207,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7679999582469463,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 5959168,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6487501561641693,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 6175816,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2728340700268745,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.060290891677141,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6195829957723618,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 5.825666012242436,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    }
+  ]
+}

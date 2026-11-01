@@ -1,0 +1,89 @@
+[
+  {
+    "path": "loopback",
+    "measurements": [
+      {
+        "payload_bytes": 8192,
+        "repetitions": 20,
+        "median_ms": 0.05178619176149368,
+        "minimum_ms": 0.047868117690086365,
+        "maximum_ms": 0.10018236935138702,
+        "upload_mib_per_second": 150.86067799658304
+      },
+      {
+        "payload_bytes": 65536,
+        "repetitions": 20,
+        "median_ms": 0.08500739932060242,
+        "minimum_ms": 0.07971562445163727,
+        "maximum_ms": 0.11537596583366394,
+        "upload_mib_per_second": 735.2301152548315
+      },
+      {
+        "payload_bytes": 1048576,
+        "repetitions": 20,
+        "median_ms": 0.7974579930305481,
+        "minimum_ms": 0.5681999027729034,
+        "maximum_ms": 3.329642117023468,
+        "upload_mib_per_second": 1253.9845468220083
+      }
+    ]
+  },
+  {
+    "path": "forward-1",
+    "measurements": [
+      {
+        "payload_bytes": 8192,
+        "repetitions": 20,
+        "median_ms": 0.4471670836210251,
+        "minimum_ms": 0.3510545939207077,
+        "maximum_ms": 40.8141203224659,
+        "upload_mib_per_second": 17.47109813346885
+      },
+      {
+        "payload_bytes": 65536,
+        "repetitions": 20,
+        "median_ms": 41.12402908504009,
+        "minimum_ms": 0.8290093392133713,
+        "maximum_ms": 43.08049567043781,
+        "upload_mib_per_second": 1.5197927195012115
+      },
+      {
+        "payload_bytes": 1048576,
+        "repetitions": 20,
+        "median_ms": 46.010470017790794,
+        "minimum_ms": 7.021108642220497,
+        "maximum_ms": 50.99453590810299,
+        "upload_mib_per_second": 21.734183537210804
+      }
+    ]
+  },
+  {
+    "path": "forward-2",
+    "measurements": [
+      {
+        "payload_bytes": 8192,
+        "repetitions": 20,
+        "median_ms": 0.49532949924468994,
+        "minimum_ms": 0.42073242366313934,
+        "maximum_ms": 41.617026552557945,
+        "upload_mib_per_second": 15.772329352305887
+      },
+      {
+        "payload_bytes": 65536,
+        "repetitions": 20,
+        "median_ms": 1.5395348891615868,
+        "minimum_ms": 0.8502490818500519,
+        "maximum_ms": 42.98229143023491,
+        "upload_mib_per_second": 40.59667659369304
+      },
+      {
+        "payload_bytes": 1048576,
+        "repetitions": 20,
+        "median_ms": 47.98898380249739,
+        "minimum_ms": 6.792640313506126,
+        "maximum_ms": 49.9278400093317,
+        "upload_mib_per_second": 20.838115766643075
+      }
+    ]
+  }
+]

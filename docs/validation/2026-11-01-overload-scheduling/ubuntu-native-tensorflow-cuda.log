@@ -1,0 +1,1133 @@
+Start testing: Nov 01 10:18 UTC
+----------------------------------------------------------
+1/51 Testing: native_tensorflow_cpu_graph
+1/51 Test: native_tensorflow_cpu_graph
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/native_tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/libeps_runtime.so" "/home/ubuntu/dps-overload-repair/build-cuda/eps_tensorflow_ops.so" "/home/ubuntu/dps-overload-repair/build-cuda/eps_snapshot_compare" "cpu"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"native_tensorflow_cpu_graph" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:18:11.404741: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528295.258668    6318 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+2026-11-01 10:18:17.569625: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: native EPS output shape mismatch
+2026-11-01 10:18:17.599009: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: UNAVAILABLE: native runtime is closed
+{"test": "native_tensorflow_graph", "mode": "cpu", "tensorflow": "2.20.0", "external_ps_processes": 4, "training_steps": 5, "features": 7, "prepared_steps": 2, "checked_parameter_rows": 8, "acknowledged_updates_per_shard": 5, "max_state_absolute_error": 0, "max_model_absolute_error": 0.0, "resident_parameters_observed": false, "native_op_types": ["EpsCommand", "EpsPull", "EpsPullPrepared", "EpsPush"], "python_callbacks": false, "output_valid_after_runtime_close": true, "mid_run_dense_and_sparse_save_resume": true, "output_schema_failure_tickets_released": true, "gpu_parameter_owners": 0, "remote_owner_statistics": []}
+I1101 10:18:17.703476  6498 4294969856 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=5 addr=127.0.0.1:43529} (0x2dc2f340)
+I1101 10:18:17.711264  6498 4294969857 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=4 addr=127.0.0.1:38973} (0x2dc2f040)
+I1101 10:18:17.719212  6498 4294969858 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:34565} (0x2dc2e740)
+I1101 10:18:17.727016  6498 4294969859 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=0 addr=127.0.0.1:42613} (0x2dc2e440)
+<end of output>
+Test time =   9.80 sec
+----------------------------------------------------------
+Test Passed.
+"native_tensorflow_cpu_graph" end time: Nov 01 10:18 UTC
+"native_tensorflow_cpu_graph" time elapsed: 00:00:09
+----------------------------------------------------------
+
+2/51 Testing: native_tensorflow_cuda_graph
+2/51 Test: native_tensorflow_cuda_graph
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/native_tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/libeps_runtime.so" "/home/ubuntu/dps-overload-repair/build-cuda/eps_tensorflow_ops.so" "/home/ubuntu/dps-overload-repair/build-cuda/eps_snapshot_compare" "cuda"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"native_tensorflow_cuda_graph" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:18:21.213437: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528304.766436    6598 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+W1101 10:18:24.840671  6598     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:24.841995  6598     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=32849.
+I1101 10:18:24.842137  6598     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:32849 in web browser.
+2026-11-01 10:18:26.858699: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: native EPS output shape mismatch
+	 [[{{node EpsPull}}]]
+I1101 10:18:26.904401  6839     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+2026-11-01 10:18:26.970868: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: UNAVAILABLE: native runtime is closed
+{"test": "native_tensorflow_graph", "mode": "cuda", "tensorflow": "2.20.0", "external_ps_processes": 4, "training_steps": 5, "features": 7, "prepared_steps": 2, "checked_parameter_rows": 8, "acknowledged_updates_per_shard": 5, "max_state_absolute_error": 0, "max_model_absolute_error": 7.450580596923828e-09, "resident_parameters_observed": true, "native_op_types": ["EpsCommand", "EpsPull", "EpsPullPrepared", "EpsPush"], "python_callbacks": false, "output_valid_after_runtime_close": true, "mid_run_dense_and_sparse_save_resume": true, "output_schema_failure_tickets_released": true, "gpu_parameter_owners": 1, "remote_owner_statistics": []}
+I1101 10:18:27.076566  6783 4294969856 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=7 addr=127.0.0.1:39127} (0x36469a00)
+I1101 10:18:27.082285  6783 4294969857 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=6 addr=127.0.0.1:46493} (0x36469700)
+I1101 10:18:27.086004  6783 4294969858 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:33173} (0x36468800)
+I1101 10:18:27.090486  6783 4294969859 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=0 addr=127.0.0.1:35233} (0x36468500)
+<end of output>
+Test time =   9.31 sec
+----------------------------------------------------------
+Test Passed.
+"native_tensorflow_cuda_graph" end time: Nov 01 10:18 UTC
+"native_tensorflow_cuda_graph" time elapsed: 00:00:09
+----------------------------------------------------------
+
+3/51 Testing: native_runtime_c_abi
+3/51 Test: native_runtime_c_abi
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/runtime_c_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/libeps_runtime.so"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"native_runtime_c_abi" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+{"test": "native_runtime_c_abi", "abi_version": 1, "shards": 2, "prepared_input": true, "duplicate_push": true, "buffer_outlives_runtime": true}
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"native_runtime_c_abi" end time: Nov 01 10:18 UTC
+"native_runtime_c_abi" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/51 Testing: in_process_worker_lifecycle
+4/51 Test: in_process_worker_lifecycle
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_worker_agent_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"in_process_worker_lifecycle" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+W1101 10:18:30.128650  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:30.131569  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=37795.
+I1101 10:18:30.131924  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:37795 in web browser.
+I1101 10:18:30.138859  7007     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 10:18:30.171076  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:30.172438  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=37795.
+I1101 10:18:30.172454  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:37795 in web browser.
+I1101 10:18:30.269911  6995 4294969856 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:37795} (0x5ddaa7e5d7c0)
+I1101 10:18:30.270490  6997 4294969856 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2645 AfterRevived] Revived Socket{id=1 addr=127.0.0.1:37795} (0x5ddaa7e5d7c0) (Connectable)
+I1101 10:18:30.274628  6986     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"in_process_worker_lifecycle","shared_local_rpc_admission":true,"drained_on_stop":true,"backend_released":true,"endpoint_reused":true}
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"in_process_worker_lifecycle" end time: Nov 01 10:18 UTC
+"in_process_worker_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/51 Testing: distributed_device_pull_cuda
+5/51 Test: distributed_device_pull_cuda
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_device_pull_cuda"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"distributed_device_pull_cuda" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+W1101 10:18:31.284550  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:31.287358  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=40181.
+I1101 10:18:31.287542  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:40181 in web browser.
+W1101 10:18:31.296567  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:31.297712  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=43073.
+I1101 10:18:31.297720  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:43073 in web browser.
+I1101 10:18:31.745943  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 10:18:31.747561  7011     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 10:18:31.846778  7105 4294970624 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=3 addr=127.0.0.1:40181} (0x5562370aa300)
+I1101 10:18:31.848199  7105 4294970625 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=2 addr=127.0.0.1:43073} (0x5562370aa000)
+{"test":"distributed_device_pull","backend":"cuda","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   4.31 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_cuda" end time: Nov 01 10:18 UTC
+"distributed_device_pull_cuda" time elapsed: 00:00:04
+----------------------------------------------------------
+
+6/51 Testing: native_worker_cuda_stream
+6/51 Test: native_worker_cuda_stream
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_worker_agent_cuda"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"native_worker_cuda_stream" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+W1101 10:18:35.519620  7190     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:35.524894  7190     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=44107.
+I1101 10:18:35.525172  7190     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:44107 in web browser.
+I1101 10:18:35.567713  7190     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"native_worker_cuda_stream","model_stream":"nondefault","remote_control_local_device_reads":true,"full_optimizer_rows_checked":2,"output_budget_enforced":true,"result_outlives_worker":true}
+<end of output>
+Test time =   4.28 sec
+----------------------------------------------------------
+Test Passed.
+"native_worker_cuda_stream" end time: Nov 01 10:18 UTC
+"native_worker_cuda_stream" time elapsed: 00:00:04
+----------------------------------------------------------
+
+7/51 Testing: agent_rpc_admission_queue
+7/51 Test: agent_rpc_admission_queue
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_agent_rpc_admission_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"agent_rpc_admission_queue" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+W1101 10:18:38.913645  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:38.916601  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=33491.
+I1101 10:18:38.916970  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:33491 in web browser.
+I1101 10:18:38.931387  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 10:18:38.932956  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:38.934022  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=43535.
+I1101 10:18:38.934031  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:43535 in web browser.
+I1101 10:18:38.937320  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1101 10:18:38.938266  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:38.938462  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=34131.
+I1101 10:18:38.938469  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:34131 in web browser.
+I1101 10:18:38.958824  7323     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"agent_rpc_admission_burst","independent_clients":8,"requests":256,"active_limit":4,"observed_queued":252,"rejected":0,"state_unchanged":true}
+{"test":"agent_rpc_admission_limits","count_and_byte_rejections":2,"rejected_before_execution":true,"state_unchanged":true}
+{"test":"agent_rpc_admission_optimizer_state","home_streams":8,"updates":256,"host_updates":128,"compact_updates":128,"full_rows_checked":8,"optimizer_state_exact":true,"evicted_rows":8}
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"agent_rpc_admission_queue" end time: Nov 01 10:18 UTC
+"agent_rpc_admission_queue" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/51 Testing: shard_observation_rpc
+8/51 Test: shard_observation_rpc
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_shard_observation_rpc"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"shard_observation_rpc" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+W1101 10:18:38.998105  7357     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:18:39.000939  7357     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=40039.
+I1101 10:18:39.001228  7357     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:40039 in web browser.
+I1101 10:18:39.009110  7357     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcServer] is going to quit
+{"test":"shard_observation_rpc","held_data_completion_threads":4,"stats_latency_ms":0.520246,"acknowledged_updates":4,"optimizer_state_exact":true}
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"shard_observation_rpc" end time: Nov 01 10:18 UTC
+"shard_observation_rpc" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/51 Testing: agent_admission_cli
+9/51 Test: agent_admission_cli
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/agent_admission_cli.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"agent_admission_cli" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+{"test": "agent_admission_cli", "active_limit": 2, "pending_limit": 64, "request_bytes_limit": 65536, "http_statistics_verified": true, "oversized_statistics_payload_rejected": true, "invalid_active_limits_rejected": [0, 129]}
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_cli" end time: Nov 01 10:18 UTC
+"agent_admission_cli" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/51 Testing: automatic_cache_external_shards
+10/51 Test: automatic_cache_external_shards
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/cache_policy_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"automatic_cache_external_shards" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.55 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_external_shards" end time: Nov 01 10:18 UTC
+"automatic_cache_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/51 Testing: cache_policy_fixed_trace_smoke
+11/51 Test: cache_policy_fixed_trace_smoke
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/cache_policy_trace_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_policy_probe"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"cache_policy_fixed_trace_smoke" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+<end of output>
+Test time =   4.16 sec
+----------------------------------------------------------
+Test Passed.
+"cache_policy_fixed_trace_smoke" end time: Nov 01 10:18 UTC
+"cache_policy_fixed_trace_smoke" time elapsed: 00:00:04
+----------------------------------------------------------
+
+12/51 Testing: automatic_cache_coalesced_external_shards
+12/51 Test: automatic_cache_coalesced_external_shards
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/cache_policy_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"automatic_cache_coalesced_external_shards" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.62 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_coalesced_external_shards" end time: Nov 01 10:18 UTC
+"automatic_cache_coalesced_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/51 Testing: rpc_cache_backpressure
+13/51 Test: rpc_cache_backpressure
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/overload_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent" "/home/ubuntu/dps-overload-repair/build-cuda/eps_overload_checks"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"rpc_cache_backpressure" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+{"test":"rpc_cache_backpressure","configured_live_ticket_limit":32,"offered":64,"admitted":32,"rejected":32,"retry_after_release":true,"state_preserved":true}
+<end of output>
+Test time =   1.34 sec
+----------------------------------------------------------
+Test Passed.
+"rpc_cache_backpressure" end time: Nov 01 10:18 UTC
+"rpc_cache_backpressure" time elapsed: 00:00:01
+----------------------------------------------------------
+
+14/51 Testing: capacity_failed_point_diagnostics
+14/51 Test: capacity_failed_point_diagnostics
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/capacity_failure_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"capacity_failed_point_diagnostics" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+{"acknowledged_steps_before_failure": 355, "after_health_probe_shards": [{"active_operations": 0, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 358, "waiting_operations": 0}], "agent_admission": [{"accepted_requests": 754, "active_limit": 32, "active_operations": 0, "agent": 0, "completed_requests": 754, "dispatch_failures": 0, "peak_active_operations": 1, "peak_pending_operations": 1, "peak_request_bytes": 127531, "pending_limit": 4096, "pending_request_bytes": 0, "queue_wait_nanoseconds": 28763935, "queued_operations": 0, "rejected_requests": 0, "request_bytes_limit": 268435456}], "dimension": 16, "elapsed_seconds": 1.0020835, "error": "live ticket limit reached", "errors": 15, "fresh_read_only_probe": {"completed": true, "finite": true}, "gpu_agents": 1, "keys_per_step": 128, "learners": 16, "optimizer_trajectory_verified": false, "post_failure_shards": [{"active_operations": 0, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 358, "waiting_operations": 0}], "ps_shards": 1, "repeat": 0, "rows": 1024, "sampled_state": {"checked_rows": 16, "completed": true, "finite": true}, "test": "distributed_sparse_training_overload"}
+<end of output>
+Test time =   1.23 sec
+----------------------------------------------------------
+Test Passed.
+"capacity_failed_point_diagnostics" end time: Nov 01 10:18 UTC
+"capacity_failed_point_diagnostics" time elapsed: 00:00:01
+----------------------------------------------------------
+
+15/51 Testing: two_process_rpc_and_restore
+15/51 Test: two_process_rpc_and_restore
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/rpc_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_rpc_checks"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"two_process_rpc_and_restore" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   0.47 sec
+----------------------------------------------------------
+Test Passed.
+"two_process_rpc_and_restore" end time: Nov 01 10:18 UTC
+"two_process_rpc_and_restore" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/51 Testing: cache_agent_process_lifecycle
+16/51 Test: cache_agent_process_lifecycle
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/cache_rpc_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_rpc_checks" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"cache_agent_process_lifecycle" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+CACHE_BACKEND=cuda
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   3.37 sec
+----------------------------------------------------------
+Test Passed.
+"cache_agent_process_lifecycle" end time: Nov 01 10:18 UTC
+"cache_agent_process_lifecycle" time elapsed: 00:00:03
+----------------------------------------------------------
+
+17/51 Testing: entropy_table_hook_configuration
+17/51 Test: entropy_table_hook_configuration
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/entropy_install_tests.py"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"entropy_table_hook_configuration" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.081s
+
+OK
+<end of output>
+Test time =   0.20 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_table_hook_configuration" end time: Nov 01 10:18 UTC
+"entropy_table_hook_configuration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/51 Testing: checkpoint_filesystem_contract
+18/51 Test: checkpoint_filesystem_contract
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/checkpoint_store_tests.py"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"checkpoint_filesystem_contract" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.010s
+
+OK
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"checkpoint_filesystem_contract" end time: Nov 01 10:18 UTC
+"checkpoint_filesystem_contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/51 Testing: committed_checkpoint_staging
+19/51 Test: committed_checkpoint_staging
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/checkpoint_restore_tests.py"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"committed_checkpoint_staging" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.021s
+
+OK
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"committed_checkpoint_staging" end time: Nov 01 10:18 UTC
+"committed_checkpoint_staging" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/51 Testing: entropy_original_table_external_shards
+20/51 Test: entropy_original_table_external_shards
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/entropy_hooks_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"entropy_original_table_external_shards" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_table_external_shards" end time: Nov 01 10:18 UTC
+"entropy_original_table_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/51 Testing: entropy_original_table_cache
+21/51 Test: entropy_original_table_cache
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/entropy_hooks_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"entropy_original_table_cache" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_table_cache" end time: Nov 01 10:18 UTC
+"entropy_original_table_cache" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/51 Testing: entropy_original_restore_trajectory
+22/51 Test: entropy_original_restore_trajectory
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/entropy_restore_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent" "/home/ubuntu/dps-overload-repair/build-cuda/eps_snapshot_compare"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"entropy_original_restore_trajectory" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_restore_trajectory" end time: Nov 01 10:18 UTC
+"entropy_original_restore_trajectory" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/51 Testing: tensorflow_graph_external_shards
+23/51 Test: tensorflow_graph_external_shards
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_external_shards" start time: Nov 01 10:18 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:18:52.356631: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528335.849217    9872 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "cpu_pool", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.86 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_external_shards" end time: Nov 01 10:19 UTC
+"tensorflow_graph_external_shards" time elapsed: 00:00:09
+----------------------------------------------------------
+
+24/51 Testing: tensorflow_graph_cache_external_shards
+24/51 Test: tensorflow_graph_cache_external_shards
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_cache_external_shards" start time: Nov 01 10:19 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:19:02.325905: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528348.592135   10116 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "transfer_unique_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  15.17 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_cache_external_shards" end time: Nov 01 10:19 UTC
+"tensorflow_graph_cache_external_shards" time elapsed: 00:00:15
+----------------------------------------------------------
+
+25/51 Testing: tensorflow_graph_automatic_cache
+25/51 Test: tensorflow_graph_automatic_cache
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_automatic_cache" start time: Nov 01 10:19 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:19:17.410286: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528361.245114   10388 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.39 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_automatic_cache" end time: Nov 01 10:19 UTC
+"tensorflow_graph_automatic_cache" time elapsed: 00:00:10
+----------------------------------------------------------
+
+26/51 Testing: tensorflow_graph_automatic_coalesced_cache
+26/51 Test: tensorflow_graph_automatic_coalesced_cache
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_automatic_coalesced_cache" start time: Nov 01 10:19 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:19:27.819418: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528371.334970   10642 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.40 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_automatic_coalesced_cache" end time: Nov 01 10:19 UTC
+"tensorflow_graph_automatic_coalesced_cache" time elapsed: 00:00:10
+----------------------------------------------------------
+
+27/51 Testing: tensorflow_graph_prepared_external_shards
+27/51 Test: tensorflow_graph_prepared_external_shards
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_prepared_external_shards" start time: Nov 01 10:19 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:19:38.168797: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528381.764948   10875 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+2026-11-01 10:19:44.805687: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-01 10:19:44.805746: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "cpu_pool", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  12.66 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_prepared_external_shards" end time: Nov 01 10:19 UTC
+"tensorflow_graph_prepared_external_shards" time elapsed: 00:00:12
+----------------------------------------------------------
+
+28/51 Testing: tensorflow_graph_prepared_automatic_cache
+28/51 Test: tensorflow_graph_prepared_automatic_cache
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_prepared_automatic_cache" start time: Nov 01 10:19 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:19:50.893867: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528394.480705   11138 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+2026-11-01 10:19:57.271277: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-01 10:19:57.271336: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.51 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_prepared_automatic_cache" end time: Nov 01 10:20 UTC
+"tensorflow_graph_prepared_automatic_cache" time elapsed: 00:00:10
+----------------------------------------------------------
+
+29/51 Testing: tensorflow_graph_coalesced_cache
+29/51 Test: tensorflow_graph_coalesced_cache
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_coalesced_cache" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:20:01.401145: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528405.087959   11412 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "transfer_unique_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.21 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_coalesced_cache" end time: Nov 01 10:20 UTC
+"tensorflow_graph_coalesced_cache" time elapsed: 00:00:10
+----------------------------------------------------------
+
+30/51 Testing: tensorflow_graph_periodic_checkpoint
+30/51 Test: tensorflow_graph_periodic_checkpoint
+Command: "/home/ubuntu/dps-overload-repair/environment/bin/python" "/home/ubuntu/dps-overload-repair/source/tests/tensorflow_processes.py" "/home/ubuntu/dps-overload-repair/build-cuda/eps_server" "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"tensorflow_graph_periodic_checkpoint" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+2026-11-01 10:20:11.659364: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793528415.299123   11666 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 46731 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:0f:00.0, compute capability: 8.6
+2026-11-01 10:20:18.171129: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-01 10:20:18.171177: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/dps-overload-repair/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": true, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  12.66 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_periodic_checkpoint" end time: Nov 01 10:20 UTC
+"tensorflow_graph_periodic_checkpoint" time elapsed: 00:00:12
+----------------------------------------------------------
+
+31/51 Testing: distributed_device_pull_protocol
+31/51 Test: distributed_device_pull_protocol
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_device_pull_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"distributed_device_pull_protocol" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+{"test":"distributed_device_pull","backend":"cpu_protocol_reference","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_protocol" end time: Nov 01 10:20 UTC
+"distributed_device_pull_protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/51 Testing: agent_admission_lifecycle
+32/51 Test: agent_admission_lifecycle
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_agent_admission_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"agent_admission_lifecycle" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+Agent admission: FIFO, completion lifetime, count/byte limits, exception cleanup and shutdown passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_lifecycle" end time: Nov 01 10:20 UTC
+"agent_admission_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/51 Testing: core_correctness
+33/51 Test: core_correctness
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_core_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"core_correctness" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS pooling and sparse update
+PASS sequence and pinned rows
+PASS invalid update is retryable
+PASS drain and exact optimizer restore
+PASS corrupt snapshot
+PASS partitioning and initializer
+PASS mixed request history
+PASS resource bounds and epoch
+PASS ticket and queue payload limits
+PASS concurrent Learner lifecycles
+PASS numeric rejection without partial updates
+PASS out-of-order lifecycle retirement
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"core_correctness" end time: Nov 01 10:20 UTC
+"core_correctness" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/51 Testing: cost_and_migration_policies
+34/51 Test: cost_and_migration_policies
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_planner_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"cost_and_migration_policies" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS cost model, hysteresis, reuse admission and migration budgets
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"cost_and_migration_policies" end time: Nov 01 10:20 UTC
+"cost_and_migration_policies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/51 Testing: cache_ownership_and_updates
+35/51 Test: cache_ownership_and_updates
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"cache_ownership_and_updates" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS host-reference cache lifecycle, mixed updates, row pins, generations and drain/restore
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"cache_ownership_and_updates" end time: Nov 01 10:20 UTC
+"cache_ownership_and_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/51 Testing: automatic_cache_policy_lifecycle
+36/51 Test: automatic_cache_policy_lifecycle
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_cache_policy_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"automatic_cache_policy_lifecycle" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS automatic cache hot-set replacement, pins, budgets, bounded history, retries, fallback and optimizer restore
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_policy_lifecycle" end time: Nov 01 10:20 UTC
+"automatic_cache_policy_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/51 Testing: agent_control_replay
+37/51 Test: agent_control_replay
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_agent_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"agent_control_replay" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS agent control replay, retired command rejection and acknowledged eviction
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"agent_control_replay" end time: Nov 01 10:20 UTC
+"agent_control_replay" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/51 Testing: embedding_adapter_lifecycle
+38/51 Test: embedding_adapter_lifecycle
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_adapter_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"embedding_adapter_lifecycle" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS embedding adapter padding, mean/sequence gradients, completion and replay
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"embedding_adapter_lifecycle" end time: Nov 01 10:20 UTC
+"embedding_adapter_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/51 Testing: service_phase_timing
+39/51 Test: service_phase_timing
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_phase_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"service_phase_timing" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS sequencer phase times: CPU/mixed ownership, migration, maintenance and duplicate exclusion
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"service_phase_timing" end time: Nov 01 10:20 UTC
+"service_phase_timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/51 Testing: bounded_asynchronous_preparation
+40/51 Test: bounded_asynchronous_preparation
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_preparation_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"bounded_asynchronous_preparation" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS bounded preparation: FIFO/cancellation, RPC overlap, update-read boundary, three-shard optimizer replay, save and ticket cleanup
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_asynchronous_preparation" end time: Nov 01 10:20 UTC
+"bounded_asynchronous_preparation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/51 Testing: periodic_checkpoint_lifecycle
+41/51 Test: periodic_checkpoint_lifecycle
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_periodic_checkpoint_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"periodic_checkpoint_lifecycle" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS repeated checkpoints, chunked export, monotonic identities, exact restore trajectory and partial-save fencing
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"periodic_checkpoint_lifecycle" end time: Nov 01 10:20 UTC
+"periodic_checkpoint_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+42/51 Testing: restored_snapshot_provenance
+42/51 Test: restored_snapshot_provenance
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_restore_provenance_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"restored_snapshot_provenance" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS validated restore provenance, pristine admission boundary and failed-load publication
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"restored_snapshot_provenance" end time: Nov 01 10:20 UTC
+"restored_snapshot_provenance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+43/51 Testing: bounded_sparse_optimizer
+43/51 Test: bounded_sparse_optimizer
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_weight_bounds_tests" "/home/ubuntu/dps-overload-repair/source/tests/fixtures/snapshot-v1-unbounded.bin"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"bounded_sparse_optimizer" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS bounded initialization, Adam moments, mixed-owner updates and snapshot metadata
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_sparse_optimizer" end time: Nov 01 10:20 UTC
+"bounded_sparse_optimizer" time elapsed: 00:00:00
+----------------------------------------------------------
+
+44/51 Testing: resumable_actor_dependencies
+44/51 Test: resumable_actor_dependencies
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_resumable_actor_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"resumable_actor_dependencies" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS resumable actor: independent progress, FIFO conflicts, barriers, bounded admission, nested continuations and drain
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_actor_dependencies" end time: Nov 01 10:20 UTC
+"resumable_actor_dependencies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+45/51 Testing: resumable_shard_operations
+45/51 Test: resumable_shard_operations
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"resumable_shard_operations" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_shard_operations" end time: Nov 01 10:20 UTC
+"resumable_shard_operations" time elapsed: 00:00:00
+----------------------------------------------------------
+
+46/51 Testing: concurrent_multi_agent_updates
+46/51 Test: concurrent_multi_agent_updates
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_multi_agent_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"concurrent_multi_agent_updates" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS concurrent independent owners and sequential per-agent multi-table contexts
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"concurrent_multi_agent_updates" end time: Nov 01 10:20 UTC
+"concurrent_multi_agent_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+47/51 Testing: coalesced_cross_shard_gathers
+47/51 Test: coalesced_cross_shard_gathers
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_coalesced_gather_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"coalesced_cross_shard_gathers" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS coalesced two-shard/three-agent gathers, mixed routes, parallel dispatch, optimizer trajectory and failure cleanup
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"coalesced_cross_shard_gathers" end time: Nov 01 10:20 UTC
+"coalesced_cross_shard_gathers" time elapsed: 00:00:00
+----------------------------------------------------------
+
+48/51 Testing: compact_feature_gradient_semantics
+48/51 Test: compact_feature_gradient_semantics
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_compact_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"compact_feature_gradient_semantics" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS compact gradient ordering, pooling, sequence, payload reduction and validation
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"compact_feature_gradient_semantics" end time: Nov 01 10:20 UTC
+"compact_feature_gradient_semantics" time elapsed: 00:00:00
+----------------------------------------------------------
+
+49/51 Testing: resumable_cuda_shard_operations
+49/51 Test: resumable_cuda_shard_operations
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"resumable_cuda_shard_operations" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =  11.22 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_cuda_shard_operations" end time: Nov 01 10:20 UTC
+"resumable_cuda_shard_operations" time elapsed: 00:00:11
+----------------------------------------------------------
+
+50/51 Testing: cuda_state_and_device_results
+50/51 Test: cuda_state_and_device_results
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_cuda_tests"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"cuda_state_and_device_results" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
+<end of output>
+Test time =   6.27 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_state_and_device_results" end time: Nov 01 10:20 UTC
+"cuda_state_and_device_results" time elapsed: 00:00:06
+----------------------------------------------------------
+
+51/51 Testing: cuda_concurrent_checked_reads
+51/51 Test: cuda_concurrent_checked_reads
+Command: "/home/ubuntu/dps-overload-repair/build-cuda/eps_cuda_stress"
+Directory: /home/ubuntu/dps-overload-repair/build-cuda
+"cuda_concurrent_checked_reads" start time: Nov 01 10:20 UTC
+Output:
+----------------------------------------------------------
+{"test":"cuda_checked_read_stress","rows":262144,"dimension":128,"workers":8,"checked_batches":512,"key_occurrences":2097152,"weight_working_set_bytes":134217728,"maximum_absolute_error":0,"device_memory_growth_bytes":265289728,"backend_state_bytes":402653184,"backend_staging_bytes":50331652,"read_phase_output_allocations":0,"wall_seconds_including_reference_checks":1.36785}
+<end of output>
+Test time =  12.35 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_concurrent_checked_reads" end time: Nov 01 10:20 UTC
+"cuda_concurrent_checked_reads" time elapsed: 00:00:12
+----------------------------------------------------------
+
+End testing: Nov 01 10:20 UTC

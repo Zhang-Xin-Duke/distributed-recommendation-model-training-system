@@ -1,0 +1,17 @@
+[
+  {
+    "worker": 0,
+    "hardware": "GPU-d0e3d0c6-28f8-51ad-87bc-35fe179df7c1, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "agent_sha256": "17118da91ccfee071e3d30b23404b671f6283414284bf1a23c286b3f30e0526c"
+  },
+  {
+    "worker": 1,
+    "hardware": "GPU-f93efd78-5adf-53f3-8339-c61db14b3142, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "agent_sha256": "17118da91ccfee071e3d30b23404b671f6283414284bf1a23c286b3f30e0526c"
+  },
+  {
+    "worker": 2,
+    "hardware": "GPU-2b02b652-ca60-5f67-b38a-7dff7d612367, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "agent_sha256": "17118da91ccfee071e3d30b23404b671f6283414284bf1a23c286b3f30e0526c"
+  }
+]

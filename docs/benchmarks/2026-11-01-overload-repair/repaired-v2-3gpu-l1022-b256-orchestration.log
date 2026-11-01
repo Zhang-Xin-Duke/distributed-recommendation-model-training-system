@@ -1,0 +1,32 @@
+ps-0.log:
+W1101 10:37:52.948047 46394     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:37:52.949584 46394     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=44681.
+I1101 10:37:52.949931 46394     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:44681 in web browser.
+
+probe.log:
+FAIL capacity probe: capacity run failed: live ticket payload budget exhausted
+
+ps-1.log:
+W1101 10:37:52.981261 46412     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:37:52.982751 46412     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=39339.
+I1101 10:37:52.983079 46412     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:39339 in web browser.
+
+ps-2.log:
+W1101 10:37:53.013913 46429     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:37:53.015454 46429     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=43923.
+I1101 10:37:53.015749 46429     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:43923 in web browser.
+
+ps-3.log:
+W1101 10:37:53.046205 46446     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:37:53.047774 46446     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=38299.
+I1101 10:37:53.048139 46446     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:38299 in web browser.
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 226, in <module>
+    main()
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 204, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 107, in run_topology
+    raise subprocess.CalledProcessError(code, command)
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-overload-repair/build-cuda/eps_capacity_probe', '127.0.0.1:44681,127.0.0.1:39339,127.0.0.1:43923,127.0.0.1:38299', '127.0.0.1:19200,127.0.0.1:19201,127.0.0.1:19202', 'owners-repaired-v2-3gpu-l1022-b256', '1048576', '512', '8192', '128', '1022', '5.0', '1']' returned non-zero exit status 1.

@@ -1,0 +1,23 @@
+[
+  {
+    "learners": 128,
+    "repeat": 0,
+    "ps_cpu_cores": 2.7803370901750397,
+    "load_generator_cpu_cores": 0.6872525587320936,
+    "ps_sampled_rss_bytes": 7122579456
+  },
+  {
+    "learners": 128,
+    "repeat": 1,
+    "ps_cpu_cores": 2.9918081785679576,
+    "load_generator_cpu_cores": 0.6967769338199395,
+    "ps_sampled_rss_bytes": 7232737280
+  },
+  {
+    "learners": 512,
+    "repeat": 0,
+    "ps_cpu_cores": 2.7031520767208983,
+    "load_generator_cpu_cores": 1.0821283188464021,
+    "ps_sampled_rss_bytes": 8250142720
+  }
+]

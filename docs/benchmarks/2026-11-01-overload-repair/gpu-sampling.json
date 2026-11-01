@@ -1,0 +1,146 @@
+[
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-v2-2gpu-l128_512-b256",
+    "samples": 93,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-v2-3gpu-l128_512-b256",
+    "samples": 106,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 4.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-v2-3gpu-l1022-b256",
+    "samples": 82,
+    "gpu_utilization_median": 0.0,
+    "gpu_utilization_max": 4.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-v2-3gpu-l1022-b512",
+    "samples": 92,
+    "gpu_utilization_median": 0.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-v2-1gpu-l128_512-b256",
+    "samples": 75,
+    "gpu_utilization_median": 2.0,
+    "gpu_utilization_max": 4.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-followup-3gpu-l128_512-b256",
+    "samples": 166,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-0",
+    "run": "owners-repaired-followup-1gpu-l1022-b256",
+    "samples": 63,
+    "gpu_utilization_median": 2.0,
+    "gpu_utilization_max": 4.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-1",
+    "run": "owners-repaired-v2-2gpu-l128_512-b256",
+    "samples": 93,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-1",
+    "run": "owners-repaired-v2-3gpu-l128_512-b256",
+    "samples": 107,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-1",
+    "run": "owners-repaired-v2-3gpu-l1022-b256",
+    "samples": 82,
+    "gpu_utilization_median": 0.0,
+    "gpu_utilization_max": 2.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-1",
+    "run": "owners-repaired-v2-3gpu-l1022-b512",
+    "samples": 92,
+    "gpu_utilization_median": 0.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-1",
+    "run": "owners-repaired-followup-3gpu-l128_512-b256",
+    "samples": 166,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-2",
+    "run": "owners-repaired-v2-3gpu-l128_512-b256",
+    "samples": 107,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-2",
+    "run": "owners-repaired-v2-3gpu-l1022-b256",
+    "samples": 82,
+    "gpu_utilization_median": 0.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-2",
+    "run": "owners-repaired-v2-3gpu-l1022-b512",
+    "samples": 92,
+    "gpu_utilization_median": 0.0,
+    "gpu_utilization_max": 3.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  },
+  {
+    "worker": "worker-2",
+    "run": "owners-repaired-followup-3gpu-l128_512-b256",
+    "samples": 166,
+    "gpu_utilization_median": 1.0,
+    "gpu_utilization_max": 6.0,
+    "memory_used_mib_max": 3128.0,
+    "scope": "whole agent process: setup, warmup and drain included; clocks not aligned across hosts"
+  }
+]

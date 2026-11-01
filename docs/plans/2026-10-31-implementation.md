@@ -243,3 +243,21 @@ multi-peer framework execution remain in the main scope.
 
 [Design and API](../DEVICE_PULL.md) ·
 [Verification](../validation/2026-11-01-device-pull.json)
+
+
+## Observable overload and retained scheduling plans — November 1
+
+Runtime `0e46929` retains bounded dependency plans under metadata pressure and
+adds bounded actor observations with independent Stats RPC completion waiters.
+Held-owner regressions verify control-plane response while data slots and all
+four data reply waiters are occupied, then compare complete optimizer state.
+Local native/RPC 31/31, portable TensorFlow 43/43, core ASan/UBSan 18/18 and
+resumable TSan 2/2 pass. Ubuntu TensorFlow/CUDA executes 48 passing checks and
+skips three original-source checks. Same-instance overload and multi-owner
+follow-up retains 21 completed windows, 12,227 acknowledged updates, three
+explicit budget failures and the incomplete baseline. All 6,292 running-phase
+statistics queries succeed on the repair. Three rented GPUs are deleted after
+verified retrieval. [Overload scheduling](../OVERLOAD_SCHEDULING.md) links all records.
+
+Original application/reader execution and multi-peer framework barriers remain
+open integration requirements.

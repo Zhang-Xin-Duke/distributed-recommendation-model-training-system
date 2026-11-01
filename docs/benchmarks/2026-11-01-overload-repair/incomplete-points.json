@@ -1,0 +1,10 @@
+[
+  {
+    "experiment": "baseline-large",
+    "gpu_owners": 1,
+    "next_learner_level": 1022,
+    "completed_windows": 0,
+    "outcome": "incomplete probe; orchestration log retained",
+    "optimizer_trajectory_verified": false
+  }
+]

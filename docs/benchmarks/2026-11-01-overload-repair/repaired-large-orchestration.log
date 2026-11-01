@@ -1,0 +1,38 @@
+ps-3.log:
+W1101 10:21:08.419429 13371     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:21:08.421026 13371     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=36853.
+I1101 10:21:08.421333 13371     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:36853 in web browser.
+
+agent-0.log:
+CACHE_BACKEND=cuda
+W1101 10:21:08.279748 13223     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:21:08.283706 13223     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=37721.
+I1101 10:21:08.283921 13223     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:37721 in web browser.
+
+ps-2.log:
+W1101 10:21:08.386463 13354     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:21:08.387980 13354     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=43169.
+I1101 10:21:08.388291 13354     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:43169 in web browser.
+
+probe.log:
+FAIL capacity probe: capacity run failed: live ticket payload budget exhausted
+
+ps-1.log:
+W1101 10:21:08.352189 13337     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:21:08.353730 13337     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=36847.
+I1101 10:21:08.354056 13337     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:36847 in web browser.
+
+ps-0.log:
+W1101 10:21:08.317836 13320     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:21:08.319459 13320     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=43361.
+I1101 10:21:08.319782 13320     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:43361 in web browser.
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 222, in <module>
+    main()
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 200, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 107, in run_topology
+    raise subprocess.CalledProcessError(code, command)
+subprocess.CalledProcessError: Command '['/home/ubuntu/dps-overload-repair/build-cuda/eps_capacity_probe', '127.0.0.1:43361,127.0.0.1:36847,127.0.0.1:43169,127.0.0.1:36853', '127.0.0.1:37721', 'capacity-8d19ee049be8', '1048576', '512', '8192', '128', '512,1022', '5.0', '2']' returned non-zero exit status 1.

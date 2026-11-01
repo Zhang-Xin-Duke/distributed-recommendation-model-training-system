@@ -26,5 +26,8 @@ Implement two changes while retaining row/optimizer/Agent conflict ordering:
    post-drain state, observation latency and resource bounds. The global project
    retains original application/reader and multi-peer integration requirements.
 
-Source behavior is established; the contribution of cache churn to the cloud
-failure remains a hypothesis until the controlled and same-workload checks run.
+Controlled probes confirm dependency-plan rebuilding falls from 55 to 5 for the
+blocked-prefix workload. Held-owner native/RPC checks and the same-instance CUDA
+follow-up verify observable overload; the individual changes' contributions to
+end-to-end throughput are not isolated. Results and source-pinned failures are
+retained in [the measurement report](../OVERLOAD_SCHEDULING.md).

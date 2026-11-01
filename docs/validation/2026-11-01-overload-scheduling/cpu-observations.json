@@ -1,0 +1,1851 @@
+{
+  "summary": {
+    "scope": "CPU Host reference; metadata/observation correctness, no GPU throughput claim",
+    "exit_code": 0,
+    "observations": 204,
+    "errors": 0,
+    "boundary_observations": 0,
+    "median_ms": 1.7271045362576842,
+    "p99_ms": 50.08620908483863,
+    "maximum_ms": 66.74237502738833,
+    "dependency_budget_waits": 969
+  },
+  "samples": [
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.85333301126957,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.70274979248643,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.62483301758766,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 19.480207934975624,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.49125000461936,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 100032,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.534000039100647,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 100032,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6139170620590448,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 100032,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.261166064068675,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 100032,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.142334124073386,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 897360,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9771249499171972,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 892584,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.74641702324152,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 917696,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4783330261707306,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 891720,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7220841255038977,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1538760,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9021248444914818,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1541952,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7539169639348984,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1544208,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2465000618249178,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1534064,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.400666940957308,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2039936,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.196500077843666,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2083368,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.207542071118951,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2170712,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.2672500237822533,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2087688,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8816669471561909,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 513120,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7325840890407562,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 513288,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5125840436667204,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 517712,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.373959006741643,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 518200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.138041891157627,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 312600,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0063749980181456,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 316768,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.754791010171175,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 316768,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6453748103231192,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 316768,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9045001827180386,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 100032,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4385830145329237,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 104200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2377500534057617,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 104200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.0998749639838934,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 104200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 46.23666685074568,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 7088528,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 66.74237502738833,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 8721176,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8333748448640108,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 3168664,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 42.238709051162004,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2208600,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.416000071913004,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2556624,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7218750435858965,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2948256,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.148333005607128,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 1943112,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9127081613987684,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 1876776,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0417501218616962,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 470984,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8164580687880516,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 475152,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7956250812858343,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 470984,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4290409162640572,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 475152,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7443341203033924,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1268224,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6397919971495867,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1269112,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2021670117974281,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1269200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2776250950992107,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1264240,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6723747830837965,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2048632,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6642920672893524,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2049224,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5937499701976776,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2045032,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3162919785827398,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2044712,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7905829008668661,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1836064,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7589170020073652,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1836656,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7134170047938824,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1836632,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.483457861468196,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1832144,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.414499944075942,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1627200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.346917124465108,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1627304,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.0569158475846052,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1626976,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8674579914659262,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1623088,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5099579468369484,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1439640,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7836668994277716,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1439744,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.414832891896367,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1439416,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2956249993294477,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1439696,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9513329025357962,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1209712,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6551250591874123,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1213584,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5547079965472221,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1209304,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6363749746233225,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1209776,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6825830098241568,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1001312,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6694159712642431,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1001016,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.468040980398655,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 996736,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2917909771203995,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 997208,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.3993749637156725,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 788744,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5610409900546074,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 792616,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5514171682298183,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 788336,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.398625085130334,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 788808,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7490829341113567,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 575184,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7426249105483294,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 575184,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2650000862777233,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 571016,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3741250149905682,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 571016,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8041247967630625,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 362616,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.659334171563387,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 366784,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.630833139643073,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 362616,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4740829356014729,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 358448,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0361249335110188,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 158384,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9886670634150505,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 162552,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9498751498758793,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 158384,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4442920219153166,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 154216,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.275958191603422,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.481166971847415,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0660418085753918,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8437078688293695,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 0,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 18.416499951854348,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 17661000,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.548084085807204,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2943728,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 6.891916040331125,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 2184088,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 17.58729200810194,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 12650856,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6366250347346067,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 11938872,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2092920262366533,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 11679200,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8216660246253014,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 11894120,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.546208979561925,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 11872584,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 3.0262500513345003,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 6236104,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8328330479562283,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 6053472,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2497079335153103,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 6255136,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.038666047155857,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 6227320,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 52.60058306157589,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 896120,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 43.33174997009337,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 862776,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 56.59837485291064,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 866944,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 50.08620908483863,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 933632,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9624170381575823,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1350432,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.680833986029029,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1350432,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.494790893048048,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1350432,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1462080292403698,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1350432,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2713751532137394,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1954792,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.098791068419814,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1954792,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.202457981184125,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1954792,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8562499899417162,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1954792,
+      "budget_waits": 0
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5156669542193413,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3530296,
+      "budget_waits": 309
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.93808414041996,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3534464,
+      "budget_waits": 303
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3852089177817106,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3530296,
+      "budget_waits": 309
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4725408982485533,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3534464,
+      "budget_waits": 301
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6933749429881573,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 4084640,
+      "budget_waits": 519
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4447078574448824,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 4080472,
+      "budget_waits": 510
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.682416070252657,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 4084640,
+      "budget_waits": 519
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5178329776972532,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 4084640,
+      "budget_waits": 510
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0002920646220446,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3872072,
+      "budget_waits": 571
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6769999638199806,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3872072,
+      "budget_waits": 561
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5482918825000525,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3876240,
+      "budget_waits": 570
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2470840010792017,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3872072,
+      "budget_waits": 561
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5099579468369484,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3672008,
+      "budget_waits": 620
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4799591153860092,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3672008,
+      "budget_waits": 610
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5300419181585312,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3672008,
+      "budget_waits": 620
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4132920186966658,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3672008,
+      "budget_waits": 610
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.686332980170846,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3476112,
+      "budget_waits": 668
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4847079291939735,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3476112,
+      "budget_waits": 658
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.67375011369586,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3476112,
+      "budget_waits": 668
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2569997925311327,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3476112,
+      "budget_waits": 658
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6241250559687614,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3280216,
+      "budget_waits": 716
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2646669056266546,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3280216,
+      "budget_waits": 706
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.280915854498744,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3280216,
+      "budget_waits": 716
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.072457991540432,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3280216,
+      "budget_waits": 706
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3390830717980862,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3080152,
+      "budget_waits": 765
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5355839859694242,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3075984,
+      "budget_waits": 756
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.2204158119857311,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3080152,
+      "budget_waits": 765
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 0.914375064894557,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 3080152,
+      "budget_waits": 755
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9967081025242805,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2880088,
+      "budget_waits": 814
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.915917033329606,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2880088,
+      "budget_waits": 804
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0283330231904984,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2880088,
+      "budget_waits": 813
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6578750219196081,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2880088,
+      "budget_waits": 804
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8288749270141125,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2680024,
+      "budget_waits": 863
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.2289170883595943,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2675856,
+      "budget_waits": 853
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5705418772995472,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2680024,
+      "budget_waits": 862
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.185540808364749,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2680024,
+      "budget_waits": 853
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.18158308416605,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2479960,
+      "budget_waits": 912
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9477501045912504,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2479960,
+      "budget_waits": 901
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7678749281913042,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2484128,
+      "budget_waits": 910
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.770875183865428,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2479960,
+      "budget_waits": 902
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8927499186247587,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2288232,
+      "budget_waits": 959
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.6657080743461847,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2284064,
+      "budget_waits": 948
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.593792112544179,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2288232,
+      "budget_waits": 957
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5034170355647802,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2288232,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.801125006750226,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2092336,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7543749418109655,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2092336,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.355666132643819,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2092336,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5325830318033695,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 2092336,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6617500223219395,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1896440,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5318328514695168,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1892272,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6074578743427992,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1896440,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0304168574512005,
+      "completed": true,
+      "active": 0,
+      "queued_bytes": 1896440,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0472081378102303,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1696376,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9452499691396952,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1696376,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8095409031957388,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1696376,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4904169365763664,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1696376,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0418749190866947,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1496312,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9120408687740564,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1492144,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8359159585088491,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1496312,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.690792152658105,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1496312,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.616124926134944,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1304584,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8110419623553753,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1304584,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.783333020284772,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1308752,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5816669911146164,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1304584,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6203750856220722,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1108688,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6272079665213823,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1104520,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5578330494463444,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1108688,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.1547079775482416,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 1104520,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7321249470114708,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 900288,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.996207982301712,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 896120,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.852167071774602,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 900288,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.7672078683972359,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 900288,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.0770421251654625,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 691888,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.8666249234229326,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 691888,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.55691709369421,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 691888,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 0.998958945274353,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 691888,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6115419566631317,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 495992,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.6930419951677322,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 495992,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5550409443676472,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 500160,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3279998674988747,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 495992,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9733328372240067,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 300096,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.867417013272643,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 300096,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.4972911924123764,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 300096,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.3877919409424067,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 300096,
+      "budget_waits": 936
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 2.1047501359134912,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 83360,
+      "budget_waits": 969
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.9600838422775269,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 83360,
+      "budget_waits": 949
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.5242500230669975,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 87528,
+      "budget_waits": 966
+    },
+    {
+      "phase_before": "running",
+      "phase_after": "running",
+      "latency_ms": 1.4641250018030405,
+      "completed": true,
+      "active": 1,
+      "queued_bytes": 87528,
+      "budget_waits": 936
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+Completed 3 agent(s), 4 parameter shard(s)
+[
+  {
+    "gpu_agents": 3,
+    "learners": 1022,
+    "ps_shards": 4,
+    "repetitions": 1,
+    "steps_per_second_median": 23.61101430357802,
+    "steps_per_second_min": 23.61101430357802,
+    "steps_per_second_max": 23.61101430357802,
+    "step_p99_ms_median": 35470.913313,
+    "lookup_p99_ms_median": 10502.754866,
+    "push_p99_ms_median": 24951.563609,
+    "sequencer_busy_fraction_median": 0.6411200841710372,
+    "queue_wait_per_operation_ms_median": 11231.447552174657,
+    "total_completed_steps": 1022,
+    "errors": 0
+  }
+]

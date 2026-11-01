@@ -1,0 +1,86 @@
+[
+  {
+    "test": "native_tensorflow_graph",
+    "mode": "cuda",
+    "tensorflow": "2.20.0",
+    "external_ps_processes": 4,
+    "training_steps": 5,
+    "features": 7,
+    "prepared_steps": 2,
+    "checked_parameter_rows": 8,
+    "acknowledged_updates_per_shard": 5,
+    "max_state_absolute_error": 0,
+    "max_model_absolute_error": 0.0,
+    "resident_parameters_observed": true,
+    "native_op_types": [
+      "EpsCommand",
+      "EpsPull",
+      "EpsPullPrepared",
+      "EpsPush"
+    ],
+    "python_callbacks": false,
+    "output_valid_after_runtime_close": true,
+    "mid_run_dense_and_sparse_save_resume": true,
+    "output_schema_failure_tickets_released": true,
+    "gpu_parameter_owners": 2,
+    "remote_owner_statistics": [
+      {
+        "free_slots_per_table": [
+          62,
+          62
+        ],
+        "accepted_requests": 49,
+        "completed_requests": 49,
+        "active_operations": 0,
+        "queued_operations": 0
+      }
+    ]
+  },
+  {
+    "test": "native_tensorflow_graph",
+    "mode": "cuda",
+    "tensorflow": "2.20.0",
+    "external_ps_processes": 4,
+    "training_steps": 5,
+    "features": 7,
+    "prepared_steps": 2,
+    "checked_parameter_rows": 8,
+    "acknowledged_updates_per_shard": 5,
+    "max_state_absolute_error": 0,
+    "max_model_absolute_error": 0.0,
+    "resident_parameters_observed": true,
+    "native_op_types": [
+      "EpsCommand",
+      "EpsPull",
+      "EpsPullPrepared",
+      "EpsPush"
+    ],
+    "python_callbacks": false,
+    "output_valid_after_runtime_close": true,
+    "mid_run_dense_and_sparse_save_resume": true,
+    "output_schema_failure_tickets_released": true,
+    "gpu_parameter_owners": 3,
+    "remote_owner_statistics": [
+      {
+        "free_slots_per_table": [
+          62,
+          63
+        ],
+        "accepted_requests": 40,
+        "completed_requests": 40,
+        "active_operations": 0,
+        "queued_operations": 0
+      },
+      {
+        "free_slots_per_table": [
+          62,
+          64
+        ],
+        "accepted_requests": 31,
+        "completed_requests": 31,
+        "active_operations": 0,
+        "queued_operations": 0
+      }
+    ]
+  }
+]

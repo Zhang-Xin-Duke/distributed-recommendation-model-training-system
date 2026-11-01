@@ -2,13 +2,17 @@
 
 November 1, 2026 · C++20 / BRPC / CUDA / TensorFlow 2.20.0
 
-The current service completes the small-workload tests through 1,022 concurrent
+Runtime `5a69840` completes the small-workload tests through 1,022 concurrent
 Learners on one, two and four physical GPU parameter owners. At low load, adding
 remote owners reduces throughput in this deployment. Through the 512-Learner
 sweep, increased queueing raises tail latency while multi-owner update rates fall.
 The larger-input workload exposes an overload boundary: 512 Learners complete,
 while 1,022 Learners produce a timed-out probe on one owner and RPC timeouts on
 four owners, with temporarily unavailable shard statistics.
+
+The subsequent scheduler and observation repair is documented in
+[Overload scheduling and follow-up measurements](OVERLOAD_SCHEDULING.md).
+The results below retain their original runtime and failure records.
 
 ![Fixed-workload throughput and tail latency](assets/native-multigpu-capacity.svg)
 

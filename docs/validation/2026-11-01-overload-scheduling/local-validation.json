@@ -1,0 +1,89 @@
+{
+  "runtime_source_commit": "0e46929",
+  "baseline_actor_commit": "06dc93c",
+  "local_checks": {
+    "native": 31,
+    "tensorflow": 43,
+    "core_asan_ubsan": 18,
+    "resumable_tsan": 2
+  },
+  "cpu_observations": {
+    "scope": "CPU Host reference; metadata/observation correctness, no GPU throughput claim",
+    "exit_code": 0,
+    "observations": 204,
+    "errors": 0,
+    "boundary_observations": 0,
+    "median_ms": 1.7271045362576842,
+    "p99_ms": 50.08620908483863,
+    "maximum_ms": 66.74237502738833,
+    "dependency_budget_waits": 969,
+    "status_validation": "HTTP transport status; original monitor did not inspect RPC body status"
+  },
+  "artifacts": [
+    {
+      "file": "baseline-control.json",
+      "sha256": "10b52b2e45908972a2812f36098a15cda6165c81cc6ee438a8054f77acb23972"
+    },
+    {
+      "file": "baseline-plans.json",
+      "sha256": "22d90e02460d5ef5affcad1abcddf0b2d40d87917f33ad863e28075085d59e14"
+    },
+    {
+      "file": "control_probe.cpp",
+      "sha256": "eafb23e38dc63771a491fc4e76761577661f1ae93c18bae289c15ce4ea44f408"
+    },
+    {
+      "file": "cpu-cold-burst-observations.json",
+      "sha256": "90941c9bf3dbae5d742f08964d43f0a0f0d8807490adf56af44a1ec85b64206b"
+    },
+    {
+      "file": "cpu-cold-burst.jsonl",
+      "sha256": "6626470160d9c184f03fee326202d5dffbd330a76bc9446d301493ef6e809f17"
+    },
+    {
+      "file": "cpu-cold-burst.log",
+      "sha256": "f0ca349b6739c95e0af44acc8f9649ec3f251354e700f094912237661de5c018"
+    },
+    {
+      "file": "cpu-observations.json",
+      "sha256": "2c109e7b5bd80d0c41c78c5eb59973f2f34aff9b9feea2830f7e87b6271c40b9"
+    },
+    {
+      "file": "cpu-pressure.jsonl",
+      "sha256": "42d560c0092b23ad6c1eff7b5337deebfb3b9feeea3f26fbd07113b15a0de1d8"
+    },
+    {
+      "file": "current-control.json",
+      "sha256": "c9d453a21b25e4942700732b2bb45763531211a8febac066bc49ff92491e5b86"
+    },
+    {
+      "file": "current-plans.json",
+      "sha256": "3c9ca9ffbc7da2cb8f0a7f8698048bffb1b78845a3c1e641d3c2d3a1ca91fc77"
+    },
+    {
+      "file": "macos-asan-ubsan.log",
+      "sha256": "95f0ed042778510815189b425ba66deee3be45bcf1c815f3563218b8c508c10b"
+    },
+    {
+      "file": "macos-native.log",
+      "sha256": "341141a962a95e89ee930a8e81e0cb6b06f04456236779d60dcf0d7f9b5a28c1"
+    },
+    {
+      "file": "macos-tensorflow.log",
+      "sha256": "2b6d2a596f848c48b2662e644635387e719f5e311b5967631445e4b6c1e43694"
+    },
+    {
+      "file": "macos-tsan.log",
+      "sha256": "1ea6f2406ed53553a2ef8e21cca5c3178f5fb8d9a2ba2052dbd50aa52e441188"
+    },
+    {
+      "file": "plan_probe.cpp",
+      "sha256": "33f79a856c5099c6bb720252ae5c830f40c71a82339ed88c51851a5e8549a376"
+    },
+    {
+      "file": "ubuntu-native-tensorflow-cuda.log",
+      "sha256": "374a783e61e3c019a84554a93da1f512a90c9c86f5d9fda7d1a5535523887a80"
+    }
+  ],
+  "cpu_cold_burst": "Separate ENOBUFS incident; failed optimizer trajectory not verified"
+}

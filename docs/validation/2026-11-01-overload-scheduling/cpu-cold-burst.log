@@ -1,0 +1,8 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1793528447.609809 18873935 socket.cpp:1828] Fail to keep-write into Socket{id=1 fd=7 addr=127.0.0.1:52707:52711} (0x7cfebc0340): No buffer space available [55]
+W0000 00:00:1793528447.609809 18873934 socket.cpp:1828] Fail to keep-write into Socket{id=0 fd=3 addr=127.0.0.1:52706:52710} (0x7cfebc0000): No buffer space available [55]
+I0000 00:00:1793528447.732742 18873933 socket.cpp:2585] Checking Socket{id=0 addr=127.0.0.1:52706} (0x7cfebc0000)
+I0000 00:00:1793528447.732775 18873931 socket.cpp:2585] Checking Socket{id=1 addr=127.0.0.1:52707} (0x7cfebc0340)
+I0000 00:00:1793528447.733171 18873931 socket.cpp:2645] Revived Socket{id=0 addr=127.0.0.1:52706} (0x7cfebc0000) (Connectable)
+I0000 00:00:1793528447.733220 18873931 socket.cpp:2645] Revived Socket{id=1 addr=127.0.0.1:52707} (0x7cfebc0340) (Connectable)
+FAIL capacity probe: capacity run failed: [E55]Fail to keep-write into brpc::Socket{id=0 fd=3 addr=127.0.0.1:52706:52710} (0x7cfebc0000): No buffer space available

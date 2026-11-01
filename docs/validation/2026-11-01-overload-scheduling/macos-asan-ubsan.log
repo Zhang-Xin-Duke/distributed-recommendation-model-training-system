@@ -1,0 +1,41 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/asan
+      Start  1: distributed_device_pull_protocol
+ 1/18 Test  #1: distributed_device_pull_protocol .....   Passed    0.66 sec
+      Start  2: agent_admission_lifecycle
+ 2/18 Test  #2: agent_admission_lifecycle ............   Passed    0.23 sec
+      Start  3: core_correctness
+ 3/18 Test  #3: core_correctness .....................   Passed    0.31 sec
+      Start  4: cost_and_migration_policies
+ 4/18 Test  #4: cost_and_migration_policies ..........   Passed    0.10 sec
+      Start  5: cache_ownership_and_updates
+ 5/18 Test  #5: cache_ownership_and_updates ..........   Passed    0.22 sec
+      Start  6: automatic_cache_policy_lifecycle
+ 6/18 Test  #6: automatic_cache_policy_lifecycle .....   Passed    0.32 sec
+      Start  7: agent_control_replay
+ 7/18 Test  #7: agent_control_replay .................   Passed    0.12 sec
+      Start  8: embedding_adapter_lifecycle
+ 8/18 Test  #8: embedding_adapter_lifecycle ..........   Passed    0.18 sec
+      Start  9: service_phase_timing
+ 9/18 Test  #9: service_phase_timing .................   Passed    0.19 sec
+      Start 10: bounded_asynchronous_preparation
+10/18 Test #10: bounded_asynchronous_preparation .....   Passed    0.21 sec
+      Start 11: periodic_checkpoint_lifecycle
+11/18 Test #11: periodic_checkpoint_lifecycle ........   Passed    0.23 sec
+      Start 12: restored_snapshot_provenance
+12/18 Test #12: restored_snapshot_provenance .........   Passed    0.17 sec
+      Start 13: bounded_sparse_optimizer
+13/18 Test #13: bounded_sparse_optimizer .............   Passed    0.18 sec
+      Start 14: resumable_actor_dependencies
+14/18 Test #14: resumable_actor_dependencies .........   Passed    0.30 sec
+      Start 15: resumable_shard_operations
+15/18 Test #15: resumable_shard_operations ...........   Passed    0.34 sec
+      Start 16: concurrent_multi_agent_updates
+16/18 Test #16: concurrent_multi_agent_updates .......   Passed    0.20 sec
+      Start 17: coalesced_cross_shard_gathers
+17/18 Test #17: coalesced_cross_shard_gathers ........   Passed    0.24 sec
+      Start 18: compact_feature_gradient_semantics
+18/18 Test #18: compact_feature_gradient_semantics ...   Passed    0.08 sec
+
+100% tests passed, 0 tests failed out of 18
+
+Total Test time (real) =   4.28 sec

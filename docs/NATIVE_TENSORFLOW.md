@@ -139,8 +139,8 @@ defines the reference ownership used by the device wrapper.
 
 ## Executed verification
 
-On Ubuntu 22.04 with TensorFlow 2.20.0, GNU C++ 11.4 and CUDA 13.0, 47 tests
-execute successfully. Three original Entropy source checks skip because the
+Runtime `5a69840` executes 47 tests successfully on Ubuntu 22.04 with
+TensorFlow 2.20.0, GNU C++ 11.4 and CUDA 13.0. Three original Entropy source checks skip because the
 private reference tree is excluded from the uploaded source archive. Both native
 CPU and native CUDA graph tests execute.
 
@@ -166,3 +166,10 @@ TensorFlow platform guard; the portable TensorFlow suite passes 42/42. The Linux
 shared runtime exports only `eps_runtime_api_v1` and has no dynamic BRPC,
 Protobuf or protoc dependency. [Raw native checks](validation/2026-11-01-native-tensorflow/native-checks.json)
 and the associated test logs preserve these separate scopes.
+
+
+The overload repair at `0e46929` executes 48 passing Ubuntu native/TensorFlow/CUDA
+checks and skips the same three private-source checks. The local native/C-ABI
+and portable TensorFlow suites pass 31/31 and 43/43. Additional two-/three-A6000
+native graph trajectories match complete touched sparse optimizer state and
+model outputs with zero difference. [Repair validation and measured bounds](OVERLOAD_SCHEDULING.md).

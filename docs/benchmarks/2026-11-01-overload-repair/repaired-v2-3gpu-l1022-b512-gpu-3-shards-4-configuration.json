@@ -1,0 +1,33 @@
+{
+  "build": "/home/ubuntu/dps-overload-repair/build-cuda",
+  "out": "/home/ubuntu/dps-overload-repair/results/repaired-v2-3gpu-l1022-b512",
+  "devices": [
+    0,
+    1,
+    2
+  ],
+  "gpu_counts": "3",
+  "ps_shards": 4,
+  "max_active_operations": 16,
+  "dependency_cache": "on",
+  "ticket_payload_mib": 512,
+  "rows": 1048576,
+  "dimension": 512,
+  "keys": 8192,
+  "bag": 128,
+  "learners": "1022",
+  "access_pattern": "resident_mixture",
+  "seconds": 5.0,
+  "repeats": 1,
+  "host_reference": false,
+  "cache_admission": "manual",
+  "serial_agent_updates": false,
+  "expanded_gradients": false,
+  "external_agents": [
+    "127.0.0.1:19200",
+    "127.0.0.1:19201",
+    "127.0.0.1:19202"
+  ],
+  "run_id": "owners-repaired-v2-3gpu-l1022-b512",
+  "external_hardware": "/home/ubuntu/dps-overload-repair/results/repaired-v2-3gpu-l1022-b512-hardware.csv"
+}

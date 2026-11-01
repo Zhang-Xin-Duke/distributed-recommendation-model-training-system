@@ -1,0 +1,119 @@
+{
+  "runtime_source_commit": "0e46929d0457a60af1ba87f949d5e68e2dc6e8ad",
+  "baseline_server_commit": "5a69840f7f269ae70e144c60cf71b04964a8875c",
+  "pressure_sweep_commit": "d57215afbb2cb14b98909aa874ce58c5bf5a4566",
+  "fleet_tool_commit": "ccbd6a1c842245e643a5d513972dc24178000c6a",
+  "model_fixture_sha256": "c2cccbbd043979493433786a6d5a8434e41f0a12aba8e8321fa5773afe9ad054",
+  "workload": {
+    "ps_shards": 4,
+    "rows": 1048576,
+    "dimension": 512,
+    "keys_per_update": 8192,
+    "bag": 128,
+    "logical_weights_and_adam_bytes": 6442450944
+  },
+  "diagnostic_notes": {
+    "repaired-budget512": "The coordinator CUDA smoke preflight overlapped this diagnostic profile. Used for capacity/health checks; excluded from the fixed-topology scaling chart."
+  },
+  "measurement": "Five-second sweep and twenty-second sustained submission windows followed by full drain. Synthetic gradients for service pressure; native TensorFlow trajectories checked separately.",
+  "experiments": [
+    {
+      "name": "repaired-large",
+      "gpu_owners": 1,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-large-gpu-1-shards-4-configuration.json",
+      "raw": "repaired-large-gpu-1-shards-4-raw.jsonl",
+      "completed_windows": 2,
+      "failed_windows": 1,
+      "resources": "repaired-large-gpu-1-shards-4-resources.json"
+    },
+    {
+      "name": "baseline-large",
+      "gpu_owners": 1,
+      "ticket_payload_mib": 256,
+      "configuration": "baseline-large-gpu-1-shards-4-configuration.json",
+      "raw": "baseline-large-gpu-1-shards-4-raw.jsonl",
+      "completed_windows": 0,
+      "failed_windows": 0
+    },
+    {
+      "name": "repaired-budget512",
+      "gpu_owners": 1,
+      "ticket_payload_mib": 512,
+      "configuration": "repaired-budget512-gpu-1-shards-4-configuration.json",
+      "raw": "repaired-budget512-gpu-1-shards-4-raw.jsonl",
+      "completed_windows": 2,
+      "failed_windows": 0,
+      "resources": "repaired-budget512-gpu-1-shards-4-resources.json"
+    },
+    {
+      "name": "repaired-v2-1gpu-l128_512-b256",
+      "gpu_owners": 1,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-configuration.json",
+      "raw": "repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-raw.jsonl",
+      "completed_windows": 4,
+      "failed_windows": 0,
+      "resources": "repaired-v2-1gpu-l128_512-b256-gpu-1-shards-4-resources.json"
+    },
+    {
+      "name": "repaired-v2-2gpu-l128_512-b256",
+      "gpu_owners": 2,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-configuration.json",
+      "raw": "repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-raw.jsonl",
+      "completed_windows": 4,
+      "failed_windows": 0,
+      "resources": "repaired-v2-2gpu-l128_512-b256-gpu-2-shards-4-resources.json"
+    },
+    {
+      "name": "repaired-v2-3gpu-l128_512-b256",
+      "gpu_owners": 3,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-configuration.json",
+      "raw": "repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-raw.jsonl",
+      "completed_windows": 4,
+      "failed_windows": 0,
+      "resources": "repaired-v2-3gpu-l128_512-b256-gpu-3-shards-4-resources.json"
+    },
+    {
+      "name": "repaired-v2-3gpu-l1022-b256",
+      "gpu_owners": 3,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-configuration.json",
+      "raw": "repaired-v2-3gpu-l1022-b256-gpu-3-shards-4-raw.jsonl",
+      "completed_windows": 0,
+      "failed_windows": 1
+    },
+    {
+      "name": "repaired-v2-3gpu-l1022-b512",
+      "gpu_owners": 3,
+      "ticket_payload_mib": 512,
+      "configuration": "repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-configuration.json",
+      "raw": "repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-raw.jsonl",
+      "completed_windows": 1,
+      "failed_windows": 0,
+      "resources": "repaired-v2-3gpu-l1022-b512-gpu-3-shards-4-resources.json"
+    },
+    {
+      "name": "repaired-followup-1gpu-l1022-b256",
+      "gpu_owners": 1,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-configuration.json",
+      "raw": "repaired-followup-1gpu-l1022-b256-gpu-1-shards-4-raw.jsonl",
+      "completed_windows": 0,
+      "failed_windows": 1
+    },
+    {
+      "name": "repaired-followup-3gpu-l128_512-b256",
+      "gpu_owners": 3,
+      "ticket_payload_mib": 256,
+      "configuration": "repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-configuration.json",
+      "raw": "repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-raw.jsonl",
+      "completed_windows": 4,
+      "failed_windows": 0,
+      "resources": "repaired-followup-3gpu-l128_512-b256-gpu-3-shards-4-resources.json"
+    }
+  ],
+  "control_rpc_status_checked": true
+}

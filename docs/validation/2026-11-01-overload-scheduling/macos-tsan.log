@@ -1,0 +1,9 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/tsan
+    Start 14: resumable_actor_dependencies
+1/2 Test #14: resumable_actor_dependencies .....   Passed    0.96 sec
+    Start 15: resumable_shard_operations
+2/2 Test #15: resumable_shard_operations .......   Passed    0.55 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   1.51 sec

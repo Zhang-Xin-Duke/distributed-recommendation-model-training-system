@@ -1,0 +1,72 @@
+[
+  {
+    "name": "repaired-v2-1gpu-l128_512-b256",
+    "gpu_owners": 1,
+    "learners": "128,512",
+    "ticket_payload_mib": 256,
+    "exit_code": 0,
+    "active_observations": 544,
+    "errors": 0,
+    "boundary_observations": 4,
+    "median_ms": 10.106421075761318,
+    "p99_ms": 180.17977476119995,
+    "max_ms": 643.4193775057793,
+    "budget_waits": 0
+  },
+  {
+    "name": "repaired-v2-2gpu-l128_512-b256",
+    "gpu_owners": 2,
+    "learners": "128,512",
+    "ticket_payload_mib": 256,
+    "exit_code": 0,
+    "active_observations": 676,
+    "errors": 0,
+    "boundary_observations": 4,
+    "median_ms": 9.559235535562038,
+    "p99_ms": 194.37532499432564,
+    "max_ms": 735.6788851320744,
+    "budget_waits": 0
+  },
+  {
+    "name": "repaired-v2-3gpu-l128_512-b256",
+    "gpu_owners": 3,
+    "learners": "128,512",
+    "ticket_payload_mib": 256,
+    "exit_code": 0,
+    "active_observations": 780,
+    "errors": 0,
+    "boundary_observations": 8,
+    "median_ms": 8.60893540084362,
+    "p99_ms": 96.83697484433651,
+    "max_ms": 864.6920472383499,
+    "budget_waits": 0
+  },
+  {
+    "name": "repaired-v2-3gpu-l1022-b256",
+    "gpu_owners": 3,
+    "learners": "1022",
+    "ticket_payload_mib": 256,
+    "exit_code": 1,
+    "active_observations": 592,
+    "errors": 0,
+    "boundary_observations": 8,
+    "median_ms": 9.150132536888123,
+    "p99_ms": 115.67890457808971,
+    "max_ms": 600.1806426793337,
+    "budget_waits": 167
+  },
+  {
+    "name": "repaired-v2-3gpu-l1022-b512",
+    "gpu_owners": 3,
+    "learners": "1022",
+    "ticket_payload_mib": 512,
+    "exit_code": 0,
+    "active_observations": 664,
+    "errors": 0,
+    "boundary_observations": 8,
+    "median_ms": 8.622262626886368,
+    "p99_ms": 102.29358822107315,
+    "max_ms": 1235.1975794881582,
+    "budget_waits": 532
+  }
+]

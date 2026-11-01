@@ -1,0 +1,51 @@
+ps-1.log:
+W1101 10:26:28.082271 18652     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:26:28.083746 18652     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=32971.
+I1101 10:26:28.084071 18652     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:32971 in web browser.
+W1101 10:27:11.970734 18755     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=598 fd=10 addr=127.0.0.1:50872:32971} (0x7b8bf80b6980): Got EOF
+W1101 10:29:49.036700 18756     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=8589935188 fd=12 addr=127.0.0.1:40844:32971} (0x7b8bf80b6380): Got EOF
+
+probe.log:
+
+ps-0.log:
+W1101 10:26:28.049569 18635     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:26:28.051094 18635     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=45189.
+I1101 10:26:28.051420 18635     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:45189 in web browser.
+W1101 10:27:12.078529 18746     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=51539607723 fd=10 addr=127.0.0.1:52004:45189} (0x768420093ec0): Got EOF
+W1101 10:29:58.655682 18750     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=34359738541 fd=12 addr=127.0.0.1:35594:45189} (0x7684200944c0): Got EOF
+
+ps-3.log:
+W1101 10:26:28.147857 18686     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:26:28.149403 18686     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=40161.
+I1101 10:26:28.149731 18686     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:40161 in web browser.
+W1101 10:27:12.048864 18747     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=42949673051 fd=10 addr=127.0.0.1:34290:40161} (0x7c8c10023740): Got EOF
+W1101 10:29:48.703523 18751     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=25769803866 fd=12 addr=127.0.0.1:47796:40161} (0x7c8c10023440): Got EOF
+
+agent-0.log:
+CACHE_BACKEND=cuda
+W1101 10:26:28.004564 18539     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:26:28.010541 18539     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=34569.
+I1101 10:26:28.010749 18539     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:34569 in web browser.
+
+ps-2.log:
+W1101 10:26:28.114574 18669     0 /home/ubuntu/dps-overload-repair/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1101 10:26:28.116282 18669     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=36887.
+I1101 10:26:28.116614 18669     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-uty4byx6-main:36887 in web browser.
+W1101 10:27:11.975050 18758     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=25769804201 fd=10 addr=127.0.0.1:49410:36887} (0x784f3c043a80): Got EOF
+W1101 10:29:50.837852 18753     0 /home/ubuntu/dps-overload-repair/brpc-source/src/brpc/policy/http_rpc_protocol.cpp:1056 ~HttpResponseSender] Fail to write into Socket{id=426 fd=12 addr=127.0.0.1:53988:36887} (0x784f3c043d80): Got EOF
+
+Traceback (most recent call last):
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 226, in <module>
+    main()
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 204, in main
+    raw += run_topology(args, count, args.out)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dps-overload-repair/source/scripts/capacity_sweep.py", line 105, in run_topology
+    code = probe.wait(timeout=180 + len(args.learners.split(","))*args.repeats*(args.seconds+30))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2045, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/home/ubuntu/dps-overload-repair/build-baseline/eps_capacity_probe', '127.0.0.1:45189,127.0.0.1:32971,127.0.0.1:36887,127.0.0.1:40161', '127.0.0.1:34569', 'capacity-f33ea0d75f87', '1048576', '512', '8192', '128', '1022', '5.0', '1']' timed out after 215.0 seconds

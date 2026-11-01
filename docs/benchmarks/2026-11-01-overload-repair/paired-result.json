@@ -1,0 +1,33 @@
+{
+  "candidate": {
+    "exit_code": 1,
+    "active_observations": 676,
+    "errors": 0,
+    "boundary_observations": 16,
+    "median_ms": 10.479573160409927,
+    "p99_ms": 199.04856570065022,
+    "max_ms": 399.3793111294508,
+    "budget_waits": 632
+  },
+  "baseline": {
+    "exit_code": 1,
+    "active_observations": 540,
+    "errors": 284,
+    "boundary_observations": 8,
+    "median_ms": 6.195581518113613,
+    "p99_ms": 704.8186622560024,
+    "max_ms": 1075.4694230854511,
+    "budget_waits": 0
+  },
+  "baseline_server_commit": "5a69840",
+  "candidate_commit": "0e46929",
+  "binary_sha256": {
+    "build-cuda/eps_server": "396c4d1717b8fe0f389ca6f81c62cc19a4ac963a5c9f32f0a6848f31e4786669",
+    "build-cuda/eps_cache_agent": "17118da91ccfee071e3d30b23404b671f6283414284bf1a23c286b3f30e0526c",
+    "build-cuda/eps_capacity_probe": "729ab5109810320a2730de0c910c8f228813650bb93e0d3a0c752e348c6730d5",
+    "build-baseline/eps_server": "7b5d70fa2cbd29d58be458f3a633ce9d1f49b17bf018acf6a4969c074f248a03",
+    "build-baseline/eps_cache_agent": "17118da91ccfee071e3d30b23404b671f6283414284bf1a23c286b3f30e0526c",
+    "build-baseline/eps_capacity_probe": "729ab5109810320a2730de0c910c8f228813650bb93e0d3a0c752e348c6730d5"
+  },
+  "hardware": "GPU-d0e3d0c6-28f8-51ad-87bc-35fe179df7c1, NVIDIA RTX A6000, 610.43.02, 49140 MiB"
+}

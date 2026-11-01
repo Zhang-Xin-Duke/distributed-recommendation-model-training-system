@@ -235,3 +235,37 @@ For fixed traces across separately hosted agents, use
 --source-commit BUILD_SOURCE_COMMIT`. It restarts all agents between trials,
 repeats CPU/static calibration for each topology and verifies identical trace
 fingerprints across all cache modes and GPU counts.
+
+
+### Large-input overload and ticket-byte controls
+
+Use the same four parameter shards and total table across physical-owner counts:
+
+```sh
+python3 scripts/fleet_capacity_sweep.py --fleet /path/to/private-fleet.json \
+  --out-name large-fixed --gpu-counts 1,2,3 --ps-shards 4 \
+  --rows 1048576 --dimension 512 --keys 8192 --bag 128 \
+  --learners 128,512 --seconds 5 --repeats 2 --ticket-payload-mib 256
+
+python3 scripts/fleet_capacity_sweep.py --fleet /path/to/private-fleet.json \
+  --out-name large-ticket512 --gpu-counts 3 --ps-shards 4 \
+  --rows 1048576 --dimension 512 --keys 8192 --bag 128 \
+  --learners 1022 --seconds 5 --repeats 1 --ticket-payload-mib 512
+
+python3 scripts/fleet_capacity_sweep.py --fleet /path/to/private-fleet.json \
+  --out-name large-sustained --gpu-counts 3 --ps-shards 4 \
+  --rows 1048576 --dimension 512 --keys 8192 --bag 128 \
+  --learners 128,512 --seconds 20 --repeats 2 --ticket-payload-mib 256
+```
+
+`--ticket-payload-mib` sets each parameter shard's retained lookup-ticket payload
+budget. The default is 256 MiB. Preserve the default-budget result when testing a
+larger budget: this changes admission capacity and parameter-server memory, not
+GPU count. The probe reserves Learner IDs 1023/1022 for setup/health and permits
+1,022 measured training clients. Each submission window is followed by full
+drain; reported acknowledged updates/s uses the complete elapsed window.
+
+Each topology writes `lifecycle.json` before the probe and before stopping its
+servers. Independent Stats monitors classify observations only when both ends of
+a query lie within `running`, check HTTP and RPC body status, and retain startup
+and shutdown queries separately. [Measured overload behavior](OVERLOAD_SCHEDULING.md).

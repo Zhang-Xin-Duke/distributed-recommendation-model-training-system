@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "run_id": "owners-repaired-v2-1gpu-l128_512-b256",
+  "listen": "127.0.0.1:0",
+  "partition": {
+    "shard_id": 1,
+    "shard_count": 4,
+    "epoch": 1
+  },
+  "tables": [],
+  "cache": {
+    "enabled": true,
+    "concurrent_agent_updates": true,
+    "compact_gradients": true
+  },
+  "agents": [
+    {
+      "id": 0,
+      "endpoint": "127.0.0.1:19200"
+    }
+  ],
+  "access": {
+    "policy": "cpu_only"
+  },
+  "limits": {
+    "cpu_state_bytes": 8589934592,
+    "max_live_tickets": 1024,
+    "ticket_payload_bytes": 268435456,
+    "queue_payload_bytes": 268435456,
+    "max_active_operations": 16,
+    "cache_dependencies": true
+  },
+  "snapshot_directory": "/home/ubuntu/dps-overload-repair/results/repaired-v2-1gpu-l128_512-b256/gpu-1-shards-4/snapshots"
+}
