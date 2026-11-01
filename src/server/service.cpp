@@ -18,6 +18,7 @@
 #include "common/error.hpp"
 #include "common/executor.hpp"
 #include "common/phase_timer.hpp"
+#include "common/resumable_actor.hpp"
 #include "eps/compact_gradients.hpp"
 #include "server/request_tracker.hpp"
 #include "store/snapshot.hpp"
@@ -31,62 +32,22 @@ class CpuParameterService::Impl {
   explicit Impl(RuntimeOptions options)
       : options_(std::move(options)), tracker_(options_.request_history),
         store_(std::make_unique<detail::ShardStore>(options_.shard_id,
-          options_.shard_count, options_.partition_epoch, options_.state_bytes)) {
+          options_.shard_count, options_.partition_epoch, options_.state_bytes)),
+        actor_({options_.max_queued_operations,options_.max_active_operations,
+                options_.completion_waiters,options_.queue_payload_bytes,options_.dependency_payload_bytes},
+          [this](const Error& error){if(error.code==Error::Code::run_failed)fatal_=error.message;}) {
     Require(!options_.run_id.empty() && options_.run_id.size() <= 1024, "invalid run ID");
     Require(options_.request_history >= 4 && options_.max_live_tickets > 0 &&
             options_.max_queued_operations > 0, "invalid request limits");
-    worker_ = std::thread([this] {
-      while (true) {
-        std::function<void()> task;
-        {
-          std::unique_lock lock(mutex_);
-          changed_.wait(lock, [this] { return stopping_ || !queue_.empty(); });
-          if (queue_.empty() && stopping_) return;
-          queued_payload_bytes_ -= queue_.front().payload_bytes;
-          task = std::move(queue_.front().function); queue_.pop_front();
-        }
-        task();
-      }
-    });
-  }
-  ~Impl() {
-    { std::lock_guard lock(mutex_); stopping_ = true; }
-    changed_.notify_all(); worker_.join();
   }
 
   template <typename T, typename Fn>
   std::future<Result<T>> Submit(Fn fn, std::uint64_t payload_bytes = 0) {
-    auto promise = std::make_shared<std::promise<Result<T>>>();
-    auto future = promise->get_future();
-    {
-      std::lock_guard lock(mutex_);
-      if (stopping_ || queue_.size() >= options_.max_queued_operations ||
-          payload_bytes > options_.queue_payload_bytes - queued_payload_bytes_) {
-        ++rejected_operations_;
-        promise->set_value(Error{Error::Code::capacity_exceeded, "shard operation queue is full"});
-        return future;
-      }
-      queue_.push_back({[this,promise, queued=std::chrono::steady_clock::now(), fn = std::move(fn)]() mutable {
-        const auto begin=std::chrono::steady_clock::now();
-        stats_.queue_wait_nanoseconds+=std::chrono::duration_cast<std::chrono::nanoseconds>(begin-queued).count();
-        try { promise->set_value(fn()); }
-        catch (const detail::Failure& e) {
-          if(e.error().code==Error::Code::run_failed)fatal_=e.what();
-          promise->set_value(e.error());
-        }
-        catch (const std::bad_alloc&) {
-          promise->set_value(Error{Error::Code::capacity_exceeded, "allocation failed"});
-        } catch (const std::exception& e) {
-          fatal_=e.what();
-          promise->set_value(Error{Error::Code::run_failed, e.what()});
-        }
-        ++stats_.executed_operations;
-        stats_.executor_busy_nanoseconds+=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-begin).count();
-      },payload_bytes});
-      peak_queued_operations_=std::max<std::uint64_t>(peak_queued_operations_,queue_.size());
-      queued_payload_bytes_ += payload_bytes;
-    }
-    changed_.notify_one(); return future;
+    return actor_.Submit<T>(std::move(fn),payload_bytes);
+  }
+  template<class T,class Fn,class Dependencies>
+  std::future<Result<T>> SubmitIndependent(Fn fn,Dependencies dependencies,std::uint64_t bytes=0) {
+    return actor_.Submit<T>(std::move(fn),std::move(dependencies),bytes);
   }
 
   void Identity(const RequestId& id, Phase phase) const {
@@ -104,13 +65,18 @@ class CpuParameterService::Impl {
         Require(std::find(f.input.keys.begin(),f.input.keys.end(),row.key)==f.input.keys.end(),
                 "row is held by an active lookup",Error::Code::unavailable);
   }
-  template<typename T>T AgentResult(std::future<Result<T>> future){
-    auto result=[&]{detail::PhaseTimer timer(stats_.agent_wait_nanoseconds);return future.get();}();
+  template<typename T>T CheckedAgentResult(Result<T> result){
     if(auto error=std::get_if<Error>(&result)){
       if(error->code==Error::Code::unavailable || error->code==Error::Code::run_failed ||
          error->code==Error::Code::retired_request)fatal_=error->message;
       throw detail::Failure(*error);
-    }return std::get<T>(std::move(result));
+    }
+    Ready();return std::get<T>(std::move(result));
+  }
+  template<class T,class Factory>detail::ActorTask<T> AgentCall(Factory factory) {
+    detail::PhaseTimer timer(stats_.agent_wait_nanoseconds);
+    auto results=co_await actor_.WaitAll<T>(1,[&](auto& pending){pending.push_back(factory());});
+    co_return CheckedAgentResult(std::move(results.front()));
   }
   static std::string TicketName(const RequestId& id) {
     return std::to_string(id.learner) + "/" + std::to_string(id.sequence);
@@ -122,6 +88,46 @@ class CpuParameterService::Impl {
     Require(add <= options_.max_request_bytes - bytes, "request exceeds byte limit",
             Error::Code::capacity_exceeded);
     bytes += add;
+  }
+  void Dependency(detail::ActorResources& resources,detail::ActorResource resource) const {
+    Require(resources.keys.size()<options_.dependency_payload_bytes/sizeof(detail::ActorResource),
+      "shard dependency budget exceeded",Error::Code::capacity_exceeded);
+    resources.keys.push_back(resource);
+  }
+  detail::ActorResources Lifecycle(const RequestId& id) const {
+    detail::ActorResources r;Dependency(r,{detail::ActorResource::Kind::lifecycle,id.learner,id.sequence});return r;
+  }
+  void RowDependency(detail::ActorResources& r,RowKey row,bool agent=false) const {
+    Dependency(r,{detail::ActorResource::Kind::row,row.table,row.key});
+    auto location=Location(row);
+    if(agent && location.placement==Placement::gpu)
+      Dependency(r,{detail::ActorResource::Kind::agent,location.agent,0});
+  }
+  detail::ActorResources LookupDependencies(const LookupRequest& request) const {
+    auto r=Lifecycle(request.id);
+    for(const auto& f:request.features)for(auto key:f.keys)RowDependency(r,{f.table,key});return r;
+  }
+  detail::ActorResources PushDependencies(const PushRequest& request) const {
+    auto r=Lifecycle(request.id);
+    if(cache_policy_)Dependency(r,{detail::ActorResource::Kind::maintenance,0,0});
+    if(auto it=tickets_.find(request.ticket);it!=tickets_.end()) {
+      for(const auto& f:it->second.features) {
+        Dependency(r,{detail::ActorResource::Kind::optimizer,f.input.table,0});
+        for(auto key:f.input.keys)RowDependency(r,{f.input.table,key},true);
+      }
+    }
+    return r;
+  }
+  detail::ActorResources ReleaseDependencies(const ReleaseRequest& request) const {
+    auto r=Lifecycle(request.id);
+    if(cache_policy_)Dependency(r,{detail::ActorResource::Kind::maintenance,0,0});return r;
+  }
+  detail::ActorResources StateDependencies(const std::vector<LocatedRow>& rows) const {
+    detail::ActorResources r;for(const auto& row:rows)RowDependency(r,row.row,true);return r;
+  }
+  detail::ActorResources MoveDependencies(const MoveRowsRequest& request) const {
+    detail::ActorResources r;Dependency(r,{detail::ActorResource::Kind::agent,request.agent,0});
+    for(auto row:request.rows)RowDependency(r,row);return r;
   }
 
   LookupReply Lookup(LookupRequest request) {
@@ -219,13 +225,13 @@ class CpuParameterService::Impl {
     } catch (...) { tracker_.Abort(request.id); throw; }
   }
 
-  Ack Push(PushRequest request) {
+  detail::ActorTask<Ack> Push(PushRequest request) {
     Ready();
     Identity(request.id, Phase::push);
     const auto completed = tracker_.CompletedAs(request.id);
     if (completed) {
       Require(*completed == Phase::push, "lookup was released without an update");
-      ++stats_.duplicate_requests; return {};
+      ++stats_.duplicate_requests; co_return Ack{};
     }
       auto it = tickets_.find(request.ticket);
       Require(it != tickets_.end(), "unknown lookup ticket");
@@ -289,15 +295,18 @@ class CpuParameterService::Impl {
         // a later table cannot overtake that stream's earlier command.
         if(!options_.concurrent_agent_updates){
           for(auto& [agent,updates]:groups)for(auto& update:updates)
-            AgentResult(send(agent,std::move(update)));
+            co_await AgentCall<Ack>([&]{return send(agent,std::move(update));});
         }else for(;;){
-          std::vector<std::future<Result<Ack>>> pending;pending.reserve(groups.size());
-          for(auto& [agent,updates]:groups)if(!updates.empty()){
-            auto update=std::move(updates.front());updates.pop_front();
-            pending.push_back(send(agent,std::move(update)));
-          }
-          if(pending.empty())break;
-          for(auto& completion:pending)AgentResult(std::move(completion));
+          if(std::all_of(groups.begin(),groups.end(),[](const auto& g){return g.second.empty();}))break;
+          std::vector<Result<Ack>> completed;
+          {detail::PhaseTimer timer(stats_.agent_wait_nanoseconds);
+            completed=co_await actor_.WaitAll<Ack>(groups.size(),[&](auto& pending){
+              for(auto& [agent,updates]:groups)if(!updates.empty()){
+                auto update=std::move(updates.front());updates.pop_front();
+                pending.push_back(send(agent,std::move(update)));
+              }
+            });}
+          for(auto& result:completed)CheckedAgentResult(std::move(result));
         }
         stats_.expanded_gradient_bytes+=reference_bytes;stats_.transferred_gradient_bytes+=transferred_bytes;
         stats_.compact_update_commands+=compact_commands;
@@ -306,25 +315,25 @@ class CpuParameterService::Impl {
         for(const auto& [table,g]:cpu)detail::ApplyLazyAdam(store_->Table(table),g);}
       tracker_.Complete(request.id);
       ticket_payload_bytes_ -= ticket.payload_bytes;
-      tickets_.erase(it); ++stats_.updates;
-      MaybeMaintainCache();
-      return {};
+      tickets_.erase(request.ticket); ++stats_.updates;
+      co_await MaybeMaintainCache();
+      co_return Ack{};
   }
 
-  Ack Release(ReleaseRequest request) {
+  detail::ActorTask<Ack> Release(ReleaseRequest request) {
     Identity(request.id, Phase::release);
     if (tracker_.CompletedAs(request.id)) {
-      ++stats_.duplicate_requests; return {};
+      ++stats_.duplicate_requests; co_return Ack{};
     }
       auto it = tickets_.find(request.ticket);
       Require(it != tickets_.end() && TicketName(request.id) == request.ticket,
               "release does not match a live ticket");
       tracker_.Complete(request.id);
       ticket_payload_bytes_ -= it->second.payload_bytes;
-      tickets_.erase(it); MaybeMaintainCache();return {};
+      tickets_.erase(it); co_await MaybeMaintainCache();co_return Ack{};
   }
 
-  std::vector<RowState> ReadState(const std::vector<LocatedRow>& rows) {
+  detail::ActorTask<std::vector<RowState>> ReadState(const std::vector<LocatedRow>& rows) {
     Ready();
     std::uint64_t bytes = 0;
     for (const auto& located : rows) {
@@ -338,15 +347,15 @@ class CpuParameterService::Impl {
     for(const auto& row:rows){
       if(row.placement==Placement::gpu){
         MigrationPlan plan{"read",Location(row.row).agent,{Location(row.row)},Placement::cpu,0};
-        auto state=AgentResult(agents_.at(plan.agent)->ReadBack(std::move(plan)));
+        auto state=co_await AgentCall<std::vector<RowState>>([&]{return agents_.at(plan.agent)->ReadBack(std::move(plan));});
         Require(state.size()==1 && state[0].row==row.row,"invalid cache readback");
         result.push_back(std::move(state[0]));
       }else result.push_back(store_->Read(row.row.table,row.row.key));
     }
-    return result;
+    co_return result;
   }
 
-  std::vector<LocatedRow> Move(MoveRowsRequest request){
+  detail::ActorTask<std::vector<LocatedRow>> Move(MoveRowsRequest request){
     detail::PhaseTimer timer(stats_.migration_nanoseconds);
     Ready();Require(request.run==options_.run_id,"invalid migration run");
     Require(request.destination==Placement::cpu || request.destination==Placement::gpu,"invalid migration destination");
@@ -371,7 +380,7 @@ class CpuParameterService::Impl {
             counts.size()<=request.budget.max_inflight_batches,"migration budget exceeded",Error::Code::capacity_exceeded);
     auto backend=agents_.at(request.agent);
     if(request.destination==Placement::gpu)for(const auto& [table,n]:counts){
-      const auto free=AgentResult(backend->FreeSlots(table));
+      const auto free=co_await AgentCall<std::uint64_t>([&]{return backend->FreeSlots(table);});
       Require(free>=request.budget.reserve_slots && n<=free-request.budget.reserve_slots,
               "migration would exhaust reserved slots",Error::Code::capacity_exceeded);
     }
@@ -387,7 +396,7 @@ class CpuParameterService::Impl {
       }plan.rows.push_back(location);
     }
     if(request.destination==Placement::gpu){
-      auto loaded=AgentResult(backend->Load(plan,std::move(states)));
+      auto loaded=co_await AgentCall<std::vector<LocatedRow>>([&]{return backend->Load(plan,std::move(states));});
       Require(loaded.size()==plan.rows.size(),"cache load response count mismatch",Error::Code::run_failed);
       for(std::size_t i=0;i<loaded.size();++i){
         Require(loaded[i].row==plan.rows[i].row && loaded[i].generation==plan.rows[i].generation &&
@@ -396,7 +405,7 @@ class CpuParameterService::Impl {
       }
       for(const auto& row:loaded)locations_.at(RowId(row.row))=row;
     }else{
-      states=AgentResult(backend->ReadBack(plan));
+      states=co_await AgentCall<std::vector<RowState>>([&]{return backend->ReadBack(plan);});
       Require(states.size()==plan.rows.size(),"cache writeback count mismatch",Error::Code::run_failed);
       for(std::size_t i=0;i<states.size();++i){
         auto dim=store_->Table(states[i].row.table).definition.dimension;
@@ -408,7 +417,7 @@ class CpuParameterService::Impl {
         for(auto x:states[i].second_moment)Require(x>=0,"negative cache second moment",Error::Code::run_failed);
       }
       for(const auto& row:states)store_->Overwrite(row);
-      AgentResult(backend->CommitEviction(plan));
+      co_await AgentCall<Ack>([&]{return backend->CommitEviction(plan);});
       for(auto row:plan.rows){
         ++row.generation;row.placement=Placement::cpu;row.agent=0;row.slot=0;
         locations_.at(RowId(row.row))=row;
@@ -417,10 +426,10 @@ class CpuParameterService::Impl {
     stats_.migration_bytes+=bytes;
     std::vector<LocatedRow> result;result.reserve(request.rows.size());
     for(auto row:request.rows)result.push_back(Location(row));
-    return result;
+    co_return result;
   }
 
-  void MaintainCache() {
+  detail::ActorTask<Ack> MaintainCache() {
     const auto& o=cache_policy_->options();
     using Id=std::pair<TableId,Key>;
     std::set<Id> pinned;
@@ -443,11 +452,11 @@ class CpuParameterService::Impl {
     auto remaining=std::min(o.budget.network_bytes,o.budget.staging_bytes);
     auto batches=o.budget.max_inflight_batches;
     const auto migrate=[&](AgentId agent,std::vector<RowKey> rows,Placement destination,
-                           std::uint64_t row_bytes) {
+                           std::uint64_t row_bytes)->detail::ActorTask<Ack> {
       const auto bytes=rows.size()*row_bytes;
       Require(bytes<=remaining && batches>0,"cache policy exhausted migration budget");
       const auto begin=std::chrono::steady_clock::now();
-      auto moved=Move({options_.run_id,std::move(rows),agent,destination,
+      auto moved=co_await Move({options_.run_id,std::move(rows),agent,destination,
         {remaining,remaining,1,destination==Placement::gpu?o.budget.reserve_slots:0}});
       remaining-=bytes;--batches;
       ++stats_.policy_migration_batches;stats_.policy_migration_bytes+=bytes;
@@ -456,6 +465,7 @@ class CpuParameterService::Impl {
       cache_policy_->ObserveMigration(destination,bytes,
         std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-begin).count());
       if(destination==Placement::gpu)for(const auto& row:moved)cache_policy_->Admitted(row);
+      co_return Ack{};
     };
     for(auto& [group,rows]:candidates) {
       const auto [agent,table]=group;
@@ -471,7 +481,7 @@ class CpuParameterService::Impl {
           stats_.policy_budget_skips+=rows.size()-next;break;
         }
         if(cache_policy_->AdmissionValue(rows[next],row_bytes)<=0)break;
-        const auto free=AgentResult(agents_.at(agent)->FreeSlots(table));
+        const auto free=co_await AgentCall<std::uint64_t>([&]{return agents_.at(agent)->FreeSlots(table);});
         const auto usable=free>o.budget.reserve_slots?free-o.budget.reserve_slots:0;
         if(usable) {
           const auto count=std::min<std::uint64_t>({usable,remaining/row_bytes,
@@ -480,7 +490,7 @@ class CpuParameterService::Impl {
           for(std::size_t n=0;n<count && cache_policy_->AdmissionValue(rows[next+n],row_bytes)>0;++n)
             admit.push_back(rows[next+n]);
           if(admit.empty())break;
-          const auto moved=admit.size();migrate(agent,std::move(admit),Placement::gpu,row_bytes);
+          const auto moved=admit.size();co_await migrate(agent,std::move(admit),Placement::gpu,row_bytes);
           next+=moved;continue;
         }
         if(batches<2) { stats_.policy_budget_skips+=rows.size()-next;break; }
@@ -517,25 +527,29 @@ class CpuParameterService::Impl {
         if(!replace)break;
         std::vector<RowKey> evict;
         for(std::size_t n=0;n<deficit+replace;++n)evict.push_back(victims[n].row);
-        migrate(agent,std::move(evict),Placement::cpu,row_bytes);
+        co_await migrate(agent,std::move(evict),Placement::cpu,row_bytes);
         // Requery free slots and revalidate the reserve in Move. Another home
         // shard may have claimed capacity; these rows safely remain CPU-owned.
       }
     }
+    co_return Ack{};
   }
-  void MaybeMaintainCache() {
-    if(!cache_policy_ || draining_ || !fatal_.empty() || !cache_policy_->CompleteRequest())return;
+  detail::ActorTask<Ack> MaybeMaintainCache() {
+    if(!cache_policy_ || draining_ || !fatal_.empty() || !cache_policy_->CompleteRequest())co_return Ack{};
+    co_await actor_.Exclusive();
+    Ready();
     ++stats_.policy_windows;
     detail::PhaseTimer timer(stats_.cache_maintenance_nanoseconds);
-    try { MaintainCache(); }
+    try { co_await MaintainCache(); }
     catch(const detail::Failure& e) {
       ++stats_.policy_failures;
       if(!fatal_.empty() || e.error().code==Error::Code::run_failed)throw;
     }
     catch(const std::bad_alloc&) { ++stats_.policy_failures; }
+    co_return Ack{};
   }
 
-  SnapshotMetadata Save(const std::string& id) {
+  detail::ActorTask<SnapshotMetadata> Save(const std::string& id) {
     Ready();
     Require(!id.empty() && id.size() <= 128 && id != "." && id != ".." &&
       std::all_of(id.begin(), id.end(), [](unsigned char c) {
@@ -555,7 +569,7 @@ class CpuParameterService::Impl {
         rows.push_back(loc.row);bytes+=row_bytes;
       }
       if(rows.empty())break;
-      Move({options_.run_id,std::move(rows),agent,Placement::cpu,
+      co_await Move({options_.run_id,std::move(rows),agent,Placement::cpu,
         {options_.max_request_bytes,options_.max_request_bytes,1024,0}});
     }
     const auto file = options_.snapshot_directory / id /
@@ -566,7 +580,7 @@ class CpuParameterService::Impl {
       result.optimizer_contexts.push_back({{options_.run_id, 0, 0, Phase::maintenance},
         options_.shard_id, table, t.optimizer_sequence,
         t.definition.optimizer.learning_rate, t.beta1_power, t.beta2_power});
-    return result;
+    co_return result;
   }
 
   struct Ticket {
@@ -581,7 +595,6 @@ class CpuParameterService::Impl {
   std::unique_ptr<detail::ShardStore> store_;
   std::unordered_map<std::string, Ticket> tickets_;
   RuntimeStats stats_;
-  std::uint64_t rejected_operations_=0,peak_queued_operations_=0;
   std::map<AgentId,std::shared_ptr<CacheBackend>> agents_;
   AgentId fallback_agent_=0;
   AccessRoute fallback_route_=AccessRoute::cpu_pool;
@@ -592,94 +605,93 @@ class CpuParameterService::Impl {
   std::string fatal_;
   bool draining_ = false;
   std::uint64_t ticket_payload_bytes_ = 0;
-  std::mutex mutex_;
-  std::condition_variable changed_;
-  struct Queued { std::function<void()> function; std::uint64_t payload_bytes; };
-  std::deque<Queued> queue_;
-  std::uint64_t queued_payload_bytes_ = 0;
-  bool stopping_ = false;
-  std::thread worker_;
+  // Last member: accepted continuations and completion workers drain before
+  // the store, tickets, backends and error observer's state are destroyed.
+  detail::ResumableActor actor_;
 };
 
 CpuParameterService::CpuParameterService(RuntimeOptions options)
     : impl_(std::make_unique<Impl>(std::move(options))) {}
 CpuParameterService::~CpuParameterService() = default;
 std::future<Result<Ack>> CpuParameterService::CreateTable(TableDefinition table) {
-  return impl_->Submit<Ack>([this, table] {
+  return impl_->Submit<Ack>([this,table]()->detail::ActorTask<Ack>{
     impl_->Ready();impl_->store_->Create(table);
-    for(const auto& [id,backend]:impl_->agents_)impl_->AgentResult(backend->Define(table));
-    return Ack{};
+    for(const auto& [id,backend]:impl_->agents_)
+      co_await impl_->AgentCall<Ack>([&]{return backend->Define(table);});
+    co_return Ack{};
   });
 }
 std::future<Result<LookupReply>> CpuParameterService::Lookup(LookupRequest request) {
-  std::uint64_t bytes = request.features.capacity() * sizeof(FeatureInput);
-  for (const auto& f : request.features)
-    bytes += (f.keys.capacity() + f.offsets.capacity() + f.valid_lengths.capacity()) * sizeof(std::uint64_t);
-  return impl_->Submit<LookupReply>([this, request = std::move(request)]() mutable {
-    return impl_->Lookup(std::move(request));
-  }, bytes);
+  std::uint64_t bytes=request.features.capacity()*sizeof(FeatureInput);
+  for(const auto& f:request.features)
+    bytes+=(f.keys.capacity()+f.offsets.capacity()+f.valid_lengths.capacity())*sizeof(std::uint64_t);
+  auto input=std::make_shared<LookupRequest>(std::move(request));
+  return impl_->SubmitIndependent<LookupReply>([this,input]{return impl_->Lookup(std::move(*input));},
+    [this,input]{return impl_->LookupDependencies(*input);},bytes);
 }
 std::future<Result<Ack>> CpuParameterService::Push(PushRequest request) {
-  std::uint64_t bytes = request.feature_gradients.capacity() * sizeof(TensorBlock);
-  for (const auto& g : request.feature_gradients)
-    bytes += g.values.capacity() * sizeof(float) + g.shape.capacity() * sizeof(std::uint64_t);
-  return impl_->Submit<Ack>([this, request = std::move(request)]() mutable {
-    return impl_->Push(std::move(request));
-  }, bytes);
+  std::uint64_t bytes=request.feature_gradients.capacity()*sizeof(TensorBlock);
+  for(const auto& g:request.feature_gradients)
+    bytes+=g.values.capacity()*sizeof(float)+g.shape.capacity()*sizeof(std::uint64_t);
+  auto input=std::make_shared<PushRequest>(std::move(request));
+  return impl_->SubmitIndependent<Ack>([this,input]{return impl_->Push(std::move(*input));},
+    [this,input]{return impl_->PushDependencies(*input);},bytes);
 }
 std::future<Result<Ack>> CpuParameterService::Release(ReleaseRequest request) {
-  return impl_->Submit<Ack>([this, request = std::move(request)]() mutable {
-    return impl_->Release(std::move(request));
-  });
+  auto input=std::make_shared<ReleaseRequest>(std::move(request));
+  return impl_->SubmitIndependent<Ack>([this,input]{return impl_->Release(std::move(*input));},
+    [this,input]{return impl_->ReleaseDependencies(*input);});
 }
 std::future<Result<std::vector<RowState>>> CpuParameterService::ReadState(std::vector<LocatedRow> rows) {
-  const auto bytes = rows.size() * sizeof(LocatedRow);
-  return impl_->Submit<std::vector<RowState>>([this, rows = std::move(rows)] {
-    return impl_->ReadState(rows);
-  }, bytes);
+  auto bytes=rows.capacity()*sizeof(LocatedRow);auto input=std::make_shared<std::vector<LocatedRow>>(std::move(rows));
+  return impl_->SubmitIndependent<std::vector<RowState>>([this,input]{return impl_->ReadState(*input);},
+    [this,input]{return impl_->StateDependencies(*input);},bytes);
 }
 std::future<Result<Ack>> CpuParameterService::CompleteMigration(MigrationCompletion) {
-  return impl_->Submit<Ack>([]() -> Result<Ack> {
-    return Error{Error::Code::unavailable, "GPU cache agent is not attached"};
+  return impl_->Submit<Ack>([]()->Result<Ack>{
+    return Error{Error::Code::unavailable,"GPU cache agent is not attached"};
   });
 }
 std::future<Result<SnapshotMetadata>> CpuParameterService::DrainAndFlush(std::string id) {
-  return impl_->Submit<SnapshotMetadata>([this, id = std::move(id)] { return impl_->Save(id); });
+  return impl_->Submit<SnapshotMetadata>([this,id=std::move(id)]{return impl_->Save(id);});
 }
 std::future<Result<Ack>> CpuParameterService::Restore(std::filesystem::path file) {
-  return impl_->Submit<Ack>([this, file = std::move(file)] {
-    Require(impl_->store_->empty() && impl_->tickets_.empty(), "restore requires a fresh service");
-    auto store = detail::ReadSnapshot(file, impl_->options_.run_id,
-      impl_->options_.shard_id, impl_->options_.shard_count,
-      impl_->options_.partition_epoch, impl_->options_.state_bytes);
-    impl_->store_ = std::move(store); return Ack{};
+  return impl_->Submit<Ack>([this,file=std::move(file)]{
+    Require(impl_->store_->empty() && impl_->tickets_.empty(),"restore requires a fresh service");
+    auto store=detail::ReadSnapshot(file,impl_->options_.run_id,
+      impl_->options_.shard_id,impl_->options_.shard_count,
+      impl_->options_.partition_epoch,impl_->options_.state_bytes);
+    impl_->store_=std::move(store);return Ack{};
   });
 }
 std::future<Result<Ack>> CpuParameterService::Resume() {
-  return impl_->Submit<Ack>([this] { impl_->Ready();impl_->draining_ = false; return Ack{}; });
+  return impl_->Submit<Ack>([this]{impl_->Ready();impl_->draining_=false;return Ack{};});
 }
 std::future<Result<RuntimeStats>> CpuParameterService::Stats() {
-  return impl_->Submit<RuntimeStats>([this] {
-    auto s = impl_->stats_;
-    s.rows = impl_->store_->rows(); s.state_bytes = impl_->store_->bytes();
-    s.live_tickets = impl_->tickets_.size();
-    s.ticket_payload_bytes = impl_->ticket_payload_bytes_;
+  return impl_->SubmitIndependent<RuntimeStats>([this]{
+    auto s=impl_->stats_;auto scheduling=impl_->actor_.Snapshot();
+    s.rows=impl_->store_->rows();s.state_bytes=impl_->store_->bytes();
+    s.live_tickets=impl_->tickets_.size();s.ticket_payload_bytes=impl_->ticket_payload_bytes_;
     s.policy_tracked_rows=impl_->cache_policy_?impl_->cache_policy_->tracked_rows():0;
     for(const auto& [key,loc]:impl_->locations_)if(loc.placement==Placement::gpu)++s.cached_rows;
-    { std::lock_guard lock(impl_->mutex_); s.queued_payload_bytes = impl_->queued_payload_bytes_;
-      s.rejected_operations=impl_->rejected_operations_;s.peak_queued_operations=impl_->peak_queued_operations_; }
+    s.queued_payload_bytes=scheduling.queued_payload;s.rejected_operations=scheduling.rejected;
+    s.peak_queued_operations=scheduling.peak_queued;s.executed_operations=scheduling.completed;
+    s.queue_wait_nanoseconds=scheduling.queue_wait_ns;s.executor_busy_nanoseconds=scheduling.busy_ns;
+    s.active_operations=scheduling.active;s.waiting_operations=scheduling.waiting;
+    s.active_payload_bytes=scheduling.active_payload;s.dependency_payload_bytes=scheduling.dependency_bytes;
     return s;
-  });
+  },[]{return detail::ActorResources{};});
 }
-std::future<Result<Ack>> CpuParameterService::AttachAgent(AgentId id,std::shared_ptr<CacheBackend> backend){
-  return impl_->Submit<Ack>([this,id,backend=std::move(backend)]{
+std::future<Result<Ack>> CpuParameterService::AttachAgent(AgentId id,std::shared_ptr<CacheBackend> backend) {
+  return impl_->Submit<Ack>([this,id,backend=std::move(backend)]()->detail::ActorTask<Ack>{
     impl_->Ready();Require(bool(backend) && !impl_->agents_.contains(id),"invalid/duplicate cache agent");
-    for(const auto& [table,state]:impl_->store_->tables())impl_->AgentResult(backend->Define(state.definition));
-    impl_->agents_.emplace(id,backend);return Ack{};
+    for(const auto& [table,state]:impl_->store_->tables())
+      co_await impl_->AgentCall<Ack>([&]{return backend->Define(state.definition);});
+    impl_->agents_.emplace(id,backend);co_return Ack{};
   });
 }
 std::future<Result<Ack>> CpuParameterService::ConfigureAccess(AgentId agent,AccessRoute route,
-                                                           std::shared_ptr<AccessPlanner> planner){
+                                                           std::shared_ptr<AccessPlanner> planner) {
   return impl_->Submit<Ack>([this,agent,route,planner=std::move(planner)]{
     impl_->Ready();Require(route==AccessRoute::cpu_pool || route==AccessRoute::transfer_unique,"invalid fallback route");
     Require((!planner && route==AccessRoute::cpu_pool) || impl_->agents_.contains(agent),"fallback GPU agent is not attached");
@@ -695,20 +707,20 @@ std::future<Result<Ack>> CpuParameterService::ConfigureCachePolicy(CachePolicyOp
     impl_->cache_policy_=std::move(policy);return Ack{};
   });
 }
-std::future<Result<std::vector<LocatedRow>>> CpuParameterService::Locations(std::vector<RowKey> rows){
-  return impl_->Submit<std::vector<LocatedRow>>([this,rows=std::move(rows)]{
-    impl_->Ready();std::vector<LocatedRow> out;out.reserve(rows.size());
-    for(auto row:rows){
+std::future<Result<std::vector<LocatedRow>>> CpuParameterService::Locations(std::vector<RowKey> rows) {
+  auto bytes=rows.capacity()*sizeof(RowKey);auto input=std::make_shared<std::vector<RowKey>>(std::move(rows));
+  return impl_->SubmitIndependent<std::vector<LocatedRow>>([this,input]{
+    impl_->Ready();std::vector<LocatedRow> out;out.reserve(input->size());
+    for(auto row:*input){
       Require(row.key%impl_->options_.shard_count==impl_->options_.shard_id &&
         impl_->store_->Table(row.table).index.contains(row.key),"unknown/wrongly routed row");
       out.push_back(impl_->Location(row));
     }return out;
-  });
+  },[this,input]{detail::ActorResources resources;for(auto row:*input)impl_->RowDependency(resources,row);return resources;},bytes);
 }
-std::future<Result<std::vector<LocatedRow>>> CpuParameterService::MoveRows(MoveRowsRequest request){
-  const auto bytes=request.rows.capacity()*sizeof(RowKey);
-  return impl_->Submit<std::vector<LocatedRow>>([this,request=std::move(request)]() mutable {
-    return impl_->Move(std::move(request));
-  },bytes);
+std::future<Result<std::vector<LocatedRow>>> CpuParameterService::MoveRows(MoveRowsRequest request) {
+  auto bytes=request.rows.capacity()*sizeof(RowKey);auto input=std::make_shared<MoveRowsRequest>(std::move(request));
+  return impl_->SubmitIndependent<std::vector<LocatedRow>>([this,input]{return impl_->Move(std::move(*input));},
+    [this,input]{return impl_->MoveDependencies(*input);},bytes);
 }
 }  // namespace eps

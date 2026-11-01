@@ -1,5 +1,10 @@
 # Parameter-server API and Entropy integration
 
+Shard operations use a [resumable actor](RESUMABLE_OPERATIONS.md). Independent
+requests can progress during owner waits; row/lifecycle/optimizer dependencies
+and ordered full barriers preserve the update and save contract. Stats fields
+37–40 expose active/waiting operations and retained payload/dependency bytes.
+
 ## Public service surface
 
 | Operation | Input | Output |

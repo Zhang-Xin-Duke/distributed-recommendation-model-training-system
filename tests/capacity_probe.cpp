@@ -189,6 +189,7 @@ int main(int argc,char** argv){
         {"checked_parameter_counters",checked}};
       result["phase_nanoseconds"]=phases;
       result["sequencer_busy_fraction"]=busy_ns/1e9/(elapsed*admin.size());
+      result["executor_busy_scope"]="actor execution and dependency planning; suspended external waits excluded";
       result["queue_wait_per_operation_ms"]=operations?wait_ns/1e6/operations:0;
       result["rejected_admissions"]=admission_failures;
       result["expanded_gradient_bytes"]=expanded_bytes;result["transferred_gradient_bytes"]=transferred_bytes;

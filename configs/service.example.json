@@ -43,7 +43,11 @@
     "max_live_tickets": 1024,
     "cpu_state_bytes": 1073741824,
     "ticket_payload_bytes": 67108864,
-    "queue_payload_bytes": 67108864
+    "queue_payload_bytes": 67108864,
+    "max_queued_operations": 1024,
+    "max_active_operations": 16,
+    "completion_waiters": 4,
+    "dependency_payload_bytes": 67108864
   },
   "snapshot_directory": "./snapshots"
 }

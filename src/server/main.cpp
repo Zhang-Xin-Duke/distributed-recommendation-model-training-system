@@ -59,6 +59,10 @@ int main(int argc,char** argv) {
       options.state_bytes=l.value("cpu_state_bytes",options.state_bytes);
       options.ticket_payload_bytes=l.value("ticket_payload_bytes",options.ticket_payload_bytes);
       options.queue_payload_bytes=l.value("queue_payload_bytes",options.queue_payload_bytes);
+      options.max_queued_operations=l.value("max_queued_operations",options.max_queued_operations);
+      options.max_active_operations=l.value("max_active_operations",options.max_active_operations);
+      options.completion_waiters=l.value("completion_waiters",options.completion_waiters);
+      options.dependency_payload_bytes=l.value("dependency_payload_bytes",options.dependency_payload_bytes);
     }
     CpuParameterService service(options);
     if(!restore.empty())Value(service.Restore(restore));

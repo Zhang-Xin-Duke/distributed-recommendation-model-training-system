@@ -26,6 +26,9 @@ struct RuntimeOptions {
   bool concurrent_agent_updates = true;
   bool compact_gpu_gradients = true;
   std::filesystem::path snapshot_directory = "snapshots";
+  std::uint32_t max_active_operations = 16;
+  std::uint32_t completion_waiters = 4;
+  std::uint64_t dependency_payload_bytes = 64ULL << 20;
 };
 
 struct RuntimeStats {
@@ -64,10 +67,15 @@ struct RuntimeStats {
   std::uint64_t agent_wait_nanoseconds = 0;
   std::uint64_t migration_nanoseconds = 0;
   std::uint64_t cache_maintenance_nanoseconds = 0;
+  std::uint64_t active_operations = 0;
+  std::uint64_t waiting_operations = 0;
+  std::uint64_t active_payload_bytes = 0;
+  std::uint64_t dependency_payload_bytes = 0;
 };
 
-// A bounded asynchronous shard sequencer. Transport callbacks never execute
-// parameter work, and independent server shards progress independently.
+// A bounded single-owner actor. Independent operations may run during external
+// waits; row/optimizer/control dependencies preserve conflicting request order.
+// Transport callbacks never execute parameter work.
 class CpuParameterService final : public ParameterService {
  public:
   explicit CpuParameterService(RuntimeOptions options);

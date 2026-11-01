@@ -225,6 +225,10 @@ message StatsReply {
   uint64 agent_wait_nanoseconds = 34;
   uint64 migration_nanoseconds = 35;
   uint64 cache_maintenance_nanoseconds = 36;
+  uint64 active_operations = 37;
+  uint64 waiting_operations = 38;
+  uint64 active_payload_bytes = 39;
+  uint64 dependency_payload_bytes = 40;
 }
 
 message RowKey { uint32 table_id = 1; uint64 key = 2; }
