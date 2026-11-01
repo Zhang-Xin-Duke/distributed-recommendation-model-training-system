@@ -456,8 +456,11 @@ class CpuParameterService::Impl {
       const auto bytes=rows.size()*row_bytes;
       Require(bytes<=remaining && batches>0,"cache policy exhausted migration budget");
       const auto begin=std::chrono::steady_clock::now();
-      auto moved=co_await Move({options_.run_id,std::move(rows),agent,destination,
-        {remaining,remaining,1,destination==Placement::gpu?o.budget.reserve_slots:0}});
+      // Keep the owning aggregate explicit across the suspension expression.
+      // GCC 11 mishandles a braced temporary with string/vector members here.
+      MoveRowsRequest migration{options_.run_id,std::move(rows),agent,destination,
+        {remaining,remaining,1,destination==Placement::gpu?o.budget.reserve_slots:0}};
+      auto moved=co_await Move(std::move(migration));
       remaining-=bytes;--batches;
       ++stats_.policy_migration_batches;stats_.policy_migration_bytes+=bytes;
       if(destination==Placement::gpu)stats_.policy_admitted_rows+=moved.size();
@@ -569,8 +572,9 @@ class CpuParameterService::Impl {
         rows.push_back(loc.row);bytes+=row_bytes;
       }
       if(rows.empty())break;
-      co_await Move({options_.run_id,std::move(rows),agent,Placement::cpu,
-        {options_.max_request_bytes,options_.max_request_bytes,1024,0}});
+      MoveRowsRequest migration{options_.run_id,std::move(rows),agent,Placement::cpu,
+        {options_.max_request_bytes,options_.max_request_bytes,1024,0}};
+      co_await Move(std::move(migration));
     }
     const auto file = options_.snapshot_directory / id /
         ("shard-" + std::to_string(options_.shard_id) + ".bin");
