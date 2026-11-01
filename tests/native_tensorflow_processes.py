@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import dataclasses
+import urllib.request
 from rpc_processes import ready,stop
 
 def port():
@@ -14,6 +15,8 @@ def port():
 
 def main():
     server,runtime,operations,compare,mode=sys.argv[1:];gpu=mode=='cuda'
+    remote_endpoints=[s for s in os.environ.get('EPS_NATIVE_TEST_REMOTE_AGENTS','').split(',') if s]
+    assert gpu or not remote_endpoints,'remote GPU owners require CUDA mode'
     import numpy as np
     import tensorflow as tf
     from eps_tensorflow import Feature
@@ -25,14 +28,15 @@ def main():
     processes=[];logs=[];backends=[]
     with tempfile.TemporaryDirectory(prefix='eps-native-tf-') as temporary:
         root=pathlib.Path(temporary);agent_endpoint='127.0.0.1:'+str(port());endpoints=[]
+        owner_endpoints=[agent_endpoint,*remote_endpoints]
         try:
             for group in ['actual','reference']:
                 group_endpoints=[]
                 for shard in range(2):
                     cache=dict(enabled=False);agents=[]
                     if gpu and group=='actual':
-                        cache=dict(enabled=True,admission='reuse_cost',policy_agents=[0],decision_window_requests=1,max_tracked_rows=32,minimum_accesses=1,window_decay=.5,minimum_residence_windows=1,replacement_margin=.1,saved_microseconds_per_access=100,load_microseconds_per_byte=0,writeback_microseconds_per_byte=0,learn_migration_costs=False,network_bytes_per_window=1<<20,staging_bytes_limit=1<<20,max_inflight_batches=8,reserve_slots=1)
-                        agents=[dict(id=0,endpoint=agent_endpoint)]
+                        cache=dict(enabled=True,admission='reuse_cost',policy_agents=list(range(len(owner_endpoints))),decision_window_requests=1,max_tracked_rows=32,minimum_accesses=1,window_decay=.5,minimum_residence_windows=1,replacement_margin=.1,saved_microseconds_per_access=100,load_microseconds_per_byte=0,writeback_microseconds_per_byte=0,learn_migration_costs=False,network_bytes_per_window=1<<20,staging_bytes_limit=1<<20,max_inflight_batches=8,reserve_slots=1)
+                        agents=[dict(id=i,endpoint=e) for i,e in enumerate(owner_endpoints)]
                     config=root/f'{group}-{shard}.json';config.write_text(json.dumps(dict(schema_version=1,run_id='native-'+group,listen='127.0.0.1:0',partition=dict(shard_id=shard,shard_count=2,epoch=1),tables=[],cache=cache,agents=agents,snapshot_directory=str(root/group))))
                     log=open(root/f'{group}-{shard}.log','w+');logs.append(log)
                     p=subprocess.Popen([server,'--config',str(config)],stdout=subprocess.PIPE,stderr=log,text=True);processes.append(p);group_endpoints.append(ready(p))
@@ -40,7 +44,9 @@ def main():
             tables=[dict(id=i,dimension=d,dtype='float32',optimizer=dict(kind='sparse_lazy_adam',learning_rate=.01,beta1=.9,beta2=.999,epsilon=1e-8,initial_beta1_power=.9,initial_beta2_power=.999),initialization=dict(min=-.25,max=.25,seed=42)) for i,d in [(1,3),(2,5)]]
             for i,name in enumerate(['actual','reference']):
                 config=dict(run='native-'+name,endpoints=endpoints[i],tables=tables)
-                if gpu and not i:config['cuda']=dict(agent=0,device=0,listen=agent_endpoint,state_bytes=1<<20,rows_per_table=64,transfer_bytes=1<<20,outstanding_output_bytes=1<<20)
+                if gpu and not i:
+                    config['cuda']=dict(agent=0,device=0,listen=agent_endpoint,state_bytes=1<<20,rows_per_table=64,transfer_bytes=1<<20,outstanding_output_bytes=1<<20)
+                    config['agents']=[dict(id=j+1,endpoint=e) for j,e in enumerate(remote_endpoints)]
                 backends.append(NativeParameterServer(config,op_library=operations,runtime_library=runtime,device='/GPU:0' if gpu and not i else '/CPU:0'))
             features=[Feature(1,10,np.array([1,2,1,0,3,4,0],np.uint64),np.array([0,4,4,7],np.uint64),3,'mean',0),
                 Feature(1,11,np.array([0,4,1,0,5,2,0],np.uint64),np.array([0,2,7],np.uint64),3,'sequence',0),
@@ -84,6 +90,13 @@ def main():
                         backend.save('middle').numpy();checkpoint=tf.train.Checkpoint(dense=m[2],optimizer=m[3],input_step=m[4]);path=checkpoint.write(str(root/f'dense-{i}'))
                         m[2].assign(tf.zeros_like(m[2]));m[4].assign(99);checkpoint.restore(path).expect_partial();assert int(m[4].numpy())==2;backend.resume('middle').numpy()
             if gpu:assert cached_seen,'native GPU graph never loaded resident parameters'
+            remote_owner_stats=[]
+            for endpoint in remote_endpoints:
+                request=urllib.request.Request('http://'+endpoint+'/eps.v1.CacheAgentService/AdmissionStats',data=b'{}',headers={'Content-Type':'application/json'})
+                with urllib.request.urlopen(request,timeout=10) as response:observed=json.load(response)
+                assert int(observed['accepted_requests'])>0 and int(observed['accepted_requests'])==int(observed['completed_requests']),observed
+                assert not int(observed.get('active_operations',0)) and not int(observed.get('queued_operations',0)),observed
+                remote_owner_stats.append({k:observed.get(k,0) for k in ('accepted_requests','completed_requests','active_operations','queued_operations')})
             graph_types=set()
             for m in models:
                 for function in [m[0].get_concrete_function(),m[1].get_concrete_function()]:
@@ -104,7 +117,8 @@ def main():
             print(json.dumps(dict(test='native_tensorflow_graph',mode=mode,tensorflow=tf.__version__,external_ps_processes=4,training_steps=5,features=7,prepared_steps=2,
                 checked_parameter_rows=sum(x['checked_rows'] for x in state_records),acknowledged_updates_per_shard=5,max_state_absolute_error=max(x['max_state_absolute_error'] for x in state_records),
                 max_model_absolute_error=maximum,resident_parameters_observed=bool(cached_seen),native_op_types=sorted(graph_types & {'EpsPull','EpsPullPrepared','EpsPush','EpsCommand'}),
-                python_callbacks=False,output_valid_after_runtime_close=True,mid_run_dense_and_sparse_save_resume=True,output_schema_failure_tickets_released=True)))
+                python_callbacks=False,output_valid_after_runtime_close=True,mid_run_dense_and_sparse_save_resume=True,output_schema_failure_tickets_released=True,
+                gpu_parameter_owners=len(owner_endpoints) if gpu else 0,remote_owner_statistics=remote_owner_stats)))
         except Exception:
             for log in logs:log.flush();log.seek(0);print(log.read()[-5000:],file=sys.stderr)
             raise
