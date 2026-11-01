@@ -167,3 +167,7 @@ class ParameterServer:
     def stats(self):
         """Return runtime metrics in configured shard order outside the graph."""
         return self.backend.stats()
+
+    def restored_from(self):
+        """Read the loaded snapshot identity and pre-admission state per shard."""
+        return self.backend.restored_from()

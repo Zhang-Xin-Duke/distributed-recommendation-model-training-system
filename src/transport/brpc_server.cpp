@@ -30,6 +30,18 @@ void BrpcServer::Stats(google::protobuf::RpcController* c,const wire::StatsReque
 }
 using namespace eps::transport;
 
+void BrpcServer::RestoredFrom(google::protobuf::RpcController* c,const wire::StatsRequest* q,
+                            wire::RestoredSnapshotReply* r,google::protobuf::Closure* done) {
+  Dispatch<RestoredSnapshot>(c,q,r,done,[&](const auto&){return service_.RestoredFrom();},
+    [](RestoredSnapshot metadata,auto* out,auto&){
+      out->set_loaded(metadata.loaded);out->set_pristine(metadata.pristine);
+      out->set_run(metadata.run);out->set_source_run(metadata.source_run);
+      out->set_file_bytes(metadata.bytes);out->set_checksum(metadata.checksum);
+      out->set_shard(metadata.shard);out->set_shard_count(metadata.shard_count);
+      out->set_partition_epoch(metadata.partition_epoch);
+    });
+}
+
 void BrpcServer::ReadCheckpoint(google::protobuf::RpcController* c,const wire::SnapshotReadRequest* q,
                               wire::SnapshotChunkReply* r,google::protobuf::Closure* done) {
   Dispatch<SnapshotChunk>(c,q,r,done,[&](const auto&){

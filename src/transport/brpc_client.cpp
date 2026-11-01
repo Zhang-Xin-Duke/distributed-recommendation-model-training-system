@@ -23,6 +23,18 @@ using transport::AckDecoder;
 BrpcParameterService::BrpcParameterService(std::string endpoint,int timeout)
     :impl_(std::make_shared<Impl>(endpoint,timeout)) {}
 BrpcParameterService::~BrpcParameterService()=default;
+std::future<Result<RestoredSnapshot>> BrpcParameterService::RestoredFrom() {
+  return Call<wire::StatsRequest,wire::RestoredSnapshotReply,RestoredSnapshot>(impl_,
+    &wire::EmbeddingService_Stub::RestoredFrom,[](auto&,auto&){},[](const auto& reply,const auto&){
+      detail::Require(!reply.pristine() || reply.loaded(),"invalid restored-state presence");
+      detail::Require(reply.shard_count()>0 && reply.shard_count()<=1024 &&
+        reply.shard()<reply.shard_count(),"invalid restored-state partition");
+      detail::Require(!reply.loaded() || (reply.file_bytes()>=8 && !reply.source_run().empty()),
+        "invalid restored snapshot fingerprint");
+      return RestoredSnapshot{reply.loaded(),reply.pristine(),reply.run(),reply.source_run(),
+        reply.file_bytes(),reply.checksum(),reply.shard(),reply.shard_count(),reply.partition_epoch()};
+    });
+}
 std::future<Result<SnapshotChunk>> BrpcParameterService::ReadCheckpoint(
     CheckpointIdentity identity,std::uint64_t offset,std::uint32_t max_bytes) {
   return Call<wire::SnapshotReadRequest,wire::SnapshotChunkReply,SnapshotChunk>(impl_,

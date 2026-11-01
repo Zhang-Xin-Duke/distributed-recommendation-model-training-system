@@ -11,6 +11,7 @@ class BrpcServer final : public v1::EmbeddingService {
   void Name(google::protobuf::RpcController*, const v1::Request*, v1::Response*, google::protobuf::Closure*) override;
   EPS_RPC(CreateTable, CreateTableRequest, Ack)
   EPS_RPC(Stats, StatsRequest, StatsReply)
+  EPS_RPC(RestoredFrom, StatsRequest, RestoredSnapshotReply)
   EPS_RPC(Lookup, LookupRequest, LookupReply)
   EPS_RPC(Push, PushRequest, Ack)
   EPS_RPC(Release, ReleaseRequest, Ack)

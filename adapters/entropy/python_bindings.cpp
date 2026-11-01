@@ -150,6 +150,21 @@ class Backend {
     for(auto& [id,endpoint]:endpoints)agents[id]=std::make_shared<BrpcCacheBackend>(endpoint,run_,0,id);
     adapter_->SetCacheResolver(MakeCacheResolver(std::move(agents)),coalesce);
   }
+  py::list RestoredFrom() {
+    std::vector<RestoredSnapshot> metadata;
+    {py::gil_scoped_release release;
+      std::vector<std::future<Result<RestoredSnapshot>>> pending;
+      for(const auto& connection:connections_)pending.push_back(connection->RestoredFrom());
+      for(auto& future:pending)metadata.push_back(Take(future.get()));
+    }
+    py::list result;
+    for(const auto& m:metadata) {
+      py::dict row;row["loaded"]=m.loaded;row["pristine"]=m.pristine;
+      row["run"]=m.run;row["source_run"]=m.source_run;row["bytes"]=m.bytes;row["checksum"]=m.checksum;
+      row["shard"]=m.shard;row["shard_count"]=m.shard_count;row["partition_epoch"]=m.partition_epoch;
+      result.append(std::move(row));
+    }return result;
+  }
   std::vector<std::map<std::string,std::uint64_t>> Stats() {
     py::gil_scoped_release release;
     std::vector<std::future<Result<RuntimeStats>>> pending;
@@ -190,6 +205,7 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("pull_prepared",&Backend::PullPrepared,py::arg("token"),py::arg("read_only")=false)
     .def("cancel_prepared",&Backend::CancelPrepared).def("preparation_stats",&Backend::PreparationStats)
     .def("push",&Backend::Push).def("release",&Backend::Release).def("join",&Backend::Join)
+    .def("restored_from",&Backend::RestoredFrom)
     .def("save",&Backend::Save).def("stats",&Backend::Stats)
     .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
     .def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);

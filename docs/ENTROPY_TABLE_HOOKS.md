@@ -103,10 +103,9 @@ does not publish the external joint-commit marker. Direct calls to the module's
 lower-level `checkpoint` function require the coordinated Runner context.
 
 The [snapshot/export protocol](PERIODIC_CHECKPOINTS.md) describes bounded reads,
-checksum validation and resume identities. Automatic remote-store staging into
-fresh parameter shards and the selected table's original restore path remain
-the next integration step; use the existing explicit service restore workflow
-for the standalone service until that connection is implemented.
+checksum validation and resume identities. The [restore stager and original
+restore hooks](ENTROPY_RESTORE.md) prepare fresh parameter shards, verify their
+loaded snapshot and reconnect the original dense/input continuation boundary.
 
 ## Source-level verification
 

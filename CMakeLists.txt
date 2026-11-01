@@ -151,6 +151,8 @@ if(EPS_BUILD_BRPC)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_install_tests.py")
       add_test(NAME checkpoint_filesystem_contract
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/checkpoint_store_tests.py")
+      add_test(NAME committed_checkpoint_staging
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/checkpoint_restore_tests.py")
       set_tests_properties(checkpoint_filesystem_contract PROPERTIES TIMEOUT 30)
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('tensorflow')"
         RESULT_VARIABLE eps_tensorflow_available OUTPUT_QUIET ERROR_QUIET)
@@ -160,6 +162,11 @@ if(EPS_BUILD_BRPC)
         add_test(NAME entropy_original_table_cache
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py"
             $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent>)
+        add_test(NAME entropy_original_restore_trajectory
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_restore_processes.py"
+            $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent> $<TARGET_FILE:eps_snapshot_compare>)
+        set_tests_properties(entropy_original_restore_trajectory PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         set_tests_properties(entropy_original_table_external_shards entropy_original_table_cache PROPERTIES
           TIMEOUT 120 SKIP_RETURN_CODE 77
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
@@ -240,6 +247,12 @@ if(EPS_BUILD_TESTS)
   add_test(NAME periodic_checkpoint_lifecycle COMMAND eps_periodic_checkpoint_tests)
   set_tests_properties(periodic_checkpoint_lifecycle PROPERTIES TIMEOUT 30)
   add_executable(eps_weight_bounds_tests tests/weight_bounds_tests.cpp)
+  add_executable(eps_restore_provenance_tests tests/restore_provenance_tests.cpp)
+  target_link_libraries(eps_restore_provenance_tests PRIVATE eps_core)
+  add_test(NAME restored_snapshot_provenance COMMAND eps_restore_provenance_tests)
+  add_executable(eps_snapshot_compare tests/snapshot_compare.cpp)
+  target_link_libraries(eps_snapshot_compare PRIVATE eps_core)
+  target_include_directories(eps_snapshot_compare PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(eps_weight_bounds_tests PRIVATE eps_core)
   add_test(NAME bounded_sparse_optimizer COMMAND eps_weight_bounds_tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/snapshot-v1-unbounded.bin")
   set_tests_properties(bounded_sparse_optimizer PROPERTIES TIMEOUT 30)

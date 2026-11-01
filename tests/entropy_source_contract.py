@@ -46,6 +46,9 @@ def load(tf):
     class Config(dict):
         ssd_auto_reserve_ratio=0
         export_parallel=2
+        restore_parallel=2
+        restore_need_migrate=False
+        restore_sparse_when_build=False
         @staticmethod
         def number_of_partitions():return 1
     class Options:
@@ -67,6 +70,10 @@ def load(tf):
             with session.graph.as_default():
                 tf.compat.v1.train.Saver(var_list={'weight':self.variable}).save(session,os.path.join(directory,'model'))
             context.events.append('dense_saved')
+        def restore(self,session,path,checkpoint_id):
+            with session.graph.as_default():
+                tf.compat.v1.train.Saver(var_list={'weight':self.variable}).restore(session,os.path.join(path,'dense/model'))
+            context.events.append('dense_restored')
     class MultiLearner:
         @staticmethod
         def is_chief(*args,**kwargs):return True
@@ -88,10 +95,13 @@ def load(tf):
         CLIB=types.SimpleNamespace(tensorswitch_sparse_save=native_save,tensorswitch_save_cluster_config=lambda *a:0),
         save_donefile=done,
         get_default_learner=learner,env=env,ts=ts,OptimizerOptions=Options,
-        TSException=RuntimeError,FileFeeder=Feeder,MigrateInitPolicy=lambda:None,
+        TSException=RuntimeError,FileFeeder=Feeder,MigrateInitPolicy=type('MigrateInitPolicy',(),{}),
+        get_dense_ckpt=lambda path,delta_ckpt_paths:path,
         flags=types.SimpleNamespace(FLAGS=types.SimpleNamespace(ignore_none_grads=False)),
         _variable_size=lambda v:v.shape.num_elements())
-    names={'cluster_specific','per_learner_once_attr','add_var_collections','checkpoint'}
+    names={'cluster_specific','per_learner_once_attr','add_var_collections','checkpoint',
+           'restore_sparse_fn','restore_sparse_start','restore_sparse_reshard_fn','restore_sparse_reshard_start',
+           'worker_restore_sparse','worker_restore_sparse_wait','worker_restore_dense','worker_restore'}
     for node in tree.body:
         if isinstance(node,ast.FunctionDef) and node.name in names:
             exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
@@ -101,7 +111,7 @@ def load(tf):
             exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
     original_runner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='_MultiDatasetRunner')
     runner_methods=[n for n in original_runner.body if isinstance(n,ast.FunctionDef) and
-                    n.name in {'checkpoint','prepare_ckpt','prepare_path','is_chief'}]
+                    n.name in {'checkpoint','prepare_ckpt','prepare_path','is_chief','restore'}]
     runner=ast.ClassDef(name='_MultiDatasetRunner',bases=[],keywords=[],body=runner_methods,decorator_list=[])
     exec(compile(ast.fix_missing_locations(ast.Module(body=[runner],type_ignores=[])),str(path),'exec'),namespace)
     # Original functions retain their own namespace, including original class identity.
@@ -113,8 +123,9 @@ def load(tf):
     module.InputBuilder=namespace['InputBuilder']
     provenance=dict(train_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
         inputs_sha256=hashlib.sha256(inputs.read_bytes()).hexdigest(),
-        executed=['SparseTable','SparseLazyAdam','per_learner_once_attr','cluster_specific',
+        source_definitions=['SparseTable','SparseLazyAdam','per_learner_once_attr','cluster_specific',
                   'add_var_collections','InputBuilder.sparse_vars','InputBuilder.apply_sparse_grads',
-                  '_MultiDatasetRunner.checkpoint','_MultiDatasetRunner.prepare_path','checkpoint'],
+                  '_MultiDatasetRunner.checkpoint','_MultiDatasetRunner.prepare_path','checkpoint',
+                  '_MultiDatasetRunner.restore','worker_restore','worker_restore_sparse','worker_restore_dense'],
         native_environment='learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported')
     return module,context,provenance

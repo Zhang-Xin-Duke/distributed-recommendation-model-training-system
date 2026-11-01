@@ -46,8 +46,9 @@ snapshot:
 The configuration mapper, Pull/Push/Join bridge and
 [original table/Runner hooks](ENTROPY_TABLE_HOOKS.md) are implemented. Source-level
 Session graph checks exercise the original methods with real external shards.
-A native original-application build, multi-peer framework execution, remote
-restore staging and in-process device-tensor interop remain open work.
+A [restore stager and loaded-state verification](ENTROPY_RESTORE.md) connect the
+original restore boundary to fresh shards. A native original-application build,
+original-reader/multi-peer execution and in-process device-tensor interop remain open work.
 The [periodic checkpoint bridge](PERIODIC_CHECKPOINTS.md) provides bounded export
 through the framework filesystem and guarded same-run resume for that controller.
 

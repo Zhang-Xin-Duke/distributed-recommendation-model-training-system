@@ -195,6 +195,7 @@ message SnapshotReply {
 
 service EmbeddingService {
   rpc Stats(StatsRequest) returns (StatsReply);
+  rpc RestoredFrom(StatsRequest) returns (RestoredSnapshotReply);
   rpc CreateTable(CreateTableRequest) returns (Ack);
   rpc Lookup(LookupRequest) returns (LookupReply);
   rpc Push(PushRequest) returns (Ack);
@@ -212,6 +213,18 @@ message CheckpointIdentity {
   string run = 1;
   uint64 partition_epoch = 2;
   string snapshot_id = 3;
+}
+message RestoredSnapshotReply {
+  Status status = 1;
+  bool loaded = 2;
+  bool pristine = 3;
+  string run = 4;
+  string source_run = 5;
+  uint64 file_bytes = 6;
+  uint64 checksum = 7;
+  uint32 shard = 8;
+  uint32 shard_count = 9;
+  uint64 partition_epoch = 10;
 }
 message SnapshotReadRequest {
   CheckpointIdentity identity = 1;

@@ -101,6 +101,7 @@ class CpuParameterService final : public ParameterService {
   // Restore requires a fresh service and a new run ID. Resume reopens admission
   // after the framework has completed its coordinated save boundary.
   std::future<Result<Ack>> Restore(std::filesystem::path snapshot_file);
+  std::future<Result<RestoredSnapshot>> RestoredFrom();
   std::future<Result<Ack>> Resume();
   std::future<Result<SnapshotChunk>> ReadCheckpoint(CheckpointIdentity,
       std::uint64_t offset, std::uint32_t max_bytes) override;

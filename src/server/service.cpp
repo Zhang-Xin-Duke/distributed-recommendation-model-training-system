@@ -147,6 +147,7 @@ class CpuParameterService::Impl {
     detail::PhaseTimer timer(stats_.lookup_prepare_nanoseconds);
     try {
       Require(!draining_, "shard is draining", Error::Code::unavailable);
+      restored_.pristine=false;
       Require(tickets_.size() < options_.max_live_tickets, "live ticket limit reached",
               Error::Code::capacity_exceeded);
       Require(!request.features.empty(), "lookup has no features");
@@ -613,6 +614,7 @@ class CpuParameterService::Impl {
   std::string fatal_;
   bool draining_ = false;
   std::string saved_checkpoint_;
+  RestoredSnapshot restored_;
   std::uint64_t ticket_payload_bytes_ = 0;
   // Last member: accepted continuations and completion workers drain before
   // the store, tickets, backends and error observer's state are destroyed.
@@ -628,7 +630,9 @@ CpuParameterService::~CpuParameterService() {
 }
 std::future<Result<Ack>> CpuParameterService::CreateTable(TableDefinition table) {
   return impl_->Submit<Ack>([this,table]()->detail::ActorTask<Ack>{
-    impl_->Ready();impl_->store_->Create(table);
+    impl_->Ready();const bool existed=impl_->store_->tables().contains(table.id);
+    impl_->store_->Create(table);
+    if(!existed)impl_->restored_.pristine=false;
     for(const auto& [id,backend]:impl_->agents_)
       co_await impl_->AgentCall<Ack>([&]{return backend->Define(table);});
     co_return Ack{};
@@ -670,11 +674,21 @@ std::future<Result<SnapshotMetadata>> CpuParameterService::DrainAndFlush(std::st
 }
 std::future<Result<Ack>> CpuParameterService::Restore(std::filesystem::path file) {
   return impl_->Submit<Ack>([this,file=std::move(file)]{
-    Require(impl_->store_->empty() && impl_->tickets_.empty(),"restore requires a fresh service");
+    impl_->Ready();
+    Require(!impl_->restored_.loaded && impl_->store_->empty() && impl_->tickets_.empty(),"restore requires a fresh service");
+    RestoredSnapshot provenance;
     auto store=detail::ReadSnapshot(file,impl_->options_.run_id,
       impl_->options_.shard_id,impl_->options_.shard_count,
-      impl_->options_.partition_epoch,impl_->options_.state_bytes);
-    impl_->store_=std::move(store);return Ack{};
+      impl_->options_.partition_epoch,impl_->options_.state_bytes,&provenance);
+    impl_->store_=std::move(store);impl_->restored_=std::move(provenance);return Ack{};
+  });
+}
+std::future<Result<RestoredSnapshot>> CpuParameterService::RestoredFrom() {
+  return impl_->Submit<RestoredSnapshot>([this]{
+    impl_->Ready();auto metadata=impl_->restored_;
+    metadata.run=impl_->options_.run_id;metadata.shard=impl_->options_.shard_id;
+    metadata.shard_count=impl_->options_.shard_count;metadata.partition_epoch=impl_->options_.partition_epoch;
+    return metadata;
   });
 }
 std::future<Result<Ack>> CpuParameterService::Resume() {

@@ -46,6 +46,7 @@ class Binary {
         cursor_ += n; pos += n;
       }
     }
+    position_+=size;
     if (checksum) for (std::size_t i = 0; i < size; ++i) hash_ = (hash_ ^ p[i]) * kPrime;
   }
   void U64(std::uint64_t& value, bool write, bool checksum = true) {
@@ -97,6 +98,7 @@ class Binary {
     U64(d.initialization_seed, write);
   }
   std::uint64_t hash() const { return hash_; }
+  std::uint64_t position() const { return position_; }
   void Flush() {
     std::size_t pos = 0;
     while (pos < filled_) {
@@ -116,6 +118,7 @@ class Binary {
  private:
   int fd_;
   std::uint64_t hash_ = kOffset;
+  std::uint64_t position_ = 0;
   std::array<unsigned char, 65536> buffer_{};
   std::size_t cursor_ = 0, filled_ = 0;
 };
@@ -184,7 +187,7 @@ void WriteSnapshot(const std::filesystem::path& path, const std::string& run,
 
 std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& path,
     const std::string& new_run, ShardId shard, std::uint32_t count,
-    std::uint64_t epoch, std::uint64_t byte_limit) {
+    std::uint64_t epoch, std::uint64_t byte_limit, RestoredSnapshot* provenance) {
   File file{::open(path.c_str(), O_RDONLY)};
   Require(file.fd >= 0, "cannot open snapshot", Error::Code::unavailable);
   Binary b(file.fd);
@@ -224,6 +227,7 @@ std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& path,
   const auto actual = b.hash(); std::uint64_t expected = 0; b.U64(expected, false, false);
   Require(actual == expected, "snapshot checksum mismatch");
   Require(b.AtEnd(), "snapshot contains trailing data");
+  if(provenance)*provenance={true,true,new_run,old_run,b.position(),expected,shard,count,epoch};
   return store;
 }
 }  // namespace eps::detail

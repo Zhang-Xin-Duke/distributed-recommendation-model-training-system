@@ -38,6 +38,15 @@ struct SnapshotChunk {
   bool eof;
 };
 
+struct RestoredSnapshot {
+  bool loaded=false, pristine=false;
+  std::string run, source_run;
+  std::uint64_t bytes=0, checksum=0;
+  ShardId shard=0;
+  std::uint32_t shard_count=0;
+  std::uint64_t partition_epoch=0;
+};
+
 enum class Phase { lookup, push, release, maintenance };
 enum class Pooling { sum, mean, sequence };
 enum class Placement { cpu, loading, gpu, draining };

@@ -19,6 +19,9 @@ def probe(endpoints,root,agent=None):
     from eps_backend import Backend
     tf.compat.v1.disable_eager_execution()
     train,context,provenance=load(tf)
+    provenance['executed_paths']=['SparseTable construction/registration/decorators',
+        'InputBuilder.sparse_vars','InputBuilder.apply_sparse_grads',
+        '_MultiDatasetRunner.checkpoint','_MultiDatasetRunner.prepare_path','checkpoint']
     original_class=train.SparseTable
     original_checkpoint=train.checkpoint
     original_runner_checkpoint=train._MultiDatasetRunner.checkpoint
@@ -117,6 +120,11 @@ def probe(endpoints,root,agent=None):
             assert all(m['live_tickets']==0 for m in next(iter(hooks.backends().values())).stats())
             users.set_training();hashed.set_training()
             session.run(step)
+            oracle=next(iter(hooks.backends().values()))
+            oracle.save('expected-six')
+            oracle.export_checkpoint('expected-six',str(root/'expected-six'),tf.io.gfile)
+            oracle.resume('expected-six')
+            np.save(root/'expected-dense-six.npy',session.run(dense))
             session.run(zero_filled)
             for _ in range(12):session.run(all_unused)
             assert all(m['live_tickets']==0 for m in next(iter(hooks.backends().values())).stats())

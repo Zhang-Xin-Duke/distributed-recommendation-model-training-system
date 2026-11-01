@@ -100,6 +100,8 @@ class Backend:
 
     def stats(self):
         return self._call("stats")
+    def restored_from(self):
+        return self._call("restored_from")
 
     def close(self):
         with self._mutex:

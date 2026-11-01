@@ -116,6 +116,10 @@ class Installation:
         }
         if hasattr(self.cls,'checkpoint'):
             replacements['checkpoint']=self._table_checkpoint
+        if hasattr(self.cls,'get_reshard'):
+            replacements['get_reshard']=self._get_reshard
+        if hasattr(self.cls,'restore'):
+            replacements['restore']=self._restore_table
         # Validate the whole surface before changing the original class.
         for name in replacements:
             if not callable(getattr(self.cls,name,None)):
@@ -179,18 +183,49 @@ class Installation:
             if key in self._states and self._states[key].definition!=definition:
                 raise ValueError('logical table configuration changed between graphs: '+table._name)
             if key not in self._states:
-                if identifier not in self._backends:
-                    from eps_tensorflow import ParameterServer
-                    backend=ParameterServer(self.config.endpoints,self.config.run,identifier,
-                                            self.config.epoch,self.config.max_live)
-                    try:
-                        if self.config.cache_agents:
-                            backend.cache_endpoints(self.config.cache_agents,self.config.coalesce)
-                    except Exception:
-                        backend.close();raise
-                    self._backends[identifier]=backend
-                self._states[key]=_TableState(self._backends[identifier],definition)
+                self._states[key]=_TableState(self._backend(identifier),definition)
             return self._states[key]
+
+    def _backend(self,identifier):
+        with self._lock:
+            if identifier not in self._backends:
+                from eps_tensorflow import ParameterServer
+                backend=ParameterServer(self.config.endpoints,self.config.run,identifier,
+                                        self.config.epoch,self.config.max_live)
+                try:
+                    if self.config.cache_agents:
+                        backend.cache_endpoints(self.config.cache_agents,self.config.coalesce)
+                except Exception:
+                    backend.close();raise
+                self._backends[identifier]=backend
+            return self._backends[identifier]
+
+    def _verify_restore(self,path,checkpoint_id):
+        import tensorflow as tf
+        from checkpoint_restore import verify_restored
+        with self._lock:
+            backend=next(iter(self._backends.values())) if self._backends else self._backend(0)
+        return verify_restored(backend,os.fspath(path),run=self.config.run,epoch=self.config.epoch,
+            shard_count=len(self.config.endpoints),filesystem=tf.io.gfile,checkpoint_id=os.fspath(checkpoint_id))
+
+    @staticmethod
+    def _restore_options(reshard,migrate,from_serving,delta,delta_id,delta_ckpt_paths=''):
+        if reshard or migrate or from_serving or delta or delta_id or delta_ckpt_paths:
+            raise ValueError('external restore requires a full training checkpoint with matching partitions')
+
+    def _get_reshard(self,table,path,checkpoint_id,reshard=None,ckpt_cache_path='',migrate=False,
+                     migrate_init_policy=None,migrate_table_id=-1,from_serving=False,delta=False,delta_id=''):
+        self._restore_options(reshard,migrate,from_serving,delta,delta_id)
+        self._verify_restore(path,checkpoint_id)
+        return False
+
+    def _restore_table(self,table,path,checkpoint_id,reshard=None,ckpt_cache_path='',migrate=False,
+                       migrate_init_policy=None,migrate_table_id=-1,from_serving=False,delta=False,
+                       delta_id='',delta_ckpt_paths=''):
+        self._restore_options(reshard,migrate,from_serving,delta,delta_id,delta_ckpt_paths)
+        # Startup loaded the complete shard. Never pass selected external tables
+        # to the original native sparse loader or overwrite an active service.
+        self._verify_restore(path,checkpoint_id)
 
     def _create_table(self,table,force_recreate=False):
         if force_recreate:
@@ -418,6 +453,19 @@ class Installation:
         self._patch_controller(runner,'prepare_ckpt',prepare)
         self._patch_controller(runner,'checkpoint',checkpoint)
         self._patch_controller(self.train,'checkpoint',function)
+        if hasattr(runner,'restore'):
+            original_restore=runner.restore
+            @functools.wraps(original_restore)
+            def restore(instance,model,path,checkpoint_id,restore_sparse=True,restore_dense=True,
+                        reshard=None,ckpt_cache_path='',from_serving=False,delta=False,delta_id='',delta_ckpt_paths=''):
+                self._restore_options(reshard,getattr(self.train.ts.config,'restore_need_migrate',False),
+                                      from_serving,delta,delta_id,delta_ckpt_paths)
+                if not restore_sparse:raise ValueError('external joint restore requires sparse state verification')
+                self._verify_restore(posixpath.join(os.fspath(path),os.fspath(checkpoint_id)),checkpoint_id)
+                self.train.env.barrier('::EPS_RESTORE_VERIFIED::',cluster='all')
+                return original_restore(instance,model,path,checkpoint_id,restore_sparse,restore_dense,
+                                        reshard,ckpt_cache_path,from_serving,delta,delta_id,delta_ckpt_paths)
+            self._patch_controller(runner,'restore',restore)
 
     def _table_checkpoint(self,table,table_id,path,checkpoint_id,delta=False):
         import tensorflow as tf

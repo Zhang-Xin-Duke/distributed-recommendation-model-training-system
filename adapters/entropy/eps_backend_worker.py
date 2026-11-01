@@ -14,7 +14,7 @@ def main():
     from _eps_native import Backend
     connection = Connection(int(sys.argv[1]))
     backend = None
-    allowed = {"create_table", "pull", "push", "release", "join", "save", "resume", "read_checkpoint", "cache_endpoints", "stats", "prepare", "pull_prepared", "cancel_prepared", "preparation_stats"}
+    allowed = {"create_table", "pull", "push", "release", "join", "save", "resume", "read_checkpoint", "restored_from", "cache_endpoints", "stats", "prepare", "pull_prepared", "cancel_prepared", "preparation_stats"}
     try:
         while True:
             method, args = pickle.loads(connection.recv_bytes(LIMIT))

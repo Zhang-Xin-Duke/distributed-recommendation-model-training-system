@@ -23,6 +23,7 @@ class BrpcParameterService final : public ParameterService {
   std::future<Result<std::vector<LocatedRow>>> Locations(std::vector<RowKey>);
   std::future<Result<std::vector<LocatedRow>>> MoveRows(MoveRowsRequest);
   std::future<Result<RuntimeStats>> Stats();
+  std::future<Result<RestoredSnapshot>> RestoredFrom();
  private:
   struct Impl;
   std::shared_ptr<Impl> impl_;
