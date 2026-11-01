@@ -1,0 +1,68 @@
+Test project /home/ubuntu/dps-worker-agent/build-cuda
+      Start  1: in_process_worker_lifecycle
+ 1/31 Test  #1: in_process_worker_lifecycle .................   Passed    0.19 sec
+      Start  2: native_worker_cuda_stream
+ 2/31 Test  #2: native_worker_cuda_stream ...................   Passed    4.26 sec
+      Start  3: agent_rpc_admission_queue
+ 3/31 Test  #3: agent_rpc_admission_queue ...................   Passed    0.09 sec
+      Start  4: agent_admission_cli
+ 4/31 Test  #4: agent_admission_cli .........................   Passed    0.21 sec
+      Start  5: automatic_cache_external_shards
+ 5/31 Test  #5: automatic_cache_external_shards .............   Passed    0.63 sec
+      Start  6: cache_policy_fixed_trace_smoke
+ 6/31 Test  #6: cache_policy_fixed_trace_smoke ..............   Passed    4.00 sec
+      Start  7: automatic_cache_coalesced_external_shards
+ 7/31 Test  #7: automatic_cache_coalesced_external_shards ...   Passed    0.58 sec
+      Start  8: rpc_cache_backpressure
+ 8/31 Test  #8: rpc_cache_backpressure ......................   Passed    1.21 sec
+      Start  9: capacity_failed_point_diagnostics
+ 9/31 Test  #9: capacity_failed_point_diagnostics ...........   Passed    1.21 sec
+      Start 10: two_process_rpc_and_restore
+10/31 Test #10: two_process_rpc_and_restore .................   Passed    0.46 sec
+      Start 11: cache_agent_process_lifecycle
+11/31 Test #11: cache_agent_process_lifecycle ...............   Passed    3.47 sec
+      Start 12: agent_admission_lifecycle
+12/31 Test #12: agent_admission_lifecycle ...................   Passed    0.05 sec
+      Start 13: core_correctness
+13/31 Test #13: core_correctness ............................   Passed    0.04 sec
+      Start 14: cost_and_migration_policies
+14/31 Test #14: cost_and_migration_policies .................   Passed    0.01 sec
+      Start 15: cache_ownership_and_updates
+15/31 Test #15: cache_ownership_and_updates .................   Passed    0.03 sec
+      Start 16: automatic_cache_policy_lifecycle
+16/31 Test #16: automatic_cache_policy_lifecycle ............   Passed    0.04 sec
+      Start 17: agent_control_replay
+17/31 Test #17: agent_control_replay ........................   Passed    0.02 sec
+      Start 18: embedding_adapter_lifecycle
+18/31 Test #18: embedding_adapter_lifecycle .................   Passed    0.02 sec
+      Start 19: service_phase_timing
+19/31 Test #19: service_phase_timing ........................   Passed    0.01 sec
+      Start 20: bounded_asynchronous_preparation
+20/31 Test #20: bounded_asynchronous_preparation ............   Passed    0.03 sec
+      Start 21: periodic_checkpoint_lifecycle
+21/31 Test #21: periodic_checkpoint_lifecycle ...............   Passed    0.04 sec
+      Start 22: restored_snapshot_provenance
+22/31 Test #22: restored_snapshot_provenance ................   Passed    0.02 sec
+      Start 23: bounded_sparse_optimizer
+23/31 Test #23: bounded_sparse_optimizer ....................   Passed    0.02 sec
+      Start 24: resumable_actor_dependencies
+24/31 Test #24: resumable_actor_dependencies ................   Passed    0.17 sec
+      Start 25: resumable_shard_operations
+25/31 Test #25: resumable_shard_operations ..................   Passed    0.12 sec
+      Start 26: concurrent_multi_agent_updates
+26/31 Test #26: concurrent_multi_agent_updates ..............   Passed    0.01 sec
+      Start 27: coalesced_cross_shard_gathers
+27/31 Test #27: coalesced_cross_shard_gathers ...............   Passed    0.04 sec
+      Start 28: compact_feature_gradient_semantics
+28/31 Test #28: compact_feature_gradient_semantics ..........   Passed    0.02 sec
+      Start 29: resumable_cuda_shard_operations
+29/31 Test #29: resumable_cuda_shard_operations .............   Passed    4.18 sec
+      Start 30: cuda_state_and_device_results
+30/31 Test #30: cuda_state_and_device_results ...............   Passed    4.25 sec
+      Start 31: cuda_concurrent_checked_reads
+31/31 Test #31: cuda_concurrent_checked_reads ...............   Passed    6.47 sec
+
+100% tests passed, 0 tests failed out of 31
+
+Total Test time (real) =  31.94 sec
+Sun Nov  1 08:08:51 UTC 2026

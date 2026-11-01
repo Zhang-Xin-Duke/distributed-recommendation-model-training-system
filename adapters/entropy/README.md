@@ -89,7 +89,10 @@ a failed or ambiguous connection ends the Learner session. This portable path
 includes host tensor copies and IPC overhead. The C++ `TableAdapter` can be linked
 directly when the training binary uses a matching dependency toolchain.
 
-`GpuCacheAgent::GatherDevice` provides owned device results to native callers.
+[`WorkerCacheAgent`](../../docs/WORKER_AGENT.md) embeds the Agent listener and
+cache lifetime in a native training process. Local host/device reads share its
+RPC admission and ordered runtime; `GatherDevice` provides owned device results
+for a model stream and is verified on a real CUDA consumer.
 The supplied Python bridge currently consumes host-returning contributions;
 native TensorFlow CUDA kernels and device-tensor interop remain a separate
 integration task.

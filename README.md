@@ -12,6 +12,10 @@ touches only a small fraction of a large table. This pattern appears in
 recommendation, advertising, knowledge graphs, graph learning and word-embedding
 models.
 
+A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
+process and exposes owned device contributions to its model stream. The standalone
+Agent executable uses the same ownership and admission path.
+
 A Pull/Push/Join adapter connects embedding operations to an existing training
 framework. The supplied TensorFlow bridge uses stateful host callbacks and an
 isolated native RPC client. Dataset readers, model computation and dense gradient
@@ -49,9 +53,11 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 **Validation:** the queued CUDA path retains **23 completed trials / 12,950
 acknowledged updates / 736 sampled row-counter checks**, with zero update errors,
 zero admission rejections and zero remaining tickets in completed records.
-Maximum preflight feature error is **3.91e-8**. The native/TensorFlow suite passes
-**40/40**; the deployed CUDA binary build passes **28/28** and each final worker
-separately passes its CUDA check. The admission component passes ASan/UBSan and
+Maximum preflight feature error is **3.91e-8**. The latest native/TensorFlow suite
+passes **41/41**; the native CPU/CUDA suite passes **31/31**, including in-process
+worker ownership and model-stream device reads.
+[Native worker verification](docs/validation/2026-11-01-worker-agent.json).
+The admission component passes ASan/UBSan and
 ThreadSanitizer checks. [Validation index](docs/validation/2026-11-01-agent-admission.json).
 The [validation record](docs/VALIDATION.md) retains the scope and provenance of
 checkpoint continuation, optimizer-state comparisons, migration and fencing.

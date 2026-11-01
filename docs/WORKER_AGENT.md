@@ -69,6 +69,7 @@ for (const auto& block : blocks) {
 ```
 
 Device reads share the ordered runtime with updates, migration and eviction.
+Use a model stream on the device reported by `block.tensor->device()`.
 Generation validation remains in the CUDA backend. A returned contribution owns
 an output allocation distinct from resident rows and reusable staging buffers.
 Its content survives subsequent updates, slot reuse and Agent destruction.
@@ -82,6 +83,12 @@ These blocks are owner contributions. The distributed client/framework still
 combines contributions across shards and applies global mean denominators.
 The portable TensorFlow bridge continues to use host callbacks; this change
 does not install a native TensorFlow GPU operation or replace its tensor ABI.
+
+For a native `TableAdapter` whose cache routes all target this worker, the host
+feature resolver can also call `worker.GatherHost(work, layouts).get()` directly.
+That path retains the adapter's existing global reconstruction and ticket
+lifecycle while avoiding a loopback gather RPC. Multi-agent resolvers must route
+each destination to its corresponding worker or remote endpoint.
 
 ## Shared admission and shutdown
 

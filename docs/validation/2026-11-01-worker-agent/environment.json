@@ -1,0 +1,28 @@
+{
+  "os": "Linux-6.17.0-35-generic-x86_64-with-glibc2.35",
+  "hardware": "GPU-c73ab179-32fc-582e-b718-167335306efb, NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+  "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "source_sha256": {
+    "CMakeLists.txt": "466717c6e23dc8e555beb112217b36899cd0d0a3d3f032f02dcd8c60752bb043",
+    "include/eps/agent_runtime.hpp": "3b16ef07420bf797f573eb31da7bcb9b062a14465650d8071b253395b3374286",
+    "include/eps/worker_cache_agent.hpp": "663fb1081ce0174eeeaf5bfc0265ded59d468c82d89f523c2ac74166cd0ee18e",
+    "src/cache/agent_runtime.cpp": "f1d08d3fb4e526765d7f7252ca71f64785da4be455bf49e16e8479ed7d73293c",
+    "src/server/agent_main.cpp": "3d90296b528adccb9a1e86b1227efbcdd32390f92378780b18e3ad671560bf4c",
+    "src/transport/brpc_agent_server.cpp": "dbedfbd3a02877c8e7b1663be75c0000ab3bd98b7cbf7a6d162a542ce7e332f0",
+    "src/transport/brpc_agent_server.hpp": "7f6e8a7408b8a88b42e4b7c0667c5878f52c68d35fc52bf02569486e0ea6351d",
+    "src/transport/local_agent_dispatch.hpp": "ca26126cf2512999c4a1de86ba9b46418b53f5a4670b0f09d0be66610abbd7d5",
+    "src/transport/worker_cache_agent.cpp": "39fddacb336d267be1d9b3d98ad47ed02e3102adcd5ccc59437ffce7140d7390",
+    "tests/worker_agent_tests.cpp": "a59ed99deaa32b15901d088b4c7168e7f701cc2ff2b191dda82db1f08dcc214b",
+    "tests/worker_agent_cuda.cu": "2bc2c016557b7fa47f8fbcce67e8202d7be780a9c187d95d05b458b42f18fd93"
+  },
+  "source_archive_sha256": "4620137dc7d498f4320b0b6e1781789cadd6a1cc2ce0914e500c716a76995484",
+  "binary_sha256": {
+    "eps_worker_agent_cuda": "7bfba97e7f666050e0f990ad2a8c56dd1de80f8886a18066a619d24f29edd476",
+    "eps_worker_agent_tests": "4d6edd31247cc680b3b9d01c6544735362e394a10fc726c6ae160a99e4ded30a",
+    "eps_cache_agent": "b04c99c0c72389eabb6af1ec1cd3453c4673e236ffeffd0168f0ab262b1a0f63"
+  },
+  "cuda_architecture": 86,
+  "fused_multiply_add": false,
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+  "ld_preload_environment_present": false
+}

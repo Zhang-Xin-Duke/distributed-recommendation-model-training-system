@@ -1,0 +1,2 @@
+{"test": "in_process_worker_lifecycle", "shared_local_rpc_admission": true, "drained_on_stop": true, "backend_released": true, "endpoint_reused": true}
+{"test": "native_worker_cuda_stream", "model_stream": "nondefault", "remote_control_local_device_reads": true, "full_optimizer_rows_checked": 2, "output_budget_enforced": true, "result_outlives_worker": true}

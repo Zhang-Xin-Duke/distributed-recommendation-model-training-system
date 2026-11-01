@@ -54,3 +54,16 @@ Entropy application/reader execution, multi-peer framework barriers and a native
 TensorFlow device path continue to be requirements of the main plan. Device
 gather returns owner contributions; global cross-shard feature reconstruction
 and mean normalization still belong to the client/framework integration.
+
+
+## Execution record
+
+Implemented at `e88ce65`. macOS CPU/RPC 27/27 and native/TensorFlow 41/41 pass.
+The Ubuntu CPU/CUDA build passes 31/31 on one RTX A6000, including both new
+worker checks. The CUDA test verifies model-stream consumption, two complete
+optimizer rows, output-budget enforcement/reclamation, stale-location rejection
+and result ownership after worker destruction. Source/archive/binary hashes and
+raw logs are retained; the single rental was deleted and final inventory is empty.
+
+[Verification index](../validation/2026-11-01-worker-agent.json). The main plan's
+remaining framework-integration requirements are unchanged.

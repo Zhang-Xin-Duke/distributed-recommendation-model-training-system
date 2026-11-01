@@ -1,0 +1,10 @@
+I1101 03:06:40.789477   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=63347.
+I1101 03:06:40.796715   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:63347 in web browser.
+I1101 03:06:40.801210 11011     0 src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1101 03:06:40.842002   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=63347.
+I1101 03:06:40.842045   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:63347 in web browser.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793520400.951726 18693930 socket.cpp:2585] Checking Socket{id=1 addr=127.0.0.1:63347} (0x7bf428c340)
+I0000 00:00:1793520400.952321 18693927 socket.cpp:2645] Revived Socket{id=1 addr=127.0.0.1:63347} (0x7bf428c340) (Connectable)
+I1101 03:06:40.963473   259     0 src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"in_process_worker_lifecycle","shared_local_rpc_admission":true,"drained_on_stop":true,"backend_released":true,"endpoint_reused":true}

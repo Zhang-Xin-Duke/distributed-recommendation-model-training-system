@@ -1,0 +1,91 @@
+{
+  "source_commit": "e88ce658e339a6b1f587551ec752516bbdc93cc2",
+  "native_worker_owner": true,
+  "standalone_cli_uses_same_owner": true,
+  "checks": {
+    "macos_native": 27,
+    "macos_native_tensorflow": 41,
+    "ubuntu_native_cuda": 31
+  },
+  "native_cuda_consumer": {
+    "test": "native_worker_cuda_stream",
+    "model_stream": "nondefault",
+    "remote_control_local_device_reads": true,
+    "full_optimizer_rows_checked": 2,
+    "output_budget_enforced": true,
+    "result_outlives_worker": true
+  },
+  "native_lifecycle": {
+    "test": "in_process_worker_lifecycle",
+    "shared_local_rpc_admission": true,
+    "drained_on_stop": true,
+    "backend_released": true,
+    "endpoint_reused": true
+  },
+  "optimizer_state_absolute_tolerance": 1e-06,
+  "scope": "Native worker ownership, shared local/RPC admission and owned CUDA stream contributions; original framework device operator/application execution remain separate",
+  "environment_file": "2026-11-01-worker-agent/environment.json",
+  "source_sha256": {
+    "CMakeLists.txt": "466717c6e23dc8e555beb112217b36899cd0d0a3d3f032f02dcd8c60752bb043",
+    "include/eps/agent_runtime.hpp": "3b16ef07420bf797f573eb31da7bcb9b062a14465650d8071b253395b3374286",
+    "include/eps/worker_cache_agent.hpp": "663fb1081ce0174eeeaf5bfc0265ded59d468c82d89f523c2ac74166cd0ee18e",
+    "src/cache/agent_runtime.cpp": "f1d08d3fb4e526765d7f7252ca71f64785da4be455bf49e16e8479ed7d73293c",
+    "src/server/agent_main.cpp": "3d90296b528adccb9a1e86b1227efbcdd32390f92378780b18e3ad671560bf4c",
+    "src/transport/brpc_agent_server.cpp": "dbedfbd3a02877c8e7b1663be75c0000ab3bd98b7cbf7a6d162a542ce7e332f0",
+    "src/transport/brpc_agent_server.hpp": "7f6e8a7408b8a88b42e4b7c0667c5878f52c68d35fc52bf02569486e0ea6351d",
+    "src/transport/local_agent_dispatch.hpp": "ca26126cf2512999c4a1de86ba9b46418b53f5a4670b0f09d0be66610abbd7d5",
+    "src/transport/worker_cache_agent.cpp": "39fddacb336d267be1d9b3d98ad47ed02e3102adcd5ccc59437ffce7140d7390",
+    "tests/worker_agent_tests.cpp": "a59ed99deaa32b15901d088b4c7168e7f701cc2ff2b191dda82db1f08dcc214b",
+    "tests/worker_agent_cuda.cu": "2bc2c016557b7fa47f8fbcce67e8202d7be780a9c187d95d05b458b42f18fd93"
+  },
+  "source_archive_sha256": "4620137dc7d498f4320b0b6e1781789cadd6a1cc2ce0914e500c716a76995484",
+  "binary_sha256": {
+    "eps_worker_agent_cuda": "7bfba97e7f666050e0f990ad2a8c56dd1de80f8886a18066a619d24f29edd476",
+    "eps_worker_agent_tests": "4d6edd31247cc680b3b9d01c6544735362e394a10fc726c6ae160a99e4ded30a",
+    "eps_cache_agent": "b04c99c0c72389eabb6af1ec1cd3453c4673e236ffeffd0168f0ab262b1a0f63"
+  },
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 1,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793520564.664973,
+    "rental_interval_seconds": 324.56374192237854,
+    "estimated_base_cost_usd_with_minute_rounding": 0.035,
+    "price_source": "https://www.thundercompute.com/pricing",
+    "hourly_base_rate_usd": 0.35,
+    "cost_basis": "Observed lease interval rounded up to minutes; estimate, not invoice"
+  },
+  "artifacts": [
+    {
+      "file": "2026-11-01-worker-agent/LastTest.log",
+      "sha256": "1f45343d7116b29fd8ab925ff8ecf56c2d22461e1c850318ea6ef62c2b4b4a5f"
+    },
+    {
+      "file": "2026-11-01-worker-agent/cleanup.json",
+      "sha256": "923f27ed7bef50eb022614a40a75d0978cf81075b5949793245f7f948c1babfa"
+    },
+    {
+      "file": "2026-11-01-worker-agent/environment.json",
+      "sha256": "2d5ffeb43cee413476736b04844e48bdd350f2c72607d67c713b440aec7c95f0"
+    },
+    {
+      "file": "2026-11-01-worker-agent/macos-native.log",
+      "sha256": "cdf7e263b1ab3d6798aed4e5ba5624008a2a39410a0d8aa8b304aa93eaba3c4a"
+    },
+    {
+      "file": "2026-11-01-worker-agent/macos-tensorflow.log",
+      "sha256": "007dcd84f5d360e27b16c177257d8b55044cf2026555c5d828bd224dcf29d9d7"
+    },
+    {
+      "file": "2026-11-01-worker-agent/macos-worker-lifecycle.log",
+      "sha256": "6f02376e7d65e0f32bb924946150b584f76b2526bc20849bf83232bde362880a"
+    },
+    {
+      "file": "2026-11-01-worker-agent/ubuntu-native-cuda.log",
+      "sha256": "38932014c76e7fb88072a0edd68089979db3c04a12d5f1389d8b6e9dfca81cb2"
+    },
+    {
+      "file": "2026-11-01-worker-agent/worker-checks.jsonl",
+      "sha256": "7c5f2475ffbf553b60c8d90098f58e7a2511202dca75145b24dec87b83801e17"
+    }
+  ]
+}

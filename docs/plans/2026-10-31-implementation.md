@@ -19,7 +19,7 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
 | 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native original-application/reader execution, multi-peer framework barriers and device interop pending |
-| 4. GPU cache agent | Standalone CUDA resident gather/Adam, full-state transfer, fencing and restore verified; in-process training-worker installation and device-tensor hand-off remain pending |
+| 4. GPU cache agent | Standalone CUDA resident gather/Adam, full-state transfer, fencing and restore verified; native worker owner, shared local/RPC admission and model-stream device contributions verified on A6000; original-worker installation and TensorFlow device operator remain pending |
 | 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked; Agent-wide count/byte admission and real 128/192-Learner CUDA backpressure now verified |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
@@ -196,3 +196,23 @@ original native application execution and in-process device integration remain
 open requirements of phases 3 and 4.
 
 [Design](../AGENT_ADMISSION.md) · [CUDA evidence](../AGENT_ADMISSION_RESULTS.md)
+
+
+## Native worker ownership and device contributions — November 1
+
+Source `e88ce65` embeds the Agent runtime/backend and RPC listener in a native
+training-process owner. Local host/device gathers share the RPC admission queue;
+Stop drains accepted work and releases the backend. The standalone executable
+uses that same owner. CPU protocol checks cover shared budgets, a paused close,
+late-call rejection, backend release and endpoint reuse. A real A6000 consumer
+executes a model kernel on a nondefault stream, compares selected full optimizer
+state, checks output-budget reclamation and stale locations, then uses retained
+results after worker/backend destruction. Native CPU/RPC 27/27, TensorFlow 41/41
+and Ubuntu CPU/CUDA 31/31 pass. The rented instance is deleted after retrieval.
+
+This completes the native ownership/device-contribution boundary. Installing it
+in the original GPU worker, a TensorFlow device operator, original application
+and reader execution, and multi-peer framework barriers remain in phases 3/4.
+
+[Worker API](../WORKER_AGENT.md) ·
+[Validation](../validation/2026-11-01-worker-agent.json)

@@ -1,5 +1,32 @@
 # Validation record
 
+## Native in-process worker Agent — November 1, 2026
+
+Runtime `e88ce65` adds a worker-owned Agent listener, runtime and injected cache
+backend. Native host/device gathers and remote control RPCs share admission and
+ordered execution. The standalone Agent executable uses the same owner.
+
+The macOS CPU/RPC suite passes **27/27** and native/TensorFlow suite **41/41**.
+The Ubuntu CPU/CUDA suite passes **31/31** on an RTX A6000 with CUDA 13.0.88,
+GNU C++ 11.4 and BRPC 1.18. The native lifecycle check combines real RPC control
+and local reads, enforces count and native retained-input budgets, closes during
+a held operation, drains both sources, releases the backend and reuses its port.
+
+The CUDA consumer test reads owner contributions with a kernel on a nondefault
+model stream, checks complete weights, both Adam moments and counters for two
+rows against Host reference (absolute tolerance 1e-6), enforces/reclaims output
+budgets and rejects a stale location. It consumes the original results again
+after updates, eviction, slot reuse and Worker/backend destruction. Source archive,
+relevant source files and deployed binary hashes are retained. All artifacts are
+retrieved before deleting the single rented instance; account inventory is empty.
+
+These checks cover the native ownership and device-contribution interface.
+Original application/reader execution, multi-peer framework barriers and a native
+TensorFlow device operation retain their separate integration requirements.
+
+[Worker API and lifecycle](WORKER_AGENT.md) ·
+[Source-hashed validation and raw logs](validation/2026-11-01-worker-agent.json)
+
 
 ## Bounded Agent admission — November 1, 2026
 

@@ -14,7 +14,9 @@ Entropy 继续负责读数据、构图、模型前向与反向、dense 参数更
 
 服务管理参数表、批量查找、pooling、梯度归并、稀疏优化器和缓存决策。
 GPU cache agent 在显存中保存权重和 Adam 状态，完成查找、聚合、更新和状态传输。
-它可以嵌入依赖兼容的 GPU Worker；当前提供独立进程，通过 BRPC 接入参数分片。
+`WorkerCacheAgent` 可由依赖兼容的原生训练进程直接持有，也提供独立进程入口；两者通过同一 BRPC 接口接入参数分片。
+本地设备读取与远端控制共用准入队列和有序执行器；返回的设备结果独立持有显存，供模型 stream 消费。
+[原生 Worker 接入与生命周期](WORKER_AGENT.md) 说明接口、关闭顺序和 TensorFlow 原生设备接入范围。
 TensorFlow 适配层已提供 Pull/Push/Join 的 host callback 路径，保留原模型与 dense 优化器。
 
 这样，参数服务可以独立启动、分配 CPU/内存和扩容；训练模型保持原有运行方式。
