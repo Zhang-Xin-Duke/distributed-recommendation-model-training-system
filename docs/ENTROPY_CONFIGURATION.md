@@ -39,7 +39,7 @@ snapshot:
 | --- | --- | --- |
 | Table factory | `inputs.py`, `ts.train.SparseTable` construction | Select the external backend from job configuration |
 | Pull | `SparseTable.embedding_lookup_and_pooling` | Preserve pooled and sequence layouts expected by the input layer |
-| Gradients | `InputLayer.apply_sparse_grads` and `SparseTable.apply_gradients` | Pass feature gradients with the framework's existing loss scaling |
+| Gradients | `InputBuilder.apply_sparse_grads` and `SparseTable.apply_gradients` | Pass feature gradients with the framework's existing loss scaling |
 | Checkpoint | Training checkpoint controller and `SparseTable.checkpoint` | Drain sparse updates at the existing barrier and commit with dense/input state |
 | Restore | `worker_restore_sparse` and `SparseTable.restore` | Restore the matching sparse snapshot before continuing the existing job |
 

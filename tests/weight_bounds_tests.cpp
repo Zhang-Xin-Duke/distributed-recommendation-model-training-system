@@ -41,12 +41,13 @@ int main(int argc,char** argv){
    Take(client.Push(a,grad));Take(reference.Push(b,grad));auto state=State(*actual);Compare(state,State(*baseline));Near(state.weights[0],w);Near(state.first_moment[0],m);Near(state.second_moment[0],v);
    b1*=0.9f;b2*=0.999f;
   }
+  auto bad=table;bad.id=7;bad.optimizer.weight_bounds=WeightBounds{1,-1};
+  auto invalid=actual->CreateTable(bad).get();
+  Check(std::holds_alternative<Error>(invalid) && std::get<Error>(invalid).message=="invalid optimizer weight bounds","reversed CPU bounds accepted");
+  Check(std::holds_alternative<Error>(cache->Define(bad).get()),"cache accepted reversed bounds");
   auto saved=Take(actual->DrainAndFlush("bounded"));
   RuntimeOptions next;next.run_id="resumed-bounds";CpuParameterService resumed(next);Take(resumed.Restore(saved.state_files[0]));Compare(State(resumed),State(*baseline));
   Take(resumed.CreateTable(table)); // Recreate must match the restored immutable bounds.
-  auto bad=table;bad.id=7;bad.optimizer.weight_bounds=WeightBounds{1,-1};
-  Check(std::holds_alternative<Error>(actual->CreateTable(bad).get()),"reversed bounds accepted");
-  Check(std::holds_alternative<Error>(cache->Define(bad).get()),"cache accepted reversed bounds");
   Check(argc==2,"legacy fixture path required");
   RuntimeOptions legacy_options;legacy_options.run_id="legacy-restored";
   CpuParameterService legacy(legacy_options);Take(legacy.Restore(argv[1]));
