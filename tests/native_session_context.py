@@ -35,6 +35,7 @@ def probe(endpoints,runtime,operations,mode,agent,directory):
         for physical in tf.config.list_physical_devices('GPU'):
             tf.config.experimental.set_memory_growth(physical,True)
     owner=NativeSessionBackend(cfg,**options);second=None
+    assert all(d.device_type!='GPU' for d in owner._session.list_devices())
     try:
         owner.create_table(definition)
         feature=Feature(1,3,np.array([0,1,1,2],np.uint64),np.array([0,3,4],np.uint64),3,'mean')
@@ -94,7 +95,7 @@ def probe(endpoints,runtime,operations,mode,agent,directory):
         print(json.dumps(dict(test='native_session_context',mode=mode,model_graphs=3,
             updates_per_shard=4,shared_context_mismatch_rejected=True,prediction_auto_release=True,
             checkpoint_export_shards=2,second_learner_survives_first_close=True,
-            shared_gpu_owner=gpu,graph_python_callbacks=False)),flush=True)
+            shared_gpu_owner=gpu,controller_has_gpu=False,graph_python_callbacks=False)),flush=True)
     finally:
         owner.close()
         if second:second.close()

@@ -67,7 +67,9 @@ the learner request ID. Native library paths may also be supplied as
 
 ## Shared context and lifetime
 
-A private controller Session creates and keeps each learner context alive. Model
+A CPU-only private controller Session creates and keeps each learner context
+alive. It creates no TensorFlow GPU devices; the original model Session owns its
+TensorFlow GPU allocation policy. Model
 Sessions attach by a generated `context_key`, preserving request sequence and
 live-handle history when the original framework recreates its graph. The
 process-local registry holds weak references and rejects a key reused with a

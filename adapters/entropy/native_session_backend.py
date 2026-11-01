@@ -26,7 +26,7 @@ class NativeSessionBackend:
             self._native=self._make('/CPU:0')
             self._arguments=tf.compat.v1.placeholder(tf.string,shape=[])
         options=tf.compat.v1.ConfigProto(intra_op_parallelism_threads=2,inter_op_parallelism_threads=4)
-        options.gpu_options.allow_growth=True
+        options.device_count['GPU']=0
         self._session=tf.compat.v1.Session(graph=self._graph,config=options)
         try:self._call('join')
         except BaseException:
