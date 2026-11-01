@@ -92,11 +92,17 @@ def main():
             if gpu:assert cached_seen,'native GPU graph never loaded resident parameters'
             remote_owner_stats=[]
             for endpoint in remote_endpoints:
+                free_slots=[]
+                for table in (1,2):
+                    request=urllib.request.Request('http://'+endpoint+'/eps.v1.CacheAgentService/FreeSlots',data=json.dumps(dict(run='native-actual',table_id=table)).encode(),headers={'Content-Type':'application/json'})
+                    with urllib.request.urlopen(request,timeout=10) as response:free_slots.append(int(json.load(response)['free_slots']))
+                slots=int(os.environ.get('EPS_NATIVE_TEST_REMOTE_SLOTS','64'))
+                assert all(0<=n<=slots for n in free_slots) and any(n<slots for n in free_slots),('remote GPU owner has no resident rows',free_slots)
                 request=urllib.request.Request('http://'+endpoint+'/eps.v1.CacheAgentService/AdmissionStats',data=b'{}',headers={'Content-Type':'application/json'})
                 with urllib.request.urlopen(request,timeout=10) as response:observed=json.load(response)
                 assert int(observed['accepted_requests'])>0 and int(observed['accepted_requests'])==int(observed['completed_requests']),observed
                 assert not int(observed.get('active_operations',0)) and not int(observed.get('queued_operations',0)),observed
-                remote_owner_stats.append({k:observed.get(k,0) for k in ('accepted_requests','completed_requests','active_operations','queued_operations')})
+                remote_owner_stats.append(dict(free_slots_per_table=free_slots,**{k:observed.get(k,0) for k in ('accepted_requests','completed_requests','active_operations','queued_operations')}))
             graph_types=set()
             for m in models:
                 for function in [m[0].get_concrete_function(),m[1].get_concrete_function()]:
