@@ -1,0 +1,73 @@
+{
+  "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+  "local_native_tests": 15,
+  "ubuntu_cuda_tests": 17,
+  "worker_cuda_checks": 4,
+  "capacity_trials": 140,
+  "completed_capacity_updates": 79163,
+  "capacity_errors": 0,
+  "parameter_counter_checks": 4480,
+  "preflight_max_absolute_error": 3.91155481338501e-08,
+  "cleanup": {
+    "remaining_test_instances": 0
+  },
+  "artifact_archives": [
+    {
+      "sha256": "fe73d2729239b43e1041cb677e81c3b7a4dd5123c8d3da936443d9ac3d9a3a90",
+      "bytes": 321095,
+      "worker": 0
+    },
+    {
+      "sha256": "4ab0e084e1f8cf49545d1c51c87557a59ce12c70bc01c547c2a5cb3f097d20a1",
+      "bytes": 38766,
+      "worker": 1
+    },
+    {
+      "sha256": "59762eb615a2df58f067827962721ab019d0e653ff97ff4257d5a8c6f51dc624",
+      "bytes": 29490,
+      "worker": 2
+    },
+    {
+      "sha256": "0ac3d7507500fa843f9ac3a6ef502573157fbaf573e9a44d7af6d76a1aa66b3f",
+      "bytes": 30145,
+      "worker": 3
+    }
+  ],
+  "policy_runs": 35,
+  "policy_phase_records": 81,
+  "completed_policy_updates": 4800,
+  "policy_update_errors": 0,
+  "policy_maintenance_failures": 4,
+  "policy_state_max_absolute_error": 0.0,
+  "policy_feature_max_absolute_error": 5.21540641784668e-08,
+  "benchmark_driver_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+  "benchmark_driver_sha256": {
+    "scripts/fleet_capacity_sweep.py": "4eab93a8c31e4387108d57c73677ca06360d9fcc1fb2bae955fe38e84c33721f",
+    "scripts/capacity_sweep.py": "2dbca78bda37227918d413c8fc42c7afb5aaaa1a260c71df737ceb6f6e618be5"
+  },
+  "positive_cost_correctness": {
+    "purpose": "multi-agent correctness with a synthetic positive saved-cost prior; excluded from calibrated performance comparisons",
+    "prior_microseconds_per_access": 10000.0,
+    "source_commit": "00b7ac9",
+    "admitted_rows": 3267,
+    "evicted_rows": 2377,
+    "max_state_error": 0.0,
+    "completed_steps": 192,
+    "policy_maintenance_failures": 1,
+    "raw_file": "forced-positive-cost.jsonl",
+    "sha256": "4606de85c9fb96a81ddb7dc2062834cdaa43258e1670be0ec9e0d804757bcbcc"
+  },
+  "pilot_capacity_trials": 63,
+  "pilot_completed_updates": 24263,
+  "all_capacity_trials": 203,
+  "allocated_vcpus": 6,
+  "partial_policy_run": "g4-trace-b1-cpu_only: driver timeout; excluded from all completed-record counts",
+  "reproduction_tools_commit": "214e4f2a7d3cd2eec7c3274a199b43ce116c9b09",
+  "reproduction_tools_sha256": {
+    "scripts/fleet_cache_policy_sweep.py": "5bec77771314d728df7cfc78c4b0c34170d9c715679acf6738ec0dbb06e2372d",
+    "scripts/render_multigpu_limits.py": "2deac5de6c05d6b7bf65bc08c7e109b9492f2fdac070aa60008e6d2154d40ae9"
+  },
+  "allocated_memory_gib": 48,
+  "coordinator_cpu_quota_cores": 5.94,
+  "all_rental_instances_deleted": true
+}

@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-31",
+  "deployment": "first-four-agent-fleet",
+  "source_commit": "1b708b41ec0c8172d14b22e76758490ce5f88598",
+  "environment": {
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+    "affinity_cpus": 6,
+    "cpu_max": "594000 100000\n",
+    "os_release": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "binaries": {
+      "eps_server": "877d6b76917f39f2f7d0239498fc73515b068e115fe465262c43c1d1a8b5448a",
+      "eps_capacity_probe": "af7ec062558197f5dec2cad1afc4287d2b19ac69ded5ff920147da34744827f9",
+      "eps_cache_policy_probe": "25496834640afb8415f41a0a41c28eb39b5421857a50a7b665385e837fd09a70",
+      "eps_cache_agent": "9bce2c69af5dd6c863a0bbdb42ef04ccb55c5214cd65890b0d0dfc18f245ed12"
+    },
+    "host_visible_memory_bytes": 540907466752,
+    "allocated_vcpus": 6
+  },
+  "experiments": [
+    {
+      "name": "pilot-fixed-g1",
+      "suite": "pilot-fixed",
+      "variant": "current",
+      "source_commit": "1b708b41ec0c8172d14b22e76758490ce5f88598",
+      "raw_file": "pilot-fixed-g1.jsonl",
+      "sha256": "8da95db59cb16ca6456d780a0df5d26141e3a695cd7f7893e467c1cf07fcd418",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "pilot-fixed-g1-resources.json",
+      "trial_count": 21,
+      "learner_levels": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "pilot-fixed-g2",
+      "suite": "pilot-fixed",
+      "variant": "current",
+      "source_commit": "1b708b41ec0c8172d14b22e76758490ce5f88598",
+      "raw_file": "pilot-fixed-g2.jsonl",
+      "sha256": "6f90428683da556aa8c59d6c6d4c8c3668c42e973bb530bdeac649f89f7aeefe",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "pilot-fixed-g2-resources.json",
+      "trial_count": 21,
+      "learner_levels": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "pilot-fixed-g4",
+      "suite": "pilot-fixed",
+      "variant": "current",
+      "source_commit": "1b708b41ec0c8172d14b22e76758490ce5f88598",
+      "raw_file": "pilot-fixed-g4.jsonl",
+      "sha256": "a058780e4b2caa3efdc6a8fddbe1f435dfa2f4e1e4228cb60299d03682e60f13",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "pilot-fixed-g4-resources.json",
+      "trial_count": 21,
+      "learner_levels": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    }
+  ],
+  "allocated_coordinator_memory_gib": 48,
+  "allocated_coordinator_vcpus": 6
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "learners": 8,
+    "repeat": 0,
+    "ps_cpu_cores": 1.933333796838139,
+    "load_generator_cpu_cores": 0.5056929547154999,
+    "ps_sampled_rss_bytes": 615608320
+  },
+  {
+    "learners": 8,
+    "repeat": 1,
+    "ps_cpu_cores": 2.0405957481305848,
+    "load_generator_cpu_cores": 0.530091756563025,
+    "ps_sampled_rss_bytes": 617426944
+  },
+  {
+    "learners": 16,
+    "repeat": 0,
+    "ps_cpu_cores": 1.865786103406812,
+    "load_generator_cpu_cores": 0.44784590583801237,
+    "ps_sampled_rss_bytes": 627015680
+  },
+  {
+    "learners": 16,
+    "repeat": 1,
+    "ps_cpu_cores": 1.7322296513647608,
+    "load_generator_cpu_cores": 0.417710494245176,
+    "ps_sampled_rss_bytes": 632262656
+  },
+  {
+    "learners": 32,
+    "repeat": 0,
+    "ps_cpu_cores": 1.7611347851195784,
+    "load_generator_cpu_cores": 0.4254220723540181,
+    "ps_sampled_rss_bytes": 638066688
+  }
+]

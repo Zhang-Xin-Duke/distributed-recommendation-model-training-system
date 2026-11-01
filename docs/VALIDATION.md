@@ -127,3 +127,27 @@ revealed by the tests. Its data index links every raw manifest and summary.
 The [validation artifact](benchmarks/2026-10-31-capacity-controls/validation.json)
 records suite counts, source revisions and source-log hashes. Commands are
 documented in [RUNNING.md](RUNNING.md).
+
+## Four-agent capacity and cache-policy replay
+
+The [latest study](MULTIGPU_LIMITS.md) retains 140 main-matrix capacity trials
+(79,163 updates), including four Host-reference controls, and a separate 63-trial
+first-fleet scan (24,263 updates). All 203 completed capacity trials report zero
+training-update errors. The main matrix checks 4,480 sampled row-update counters,
+finite state and live-ticket cleanup.
+
+The first-fleet fixed traces retain 35 completed runs, 81 phase records and 4,800
+updates. Every touched row's weights, both moments and row-update counter match
+independent CPU replay; maximum state error is zero and feature error is at most
+5.22e-8. One driver-timeout run is excluded and recorded in the manifest. A
+separate four-agent positive-cost correctness case completes 192 updates with
+actual admission/eviction and zero state error. Four nonfatal maintenance events
+occur in the completed calibrated traces and one in the positive-cost check.
+Concurrent frequency/reuse-cost controls report no maintenance failures.
+
+Each GPU fleet passes the 17-test Ubuntu CPU/CUDA suite; each worker separately
+passes the CUDA state check. The local native suite passes 15/15, including the
+expanded one-/four-agent Host fixed-trace smoke, with additional concurrent
+frequency and reuse-cost Host smoke checks.
+
+[Counts, source/binary hashes and verified rental cleanup](validation/2026-10-31-four-agent-limits.json).

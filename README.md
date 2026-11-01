@@ -17,17 +17,16 @@ framework. The supplied TensorFlow bridge uses stateful host callbacks and an
 isolated native RPC client. Dataset readers, model computation and dense gradient
 synchronization remain the training framework's responsibility.
 
-![Three-GPU parameter-service capacity](docs/assets/service-capacity.svg)
+![Multi-GPU throughput, tail latency and queue wait](docs/assets/multigpu-limits.svg)
 
-**Measured capacity:** three RTX A6000 agents, four parameter shards and eight
-concurrent Learners sustain **122.95 completed sparse updates/s** with **104.93 ms
-median trial P99** across three 30-second trials: **10,841 updates, zero errors**.
-Higher shard counts and concurrency expose the service's communication and
-queueing limits. A million-row, 512-dimensional control exercises **6 GiB of
-logical parameter/Adam state** and reaches approximately **109–111 thousand input
-ID occurrences/s** including acknowledged updates. The measurements use synthetic
-gradients over the sparse parameter path, with one local and two SSH-forwarded
-GPU agents. [Capacity curves, paired comparisons and raw records](docs/BENCHMARKS.md).
+**Measured capacity:** the default path with four RTX A6000 agents, four parameter
+shards and eight concurrent Learners completes **116.47 acknowledged sparse updates/s**
+with **102.41 ms median trial P99** across three 20-second windows: **7,094 updates**.
+At 128 Learners, throughput falls to **85.74 updates/s** and P99 rises to **2.15 s**.
+The tested deployment exposes synchronous owner waits and request coordination as
+scaling targets. A million-row, 512-dimensional control covers **6 GiB of logical
+parameter/Adam state**; automatic admission and cross-shard gather coalescing have
+separate load controls. [Operating points, conditions and raw records](docs/MULTIGPU_LIMITS.md).
 
 **Implemented:** independent BRPC parameter shards, cross-shard batching,
 sparse LazyAdam, CUDA-resident weights and optimizer states, CPU/GPU migration,
@@ -38,13 +37,16 @@ execute updates concurrently. CPU pooling and unique-vector transfer are executa
 a pluggable cost planner selects between them. A TensorFlow graph check exercises
 Pull → dense model/loss → sparse Push → Join against external server processes.
 
-**Validation:** the current macOS native/RPC/TensorFlow suite passes **20/20**,
-and the core ASan/UBSan suite passes **9/9**. Automatic replacement, reserved
-capacity, pins, failure fallback and optimizer-exact restart are covered by
-native and external-process checks. On A6000, the current Ubuntu CPU/CUDA suite
-passes **17/17**, with **3/3 additional CUDA-backed process checks** for automatic
-placement and save/restore. Fixed traces verify all touched parameter/optimizer
-state after 6,528 updates. See the [validation record](docs/VALIDATION.md).
+**Validation:** the latest matrix retains **203 capacity trials and 103,426
+completed updates** across two fleets, with zero training-update errors. Native
+checks pass **15/15** locally and CPU/CUDA checks pass **17/17** on each GPU fleet.
+Cache-policy replay checks all touched weights, Adam moments and row counters
+across **4,800 updates**; a separate four-agent positive-cost case exercises
+admission and eviction over another **192 updates**. Parameter/optimizer-state
+error is zero; maintenance failure counters and the excluded incomplete run are
+recorded in the [full report](docs/MULTIGPU_LIMITS.md#cache-policy-replay-and-numerical-checks).
+The [validation record](docs/VALIDATION.md) also covers TensorFlow graph integration,
+optimizer-exact restart, fencing, bounded tickets and failure cleanup.
 
 [Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
 [Implementation progress](docs/plans/2026-10-31-implementation.md)

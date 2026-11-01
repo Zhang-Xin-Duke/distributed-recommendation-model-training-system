@@ -1,0 +1,382 @@
+{
+  "source_commit": "1b708b4",
+  "transport": "SSH-forwarded BRPC",
+  "experiments": [
+    {
+      "name": "g1-cal-b0-cpu_only",
+      "gpu_agents": 1,
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 0,
+      "raw_file": "g1-cal-b0-cpu_only.jsonl",
+      "sha256": "f33df6522cd635c1a9e206c7650ddb6512e2afa607f0fbc2e540e0d87b2df1a6"
+    },
+    {
+      "name": "g1-cal-b0-static",
+      "gpu_agents": 1,
+      "mode": "static",
+      "calibration": true,
+      "block": 0,
+      "raw_file": "g1-cal-b0-static.jsonl",
+      "sha256": "65d2b0cb3e277a3b4e7c19cd826507f10f501c5d4a5aa6323cbfc8998a4317e1"
+    },
+    {
+      "name": "g1-cal-b1-static",
+      "gpu_agents": 1,
+      "mode": "static",
+      "calibration": true,
+      "block": 1,
+      "raw_file": "g1-cal-b1-static.jsonl",
+      "sha256": "e211f5d7da89d7688f264f32e9316aac310b82398441d576929e18bfca526d63"
+    },
+    {
+      "name": "g1-cal-b1-cpu_only",
+      "gpu_agents": 1,
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 1,
+      "raw_file": "g1-cal-b1-cpu_only.jsonl",
+      "sha256": "f0989db117da5b5282846a0bfc43dda23bb5fe23da09fe6c51f29ae47ed66995"
+    },
+    {
+      "name": "g1-trace-b0-cpu_only",
+      "gpu_agents": 1,
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g1-trace-b0-cpu_only.jsonl",
+      "sha256": "61ddb31d75f3271b032dd7e4574e355bdaa1706629a1102c9c77f0d018b3dc34"
+    },
+    {
+      "name": "g1-trace-b0-static",
+      "gpu_agents": 1,
+      "mode": "static",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g1-trace-b0-static.jsonl",
+      "sha256": "fb310ad78596f2c5bb379928db78bedd4d6f5ccda51d2ba25c6491626f5167ee"
+    },
+    {
+      "name": "g1-trace-b0-frequency",
+      "gpu_agents": 1,
+      "mode": "frequency",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g1-trace-b0-frequency.jsonl",
+      "sha256": "dc71b20098e01e0fa1326d226928ed73c02951f599bc0be1805a2f6142cbdbfb"
+    },
+    {
+      "name": "g1-trace-b0-reuse_cost",
+      "gpu_agents": 1,
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g1-trace-b0-reuse_cost.jsonl",
+      "sha256": "d4666408a2faac9f9ba16ea8f8ad76426752a8b0026557b355419a42e940d0e3"
+    },
+    {
+      "name": "g1-trace-b1-static",
+      "gpu_agents": 1,
+      "mode": "static",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g1-trace-b1-static.jsonl",
+      "sha256": "2507f80915a3c8276f3cc390941cd9a2c02755daba3a7f9eee91cd0a56b96eb0"
+    },
+    {
+      "name": "g1-trace-b1-frequency",
+      "gpu_agents": 1,
+      "mode": "frequency",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g1-trace-b1-frequency.jsonl",
+      "sha256": "a79f9fd0a5afdb66964e9276f1e2de88ba455a35ccd522a08c777386529e9b4b"
+    },
+    {
+      "name": "g1-trace-b1-reuse_cost",
+      "gpu_agents": 1,
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g1-trace-b1-reuse_cost.jsonl",
+      "sha256": "fc573f67a16a772bca2eeed57e40b1c3a1b3281cf62e92aa144c46c0947c582c"
+    },
+    {
+      "name": "g1-trace-b1-cpu_only",
+      "gpu_agents": 1,
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g1-trace-b1-cpu_only.jsonl",
+      "sha256": "b72e62b51520fe54ae43710d283be93fc40c4d6fa644c3a59019bc5140b2af47"
+    },
+    {
+      "name": "g2-cal-b0-cpu_only",
+      "gpu_agents": 2,
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 0,
+      "raw_file": "g2-cal-b0-cpu_only.jsonl",
+      "sha256": "babf03fad9d83d205d1a66c38ea43c4856300d8267bdac9aff690fdfea79d520"
+    },
+    {
+      "name": "g2-cal-b0-static",
+      "gpu_agents": 2,
+      "mode": "static",
+      "calibration": true,
+      "block": 0,
+      "raw_file": "g2-cal-b0-static.jsonl",
+      "sha256": "188d34c47bbf3b3eff7bb2c619b232419fea85990291026f5769dbfb707f480e"
+    },
+    {
+      "name": "g2-cal-b1-static",
+      "gpu_agents": 2,
+      "mode": "static",
+      "calibration": true,
+      "block": 1,
+      "raw_file": "g2-cal-b1-static.jsonl",
+      "sha256": "bdd3a71c4bc6649fa4fd96e36d0c9829937062229df82c6f54369454897a1d39"
+    },
+    {
+      "name": "g2-cal-b1-cpu_only",
+      "gpu_agents": 2,
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 1,
+      "raw_file": "g2-cal-b1-cpu_only.jsonl",
+      "sha256": "287fa2d02d11350e32209eb90e396eda337e20877796c3f45e0fa227b20547df"
+    },
+    {
+      "name": "g2-trace-b0-cpu_only",
+      "gpu_agents": 2,
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g2-trace-b0-cpu_only.jsonl",
+      "sha256": "dc2db5e857f8764d3e6907144b59ebf168d9940d5220dc1444b3c64a2f11f3fd"
+    },
+    {
+      "name": "g2-trace-b0-static",
+      "gpu_agents": 2,
+      "mode": "static",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g2-trace-b0-static.jsonl",
+      "sha256": "13658701055e1b85c5a244f917a8a664491c70e0ec4c9a64429048c83a1bcf21"
+    },
+    {
+      "name": "g2-trace-b0-frequency",
+      "gpu_agents": 2,
+      "mode": "frequency",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g2-trace-b0-frequency.jsonl",
+      "sha256": "34a413fa43e7fd8b92d3d9d571d655cdaf0d44ac558ff074e05a90b7b0d4e7f7"
+    },
+    {
+      "name": "g2-trace-b0-reuse_cost",
+      "gpu_agents": 2,
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g2-trace-b0-reuse_cost.jsonl",
+      "sha256": "6f964dc2e421e156a9bc54379cd35c6513ecb7d89715b0fe73a2d47e778589d3"
+    },
+    {
+      "name": "g2-trace-b1-static",
+      "gpu_agents": 2,
+      "mode": "static",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g2-trace-b1-static.jsonl",
+      "sha256": "51f129d70d10cdff438559f458d34d5b29e8f548f5e0ac4f9119a0cf4d13cff6"
+    },
+    {
+      "name": "g2-trace-b1-frequency",
+      "gpu_agents": 2,
+      "mode": "frequency",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g2-trace-b1-frequency.jsonl",
+      "sha256": "a72fc3083d4febe27e189a7903c8e140ae059dfb2e0b90b8e0ea4f75a9387454"
+    },
+    {
+      "name": "g2-trace-b1-reuse_cost",
+      "gpu_agents": 2,
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g2-trace-b1-reuse_cost.jsonl",
+      "sha256": "85e841f43b416ace9ca4d24704bc51ff0a021f6e5ac8e7dfbe0f0dc4fefeed3d"
+    },
+    {
+      "name": "g2-trace-b1-cpu_only",
+      "gpu_agents": 2,
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g2-trace-b1-cpu_only.jsonl",
+      "sha256": "cf105b1c6038098a5281bfeeba8995c5caf8318899380709ef00d65ec0199cb3"
+    },
+    {
+      "name": "g4-cal-b0-cpu_only",
+      "gpu_agents": 4,
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 0,
+      "raw_file": "g4-cal-b0-cpu_only.jsonl",
+      "sha256": "ea7549dc1d42815360155c836178d3adc5d659681efacdb08aa9664c58f6e448"
+    },
+    {
+      "name": "g4-cal-b0-static",
+      "gpu_agents": 4,
+      "mode": "static",
+      "calibration": true,
+      "block": 0,
+      "raw_file": "g4-cal-b0-static.jsonl",
+      "sha256": "fcefcc95d21a5cdb66d36afe98d4ec86cc2faea392ae3f74c788db4f9d44d310"
+    },
+    {
+      "name": "g4-cal-b1-static",
+      "gpu_agents": 4,
+      "mode": "static",
+      "calibration": true,
+      "block": 1,
+      "raw_file": "g4-cal-b1-static.jsonl",
+      "sha256": "96ed4787c01f8e3957e4297b99e0b85ceadcc0fd270b1b4df681a3f31a546f7c"
+    },
+    {
+      "name": "g4-cal-b1-cpu_only",
+      "gpu_agents": 4,
+      "mode": "cpu_only",
+      "calibration": true,
+      "block": 1,
+      "raw_file": "g4-cal-b1-cpu_only.jsonl",
+      "sha256": "68bd781a6f03dd397f4b43248bd7487acaed3661ee4b9ac37241bec17c6d26d7"
+    },
+    {
+      "name": "g4-trace-b0-cpu_only",
+      "gpu_agents": 4,
+      "mode": "cpu_only",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g4-trace-b0-cpu_only.jsonl",
+      "sha256": "9c5eaf3dd4fb1ef62a152877f566f07e860690ad50311707f1ea4b74aa60a810"
+    },
+    {
+      "name": "g4-trace-b0-static",
+      "gpu_agents": 4,
+      "mode": "static",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g4-trace-b0-static.jsonl",
+      "sha256": "af2c816674994d94467cfd84305d12873584b3b24aaffabad9ac9a39720967c6"
+    },
+    {
+      "name": "g4-trace-b0-frequency",
+      "gpu_agents": 4,
+      "mode": "frequency",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g4-trace-b0-frequency.jsonl",
+      "sha256": "5a435a6eb3b28ca6b7503c1583acd5ae1f480ceb37c3831e9107fd8c518606aa"
+    },
+    {
+      "name": "g4-trace-b0-reuse_cost",
+      "gpu_agents": 4,
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 0,
+      "raw_file": "g4-trace-b0-reuse_cost.jsonl",
+      "sha256": "9e8f29b03dbbbd1a82a75da0077a5e60a00eb1735a466ff210c9ff56acad6072"
+    },
+    {
+      "name": "g4-trace-b1-static",
+      "gpu_agents": 4,
+      "mode": "static",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g4-trace-b1-static.jsonl",
+      "sha256": "65b05a3f70b4bad59c244c3bc24189eea170a914ae05af39cd886bc70c3852f8"
+    },
+    {
+      "name": "g4-trace-b1-frequency",
+      "gpu_agents": 4,
+      "mode": "frequency",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g4-trace-b1-frequency.jsonl",
+      "sha256": "e34bcc00005d060013583db68d8700733e9d330ab63786c3ce068eec00379fed"
+    },
+    {
+      "name": "g4-trace-b1-reuse_cost",
+      "gpu_agents": 4,
+      "mode": "reuse_cost",
+      "calibration": false,
+      "block": 1,
+      "raw_file": "g4-trace-b1-reuse_cost.jsonl",
+      "sha256": "6d717092e83a65f0af16d3abc75e45f75447204dd9cd249f5b5faff375bfbdd1"
+    }
+  ],
+  "workload": {
+    "out_name": "limits-policy",
+    "build_name": "build-cuda",
+    "gpu_counts": "1,2,4",
+    "rows": 262144,
+    "dimension": 512,
+    "keys": 8192,
+    "bag": 128,
+    "hot_rows": 8192,
+    "cache_rows": 10240,
+    "reserve_slots": 32,
+    "phase_steps": 64,
+    "calibration_steps": 32,
+    "repeats": 2,
+    "calibration_repeats": 2,
+    "source_commit": "1b708b4"
+  },
+  "deployment": "first-four-agent-fleet",
+  "environment": {
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+    "affinity_cpus": 6,
+    "cpu_max": "594000 100000\n",
+    "os_release": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "binaries": {
+      "eps_server": "877d6b76917f39f2f7d0239498fc73515b068e115fe465262c43c1d1a8b5448a",
+      "eps_capacity_probe": "af7ec062558197f5dec2cad1afc4287d2b19ac69ded5ff920147da34744827f9",
+      "eps_cache_policy_probe": "25496834640afb8415f41a0a41c28eb39b5421857a50a7b665385e837fd09a70",
+      "eps_cache_agent": "9bce2c69af5dd6c863a0bbdb42ef04ccb55c5214cd65890b0d0dfc18f245ed12"
+    },
+    "host_visible_memory_bytes": 540907466752,
+    "allocated_vcpus": 6
+  },
+  "completed_runs": 35,
+  "expected_runs": 36,
+  "incomplete_runs": [
+    {
+      "name": "g4-trace-b1-cpu_only",
+      "reason": "experiment driver reached its 1200-second whole-group timeout; no verified final record"
+    }
+  ],
+  "completed_phase_records": 81,
+  "completed_steps": 4800,
+  "state_max_absolute_error": 0.0,
+  "feature_max_absolute_error": 5.21540641784668e-08,
+  "nonfatal_policy_maintenance_failures": 4,
+  "additional_correctness_checks": [
+    {
+      "purpose": "multi-agent correctness with a synthetic positive saved-cost prior; excluded from calibrated performance comparisons",
+      "prior_microseconds_per_access": 10000.0,
+      "source_commit": "00b7ac9",
+      "admitted_rows": 3267,
+      "evicted_rows": 2377,
+      "max_state_error": 0.0,
+      "completed_steps": 192,
+      "policy_maintenance_failures": 1,
+      "raw_file": "forced-positive-cost.jsonl",
+      "sha256": "4606de85c9fb96a81ddb7dc2062834cdaa43258e1670be0ec9e0d804757bcbcc"
+    }
+  ],
+  "allocated_coordinator_memory_gib": 48,
+  "allocated_coordinator_vcpus": 6
+}

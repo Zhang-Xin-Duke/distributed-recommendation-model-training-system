@@ -1,0 +1,6 @@
+{
+  "cpu_step_mean_ms": 46.825600515625,
+  "static_step_mean_ms": 110.41576592187499,
+  "mean_initial_hot_unique_per_step": 5026.4375,
+  "saved_microseconds_per_access": 0.0
+}

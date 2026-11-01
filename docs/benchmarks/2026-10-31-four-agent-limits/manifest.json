@@ -1,0 +1,403 @@
+{
+  "date": "2026-10-31",
+  "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+  "binary_sha256": {
+    "eps_server": "09f35249912a3968a46da06e8274f856e02b7b1256af468e507515150e1c95d8",
+    "eps_capacity_probe": "0aea3acca9c7da7becde87fdd47c7cf7accc7062bc66f623df02c1af5b3447dd",
+    "eps_cache_policy_probe": "df2aefe80a1732f22e55f8e1eb2ed9a0bf21823856b42c0663bb0acdcdc9a915",
+    "eps_cache_agent": "9ff98a73b7f35bd1f1b22bcfb7aa1496510586db42e758d370bfd92d35f4aec4"
+  },
+  "agent_binary_sha256": "9ff98a73b7f35bd1f1b22bcfb7aa1496510586db42e758d370bfd92d35f4aec4",
+  "verified_distinct_cuda_devices": 4,
+  "environment": {
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz",
+    "affinity_cpus": 6,
+    "cpu_max": "594000 100000\n",
+    "os_release": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+    "host_visible_memory_bytes": 540907466752
+  },
+  "allocated_coordinator_vcpus": 6,
+  "transport": "One loopback agent; additional agents on separate A6000 instances over SSH-forwarded BRPC",
+  "experiments": [
+    {
+      "name": "limits-auto-cost-g4",
+      "suite": "limits-auto-cost",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-auto-cost-g4.jsonl",
+      "sha256": "5d3dbfe8c8e75db5793c26bf8cb070a595f5b57305651f5716aa0b367b916512",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-auto-cost-g4-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "name": "limits-auto-frequency-g4",
+      "suite": "limits-auto-frequency",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-auto-frequency-g4.jsonl",
+      "sha256": "bf01adb93985f81d152fdd34ed029c0e329e1e8b470dbec73c4a5a5309616a93",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-auto-frequency-g4-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "name": "limits-coalesced-g4",
+      "suite": "limits-coalesced",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-coalesced-g4.jsonl",
+      "sha256": "6837d0de5caf229cdf54f167edd003f6a4379147b81beef2ca1ef3e36c465248",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-coalesced-g4-resources.json",
+      "trial_count": 12,
+      "learner_levels": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "limits-coalesced-sustained-g4",
+      "suite": "limits-coalesced-sustained",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-coalesced-sustained-g4.jsonl",
+      "sha256": "5f75bb1c2d2d6254c11bc60f84c71177b35b1b602fc48d59ca0da35318b3d0ac",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-coalesced-sustained-g4-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        64
+      ]
+    },
+    {
+      "name": "limits-fixed-g1",
+      "suite": "limits-fixed",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-fixed-g1.jsonl",
+      "sha256": "3844a6b57e1624c32453cd3ffbef43b49ece66d8fcde9c4806a77d645990d83a",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-fixed-g1-resources.json",
+      "trial_count": 21,
+      "learner_levels": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "limits-fixed-g2",
+      "suite": "limits-fixed",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-fixed-g2.jsonl",
+      "sha256": "8cf779db97259813404b219177e29273cfae8233d3e35f8b3d825bdbec94af2e",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-fixed-g2-resources.json",
+      "trial_count": 21,
+      "learner_levels": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "limits-fixed-g4",
+      "suite": "limits-fixed",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-fixed-g4.jsonl",
+      "sha256": "bb487c1a0536f9752a9870477e83d9aa53a7c3b61feaeb18c63ad739d6263926",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-fixed-g4-resources.json",
+      "trial_count": 21,
+      "learner_levels": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    {
+      "name": "limits-host-g1",
+      "suite": "limits-host",
+      "variant": "host_reference",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-host-g1.jsonl",
+      "sha256": "f6995d364048649b4897aaa4a9d83c626925dbe03ac8f73e97efdad971ef8ca9",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-host-g1-resources.json",
+      "trial_count": 2,
+      "learner_levels": [
+        16
+      ]
+    },
+    {
+      "name": "limits-host-g4",
+      "suite": "limits-host",
+      "variant": "host_reference",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-host-g4.jsonl",
+      "sha256": "ad4fe75f21f9faf426d58d20d3058b54af83c73cc5b6c873391538013ddfab1b",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-host-g4-resources.json",
+      "trial_count": 2,
+      "learner_levels": [
+        16
+      ]
+    },
+    {
+      "name": "limits-large-g1",
+      "suite": "limits-large",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-large-g1.jsonl",
+      "sha256": "5643916aa10b1e870a84c79b63e77a345028bb203331fad2c72dafaaf24a1ef1",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "limits-large-g1-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        4,
+        8,
+        16
+      ]
+    },
+    {
+      "name": "limits-large-g2",
+      "suite": "limits-large",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-large-g2.jsonl",
+      "sha256": "0ac44dff4b98c3e45a5851a9dbde0a55d16fa0dc81e3eccad2196c5fec78b96d",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "limits-large-g2-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        4,
+        8,
+        16
+      ]
+    },
+    {
+      "name": "limits-large-g4",
+      "suite": "limits-large",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-large-g4.jsonl",
+      "sha256": "dbf5c9b6985540aa2018802d9751aeaa7268eeef5816555fb5893003ba16d560",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 1048576,
+      "dimension": 512,
+      "keys_per_step": 8192,
+      "bag_length": 128,
+      "resources_file": "limits-large-g4-resources.json",
+      "trial_count": 6,
+      "learner_levels": [
+        4,
+        8,
+        16
+      ]
+    },
+    {
+      "name": "limits-overload-g4",
+      "suite": "limits-overload",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-overload-g4.jsonl",
+      "sha256": "f43990d809c0a338df19b851f0f9f742a6003df7a0147bb50b622a1287286a39",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-overload-g4-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        128
+      ]
+    },
+    {
+      "name": "limits-shards-2-g4",
+      "suite": "limits-shards-2",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-shards-2-g4.jsonl",
+      "sha256": "88b209d1fe43fc1f2a8b96a2a06799e4e4e8aebe33cd267cedcb355d574d2d8b",
+      "gpu_agents": 4,
+      "ps_shards": 2,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-shards-2-g4-resources.json",
+      "trial_count": 8,
+      "learner_levels": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "name": "limits-shards-8-g4",
+      "suite": "limits-shards-8",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-shards-8-g4.jsonl",
+      "sha256": "2d9ae829f9448059402920398aa905d88e906af40f74c2a8a368c1600682b024",
+      "gpu_agents": 4,
+      "ps_shards": 8,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-shards-8-g4-resources.json",
+      "trial_count": 8,
+      "learner_levels": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "name": "limits-sustained-g1-g1",
+      "suite": "limits-sustained-g1",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-sustained-g1-g1.jsonl",
+      "sha256": "e9e6de3839c1b116b80a7aff3d418b5ebe13cd82097f6ce76e143c46a282690e",
+      "gpu_agents": 1,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-sustained-g1-g1-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        8
+      ]
+    },
+    {
+      "name": "limits-sustained-g2-g2",
+      "suite": "limits-sustained-g2",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-sustained-g2-g2.jsonl",
+      "sha256": "d1a5707298f8a3788ccb53b537392110728fc9af80c705b4a6e94880d114a2b2",
+      "gpu_agents": 2,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-sustained-g2-g2-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        16
+      ]
+    },
+    {
+      "name": "limits-sustained-g4-g4",
+      "suite": "limits-sustained-g4",
+      "variant": "current",
+      "source_commit": "00b7ac995f8c97ad93fe31d481d49b74848710e8",
+      "raw_file": "limits-sustained-g4-g4.jsonl",
+      "sha256": "e3bc1519289bfe4c53c3d71f429ba3acd0ef40bff896a1bc86c09729cabfaa67",
+      "gpu_agents": 4,
+      "ps_shards": 4,
+      "rows": 262144,
+      "dimension": 128,
+      "keys_per_step": 1024,
+      "bag_length": 32,
+      "resources_file": "limits-sustained-g4-g4-resources.json",
+      "trial_count": 3,
+      "learner_levels": [
+        8
+      ]
+    }
+  ],
+  "allocated_coordinator_memory_gib": 48
+}

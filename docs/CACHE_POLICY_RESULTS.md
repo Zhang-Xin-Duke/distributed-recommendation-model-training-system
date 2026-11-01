@@ -1,5 +1,7 @@
 # Cache policy evaluation on RTX A6000
 
+The later [multi-GPU study](MULTIGPU_LIMITS.md#cache-policy-replay-and-numerical-checks) retains 35 completed first-fleet fixed-trace runs across 1, 2 and 4 agents, plus a separate four-agent positive-cost correctness check.
+
 October 31, 2026 · source `3a2cd7e` · two BRPC parameter shards / one CUDA agent
 
 Cache-hit rate did not predict completed-update throughput in these traces.

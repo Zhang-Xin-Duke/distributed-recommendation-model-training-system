@@ -1,0 +1,58 @@
+[
+  {
+    "payload_bytes": 8192,
+    "repetitions": 20,
+    "median_ms": 0.6396528333425522,
+    "minimum_ms": 0.42225979268550873,
+    "maximum_ms": 42.070260271430016,
+    "upload_mib_per_second": 12.213656522359505
+  },
+  {
+    "payload_bytes": 16384,
+    "repetitions": 20,
+    "median_ms": 0.7061716169118881,
+    "minimum_ms": 0.5742963403463364,
+    "maximum_ms": 41.50115326046944,
+    "upload_mib_per_second": 22.126349496073832
+  },
+  {
+    "payload_bytes": 32768,
+    "repetitions": 20,
+    "median_ms": 0.8744047954678535,
+    "minimum_ms": 0.6414745002985001,
+    "maximum_ms": 42.28266328573227,
+    "upload_mib_per_second": 35.73859631371254
+  },
+  {
+    "payload_bytes": 65536,
+    "repetitions": 20,
+    "median_ms": 21.098644472658634,
+    "minimum_ms": 0.8803308010101318,
+    "maximum_ms": 42.97024942934513,
+    "upload_mib_per_second": 2.9622756135349197
+  },
+  {
+    "payload_bytes": 131072,
+    "repetitions": 20,
+    "median_ms": 22.547547705471516,
+    "minimum_ms": 1.3379640877246857,
+    "maximum_ms": 43.070707470178604,
+    "upload_mib_per_second": 5.543840138751177
+  },
+  {
+    "payload_bytes": 262144,
+    "repetitions": 20,
+    "median_ms": 42.96161141246557,
+    "minimum_ms": 2.598511055111885,
+    "maximum_ms": 43.84375177323818,
+    "upload_mib_per_second": 5.819148578944154
+  },
+  {
+    "payload_bytes": 1048576,
+    "repetitions": 20,
+    "median_ms": 46.9743562862277,
+    "minimum_ms": 6.674060598015785,
+    "maximum_ms": 48.049889504909515,
+    "upload_mib_per_second": 21.28821082521545
+  }
+]

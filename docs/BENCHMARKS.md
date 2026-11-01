@@ -1,6 +1,8 @@
-# Multi-GPU capacity evaluation
+# Earlier 1–3 GPU capacity evaluation
 
 October 31, 2026 · C++20 / BRPC / CUDA · 1–3 RTX A6000 agents
+
+The latest [1/2/4-agent study](MULTIGPU_LIMITS.md) adds sustained, automatic-admission, Host-backend and larger-table controls. This page retains the earlier deployments and their original source revisions.
 
 The best sustained three-GPU operating point tested is **122.95 completed sparse
 update steps/s**, with **104.93 ms median trial P99**, using four parameter shards
