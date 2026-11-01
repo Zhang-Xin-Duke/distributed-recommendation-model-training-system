@@ -106,7 +106,8 @@ int main(int argc,char** argv){
     }
     Take(setup.Release(checked_batch));
     std::vector<std::atomic<std::uint64_t>> expected(rows+1);
-    std::vector<std::uint64_t> next_sequences(128,0);
+    constexpr int max_learners=512;
+    std::vector<std::uint64_t> next_sequences(max_learners,0);
     for(int warm=0;warm<3;++warm){
       FeatureInput f{1,0,Pooling::mean,{},{0},{}};
       for(std::uint32_t i=0;i<keys;++i){f.keys.push_back(1+i%rows);
@@ -119,7 +120,7 @@ int main(int argc,char** argv){
     std::uint32_t group=0;
     for(const auto& level:levels)for(int repeat=0;repeat<repeats;++repeat){
       std::vector<RuntimeStats> stats_before;
-      const int learners=std::stoi(level);if(learners<1 || learners>128)throw std::runtime_error("invalid Learner count");
+      const int learners=std::stoi(level);if(learners<1 || learners>max_learners)throw std::runtime_error("invalid Learner count");
       std::latch ready(learners),start(1);Clock::time_point deadline;
       std::mutex mutex;std::vector<double> latencies,lookups,pushes;std::uint64_t completed=0,failures=0;std::string error;
       std::vector<std::thread> threads;
