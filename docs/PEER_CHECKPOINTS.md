@@ -91,10 +91,12 @@ application, reader and C++ cluster runtime requires its `ts_clib.so` or
 `ts_clib_gpu.so` build artifact; those native artifacts are absent from the
 available source copies.
 
-The preserved top-level BUILD also loads absent `.resources` entrypoint and
-protobuf rules. Building the original runtime requires the complete rule and
-dependency bundle, or a compatible prebuilt runtime/environment.
-[Dependency inventory](validation/2026-11-01-original-native-dependencies.json).
+The original source-snapshot inventory records its missing native artifacts.
+A subsequent [native build preflight](ORIGINAL_NATIVE_BUILD.md) recovers the
+separate Bazel rules and matching TensorFlow SDK, then traces the remaining
+internal Redis SDK dependency required by the original library. Native build
+and full application execution remain pending that SDK or a compatible prebuilt
+runtime/environment.
 
 [Validation record and hashes](validation/2026-11-01-peer-checkpoint-control.json)
 retain the successful/failure cases and the prior-adapter regression.

@@ -1,5 +1,22 @@
 # Validation record
 
+## Original native build preflight — November 1, 2026
+
+The separate Bazel workspace repository supplies the previously missing build
+rules. Matching TensorFlow `2.12.1+NVIDIA` headers/libraries are also available;
+all three compressed libraries pass their recorded SHA-256 checks. A local
+Bazel 7.7.0 workspace, independent repository overlays and legacy rule versions
+load the original native C++ dependency graph with downloads disabled.
+
+The final partial query exits 3 and emits 39,338 label records. Its unresolved
+repository is the internal Redis SDK, reached through `costa_op`, bgraph's
+`ops_utils` and common's Redis layer. The required SDK interface headers are
+absent from the available Code tree. No native library compilation, original
+reader/cluster execution or additional GPU rental occurred in this preflight.
+
+[Build inputs and dependency path](ORIGINAL_NATIVE_BUILD.md) ·
+[Inventory and archive hashes](validation/2026-11-01-native-build-preflight.json)
+
 ## Peer/thread checkpoint coordination — November 1, 2026
 
 The subsequent restore check restarts both parameter shards and both peer

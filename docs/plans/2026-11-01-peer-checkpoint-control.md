@@ -40,3 +40,11 @@ four learner threads complete the original restore barriers. After two resumed
 updates per shard, two rows' complete optimizer state matches six uninterrupted
 updates with zero difference. The dense Saver restores `-0.5` to saved `0.5`.
 Native cluster/reader artifacts remain the separate application dependency.
+
+Native build preflight: the separate Bazel workspace and matching TensorFlow
+2.12.1 NVIDIA SDK are recovered. An independent local workspace loads 39,338
+partial dependency labels, with downloads disabled. The remaining unresolved
+repository is the internal Redis SDK (`platform/redis-sdk-cpp`), on the original
+`ts_clib.so -> costa_op -> bgraph/ops_utils -> common/base:redis` path. Exact SDK
+headers are absent from the Code tree. Full compilation/execution needs that
+SDK or a compatible prebuilt framework environment; no GPU rental was started.

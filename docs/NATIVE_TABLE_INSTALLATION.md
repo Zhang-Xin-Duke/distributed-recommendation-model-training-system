@@ -127,6 +127,11 @@ selected method boundary. Rebuilding/running the complete original application,
 its native data reader and its multi-peer native barriers remain separate
 integration requirements.
 
+The [original-framework build preflight](ORIGINAL_NATIVE_BUILD.md) recovers the
+separate local rule/SDK inputs and identifies the absent internal Redis SDK in
+the original native library's dependency path. It records graph loading only;
+the native EPS operation checks above retain their separate executed scope.
+
 ## Executed checks
 
 On Ubuntu 22.04 / TensorFlow 2.20.0 / CUDA 13.0 / RTX A6000, source `fc64812`

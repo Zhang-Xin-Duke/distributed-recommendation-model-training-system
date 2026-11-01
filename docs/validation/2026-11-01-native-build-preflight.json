@@ -1,0 +1,77 @@
+{
+  "base_commit": "d9847888c1a0da70baadad47aaf6c92f76231c94",
+  "platform": "macOS arm64 dependency-graph preflight only",
+  "original_native_runtime_found": false,
+  "recovered_build_rules": {
+    "rules/entrypoint.bzl": "a1e4cad71b2e77fc9dc767b115180591599a57bf560b0f270f67b9c371232cc5",
+    "rules/contrib/protobuf_ng.bzl": "4e1906c800e876f28a41237462787d0a122fc32c1fdc33d7c7673780e21ca56e"
+  },
+  "recovered_tensorflow_sdk": {
+    "version": "2.12.1+NVIDIA",
+    "archives": {
+      "framework.tar.xz": {
+        "bytes": 12038532,
+        "sha256": "eb512996b58e3bc374a332b973301e95487e697ad73aa9aff715637449a7e851",
+        "recorded_sha256_matches": true
+      },
+      "tensorflow_cc.tar.xz": {
+        "bytes": 211163348,
+        "sha256": "f39eb53d43b566a756a1c081b66cea3c9b621994064b01c1a01a2817074aaed0",
+        "recorded_sha256_matches": true
+      },
+      "tensorflow.tar.xz": {
+        "bytes": 193194152,
+        "sha256": "8de260f731662ca45daa088c043b832ddee0c448a9d327a468e7d3d9dbfd1bf5",
+        "recorded_sha256_matches": true
+      }
+    }
+  },
+  "local_internal_source_repositories": [
+    "AI/entropy",
+    "bigdata/common",
+    "bigdata/bgraph",
+    "bigdata/ai-interface",
+    "bazel/internal/b23"
+  ],
+  "build_tool": {
+    "version": "7.7.0",
+    "sha256": "2533ddc8628a96d1da3c5e99f45442d30fec93ee724316fd9687c78e56a84049"
+  },
+  "legacy_rule_versions": {
+    "rules_python": "0.31.0",
+    "rules_cc": "0.0.9"
+  },
+  "query": {
+    "command": "query --enable_bzlmod=false --repository_disable_download --keep_going --output=label_kind deps(//entropy:ts_clib.so)",
+    "exit_code": 3,
+    "partial": true,
+    "resolved_label_records": 39338,
+    "unresolved_repositories": [
+      "bilibili-redis"
+    ]
+  },
+  "required_private_sdk": {
+    "repository": "bilibili-redis",
+    "repository_path": "platform/redis-sdk-cpp",
+    "missing_headers": [
+      "bili_redis/bili_redis_client.h",
+      "redis_sdk/client.h"
+    ],
+    "exact_header_or_sdk_implementation_candidates_found": 0
+  },
+  "dependency_path": [
+    "//entropy:ts_clib.so",
+    "//entropy:ts_clib",
+    "//entropy:costa_op",
+    "@bgraph//:ops_utils",
+    "@common//base:redis",
+    "@bilibili-redis"
+  ],
+  "scope_notes": [
+    "Original source files unchanged; independent local overlays supply workspace markers.",
+    "Generated pip label resolver permits native C++ graph parsing only; no Python package runtime is asserted.",
+    "CUDA compiler map is empty on the macOS host; no native library was compiled or loaded.",
+    "Public hiredis archives found in another project do not provide the required internal SDK interfaces."
+  ],
+  "additional_gpu_rentals": 0
+}
