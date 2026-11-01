@@ -2,6 +2,14 @@
 
 ## Executed correctness checks — October 31, 2026
 
+The [current multi-GPU study](CURRENT_MULTIGPU_LIMITS.md) records runtime
+`b6d97d3` on four distinct RTX A6000 devices: **22/22** native CPU/CUDA checks,
+**86 completed capacity trials / 52,173 verified updates**, and **2,752 sampled
+row-update counters**. Mean/sum/sequence preflight has maximum absolute error
+**3.91e-08**. Three Agent RPC admission failures are retained separately from
+completed trials. The [validation artifact](validation/2026-10-31-current-multigpu.json)
+includes raw-record hashes, failed points and verified rental deletion.
+
 | Environment | Executed suite | Result |
 |---|---|---|
 | macOS arm64, AppleClang 21, BRPC 1.18.0, Protobuf 36.2, source `0661e52` | Complete native/RPC/TensorFlow suite, including dependency caches, invalidation and resumable operations | 26/26 passed |

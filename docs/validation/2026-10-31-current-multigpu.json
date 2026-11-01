@@ -1,0 +1,93 @@
+{
+  "source_commit": "b6d97d31d8533b80390214b94de2e1acdbd3a49a",
+  "gpu_agents": 4,
+  "distinct_cuda_devices_verified_by_each_topology": true,
+  "binary_sha256": {
+    "eps_server": "de341cc0f68c477b9443779c74292cc8dcca3e40e11a298429c8aa42d67b845a",
+    "eps_cache_agent": "7c0d951b0273284e47d36078c62070fb5f640ad61ee68d84a30dde9ae82c6d72",
+    "eps_capacity_probe": "ee4dbf17f8faefb9a0dedcac49561271b46d6511df8838196596b32dd94b37f7"
+  },
+  "capacity_trials": 86,
+  "completed_updates": 52173,
+  "sampled_counter_checks": 2752,
+  "max_preflight_absolute_error": 3.91155481338501e-08,
+  "training_update_errors": 0,
+  "rejected_admissions": 0,
+  "local_hot_shard_smoke": {
+    "trials": 2,
+    "completed_updates": 2178,
+    "counter_checks": 64,
+    "errors": 0,
+    "backend": "Host reference"
+  },
+  "failed_points": [
+    {
+      "experiment": "limits-overload-g1",
+      "gpu_agents": 1,
+      "learners": 128,
+      "classification": "agent_rpc_concurrency_rejection",
+      "code": "E2004",
+      "agent_max_concurrency": 128,
+      "post_failure_state_verified": false,
+      "log_file": "limits-overload-g1-g1-rejection.log"
+    },
+    {
+      "experiment": "limits-overload-g2",
+      "gpu_agents": 2,
+      "learners": 128,
+      "classification": "agent_rpc_concurrency_rejection",
+      "code": "E2004",
+      "agent_max_concurrency": 128,
+      "post_failure_state_verified": false,
+      "log_file": "limits-overload-g2-g2-rejection.log"
+    },
+    {
+      "experiment": "limits-overload-g4",
+      "gpu_agents": 4,
+      "learners": 128,
+      "classification": "agent_rpc_concurrency_rejection",
+      "code": "E2004",
+      "agent_max_concurrency": 128,
+      "post_failure_state_verified": false,
+      "log_file": "limits-overload-g4-g4-rejection.log"
+    }
+  ],
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793505316.998688
+  },
+  "archives_sha256": [
+    {
+      "worker": 0,
+      "sha256": "6f4c28d55624f46f037ee165e92e5abd83bdf3ba1dd4e64c8813b6e1aaee103d",
+      "bytes": 236413
+    },
+    {
+      "worker": 1,
+      "sha256": "d83f2480ce3eb634f08d0993aac289347b348307d0e69173b0b6623eb472a4eb",
+      "bytes": 26092
+    },
+    {
+      "worker": 2,
+      "sha256": "3bfd51838549e1c16dbfc895b30492c3eba546bd26cad7cf2e27acf15fca844f",
+      "bytes": 20369
+    },
+    {
+      "worker": 3,
+      "sha256": "a7aa8d7c7d8bc7a296ce635b2be4aa4dedad8b43c6dffdc7e617eed311642915",
+      "bytes": 19694
+    }
+  ],
+  "native_cuda_tests_passed": 22,
+  "deployed_agent_verification": {
+    "agent_sha256": "7c0d951b0273284e47d36078c62070fb5f640ad61ee68d84a30dde9ae82c6d72",
+    "distinct_gpu_count": 4
+  },
+  "orchestration_failure_regression": {
+    "failed_first_topology_retained": true,
+    "later_topologies_attempted": 2,
+    "all_seven_mock_worker_starts_stopped": true,
+    "overall_failure_preserved": true
+  }
+}

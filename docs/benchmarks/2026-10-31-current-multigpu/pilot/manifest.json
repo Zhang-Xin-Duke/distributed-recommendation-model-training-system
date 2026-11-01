@@ -1,0 +1,44 @@
+{
+  "source_commit": "b6d97d31d8533b80390214b94de2e1acdbd3a49a",
+  "purpose": "retained initial single-GPU diagnostic; separate deployment from the completed scaling study",
+  "gpu_agents": 1,
+  "ps_shards": 4,
+  "completed_trials": 10,
+  "completed_updates": 4028,
+  "completed_trial_errors": 0,
+  "failed_point": {
+    "learners": 128,
+    "classification": "agent_rpc_concurrency_rejection",
+    "code": "E2004",
+    "configured_max_concurrency": 128,
+    "post_failure_state_verified": false
+  },
+  "raw_file": "completed-trials.jsonl",
+  "sha256": "6ce20c0782301b2a9a058b3171658ca827d5d8c13a6770bc7a4fad9f5d57f8d6",
+  "environment": {
+    "source_commit": "b6d97d3",
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz",
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "cpu_max": "594000 100000",
+    "memory_max": "51539607552",
+    "binaries": {
+      "eps_server": "25795c91e65c6007f875e79126014df00c96b185b445b3ee146f1bed50f58281",
+      "eps_cache_agent": "1fa8f67bcf44c26a05473ea044cbdea6173f01c4436dbe0d4ae4f4ae6e021a06",
+      "eps_capacity_probe": "42a0a4ecfcbc71167dfb219641333f61caff3689f080ff9f3071640f41549c5c"
+    },
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n"
+  },
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 4,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793504037.118338
+  }
+}

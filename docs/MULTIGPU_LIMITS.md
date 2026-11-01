@@ -1,5 +1,9 @@
 # Multi-GPU scaling and capacity limits
 
+The [current-runtime study](CURRENT_MULTIGPU_LIMITS.md) adds resumable-shard
+measurements, admission boundaries and scheduling/skew controls. This report
+retains the earlier revision and deployment.
+
 October 31, 2026 · C++20 / BRPC / CUDA · 1, 2 and 4 RTX A6000 agents
 
 The default four-GPU operating point completes **116.47 acknowledged sparse update steps/s** with **102.41 ms median trial P99**, using four parameter shards and eight concurrent Learners. At 128 Learners, throughput falls to **85.74 steps/s** and P99 rises to **2.15 seconds**. Adding GPU agents yields limited throughput scaling in this deployment; higher concurrency mainly increases queueing.
