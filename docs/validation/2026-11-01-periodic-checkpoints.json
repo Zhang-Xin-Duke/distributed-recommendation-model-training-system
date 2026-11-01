@@ -1,0 +1,128 @@
+{
+  "source_commit": "dc726627a6e32f3f32f0b59802a10e65d00fcecf",
+  "scope": "Periodic sparse checkpoint freeze/export/joint-commit boundary/same-run resume and executor shutdown",
+  "environment": {
+    "source_commit": "dc726627a6e32f3f32f0b59802a10e65d00fcecf",
+    "binary_sha256": {
+      "eps_server": "54bfc211f84f73731c7c399f64613e1987d9e56ceebf7f3d5790344eb4ce49ce",
+      "eps_cache_agent": "930241bc0971b45a82993930f19325209cad858442726d81d7b8a7f66c329e28",
+      "eps_periodic_checkpoint_tests": "be1eaab7655e630f6c5cbccbf50ebd4c37d28e780ce5701aa05cf548ee03494d",
+      "eps_resumable_service_tests": "a1aa042b81e802504729393d65243fe4d244dc6cf7a90857c1a075d9f4797155",
+      "eps_cuda_tests": "4dcd38bc1ccfadf671f4c47c92be261044bccd3958370cbc6a6b10637991bb54"
+    },
+    "source_sha256": {
+      "include/eps/types.hpp": "60b192a02c3b956cffe2a4edd6654da7e44bce08e4e4a13037f1d9c0cf8e4eb7",
+      "src/cuda/cache_backend.cu": "9eec384ddc364a5650598b16b16cc85a8d44014bb94168bcf599c24f146a0775",
+      "src/server/service.cpp": "5c2c37ec148469ba256afcca3aaf0796ba102915509c42b9fc60b407945fcce7",
+      "src/common/resumable_actor.hpp": "44bef47278c57e12aa75f6bc84d6e47b615ccdbd9795bdb5fc794cfa9fadbe9f",
+      "src/common/executor.hpp": "81b0a16cfbbb33e134a0d2638069fe26fe7ab9031feafd11934a207b362c695c",
+      "src/store/snapshot.cpp": "ba1fedf47ec406bdab9f8c45c5da30297879f80c10d7beb188d17158ff7f26ee",
+      "adapters/entropy/table_adapter.cpp": "9f2403921e3f393cd4133ebf3587582d8d77426e782ce4bc94deece7701b0bd9",
+      "adapters/entropy/python_bindings.cpp": "aa3e20a13ee66393f447a197377e93daaf571675da13ea5eb754c251171d2f42",
+      "adapters/entropy/checkpoint_store.py": "2c424d0589f16b762a57a7d35598b2a3a165e80e4f54e75d66088b2211f076fb",
+      "tests/periodic_checkpoint_tests.cpp": "7e2de192f79f0ab2714927fa0b48d72b139ab070e49a06f1b161b5810c3da337",
+      "tests/resumable_service_tests.cpp": "7b731d906c44e3c48c166cd89c40e08002136589d84283cd74342d5eb2b67776",
+      "tests/tensorflow_processes.py": "f90281b91e51671624516086b13cd6b26e300cc0e059c00b11567638b3d5ce9e"
+    },
+    "gpu": "NVIDIA RTX A6000, 8.6, 610.43.02, 49140 MiB",
+    "cxx": "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "native_cuda_tests": 24,
+    "full_tests": 33,
+    "forced_cuda_tests": 6,
+    "focused_bounds_cuda_tests": 2
+  },
+  "logs": [
+    {
+      "name": "ubuntu-native-cuda",
+      "passed": 24,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/ubuntu-native-cuda.log",
+      "sha256": "1af91018580af2f0d6859691cdd934e216f9654959468356ac2118d9af741ca5"
+    },
+    {
+      "name": "ubuntu-full-cuda-tensorflow",
+      "passed": 33,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/ubuntu-full-cuda-tensorflow.log",
+      "sha256": "66f153ae90af73818ed354d1c9e4b537a81e48bc18e86bca8d95e12c29345bbe"
+    },
+    {
+      "name": "ubuntu-forced-cuda",
+      "passed": 6,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/ubuntu-forced-cuda.log",
+      "sha256": "8aacd68c92b56d59cb25cd91a3807d316fd54821965ba332c0000fcd7cc0a4f8"
+    },
+    {
+      "name": "ubuntu-focused-optimizer-cuda",
+      "passed": 2,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/ubuntu-focused-optimizer-cuda.log",
+      "sha256": "ee56a84baa602e7904649b6cbed181fbe47cdcf447918d1c97384f85bbddbb91"
+    },
+    {
+      "name": "macos-native-tensorflow",
+      "passed": 30,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/macos-native-tensorflow.log",
+      "sha256": "2482c7e3bac6b6fd9288ea589c660ed605212341f021ad61eb585d24399a3bea"
+    },
+    {
+      "name": "macos-asan-ubsan",
+      "passed": 15,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/macos-asan-ubsan.log",
+      "sha256": "a28373a4a9ffe026ac99779c150783f3e09ae483931bc5fa04477239a4c892f1"
+    },
+    {
+      "name": "macos-tsan",
+      "passed": 15,
+      "log_file": "validation/2026-11-01-periodic-checkpoints/macos-tsan.log",
+      "sha256": "0f3231ac33341923a4bdf28c280f1a34a31cd890df57de4542b935dd69da3c90"
+    }
+  ],
+  "source_sha256": {
+    "include/eps/types.hpp": "60b192a02c3b956cffe2a4edd6654da7e44bce08e4e4a13037f1d9c0cf8e4eb7",
+    "src/cuda/cache_backend.cu": "9eec384ddc364a5650598b16b16cc85a8d44014bb94168bcf599c24f146a0775",
+    "src/server/service.cpp": "5c2c37ec148469ba256afcca3aaf0796ba102915509c42b9fc60b407945fcce7",
+    "src/common/resumable_actor.hpp": "44bef47278c57e12aa75f6bc84d6e47b615ccdbd9795bdb5fc794cfa9fadbe9f",
+    "src/common/executor.hpp": "81b0a16cfbbb33e134a0d2638069fe26fe7ab9031feafd11934a207b362c695c",
+    "src/store/snapshot.cpp": "ba1fedf47ec406bdab9f8c45c5da30297879f80c10d7beb188d17158ff7f26ee",
+    "adapters/entropy/table_adapter.cpp": "9f2403921e3f393cd4133ebf3587582d8d77426e782ce4bc94deece7701b0bd9",
+    "adapters/entropy/python_bindings.cpp": "aa3e20a13ee66393f447a197377e93daaf571675da13ea5eb754c251171d2f42",
+    "adapters/entropy/checkpoint_store.py": "2c424d0589f16b762a57a7d35598b2a3a165e80e4f54e75d66088b2211f076fb",
+    "tests/periodic_checkpoint_tests.cpp": "7e2de192f79f0ab2714927fa0b48d72b139ab070e49a06f1b161b5810c3da337",
+    "tests/resumable_service_tests.cpp": "7b731d906c44e3c48c166cd89c40e08002136589d84283cd74342d5eb2b67776",
+    "tests/tensorflow_processes.py": "f90281b91e51671624516086b13cd6b26e300cc0e059c00b11567638b3d5ce9e"
+  },
+  "archive_sha256": "7fda585684afb49ff5772833f8fac3d24d63535baa193ccd4fda865134978cce",
+  "cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793509884.516564
+  },
+  "local_environment": {
+    "architecture": "arm64",
+    "python": "3.11.14",
+    "tensorflow": "2.20.0",
+    "numpy": "2.4.6",
+    "sanitizer_suites": "complete core suite, 15 checks each"
+  },
+  "tensorflow_model_device": "CPU host-callback model; forced CUDA cases execute parameter-cache work on the rented A6000",
+  "coverage": [
+    "two external parameter shards",
+    "two save/resume boundaries and exact eight-update reference trajectory",
+    "restore from exported snapshot bytes",
+    "bounded chunk offsets and immutable checkpoint files",
+    "run/epoch/checkpoint fencing",
+    "partial-save admission fencing",
+    "partial resume acknowledgement retry",
+    "monotonic preparation tokens and request handles",
+    "actual tf.io.gfile export and dense/input joint marker",
+    "native incremental checksum corruption rejection before manifest publication",
+    "filesystem retry/conflict/short-write/malformed-reply checks",
+    "CUDA state writeback and automatic readmission after resume",
+    "gated accepted update and queued checkpoint drain during public service destruction"
+  ],
+  "remaining_framework_work": [
+    "original table-factory and checkpoint-controller installation",
+    "native original-application build",
+    "in-process device-tensor interop",
+    "automatic remote-store restore staging"
+  ]
+}

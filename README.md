@@ -45,7 +45,10 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 52,173 updates**, with **2,752 sampled row-counter checks**, finite-state and
 live-ticket checks. Three rejected load points retain separate failure records.
 The native CPU/CUDA suite passes **22/22**, and each GPU worker passes its CUDA
-state/device-result check. All artifacts are fetched and hash-verified before
+state/device-result check at that capacity revision. The later checkpoint
+revision `dc72662` passes **33/33** native/CUDA/TensorFlow checks and **6/6**
+additional forced-CUDA lifecycle cases, including mid-run save and resume.
+All artifacts are fetched and hash-verified before
 rental deletion. The [validation record](docs/VALIDATION.md) also covers
 optimizer-exact restart, TensorFlow integration, sanitizers, fencing, bounded
 tickets and failure cleanup at their recorded source revisions.

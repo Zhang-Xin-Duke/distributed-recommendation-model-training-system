@@ -1,0 +1,98 @@
+Internal ctest changing into directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+UpdateCTestConfiguration  from :/home/ubuntu/periodic-checkpoint-validation/build-cuda/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/ubuntu/periodic-checkpoint-validation/build-cuda/DartConfiguration.tcl
+Test project /home/ubuntu/periodic-checkpoint-validation/build-cuda
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start  1: automatic_cache_external_shards
+
+1: Test command: /home/ubuntu/periodic-checkpoint-validation/environment/bin/python "/home/ubuntu/periodic-checkpoint-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_server" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_agent"
+1: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+1: Test timeout computed to be: 120
+1: PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+1: PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+1/6 Test  #1: automatic_cache_external_shards .............   Passed    2.42 sec
+test 3
+    Start  3: automatic_cache_coalesced_external_shards
+
+3: Test command: /home/ubuntu/periodic-checkpoint-validation/environment/bin/python "/home/ubuntu/periodic-checkpoint-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_server" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_agent"
+3: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+3: Environment variables: 
+3:  EPS_COALESCE_GATHERS=1
+3: Test timeout computed to be: 120
+3: PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+3: PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+2/6 Test  #3: automatic_cache_coalesced_external_shards ...   Passed    2.85 sec
+test 6
+    Start  6: cache_agent_process_lifecycle
+
+6: Test command: /home/ubuntu/periodic-checkpoint-validation/environment/bin/python "/home/ubuntu/periodic-checkpoint-validation/source/tests/cache_rpc_processes.py" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_server" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_rpc_checks" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_agent"
+6: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+6: Environment variables: 
+6:  EPS_CACHE_BACKEND=cuda
+6: Test timeout computed to be: 90
+6: CACHE_BACKEND=cuda
+6: PASS two-shard lookup, mean, sequence, updates and retry
+6: PASS two-shard restore trajectory
+3/6 Test  #6: cache_agent_process_lifecycle ...............   Passed    3.27 sec
+test 13
+    Start 13: tensorflow_graph_prepared_automatic_cache
+
+13: Test command: /home/ubuntu/periodic-checkpoint-validation/environment/bin/python "/home/ubuntu/periodic-checkpoint-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_server" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_agent"
+13: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+13: Environment variables: 
+13:  PYTHONPATH=/home/ubuntu/periodic-checkpoint-validation/build-cuda/python:/home/ubuntu/periodic-checkpoint-validation/source/adapters/entropy
+13:  EPS_TEST_PREPARE=1
+13:  EPS_TEST_AUTO_CACHE=1
+13:  EPS_TEST_COALESCE=1
+13: Test timeout computed to be: 120
+13: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+13: E0000 00:00:1793509855.233521   18171 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+13: W0000 00:00:1793509855.332899   18171 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+13: Skipping registering GPU devices...
+13: {"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_cuda", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+4/6 Test #13: tensorflow_graph_prepared_automatic_cache ...   Passed    9.25 sec
+test 15
+    Start 15: tensorflow_graph_periodic_checkpoint
+
+15: Test command: /home/ubuntu/periodic-checkpoint-validation/environment/bin/python "/home/ubuntu/periodic-checkpoint-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_server" "/home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cache_agent"
+15: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+15: Environment variables: 
+15:  PYTHONPATH=/home/ubuntu/periodic-checkpoint-validation/build-cuda/python:/home/ubuntu/periodic-checkpoint-validation/source/adapters/entropy
+15:  EPS_TEST_PREPARE=1
+15:  EPS_TEST_AUTO_CACHE=1
+15:  EPS_TEST_PERIODIC=1
+15: Test timeout computed to be: 120
+15: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+15: E0000 00:00:1793509864.554037   18458 cuda_executor.cc:1309] INTERNAL: CUDA Runtime error: Failed call to cudaGetRuntimeVersion: Error loading CUDA libraries. GPU will not be used.: Error loading CUDA libraries. GPU will not be used.
+15: W0000 00:00:1793509864.692283   18458 gpu_device.cc:2342] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+15: Skipping registering GPU devices...
+15: {"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_cuda", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": true, "checkpoint_shards": 2, "retraces": 0}
+5/6 Test #15: tensorflow_graph_periodic_checkpoint ........   Passed    9.63 sec
+test 31
+    Start 31: resumable_cuda_shard_operations
+
+31: Test command: /home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_resumable_service_tests
+31: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+31: Environment variables: 
+31:  EPS_RESUMABLE_BACKEND=cuda
+31: Test timeout computed to be: 90
+31: PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+6/6 Test #31: resumable_cuda_shard_operations .............   Passed    4.20 sec
+
+The following tests passed:
+	automatic_cache_external_shards
+	automatic_cache_coalesced_external_shards
+	cache_agent_process_lifecycle
+	tensorflow_graph_prepared_automatic_cache
+	tensorflow_graph_periodic_checkpoint
+	resumable_cuda_shard_operations
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =  31.64 sec

@@ -109,7 +109,21 @@ destructors now drain their executors while their implementation pointers remain
 valid. A gated update plus an accepted checkpoint verifies that destruction
 waits for both continuations.
 
+```sh
+ctest --test-dir build/tensorflow --output-on-failure \
+  -R '(periodic_checkpoint_lifecycle|checkpoint_filesystem_contract|tensorflow_graph_periodic_checkpoint|resumable_shard_operations)'
+# On a CUDA-enabled build, select the actual CUDA Agent for the graph check:
+EPS_CACHE_BACKEND=cuda ctest --test-dir build/cuda -V \
+  -R tensorflow_graph_periodic_checkpoint
+```
+
 The original Entropy factory and checkpoint-controller installation, native
 original-application build and in-process device-tensor integration remain
 separate implementation work. The portable TensorFlow lifecycle exercises the
 service APIs and filesystem bridge described here.
+
+Executed checks at source `dc72662`: 30/30 local native/RPC/TensorFlow,
+15/15 ASan/UBSan, 15/15 ThreadSanitizer, 24/24 A6000 native CPU/CUDA,
+33/33 complete native/CUDA/TensorFlow, and 6/6 forced-CUDA lifecycle cases.
+The [validation artifact](validation/2026-11-01-periodic-checkpoints.json)
+records source/binary/log hashes and verified rental deletion.

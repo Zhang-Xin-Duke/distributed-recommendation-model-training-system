@@ -1,5 +1,50 @@
 # Validation record
 
+## Periodic checkpoint lifecycle — November 1, 2026
+
+Source `dc72662` adds frozen snapshot reads, framework-filesystem export and
+checkpoint-matched same-run resume. The adapter admits new input after all
+parameter shards acknowledge the current run/epoch/checkpoint identity. A
+partial save keeps admission closed; a partial resume acknowledgement can be
+retried with the same identity. Snapshot export remains bounded to 1 MiB per
+RPC and verifies the embedded checksum before manifest publication.
+
+| Environment | Checks | Result |
+| --- | --- | --- |
+| macOS arm64, native/RPC/TensorFlow | Complete suite, including periodic checkpoint and filesystem contract | 30/30 |
+| macOS arm64, ASan/UBSan | Complete core suite | 15/15 |
+| macOS arm64, ThreadSanitizer | Complete core suite, including accepted-work drain during destruction | 15/15 |
+| Ubuntu, GNU 11.4, A6000, CUDA 13.0.88 | Native CPU/CUDA suite | 24/24 |
+| Same A6000, TensorFlow 2.20.0 | Complete native/CUDA/TensorFlow suite | 33/33 |
+| Same build, forced CUDA | External shard/cache lifecycle, automatic placement, prepared graph, periodic save/resume and delayed operations | 6/6 |
+| Same build, focused checks | Bounded optimizer and actual CUDA state/results | 2/2 |
+
+The core regression compares eight updates against uninterrupted training across
+two periodic checkpoints and a fresh-run restore from exported bytes. Weights,
+Adam moments and row counters match exactly. It also exercises stale identities,
+partial-save fencing, failed resume acknowledgement retry and monotonic request
+and prepared-input identities.
+
+The forced-CUDA graph uses two external PS processes and an A6000 cache Agent.
+It saves dense/input state and exports sparse state through actual `tf.io.gfile`
+mid-run, commits a joint marker, then resumes without retracing. Five train steps
+reduce loss from 0.66015625 to 0.5970618724822998. Automatic placement admits rows
+again after checkpoint writeback. A corrupted disposable snapshot fails its
+native checksum check before export can publish a manifest. Model computation
+in this host-callback graph remains on CPU; the forced path executes parameter
+cache work on CUDA.
+
+ThreadSanitizer identified a PImpl destruction race during a partially failed
+save. Public service, Host/CUDA cache and Agent destructors now drain accepted
+work before their implementation pointers are cleared. A gated suspended update
+and an accepted checkpoint cover that close order on Host and CUDA owners.
+
+[Save/export/resume design](PERIODIC_CHECKPOINTS.md) ·
+[Source, binary and log hashes; verified rental deletion](validation/2026-11-01-periodic-checkpoints.json).
+The original Entropy factory/controller installation, native application build,
+in-process device-tensor integration and automatic remote-store restore staging
+remain open work.
+
 ## Entropy optimizer bounds — November 1, 2026
 
 Source `ab22ca3` preserves optional sparse Adam weight bounds through CPU row

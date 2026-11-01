@@ -1,0 +1,35 @@
+Test project PROJECT_ROOT/build/asan
+      Start  1: core_correctness
+ 1/15 Test  #1: core_correctness .....................   Passed    0.08 sec
+      Start  2: cost_and_migration_policies
+ 2/15 Test  #2: cost_and_migration_policies ..........   Passed    0.02 sec
+      Start  3: cache_ownership_and_updates
+ 3/15 Test  #3: cache_ownership_and_updates ..........   Passed    0.05 sec
+      Start  4: automatic_cache_policy_lifecycle
+ 4/15 Test  #4: automatic_cache_policy_lifecycle .....   Passed    0.09 sec
+      Start  5: agent_control_replay
+ 5/15 Test  #5: agent_control_replay .................   Passed    0.02 sec
+      Start  6: embedding_adapter_lifecycle
+ 6/15 Test  #6: embedding_adapter_lifecycle ..........   Passed    0.04 sec
+      Start  7: service_phase_timing
+ 7/15 Test  #7: service_phase_timing .................   Passed    0.04 sec
+      Start  8: bounded_asynchronous_preparation
+ 8/15 Test  #8: bounded_asynchronous_preparation .....   Passed    0.06 sec
+      Start  9: periodic_checkpoint_lifecycle
+ 9/15 Test  #9: periodic_checkpoint_lifecycle ........   Passed    0.08 sec
+      Start 10: bounded_sparse_optimizer
+10/15 Test #10: bounded_sparse_optimizer .............   Passed    0.05 sec
+      Start 11: resumable_actor_dependencies
+11/15 Test #11: resumable_actor_dependencies .........   Passed    0.23 sec
+      Start 12: resumable_shard_operations
+12/15 Test #12: resumable_shard_operations ...........   Passed    0.33 sec
+      Start 13: concurrent_multi_agent_updates
+13/15 Test #13: concurrent_multi_agent_updates .......   Passed    0.05 sec
+      Start 14: coalesced_cross_shard_gathers
+14/15 Test #14: coalesced_cross_shard_gathers ........   Passed    0.07 sec
+      Start 15: compact_feature_gradient_semantics
+15/15 Test #15: compact_feature_gradient_semantics ...   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 15
+
+Total Test time (real) =   1.23 sec

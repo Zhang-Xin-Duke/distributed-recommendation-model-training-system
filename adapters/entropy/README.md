@@ -97,8 +97,14 @@ It requires zero live handles and drains GPU states into their home shards.
 Each shard publishes a durable snapshot containing weights, moments and counters.
 The existing checkpoint controller commits the complete set together with dense
 weights and dataset progress. An incomplete set must not become a job checkpoint.
-Successful save leaves these services drained; restart with a fresh run ID to
-continue through the portable adapter.
+Successful save leaves these services drained. Export the frozen files through
+`export_checkpoint(..., filesystem=tf.io.gfile)`, commit them with dense and input
+state, then call `resume(checkpoint_id)` to continue the same run. Reads are
+bounded to 1 MiB, verify the snapshot checksum and publish a parameter manifest
+after all shard files are complete. The adapter opens input after every shard
+acknowledges the matching run/epoch/checkpoint identity. A fresh-run restart can
+also restore the exported files after staging them into the server snapshot
+layout. [Periodic save, export and resume](../../docs/PERIODIC_CHECKPOINTS.md).
 
 The private Entropy source collection is used to study this boundary. The full
 original training application has not been rebuilt or run by this repository.

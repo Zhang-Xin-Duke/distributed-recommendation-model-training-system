@@ -1,0 +1,34 @@
+Internal ctest changing into directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+UpdateCTestConfiguration  from :/home/ubuntu/periodic-checkpoint-validation/build-cuda/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/home/ubuntu/periodic-checkpoint-validation/build-cuda/DartConfiguration.tcl
+Test project /home/ubuntu/periodic-checkpoint-validation/build-cuda
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 25
+    Start 25: bounded_sparse_optimizer
+
+25: Test command: /home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_weight_bounds_tests "/home/ubuntu/periodic-checkpoint-validation/source/tests/fixtures/snapshot-v1-unbounded.bin"
+25: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+25: Test timeout computed to be: 30
+25: PASS bounded initialization, Adam moments, mixed-owner updates and snapshot metadata
+1/2 Test #25: bounded_sparse_optimizer .........   Passed    0.02 sec
+test 32
+    Start 32: cuda_state_and_device_results
+
+32: Test command: /home/ubuntu/periodic-checkpoint-validation/build-cuda/eps_cuda_tests
+32: Working Directory: /home/ubuntu/periodic-checkpoint-validation/build-cuda
+32: Test timeout computed to be: 60
+32: PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
+2/2 Test #32: cuda_state_and_device_results ....   Passed    4.31 sec
+
+The following tests passed:
+	bounded_sparse_optimizer
+	cuda_state_and_device_results
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   4.34 sec
