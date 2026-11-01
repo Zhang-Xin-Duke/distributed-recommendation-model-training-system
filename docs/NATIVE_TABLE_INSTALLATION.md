@@ -122,3 +122,22 @@ real TensorFlow Saver. They verify the
 selected method boundary. Rebuilding/running the complete original application,
 its native data reader and its multi-peer native barriers remain separate
 integration requirements.
+
+## Executed checks
+
+On Ubuntu 22.04 / TensorFlow 2.20.0 / CUDA 13.0 / RTX A6000, source `fc64812`
+passes the full **56/56** suite with the recorded source-contract definition
+slice. Source `c5a7f93` retains the same native binaries and passes five targeted
+checks for the CPU-only controller and its native CPU/CUDA table/restore paths.
+
+Three recreated model graphs retain the learner's four acknowledged updates per
+shard. Another learner remains operational after its peer closes. Native CPU/GPU
+original-method traces execute six training steps, compare five with zero feature
+difference, switch prediction/training and continue after the mid-run Runner
+checkpoint. The native restore trace resumes three additional steps and matches
+all five selected rows' complete Adam state and dense weights exactly. Its input
+cursor is the original-checkpoint feeder stand-in's state.
+
+[Validation index and source/binary provenance](validation/2026-11-01-native-table-installation.json)
+retain the initial startup regression and final pass records. The one GPU rental
+is deleted after hash-verified evidence retrieval; estimated base cost USD 0.21.

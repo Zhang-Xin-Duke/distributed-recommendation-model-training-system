@@ -1,0 +1,5 @@
+1/5 Test  #2: native_session_context_cpu ...........   Passed    7.77 sec
+2/5 Test  #4: native_session_context_cuda ..........   Passed    8.02 sec
+3/5 Test #25: entropy_original_table_native_cpu ....   Passed   10.25 sec
+4/5 Test #26: entropy_original_restore_native ......   Passed   46.27 sec
+5/5 Test #27: entropy_original_table_native_cuda ...   Passed   10.45 sec

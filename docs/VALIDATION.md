@@ -1,5 +1,31 @@
 # Validation record
 
+## Native original-table installation — November 1, 2026
+
+Source `fc64812` passes 56/56 Ubuntu TensorFlow/CUDA tests with the selected
+original-definition fixture. Source `c5a7f93` uses identical native binaries and
+passes five targeted follow-ups after making controller Sessions CPU-only. The
+controller reports no TensorFlow GPU devices; CPU/CUDA model Sessions share its
+native context across graph recreation. The GPU owner starts through the C ABI
+before the original entry point and is shared across learners in the worker.
+
+Original table-method CPU/GPU graphs have no Python callbacks. Five compared
+training steps have zero feature difference from their direct-table reference,
+and the original Runner performs a mid-run sparse/dense checkpoint. The native
+restore path rejects fresh/wrong state before dense restore, resumes the saved
+cursor from 3 to 6, and compares all five selected rows' weights, both Adam
+moments, row counters, optimizer sequence and beta powers with zero difference.
+The cursor is supplied by the recorded feeder stand-in.
+
+The initial suite's cache-startup failure is retained; the final suite checks
+owner readiness before reference-table creation. The source contract retains
+native environment/reader/barrier stand-ins and does not prove execution of the
+complete original native application. All GPU evidence is fetched and the
+rented A6000 deleted, with account instance count zero.
+
+[Native installation](NATIVE_TABLE_INSTALLATION.md) ·
+[Machine-readable results, scopes and hashes](validation/2026-11-01-native-table-installation.json)
+
 ## Observable overload and three-owner follow-up — November 1, 2026
 
 Runtime `0e46929` retains dependency plans under metadata pressure and separates

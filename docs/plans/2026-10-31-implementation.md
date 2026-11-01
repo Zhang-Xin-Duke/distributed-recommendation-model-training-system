@@ -18,17 +18,18 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 |---|---|
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
-| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native TensorFlow CPU/CUDA operations execute model forward/backward, prepared Pull, acknowledged Push and checkpoint continuation against independent PS processes; native original-application/reader execution and multi-peer framework barriers remain pending |
+| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native TensorFlow CPU/CUDA operations execute model forward/backward, prepared Pull, acknowledged Push and checkpoint continuation against independent PS processes; native table installation and shared learner contexts are implemented; complete original-application/reader execution and multi-peer framework barriers remain pending |
 | 4. GPU cache agent | Standalone CUDA resident gather/Adam, full-state transfer, fencing and restore verified; native worker owner, shared local/RPC admission, model-stream device contributions and native TensorFlow device tensors verified on A6000; original-worker installation remains pending |
 | 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked; Agent-wide count/byte admission and real 128/192-Learner CUDA backpressure now verified |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
 
-The current [native multi-GPU study](../NATIVE_MULTIGPU_RESULTS.md) reaches 1,022
-concurrent Learners on one/two/four owners for the smaller workload and exposes
-large-input overload failures at that concurrency. Timely overload rejection,
-completion/drain and control-plane responsiveness need repair; original
-application/reader installation and multi-peer framework barriers remain open.
+The [overload repair and multi-GPU follow-up](../OVERLOAD_SCHEDULING.md) verify
+explicit ticket-budget rejection, drain and responsive statistics at 1,022
+Learners. [Native table installation](../NATIVE_TABLE_INSTALLATION.md) now connects
+the original table/Runner boundary to native CPU/CUDA operators with shared
+learner contexts and pre-entry GPU owner startup. Complete original application,
+native reader and multi-peer framework execution remain open.
 
 ## 1. Build a standalone CPU parameter service
 
@@ -261,3 +262,30 @@ verified retrieval. [Overload scheduling](../OVERLOAD_SCHEDULING.md) links all r
 
 Original application/reader execution and multi-peer framework barriers remain
 open integration requirements.
+
+
+## Native table and Worker installation — November 1
+
+Source `fc64812` passes the complete 56-test Ubuntu TensorFlow/CUDA suite with the
+recorded selected-original-definition fixture. Source `c5a7f93` retains the same
+native binaries and passes five targeted checks after making controller Sessions
+CPU-only. Native table graphs use Eps Pull/Push/Release operations without Python
+callbacks; three recreated model graphs retain one learner request sequence.
+The launcher starts a C-ABI GPU owner before the original entry point without
+creating a TensorFlow Session, and multiple native learner contexts share it.
+Closing one learner leaves another operational. Original native table CPU/GPU
+method traces, prediction changes, full snapshot export and native restore
+continuation pass. The restored selected optimizer state and dense weights match
+the reference exactly.
+
+One startup-order failure from the initial 55-test run remains in the validation
+record; the final suite restores reference-table creation before model graph
+construction and verifies the pre-entry owner is already available. The GPU is
+deleted after evidence retrieval; base-rate duration estimate USD 0.21.
+
+The source-method environment still supplies explicit native feeder/configuration
+and barrier stand-ins. Complete original-application/native-reader and multi-peer
+native framework execution remain requirements of the full goal.
+
+[Implementation](../NATIVE_TABLE_INSTALLATION.md) ·
+[Validation](../validation/2026-11-01-native-table-installation.json)

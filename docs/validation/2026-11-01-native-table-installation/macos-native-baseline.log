@@ -1,0 +1,67 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native-runtime
+      Start  1: native_tensorflow_platform_guard
+ 1/31 Test  #1: native_tensorflow_platform_guard ............   Passed    3.06 sec
+      Start  2: native_runtime_c_abi
+ 2/31 Test  #2: native_runtime_c_abi ........................   Passed    0.39 sec
+      Start  3: in_process_worker_lifecycle
+ 3/31 Test  #3: in_process_worker_lifecycle .................   Passed    0.30 sec
+      Start  4: agent_rpc_admission_queue
+ 4/31 Test  #4: agent_rpc_admission_queue ...................   Passed    0.20 sec
+      Start  5: shard_observation_rpc
+ 5/31 Test  #5: shard_observation_rpc .......................   Passed    0.14 sec
+      Start  6: agent_admission_cli
+ 6/31 Test  #6: agent_admission_cli .........................   Passed    0.37 sec
+      Start  7: automatic_cache_external_shards
+ 7/31 Test  #7: automatic_cache_external_shards .............   Passed    1.35 sec
+      Start  8: cache_policy_fixed_trace_smoke
+ 8/31 Test  #8: cache_policy_fixed_trace_smoke ..............   Passed    7.84 sec
+      Start  9: automatic_cache_coalesced_external_shards
+ 9/31 Test  #9: automatic_cache_coalesced_external_shards ...   Passed    1.30 sec
+      Start 10: rpc_cache_backpressure
+10/31 Test #10: rpc_cache_backpressure ......................   Passed    0.39 sec
+      Start 11: capacity_failed_point_diagnostics
+11/31 Test #11: capacity_failed_point_diagnostics ...........   Passed    1.37 sec
+      Start 12: two_process_rpc_and_restore
+12/31 Test #12: two_process_rpc_and_restore .................   Passed    0.84 sec
+      Start 13: cache_agent_process_lifecycle
+13/31 Test #13: cache_agent_process_lifecycle ...............   Passed    1.04 sec
+      Start 14: distributed_device_pull_protocol
+14/31 Test #14: distributed_device_pull_protocol ............   Passed    0.05 sec
+      Start 15: agent_admission_lifecycle
+15/31 Test #15: agent_admission_lifecycle ...................   Passed    0.06 sec
+      Start 16: core_correctness
+16/31 Test #16: core_correctness ............................   Passed    0.01 sec
+      Start 17: cost_and_migration_policies
+17/31 Test #17: cost_and_migration_policies .................   Passed    0.00 sec
+      Start 18: cache_ownership_and_updates
+18/31 Test #18: cache_ownership_and_updates .................   Passed    0.01 sec
+      Start 19: automatic_cache_policy_lifecycle
+19/31 Test #19: automatic_cache_policy_lifecycle ............   Passed    0.01 sec
+      Start 20: agent_control_replay
+20/31 Test #20: agent_control_replay ........................   Passed    0.01 sec
+      Start 21: embedding_adapter_lifecycle
+21/31 Test #21: embedding_adapter_lifecycle .................   Passed    0.00 sec
+      Start 22: service_phase_timing
+22/31 Test #22: service_phase_timing ........................   Passed    0.01 sec
+      Start 23: bounded_asynchronous_preparation
+23/31 Test #23: bounded_asynchronous_preparation ............   Passed    0.01 sec
+      Start 24: periodic_checkpoint_lifecycle
+24/31 Test #24: periodic_checkpoint_lifecycle ...............   Passed    0.01 sec
+      Start 25: restored_snapshot_provenance
+25/31 Test #25: restored_snapshot_provenance ................   Passed    0.01 sec
+      Start 26: bounded_sparse_optimizer
+26/31 Test #26: bounded_sparse_optimizer ....................   Passed    0.01 sec
+      Start 27: resumable_actor_dependencies
+27/31 Test #27: resumable_actor_dependencies ................   Passed    0.21 sec
+      Start 28: resumable_shard_operations
+28/31 Test #28: resumable_shard_operations ..................   Passed    0.15 sec
+      Start 29: concurrent_multi_agent_updates
+29/31 Test #29: concurrent_multi_agent_updates ..............   Passed    0.01 sec
+      Start 30: coalesced_cross_shard_gathers
+30/31 Test #30: coalesced_cross_shard_gathers ...............   Passed    0.03 sec
+      Start 31: compact_feature_gradient_semantics
+31/31 Test #31: compact_feature_gradient_semantics ..........   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 31
+
+Total Test time (real) =  19.21 sec

@@ -1,0 +1,9 @@
+{
+  "source_commit": "ee6b3a8a20fadd156b593ab869f23231959dab38",
+  "passed": 54,
+  "failed": 1,
+  "failed_case": "entropy_original_table_native_cuda",
+  "failure": "E111: reference table creation reached the cache endpoint before the native owner was started",
+  "correction": "The installed native owner now starts through the C ABI before the original entry point or table creation. The final full suite restores the reference-before-model ordering.",
+  "original_log_sha256": "17992464ed998168b0531aa735fdc520a1037b66cc0bfe2d5e5f55f9697630df"
+}

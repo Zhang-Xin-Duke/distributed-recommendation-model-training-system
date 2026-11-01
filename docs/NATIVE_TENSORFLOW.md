@@ -173,3 +173,18 @@ checks and skips the same three private-source checks. The local native/C-ABI
 and portable TensorFlow suites pass 31/31 and 43/43. Additional two-/three-A6000
 native graph trajectories match complete touched sparse optimizer state and
 model outputs with zero difference. [Repair validation and measured bounds](OVERLOAD_SCHEDULING.md).
+
+
+## Original table installation and Session contexts
+
+The [native table backend](NATIVE_TABLE_INSTALLATION.md) connects the original
+SparseTable/InputBuilder/Runner hooks to these operators. A generated process-local
+context key shares one native learner across CPU-only controller and model
+Sessions. Per-worker GPU ownership starts before the original entry point through
+the C ABI, then is shared by learner contexts. `release_read_only` and table-mode
+commands preserve prediction lifecycles; checkpoint chunks and loaded-state
+metadata connect the original export/restore controller.
+
+The source-contract integration passes the recorded full 56-test Linux suite;
+five CPU-controller follow-ups use identical native binaries.
+[Verification and scope](validation/2026-11-01-native-table-installation.json).

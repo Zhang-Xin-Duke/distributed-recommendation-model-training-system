@@ -30,6 +30,9 @@ training framework's responsibility.
 boundary before the existing job entry point builds its graph. Source-level
 Session checks execute the original methods against independent parameter shards,
 including a mid-run original-controller checkpoint.
+[Native table installation](docs/NATIVE_TABLE_INSTALLATION.md) selects Eps
+operations through the same job configuration, with one shared context per
+learner and an early-started GPU owner per worker.
 
 ![Large-table multi-GPU scaling](docs/assets/overload-large-table-scaling.svg)
 
@@ -63,12 +66,16 @@ Pull → dense model/loss → sparse Push → Join against external server proce
 
 **Validation:** completed pressure-test windows inspect finite sampled weights,
 exact sampled row-update counters and drained lookup/Agent queues. Native model
-checks separately compare complete touched optimizer state. The latest Ubuntu native,
-TensorFlow and CUDA suite executes **48 passing checks**, with three private
-original-source checks skipped. Local native/C-ABI and portable TensorFlow suites
-pass **31/31** and **43/43**. Native TensorFlow model trajectories with **1/2/3 physical GPU parameter
-owners** match the CPU replay's complete touched sparse optimizer state; the
-earlier runtime separately verifies four owners. [Native integration checks](docs/NATIVE_TENSORFLOW.md#executed-verification).
+checks separately compare complete touched optimizer state. The Ubuntu
+TensorFlow/CUDA integration suite passes **56/56** with the recorded original-method
+source fixture. Five follow-up checks verify CPU-only controller Sessions,
+shared contexts, original native CPU/GPU table graphs and checkpoint continuation.
+Native table graphs contain no Python callback operations. Native restore compares
+all selected weights, Adam moments, counters and beta powers with zero difference.
+[Native table checks and scope](docs/validation/2026-11-01-native-table-installation.json).
+Pinned multi-owner model traces separately cover **1/2/3 physical GPU parameter
+owners**, with an earlier four-owner trajectory.
+[Native integration checks](docs/NATIVE_TENSORFLOW.md#executed-verification).
 Device Pull follows
 five training steps across two shards and mixed native/remote cache paths,
 comparing complete features and all touched optimizer rows with CPU replay.

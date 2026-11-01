@@ -54,6 +54,21 @@ TensorFlow 原生 CPU/CUDA 算子已接通 Pull/Push/Join：直接返回模型�
 
 这样，参数服务可以独立启动、分配 CPU/内存和扩容；训练模型保持原有运行方式。
 
+
+### 原生表接入
+
+配置 `backend: "native"` 后，原来的 SparseTable/InputBuilder 图使用原生 Eps
+算子完成参数读取与梯度提交。控制 Session 只创建 CPU 设备，与不同模型 Session
+共享同一个 Learner 的 C++ 上下文，重建图后请求序号继续推进。
+启动器通过 C ABI 在进入原训练入口前启动 GPU 缓存；同一 Worker 的多个 Learner
+共享缓存，一个 Learner 关闭后其他 Learner 可以继续使用。
+
+Linux/CUDA 完整检查通过 56/56；控制 Session 改为 CPU-only 后的五项复测也通过。
+原生表 CPU/GPU 图未使用 Python 回调，原生恢复后的五行完整 Adam 状态及 dense 权重
+与参考结果一致。数据游标仍由原框架 feeder 的测试替身提供；完整原生应用、原生
+reader 和原框架多 Peer 联调仍待验证。
+[接入方式与验证范围](NATIVE_TABLE_INSTALLATION.md)。
+
 ## 三个角色
 
 | 角色 | 责任 |

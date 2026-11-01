@@ -1,0 +1,11 @@
+{
+  "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+  "original": {
+    "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+    "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+  },
+  "slice": {
+    "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+    "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+  }
+}

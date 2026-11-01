@@ -1,0 +1,139 @@
+{
+  "full_suite": {
+    "source_commit": "fc64812916524ff49fc27e2b04326157d1fe45ac",
+    "passed": 56,
+    "failed": 0,
+    "skipped": 0
+  },
+  "cpu_only_controller_followup": {
+    "source_commit": "c5a7f936dd801028c893073d31bc4fe781bdd73b",
+    "passed": 5,
+    "failed": 0
+  },
+  "identical_native_binaries_between_stages": true,
+  "native_session_contexts": [
+    {
+      "test": "native_session_context",
+      "mode": "cpu",
+      "model_graphs": 3,
+      "updates_per_shard": 4,
+      "shared_context_mismatch_rejected": true,
+      "prediction_auto_release": true,
+      "checkpoint_export_shards": 2,
+      "second_learner_survives_first_close": true,
+      "shared_gpu_owner": false,
+      "controller_has_gpu": false,
+      "graph_python_callbacks": false
+    },
+    {
+      "test": "native_session_context",
+      "mode": "cuda",
+      "model_graphs": 3,
+      "updates_per_shard": 4,
+      "shared_context_mismatch_rejected": true,
+      "prediction_auto_release": true,
+      "checkpoint_export_shards": 2,
+      "second_learner_survives_first_close": true,
+      "shared_gpu_owner": true,
+      "controller_has_gpu": false,
+      "graph_python_callbacks": false
+    }
+  ],
+  "reference_scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+  "original_method_native_graphs": [
+    {
+      "table_backend": "native",
+      "train_steps": 6,
+      "reference_checked_steps": 5,
+      "max_reference_absolute_error": 0.0,
+      "graph_python_callbacks": false,
+      "original_runner_midrun_checkpoint": true,
+      "failed_dense_save_stays_frozen": true,
+      "cache_backend": "none"
+    },
+    {
+      "table_backend": "native",
+      "train_steps": 6,
+      "reference_checked_steps": 5,
+      "max_reference_absolute_error": 0.0,
+      "graph_python_callbacks": false,
+      "original_runner_midrun_checkpoint": true,
+      "failed_dense_save_stays_frozen": true,
+      "cache_backend": "host"
+    },
+    {
+      "table_backend": "native",
+      "train_steps": 6,
+      "reference_checked_steps": 5,
+      "max_reference_absolute_error": 0.0,
+      "graph_python_callbacks": false,
+      "original_runner_midrun_checkpoint": true,
+      "failed_dense_save_stays_frozen": true,
+      "cache_backend": "cuda"
+    }
+  ],
+  "full_original_native_application_verified": false,
+  "native_original_reader_verified": false,
+  "multi_peer_native_framework_barriers_verified": false,
+  "cleanup": {
+    "owned_instances_deleted_and_verified_absent": 1,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793532798.4579022,
+    "estimated_base_cost_usd": 0.21,
+    "cost_basis": "Observed lease duration rounded up to minutes at lease base rate; estimate, not invoice"
+  },
+  "artifacts": [
+    {
+      "file": "validation/2026-11-01-native-table-installation/cleanup.json",
+      "sha256": "b2c2c6557121ed66a5e98204a038479162ab6ac47a280ed61384a64c64457652"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/complete-retrieval.json",
+      "sha256": "c62d1e698dcfec0c969e71738ce66cb2dc5de98f4c4c26b459d4ada2d41deeb1"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/controller-results.json",
+      "sha256": "e0f26204031a50b98fdb9dd5482e3dc56388a1527e31b8a5e1fd1e8619f2cb98"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/controller-summary.log",
+      "sha256": "529aec83f20b710702f98bae8d9e852a3cd98663de70d576a4e8b49cd373656b"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/full-results.json",
+      "sha256": "c828e076ab752eb5bfc95671716d741be9c896bdef628329ef5eb018a2ddb68c"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/full-summary.log",
+      "sha256": "d962baf25502da6383cfc2851c23148ce1877d15c6af177d36bc5b838f78d79c"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/initial-startup-regression.json",
+      "sha256": "95365d096777424a90233f2521051400ed42c03b29f8ce67bf48664c89c07df6"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/macos-cabi-platform-recheck.log",
+      "sha256": "7a28c0c1c30f5484f4be3903314689026b9e2378c1bcf16983feaaf1a5e0cca4"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/macos-native-baseline.log",
+      "sha256": "2499cd8fe09e6b12d7317487f2cba6d34024b23fdbd25e33e6176d900b24a417"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/macos-original-boundary-baseline.log",
+      "sha256": "7dbefca60cb34c25365056e29a3c0f1c294ece3c743b1d7f8bf700d1ced15660"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/macos-reference-slice.log",
+      "sha256": "587c06cbf46593ad2ad2c4beb763a2927224ad4b63eacca3d2a69477691f8b9d"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/reference-provenance.json",
+      "sha256": "cdafa64d1882fa05abeb7ec4e68e2d01687a913faba86b37fa096ef7f8096bd1"
+    },
+    {
+      "file": "validation/2026-11-01-native-table-installation/tensorflow-build.json",
+      "sha256": "c5cfc246d10ee94a2ddc2f6d2f0a37bb734a847a7a291ac78887bd27c19c7c05"
+    }
+  ]
+}

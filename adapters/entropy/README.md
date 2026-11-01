@@ -6,8 +6,10 @@ table definitions. [Original table and Runner hooks](../../docs/ENTROPY_TABLE_HO
 install the service into selected table names while preserving the original class
 and gradient dispatcher. [Restore staging](../../docs/ENTROPY_RESTORE.md) validates
 the joint checkpoint and loaded shard identities before original dense restore.
-The native original-application build, original-reader/multi-peer execution and
-device interop retain their own integration work.
+[Native table installation](../../docs/NATIVE_TABLE_INSTALLATION.md) selects
+native CPU/CUDA operators through job configuration and shares the learner
+context across controller/model Sessions. Complete original-application, native
+reader and multi-peer execution remain integration requirements.
 
 This adapter replaces the parameter-access boundary in a training application.
 Dataset readers, feature construction, the model, loss scaling, dense optimizer,
@@ -93,9 +95,10 @@ directly when the training binary uses a matching dependency toolchain.
 cache lifetime in a native training process. Local host/device reads share its
 RPC admission and ordered runtime; `GatherDevice` provides owned device results
 for a model stream and is verified on a real CUDA consumer.
-The supplied Python bridge currently consumes host-returning contributions;
-native TensorFlow CUDA kernels and device-tensor interop remain a separate
-integration task.
+The portable Python bridge consumes host-returning contributions. Native
+TensorFlow kernels return complete device tensors to the model through
+`eps_tensorflow_native`; the original table hooks select that path with
+`backend: "native"`.
 
 The C++ adapter also provides `SetDevicePath`, `PullDevice` and
 `PullPreparedDevice`. [Device Pull](../../docs/DEVICE_PULL.md) combines native

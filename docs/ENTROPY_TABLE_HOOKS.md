@@ -2,7 +2,9 @@
 
 The job launcher installs external parameter tables before the existing Entropy
 entry point builds its inputs and model. Selected table names use the distributed
-parameter service. The original `SparseTable` class identity, variable
+parameter service. The default backend uses portable callbacks; `backend: "native"` selects
+[shared native TensorFlow contexts](NATIVE_TABLE_INSTALLATION.md) and CPU/CUDA
+operators in the original graph. The original `SparseTable` class identity, variable
 registration, `InputBuilder`, model, gradient scaling and dense optimizer remain
 in the framework.
 
@@ -132,5 +134,7 @@ ctest --test-dir build/tensorflow -V \
 Original-source tests return the explicit CTest skip code 77 when the private
 source snapshot is absent. `EPS_ENTROPY_SOURCE_ROOT` can select that preserved
 snapshot. Public configuration and launcher tests run without private sources.
-Native original-application execution, multi-peer framework-barrier execution
-and in-process CUDA tensor interop retain their own validation requirements.
+Native original-application/reader execution and multi-peer framework-barrier
+execution remain separate requirements. Native CPU/CUDA table methods, shared
+context lifetime and native checkpoint continuation are recorded in the
+[native installation checks](validation/2026-11-01-native-table-installation.json).

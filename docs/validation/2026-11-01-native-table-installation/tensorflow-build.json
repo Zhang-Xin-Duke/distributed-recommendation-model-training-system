@@ -1,0 +1,32 @@
+{
+  "tensorflow": "2.20.0",
+  "command": [
+    "c++",
+    "-shared",
+    "-fPIC",
+    "-O2",
+    "/home/ubuntu/dps-native-install/source/adapters/entropy/tensorflow_ops.cc",
+    "-I/home/ubuntu/dps-native-install/source/include",
+    "-I/home/ubuntu/dps-native-install/environment/lib/python3.12/site-packages/tensorflow/include",
+    "-D_GLIBCXX_USE_CXX11_ABI=1",
+    "--std=c++17",
+    "-DEIGEN_MAX_ALIGN_BYTES=64",
+    "-L/home/ubuntu/dps-native-install/environment/lib/python3.12/site-packages/tensorflow",
+    "-l:libtensorflow_framework.so.2",
+    "-o",
+    "/home/ubuntu/dps-native-install/build-cuda/eps_tensorflow_ops.so",
+    "-ldl",
+    "-pthread",
+    "-Wl,-rpath,/home/ubuntu/dps-native-install/environment/lib/python3.12/site-packages/tensorflow"
+  ],
+  "compile_flags": [
+    "-I/home/ubuntu/dps-native-install/environment/lib/python3.12/site-packages/tensorflow/include",
+    "-D_GLIBCXX_USE_CXX11_ABI=1",
+    "--std=c++17",
+    "-DEIGEN_MAX_ALIGN_BYTES=64"
+  ],
+  "link_flags": [
+    "-L/home/ubuntu/dps-native-install/environment/lib/python3.12/site-packages/tensorflow",
+    "-l:libtensorflow_framework.so.2"
+  ]
+}

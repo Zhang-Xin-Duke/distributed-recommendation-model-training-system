@@ -1,0 +1,1397 @@
+{
+  "source_commit": "fc64812916524ff49fc27e2b04326157d1fe45ac",
+  "cases": [
+    {
+      "index": 1,
+      "name": "native_tensorflow_cpu_graph",
+      "outcome": "Passed",
+      "seconds": 9.09
+    },
+    {
+      "index": 2,
+      "name": "native_session_context_cpu",
+      "outcome": "Passed",
+      "seconds": 8.17
+    },
+    {
+      "index": 3,
+      "name": "native_tensorflow_cuda_graph",
+      "outcome": "Passed",
+      "seconds": 11.51
+    },
+    {
+      "index": 4,
+      "name": "native_session_context_cuda",
+      "outcome": "Passed",
+      "seconds": 11.38
+    },
+    {
+      "index": 5,
+      "name": "native_runtime_c_abi",
+      "outcome": "Passed",
+      "seconds": 0.24
+    },
+    {
+      "index": 6,
+      "name": "in_process_worker_lifecycle",
+      "outcome": "Passed",
+      "seconds": 0.21
+    },
+    {
+      "index": 7,
+      "name": "distributed_device_pull_cuda",
+      "outcome": "Passed",
+      "seconds": 10.4
+    },
+    {
+      "index": 8,
+      "name": "native_worker_cuda_stream",
+      "outcome": "Passed",
+      "seconds": 6.53
+    },
+    {
+      "index": 9,
+      "name": "agent_rpc_admission_queue",
+      "outcome": "Passed",
+      "seconds": 0.13
+    },
+    {
+      "index": 10,
+      "name": "shard_observation_rpc",
+      "outcome": "Passed",
+      "seconds": 0.09
+    },
+    {
+      "index": 11,
+      "name": "agent_admission_cli",
+      "outcome": "Passed",
+      "seconds": 0.27
+    },
+    {
+      "index": 12,
+      "name": "automatic_cache_external_shards",
+      "outcome": "Passed",
+      "seconds": 0.75
+    },
+    {
+      "index": 13,
+      "name": "cache_policy_fixed_trace_smoke",
+      "outcome": "Passed",
+      "seconds": 4.43
+    },
+    {
+      "index": 14,
+      "name": "automatic_cache_coalesced_external_shards",
+      "outcome": "Passed",
+      "seconds": 0.77
+    },
+    {
+      "index": 15,
+      "name": "rpc_cache_backpressure",
+      "outcome": "Passed",
+      "seconds": 1.71
+    },
+    {
+      "index": 16,
+      "name": "capacity_failed_point_diagnostics",
+      "outcome": "Passed",
+      "seconds": 1.27
+    },
+    {
+      "index": 17,
+      "name": "two_process_rpc_and_restore",
+      "outcome": "Passed",
+      "seconds": 0.56
+    },
+    {
+      "index": 18,
+      "name": "cache_agent_process_lifecycle",
+      "outcome": "Passed",
+      "seconds": 5.12
+    },
+    {
+      "index": 19,
+      "name": "entropy_table_hook_configuration",
+      "outcome": "Passed",
+      "seconds": 0.23
+    },
+    {
+      "index": 20,
+      "name": "checkpoint_filesystem_contract",
+      "outcome": "Passed",
+      "seconds": 0.12
+    },
+    {
+      "index": 21,
+      "name": "committed_checkpoint_staging",
+      "outcome": "Passed",
+      "seconds": 0.2
+    },
+    {
+      "index": 22,
+      "name": "entropy_original_table_external_shards",
+      "outcome": "Passed",
+      "seconds": 13.54
+    },
+    {
+      "index": 23,
+      "name": "entropy_original_table_cache",
+      "outcome": "Passed",
+      "seconds": 13.53
+    },
+    {
+      "index": 24,
+      "name": "entropy_original_restore_trajectory",
+      "outcome": "Passed",
+      "seconds": 49.42
+    },
+    {
+      "index": 25,
+      "name": "entropy_original_table_native_cpu",
+      "outcome": "Passed",
+      "seconds": 9.79
+    },
+    {
+      "index": 26,
+      "name": "entropy_original_restore_native",
+      "outcome": "Passed",
+      "seconds": 39.89
+    },
+    {
+      "index": 27,
+      "name": "entropy_original_table_native_cuda",
+      "outcome": "Passed",
+      "seconds": 10.22
+    },
+    {
+      "index": 28,
+      "name": "tensorflow_graph_external_shards",
+      "outcome": "Passed",
+      "seconds": 9.93
+    },
+    {
+      "index": 29,
+      "name": "tensorflow_graph_cache_external_shards",
+      "outcome": "Passed",
+      "seconds": 9.91
+    },
+    {
+      "index": 30,
+      "name": "tensorflow_graph_automatic_cache",
+      "outcome": "Passed",
+      "seconds": 10.17
+    },
+    {
+      "index": 31,
+      "name": "tensorflow_graph_automatic_coalesced_cache",
+      "outcome": "Passed",
+      "seconds": 10.43
+    },
+    {
+      "index": 32,
+      "name": "tensorflow_graph_prepared_external_shards",
+      "outcome": "Passed",
+      "seconds": 10.47
+    },
+    {
+      "index": 33,
+      "name": "tensorflow_graph_prepared_automatic_cache",
+      "outcome": "Passed",
+      "seconds": 12.81
+    },
+    {
+      "index": 34,
+      "name": "tensorflow_graph_coalesced_cache",
+      "outcome": "Passed",
+      "seconds": 10.32
+    },
+    {
+      "index": 35,
+      "name": "tensorflow_graph_periodic_checkpoint",
+      "outcome": "Passed",
+      "seconds": 12.83
+    },
+    {
+      "index": 36,
+      "name": "distributed_device_pull_protocol",
+      "outcome": "Passed",
+      "seconds": 0.07
+    },
+    {
+      "index": 37,
+      "name": "agent_admission_lifecycle",
+      "outcome": "Passed",
+      "seconds": 0.06
+    },
+    {
+      "index": 38,
+      "name": "core_correctness",
+      "outcome": "Passed",
+      "seconds": 0.05
+    },
+    {
+      "index": 39,
+      "name": "cost_and_migration_policies",
+      "outcome": "Passed",
+      "seconds": 0.01
+    },
+    {
+      "index": 40,
+      "name": "cache_ownership_and_updates",
+      "outcome": "Passed",
+      "seconds": 0.03
+    },
+    {
+      "index": 41,
+      "name": "automatic_cache_policy_lifecycle",
+      "outcome": "Passed",
+      "seconds": 0.06
+    },
+    {
+      "index": 42,
+      "name": "agent_control_replay",
+      "outcome": "Passed",
+      "seconds": 0.02
+    },
+    {
+      "index": 43,
+      "name": "embedding_adapter_lifecycle",
+      "outcome": "Passed",
+      "seconds": 0.02
+    },
+    {
+      "index": 44,
+      "name": "service_phase_timing",
+      "outcome": "Passed",
+      "seconds": 0.01
+    },
+    {
+      "index": 45,
+      "name": "bounded_asynchronous_preparation",
+      "outcome": "Passed",
+      "seconds": 0.04
+    },
+    {
+      "index": 46,
+      "name": "periodic_checkpoint_lifecycle",
+      "outcome": "Passed",
+      "seconds": 0.04
+    },
+    {
+      "index": 47,
+      "name": "restored_snapshot_provenance",
+      "outcome": "Passed",
+      "seconds": 0.02
+    },
+    {
+      "index": 48,
+      "name": "bounded_sparse_optimizer",
+      "outcome": "Passed",
+      "seconds": 0.03
+    },
+    {
+      "index": 49,
+      "name": "resumable_actor_dependencies",
+      "outcome": "Passed",
+      "seconds": 0.18
+    },
+    {
+      "index": 50,
+      "name": "resumable_shard_operations",
+      "outcome": "Passed",
+      "seconds": 0.15
+    },
+    {
+      "index": 51,
+      "name": "concurrent_multi_agent_updates",
+      "outcome": "Passed",
+      "seconds": 0.02
+    },
+    {
+      "index": 52,
+      "name": "coalesced_cross_shard_gathers",
+      "outcome": "Passed",
+      "seconds": 0.05
+    },
+    {
+      "index": 53,
+      "name": "compact_feature_gradient_semantics",
+      "outcome": "Passed",
+      "seconds": 0.02
+    },
+    {
+      "index": 54,
+      "name": "resumable_cuda_shard_operations",
+      "outcome": "Passed",
+      "seconds": 4.61
+    },
+    {
+      "index": 55,
+      "name": "cuda_state_and_device_results",
+      "outcome": "Passed",
+      "seconds": 4.33
+    },
+    {
+      "index": 56,
+      "name": "cuda_concurrent_checked_reads",
+      "outcome": "Passed",
+      "seconds": 6.21
+    }
+  ],
+  "records": [
+    {
+      "case_index": 1,
+      "result": {
+        "test": "native_tensorflow_graph",
+        "mode": "cpu",
+        "tensorflow": "2.20.0",
+        "external_ps_processes": 4,
+        "training_steps": 5,
+        "features": 7,
+        "prepared_steps": 2,
+        "checked_parameter_rows": 8,
+        "acknowledged_updates_per_shard": 5,
+        "max_state_absolute_error": 0,
+        "max_model_absolute_error": 0.0,
+        "resident_parameters_observed": false,
+        "native_op_types": [
+          "EpsCommand",
+          "EpsPull",
+          "EpsPullPrepared",
+          "EpsPush"
+        ],
+        "python_callbacks": false,
+        "output_valid_after_runtime_close": true,
+        "mid_run_dense_and_sparse_save_resume": true,
+        "output_schema_failure_tickets_released": true,
+        "gpu_parameter_owners": 0,
+        "remote_owner_statistics": []
+      }
+    },
+    {
+      "case_index": 2,
+      "result": {
+        "test": "native_session_context",
+        "mode": "cpu",
+        "model_graphs": 3,
+        "updates_per_shard": 4,
+        "shared_context_mismatch_rejected": true,
+        "prediction_auto_release": true,
+        "checkpoint_export_shards": 2,
+        "second_learner_survives_first_close": true,
+        "shared_gpu_owner": false,
+        "graph_python_callbacks": false
+      }
+    },
+    {
+      "case_index": 3,
+      "result": {
+        "test": "native_tensorflow_graph",
+        "mode": "cuda",
+        "tensorflow": "2.20.0",
+        "external_ps_processes": 4,
+        "training_steps": 5,
+        "features": 7,
+        "prepared_steps": 2,
+        "checked_parameter_rows": 8,
+        "acknowledged_updates_per_shard": 5,
+        "max_state_absolute_error": 0,
+        "max_model_absolute_error": 7.450580596923828e-09,
+        "resident_parameters_observed": true,
+        "native_op_types": [
+          "EpsCommand",
+          "EpsPull",
+          "EpsPullPrepared",
+          "EpsPush"
+        ],
+        "python_callbacks": false,
+        "output_valid_after_runtime_close": true,
+        "mid_run_dense_and_sparse_save_resume": true,
+        "output_schema_failure_tickets_released": true,
+        "gpu_parameter_owners": 1,
+        "remote_owner_statistics": []
+      }
+    },
+    {
+      "case_index": 4,
+      "result": {
+        "test": "native_session_context",
+        "mode": "cuda",
+        "model_graphs": 3,
+        "updates_per_shard": 4,
+        "shared_context_mismatch_rejected": true,
+        "prediction_auto_release": true,
+        "checkpoint_export_shards": 2,
+        "second_learner_survives_first_close": true,
+        "shared_gpu_owner": true,
+        "graph_python_callbacks": false
+      }
+    },
+    {
+      "case_index": 5,
+      "result": {
+        "test": "native_runtime_c_abi",
+        "abi_version": 1,
+        "shards": 2,
+        "prepared_input": true,
+        "duplicate_push": true,
+        "buffer_outlives_runtime": true,
+        "checkpoint_chunk_checksum": true,
+        "restore_metadata": true,
+        "prediction_auto_release": true,
+        "prepared_mode_at_consumption": true,
+        "live_mode_change_rejected": true
+      }
+    },
+    {
+      "case_index": 6,
+      "result": {
+        "test": "in_process_worker_lifecycle",
+        "shared_local_rpc_admission": true,
+        "drained_on_stop": true,
+        "backend_released": true,
+        "endpoint_reused": true
+      }
+    },
+    {
+      "case_index": 7,
+      "result": {
+        "test": "distributed_device_pull",
+        "backend": "cuda",
+        "shards": 2,
+        "training_steps": 5,
+        "full_optimizer_rows_per_step": 8,
+        "features_per_step": 7,
+        "prepared_inputs": 2,
+        "native_parts": 30,
+        "remote_parts": 10,
+        "mid_run_save_resume": true,
+        "assembly_failure_tickets_released": true,
+        "resolver_failure_drained": true
+      }
+    },
+    {
+      "case_index": 8,
+      "result": {
+        "test": "native_worker_cuda_stream",
+        "model_stream": "nondefault",
+        "remote_control_local_device_reads": true,
+        "full_optimizer_rows_checked": 2,
+        "output_budget_enforced": true,
+        "result_outlives_worker": true
+      }
+    },
+    {
+      "case_index": 9,
+      "result": {
+        "test": "agent_rpc_admission_burst",
+        "independent_clients": 8,
+        "requests": 256,
+        "active_limit": 4,
+        "observed_queued": 252,
+        "rejected": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "case_index": 9,
+      "result": {
+        "test": "agent_rpc_admission_limits",
+        "count_and_byte_rejections": 2,
+        "rejected_before_execution": true,
+        "state_unchanged": true
+      }
+    },
+    {
+      "case_index": 9,
+      "result": {
+        "test": "agent_rpc_admission_optimizer_state",
+        "home_streams": 8,
+        "updates": 256,
+        "host_updates": 128,
+        "compact_updates": 128,
+        "full_rows_checked": 8,
+        "optimizer_state_exact": true,
+        "evicted_rows": 8
+      }
+    },
+    {
+      "case_index": 10,
+      "result": {
+        "test": "shard_observation_rpc",
+        "held_data_completion_threads": 4,
+        "stats_latency_ms": 0.62549,
+        "acknowledged_updates": 4,
+        "optimizer_state_exact": true
+      }
+    },
+    {
+      "case_index": 11,
+      "result": {
+        "test": "agent_admission_cli",
+        "active_limit": 2,
+        "pending_limit": 64,
+        "request_bytes_limit": 65536,
+        "http_statistics_verified": true,
+        "oversized_statistics_payload_rejected": true,
+        "invalid_active_limits_rejected": [
+          0,
+          129
+        ]
+      }
+    },
+    {
+      "case_index": 13,
+      "result": {
+        "completed_trials": 6,
+        "phase_records": 14,
+        "completed_steps": 112,
+        "saved_microseconds_per_access": 0.0,
+        "errors": 0
+      }
+    },
+    {
+      "case_index": 13,
+      "result": {
+        "completed_trials": 6,
+        "phase_records": 14,
+        "completed_steps": 112,
+        "saved_microseconds_per_access": 0.0,
+        "errors": 0
+      }
+    },
+    {
+      "case_index": 15,
+      "result": {
+        "test": "rpc_cache_backpressure",
+        "configured_live_ticket_limit": 32,
+        "offered": 64,
+        "admitted": 32,
+        "rejected": 32,
+        "retry_after_release": true,
+        "state_preserved": true
+      }
+    },
+    {
+      "case_index": 16,
+      "result": {
+        "acknowledged_steps_before_failure": 370,
+        "after_health_probe_shards": [
+          {
+            "active_operations": 0,
+            "live_tickets": 0,
+            "queued_payload_bytes": 0,
+            "rejected_operations": 0,
+            "responsive": true,
+            "shard": 0,
+            "updates": 373,
+            "waiting_operations": 0
+          }
+        ],
+        "agent_admission": [
+          {
+            "accepted_requests": 784,
+            "active_limit": 32,
+            "active_operations": 0,
+            "agent": 0,
+            "completed_requests": 784,
+            "dispatch_failures": 0,
+            "peak_active_operations": 1,
+            "peak_pending_operations": 1,
+            "peak_request_bytes": 127531,
+            "pending_limit": 4096,
+            "pending_request_bytes": 0,
+            "queue_wait_nanoseconds": 28176831,
+            "queued_operations": 0,
+            "rejected_requests": 0,
+            "request_bytes_limit": 268435456
+          }
+        ],
+        "dimension": 16,
+        "elapsed_seconds": 1.003632179,
+        "error": "live ticket limit reached",
+        "errors": 15,
+        "fresh_read_only_probe": {
+          "completed": true,
+          "finite": true
+        },
+        "gpu_agents": 1,
+        "keys_per_step": 128,
+        "learners": 16,
+        "optimizer_trajectory_verified": false,
+        "post_failure_shards": [
+          {
+            "active_operations": 0,
+            "live_tickets": 0,
+            "queued_payload_bytes": 0,
+            "rejected_operations": 0,
+            "responsive": true,
+            "shard": 0,
+            "updates": 373,
+            "waiting_operations": 0
+          }
+        ],
+        "ps_shards": 1,
+        "repeat": 0,
+        "rows": 1024,
+        "sampled_state": {
+          "checked_rows": 16,
+          "completed": true,
+          "finite": true
+        },
+        "test": "distributed_sparse_training_overload"
+      }
+    },
+    {
+      "case_index": 22,
+      "result": {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_backend": "portable",
+        "graph_python_callbacks": true,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "none",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 23,
+      "result": {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_backend": "portable",
+        "graph_python_callbacks": true,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "host",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 24,
+      "result": {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_backend": "portable",
+        "graph_python_callbacks": true,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "host",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 24,
+      "result": {
+        "test": "original_restore_rejection",
+        "mode": "fresh",
+        "before_dense_restore": true
+      }
+    },
+    {
+      "case_index": 24,
+      "result": {
+        "test": "original_restore_rejection",
+        "mode": "wrong",
+        "before_dense_restore": true
+      }
+    },
+    {
+      "case_index": 24,
+      "result": {
+        "test": "original_runner_restore_continuation",
+        "initial_snapshot_verified": true,
+        "initial_input_cursor": 3,
+        "final_input_cursor": 6,
+        "continued_steps": 3,
+        "input_cursor_kind": "state written by the original-checkpoint feeder stand-in",
+        "dense_max_absolute_error": 0.0,
+        "active_service_rewind_rejected": true,
+        "parameter_shards": 2,
+        "table_backend": "portable",
+        "cache_backend": "host",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_sparse_wait",
+            "worker_restore_dense"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 24,
+      "result": {
+        "test": "restored_full_optimizer_state",
+        "selected_tables": [
+          3,
+          7
+        ],
+        "checked_rows": 5,
+        "max_state_absolute_error": 0.0,
+        "compared": [
+          "weights",
+          "first_moment",
+          "second_moment",
+          "row_counters",
+          "optimizer_sequence",
+          "beta_powers"
+        ]
+      }
+    },
+    {
+      "case_index": 25,
+      "result": {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_backend": "native",
+        "graph_python_callbacks": false,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "none",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 26,
+      "result": {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_backend": "native",
+        "graph_python_callbacks": false,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "host",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 26,
+      "result": {
+        "test": "original_restore_rejection",
+        "mode": "fresh",
+        "before_dense_restore": true
+      }
+    },
+    {
+      "case_index": 26,
+      "result": {
+        "test": "original_restore_rejection",
+        "mode": "wrong",
+        "before_dense_restore": true
+      }
+    },
+    {
+      "case_index": 26,
+      "result": {
+        "test": "original_runner_restore_continuation",
+        "initial_snapshot_verified": true,
+        "initial_input_cursor": 3,
+        "final_input_cursor": 6,
+        "continued_steps": 3,
+        "input_cursor_kind": "state written by the original-checkpoint feeder stand-in",
+        "dense_max_absolute_error": 0.0,
+        "active_service_rewind_rejected": true,
+        "parameter_shards": 2,
+        "table_backend": "native",
+        "cache_backend": "host",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_sparse_wait",
+            "worker_restore_dense"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 26,
+      "result": {
+        "test": "restored_full_optimizer_state",
+        "selected_tables": [
+          3,
+          7
+        ],
+        "checked_rows": 5,
+        "max_state_absolute_error": 0.0,
+        "compared": [
+          "weights",
+          "first_moment",
+          "second_moment",
+          "row_counters",
+          "optimizer_sequence",
+          "beta_powers"
+        ]
+      }
+    },
+    {
+      "case_index": 27,
+      "result": {
+        "test": "entropy_original_table_graph",
+        "train_steps": 6,
+        "reference_checked_steps": 5,
+        "max_reference_absolute_error": 0.0,
+        "loss_before": 0.1697656214237213,
+        "loss_after": 0.09437486529350281,
+        "parameter_shards": 2,
+        "callback_tls_independent": true,
+        "prediction_repetitions": 12,
+        "missing_gradient_zero_fill": true,
+        "unused_feature_releases": 12,
+        "same_learner_graph_recreation": true,
+        "original_runner_midrun_checkpoint": true,
+        "failed_dense_save_stays_frozen": true,
+        "table_backend": "native",
+        "graph_python_callbacks": false,
+        "table_class_preserved": true,
+        "backend_learner_ids": [
+          0,
+          10
+        ],
+        "cache_backend": "cuda",
+        "source": {
+          "train_sha256": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616",
+          "inputs_sha256": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+          "source_definitions": [
+            "SparseTable",
+            "SparseLazyAdam",
+            "per_learner_once_attr",
+            "cluster_specific",
+            "add_var_collections",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint",
+            "_MultiDatasetRunner.restore",
+            "worker_restore",
+            "worker_restore_sparse",
+            "worker_restore_dense"
+          ],
+          "native_environment": "learner/config/options and native save/feeder APIs are stand-ins; dense state uses an actual TensorFlow Saver; complete module not imported",
+          "reference_slice": {
+            "scope": "Selected original Python definitions only; no original native library/build scripts or credentials. Method execution still uses the explicit source-contract native-environment stand-ins.",
+            "original": {
+              "train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+              "inputs.py": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+            },
+            "slice": {
+              "inputs.py": "b083cf13ce361c2220fdb3999a13e2858f8a6542f940cd29cec25b766d9c7983",
+              "train.py": "30fa6bc0319f58cd49a38b032011d8a6b5d901cf90452a47f0fd641e58939616"
+            }
+          },
+          "executed_paths": [
+            "SparseTable construction/registration/decorators",
+            "InputBuilder.sparse_vars",
+            "InputBuilder.apply_sparse_grads",
+            "_MultiDatasetRunner.checkpoint",
+            "_MultiDatasetRunner.prepare_path",
+            "checkpoint"
+          ]
+        }
+      }
+    },
+    {
+      "case_index": 28,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "cpu_pool",
+        "train_steps": 5,
+        "prepared_inputs": false,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 29,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "transfer_unique_host",
+        "train_steps": 5,
+        "prepared_inputs": false,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 30,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "automatic_resident_host",
+        "train_steps": 5,
+        "prepared_inputs": false,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 31,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "automatic_resident_host",
+        "train_steps": 5,
+        "prepared_inputs": false,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 32,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "cpu_pool",
+        "train_steps": 5,
+        "prepared_inputs": true,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 33,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "automatic_resident_host",
+        "train_steps": 5,
+        "prepared_inputs": true,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 34,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "transfer_unique_host",
+        "train_steps": 5,
+        "prepared_inputs": false,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": false,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 35,
+      "result": {
+        "test": "tensorflow_graph_pull_push_join",
+        "tensorflow": "2.20.0",
+        "cache_route": "automatic_resident_host",
+        "train_steps": 5,
+        "prepared_inputs": true,
+        "loss_before": 0.66015625,
+        "loss_after": 0.5970618724822998,
+        "periodic_checkpoint": true,
+        "checkpoint_shards": 2,
+        "retraces": 0
+      }
+    },
+    {
+      "case_index": 36,
+      "result": {
+        "test": "distributed_device_pull",
+        "backend": "cpu_protocol_reference",
+        "shards": 2,
+        "training_steps": 5,
+        "full_optimizer_rows_per_step": 8,
+        "features_per_step": 7,
+        "prepared_inputs": 2,
+        "native_parts": 30,
+        "remote_parts": 10,
+        "mid_run_save_resume": true,
+        "assembly_failure_tickets_released": true,
+        "resolver_failure_drained": true
+      }
+    },
+    {
+      "case_index": 56,
+      "result": {
+        "test": "cuda_checked_read_stress",
+        "rows": 262144,
+        "dimension": 128,
+        "workers": 8,
+        "checked_batches": 512,
+        "key_occurrences": 2097152,
+        "weight_working_set_bytes": 134217728,
+        "maximum_absolute_error": 0,
+        "device_memory_growth_bytes": 267386880,
+        "backend_state_bytes": 402653184,
+        "backend_staging_bytes": 50331652,
+        "read_phase_output_allocations": 0,
+        "wall_seconds_including_reference_checks": 1.19619
+      }
+    }
+  ],
+  "binaries": {
+    "eps_server": "19778bf596faddf490f357657a0a8ee124d4be433a43b1d3c1667e6a5244a785",
+    "eps_cache_agent": "43ef406cd8695afcd44701dfccb03f615f0f509a553140fc134d703596058c24",
+    "libeps_runtime.so": "ea8e0eff6269ecfb68bd5a8eafd1b4740330f9f63db7fa88fdcc0337560e0561",
+    "eps_tensorflow_ops.so": "d37b3284a9fb5f5f0c6512f28087aad5585715521b26a237fe3f2d589d9c1019"
+  }
+}

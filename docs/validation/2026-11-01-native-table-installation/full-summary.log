@@ -1,0 +1,56 @@
+ 1/56 Test  #1: native_tensorflow_cpu_graph ..................   Passed    9.09 sec
+ 2/56 Test  #2: native_session_context_cpu ...................   Passed    8.17 sec
+ 3/56 Test  #3: native_tensorflow_cuda_graph .................   Passed   11.51 sec
+ 4/56 Test  #4: native_session_context_cuda ..................   Passed   11.38 sec
+ 5/56 Test  #5: native_runtime_c_abi .........................   Passed    0.24 sec
+ 6/56 Test  #6: in_process_worker_lifecycle ..................   Passed    0.21 sec
+ 7/56 Test  #7: distributed_device_pull_cuda .................   Passed   10.40 sec
+ 8/56 Test  #8: native_worker_cuda_stream ....................   Passed    6.53 sec
+ 9/56 Test  #9: agent_rpc_admission_queue ....................   Passed    0.13 sec
+10/56 Test #10: shard_observation_rpc ........................   Passed    0.09 sec
+11/56 Test #11: agent_admission_cli ..........................   Passed    0.27 sec
+12/56 Test #12: automatic_cache_external_shards ..............   Passed    0.75 sec
+13/56 Test #13: cache_policy_fixed_trace_smoke ...............   Passed    4.43 sec
+14/56 Test #14: automatic_cache_coalesced_external_shards ....   Passed    0.77 sec
+15/56 Test #15: rpc_cache_backpressure .......................   Passed    1.71 sec
+16/56 Test #16: capacity_failed_point_diagnostics ............   Passed    1.27 sec
+17/56 Test #17: two_process_rpc_and_restore ..................   Passed    0.56 sec
+18/56 Test #18: cache_agent_process_lifecycle ................   Passed    5.12 sec
+19/56 Test #19: entropy_table_hook_configuration .............   Passed    0.23 sec
+20/56 Test #20: checkpoint_filesystem_contract ...............   Passed    0.12 sec
+21/56 Test #21: committed_checkpoint_staging .................   Passed    0.20 sec
+22/56 Test #22: entropy_original_table_external_shards .......   Passed   13.54 sec
+23/56 Test #23: entropy_original_table_cache .................   Passed   13.53 sec
+24/56 Test #24: entropy_original_restore_trajectory ..........   Passed   49.42 sec
+25/56 Test #25: entropy_original_table_native_cpu ............   Passed    9.79 sec
+26/56 Test #26: entropy_original_restore_native ..............   Passed   39.89 sec
+27/56 Test #27: entropy_original_table_native_cuda ...........   Passed   10.22 sec
+28/56 Test #28: tensorflow_graph_external_shards .............   Passed    9.93 sec
+29/56 Test #29: tensorflow_graph_cache_external_shards .......   Passed    9.91 sec
+30/56 Test #30: tensorflow_graph_automatic_cache .............   Passed   10.17 sec
+31/56 Test #31: tensorflow_graph_automatic_coalesced_cache ...   Passed   10.43 sec
+32/56 Test #32: tensorflow_graph_prepared_external_shards ....   Passed   10.47 sec
+33/56 Test #33: tensorflow_graph_prepared_automatic_cache ....   Passed   12.81 sec
+34/56 Test #34: tensorflow_graph_coalesced_cache .............   Passed   10.32 sec
+35/56 Test #35: tensorflow_graph_periodic_checkpoint .........   Passed   12.83 sec
+36/56 Test #36: distributed_device_pull_protocol .............   Passed    0.07 sec
+37/56 Test #37: agent_admission_lifecycle ....................   Passed    0.06 sec
+38/56 Test #38: core_correctness .............................   Passed    0.05 sec
+39/56 Test #39: cost_and_migration_policies ..................   Passed    0.01 sec
+40/56 Test #40: cache_ownership_and_updates ..................   Passed    0.03 sec
+41/56 Test #41: automatic_cache_policy_lifecycle .............   Passed    0.06 sec
+42/56 Test #42: agent_control_replay .........................   Passed    0.02 sec
+43/56 Test #43: embedding_adapter_lifecycle ..................   Passed    0.02 sec
+44/56 Test #44: service_phase_timing .........................   Passed    0.01 sec
+45/56 Test #45: bounded_asynchronous_preparation .............   Passed    0.04 sec
+46/56 Test #46: periodic_checkpoint_lifecycle ................   Passed    0.04 sec
+47/56 Test #47: restored_snapshot_provenance .................   Passed    0.02 sec
+48/56 Test #48: bounded_sparse_optimizer .....................   Passed    0.03 sec
+49/56 Test #49: resumable_actor_dependencies .................   Passed    0.18 sec
+50/56 Test #50: resumable_shard_operations ...................   Passed    0.15 sec
+51/56 Test #51: concurrent_multi_agent_updates ...............   Passed    0.02 sec
+52/56 Test #52: coalesced_cross_shard_gathers ................   Passed    0.05 sec
+53/56 Test #53: compact_feature_gradient_semantics ...........   Passed    0.02 sec
+54/56 Test #54: resumable_cuda_shard_operations ..............   Passed    4.61 sec
+55/56 Test #55: cuda_state_and_device_results ................   Passed    4.33 sec
+56/56 Test #56: cuda_concurrent_checked_reads ................   Passed    6.21 sec

@@ -1,0 +1,7 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/tensorflow
+    Start 15: entropy_original_table_external_shards
+1/1 Test #15: entropy_original_table_external_shards ...   Passed    4.28 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   4.28 sec
