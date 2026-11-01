@@ -159,7 +159,60 @@ int main(int argc,char** argv){
       for(auto& shard:admin)stats_before.push_back(Take(shard->Stats()));
       const auto begin=Clock::now();deadline=begin+std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>(duration));start.count_down();
       for(auto& thread:threads)thread.join();const auto elapsed=Ms(begin)/1000;
-      if(failures)throw std::runtime_error("capacity run failed: "+error);
+      if(failures){
+        // Preserve the failed point without presenting partially acknowledged
+        // cross-shard updates as a verified throughput or optimizer trajectory.
+        nlohmann::json diagnosis{{"test","distributed_sparse_training_overload"},
+          {"gpu_agents",agents.size()},{"ps_shards",shards.size()},
+          {"rows",rows},{"dimension",dim},{"keys_per_step",keys},
+          {"learners",learners},{"repeat",repeat},{"errors",failures},
+          {"acknowledged_steps_before_failure",completed},{"elapsed_seconds",elapsed},
+          {"error",error},{"optimizer_trajectory_verified",false}};
+        auto sample_stats=[&]{
+          nlohmann::json samples=nlohmann::json::array();
+          for(std::size_t home=0;home<admin.size();++home){
+            try{auto s=Take(admin[home]->Stats());
+              samples.push_back({{"shard",home},{"responsive",true},
+                {"live_tickets",s.live_tickets},{"active_operations",s.active_operations},
+                {"waiting_operations",s.waiting_operations},
+                {"queued_payload_bytes",s.queued_payload_bytes},
+                {"updates",s.updates},{"rejected_operations",s.rejected_operations}});
+            }catch(const std::exception& e){samples.push_back({{"shard",home},
+              {"responsive",false},{"error",e.what()}});}
+          }
+          return samples;
+        };
+        diagnosis["post_failure_shards"]=sample_stats();
+        try{
+          DistributedClient health(shards);health.SetCacheResolver(resolve,coalesce);
+          Take(health.CreateTable({1,dim,std::uint32_t(shards.size()),1,
+            {0.001f,0.9f,0.999f,1e-8f,0.9f,0.999f},-0.01f,0.01f,42}));
+          FeatureInput f{1,991,Pooling::sum,{},{0},{}};
+          for(Key key=1;key<=16;++key)f.keys.push_back(key);
+          f.offsets.push_back(f.keys.size());f.valid_lengths.push_back(f.keys.size());
+          auto batch=Take(health.Lookup({{run,1001,0,Phase::lookup},1,true,{std::move(f)}}));
+          bool finite=true;
+          for(const auto& output:batch.features())for(auto value:output.values)finite&=std::isfinite(value);
+          Take(health.Release(batch));
+          diagnosis["fresh_read_only_probe"]={{"completed",true},{"finite",finite}};
+        }catch(const std::exception& e){diagnosis["fresh_read_only_probe"]=
+          {{"completed",false},{"error",e.what()}};}
+        std::uint64_t checked=0;bool finite=true;
+        try{
+          for(Key key=1;key<=16;++key){
+            auto home=key%shards.size();
+            auto state=Take(admin[home]->ReadState(Take(admin[home]->Locations({{1,key}})))).at(0);
+            for(const auto* values:{&state.weights,&state.first_moment,&state.second_moment})
+              for(auto value:*values)finite&=std::isfinite(value);
+            ++checked;
+          }
+          diagnosis["sampled_state"]={{"checked_rows",checked},{"finite",finite}};
+        }catch(const std::exception& e){diagnosis["sampled_state"]=
+          {{"checked_rows",checked},{"finite",finite},{"error",e.what()}};}
+        diagnosis["after_health_probe_shards"]=sample_stats();
+        std::cout<<diagnosis.dump()<<std::endl;
+        throw std::runtime_error("capacity run failed: "+error);
+      }
       std::map<std::string,std::uint64_t> phases;
       std::uint64_t busy_ns=0,wait_ns=0,operations=0,admission_failures=0;
       std::uint64_t dependency_ns=0,dependency_rebuilds=0,dependency_cache_hits=0;

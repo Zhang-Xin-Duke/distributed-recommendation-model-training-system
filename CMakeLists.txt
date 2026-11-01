@@ -138,6 +138,10 @@ if(EPS_BUILD_BRPC)
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/overload_processes.py"
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_cache_agent> $<TARGET_FILE:eps_overload_checks>)
     set_tests_properties(rpc_cache_backpressure PROPERTIES TIMEOUT 60)
+    add_test(NAME capacity_failed_point_diagnostics
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/capacity_failure_processes.py"
+        $<TARGET_FILE_DIR:eps_capacity_probe>)
+    set_tests_properties(capacity_failed_point_diagnostics PROPERTIES TIMEOUT 90)
     add_test(NAME two_process_rpc_and_restore
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/rpc_processes.py"
               $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_rpc_checks>)
