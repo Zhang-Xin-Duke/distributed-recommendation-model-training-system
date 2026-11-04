@@ -338,6 +338,10 @@ if(EPS_BUILD_BRPC)
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-synchronous-cpu.json")
         set_tests_properties(tensorflow_synchronous_model_cpu PROPERTIES TIMEOUT 180
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME distributed_model_orchestration
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/distributed_model_orchestration.py"
+            "${CMAKE_CURRENT_BINARY_DIR}")
+        set_tests_properties(distributed_model_orchestration PROPERTIES TIMEOUT 120)
         if(EPS_BUILD_CUDA)
           add_test(NAME tensorflow_synchronous_model_cuda
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_synchronous_training.py"

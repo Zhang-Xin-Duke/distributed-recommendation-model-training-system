@@ -1,0 +1,23 @@
+UpdateCTestConfiguration  from :PROJECT_ROOT/build/tensorflow/DartConfiguration.tcl
+Test project PROJECT_ROOT/build/tensorflow
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 25
+    Start 25: distributed_model_orchestration
+
+25: Test command: PROJECT_ROOT/build/tensorflow-env/bin/python "PROJECT_ROOT/tests/distributed_model_orchestration.py" "PROJECT_ROOT/build/tensorflow"
+25: Working Directory: PROJECT_ROOT/build/tensorflow
+25: Test timeout computed to be: 120
+25: {"test": "distributed_model_orchestration", "workers": 2, "parameter_shards": 2, "resident_rows": 1024, "rounds": 8, "completed_tasks": 16, "initial_loss": 0.693551629781723, "final_loss": 0.6053252816200256, "cleanup_verified": true}
+1/1 Test #25: distributed_model_orchestration ...   Passed   11.32 sec
+
+The following tests passed:
+	distributed_model_orchestration
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  11.32 sec

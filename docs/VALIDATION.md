@@ -1,5 +1,26 @@
 # Validation record
 
+## Distributed node orchestration — November 4, 2026
+
+The per-node job lifecycle now starts independent parameter shards, owners and
+TensorFlow workers, performs local shard preparation, verifies schema/vector
+width, samples process/device resources and collects training state. The local
+Host-backed case passes with 1,024 initialized/resident rows split 512/512,
+eight synchronized rounds, 16 completed worker tasks and eight updates per
+shard. All 37 touched rows have the expected update counters and finite state;
+weighted loss decreases from 0.693552 to 0.605325. Cleanup verifies that both
+nodes' owned wrapper/child processes are gone. The new CTest lifecycle case also
+passes with dynamically assigned ports.
+
+The GPU run is not started: the first A6000 creation for the planned two-node
+fleet returns configuration unavailable. The provider UI lists A6000 and L40
+as sold out, and the account remains at zero instances. No GPU-capacity result
+or new charge is attributed to this phase. SSH relays and cached Linux runtime
+installation are implemented but await actual node deployment.
+
+[Node roles and execution commands](DISTRIBUTED_MODEL_TRAINING.md) ·
+[Local report, hashes and provisioning rejection](validation/2026-11-04-distributed-training-orchestration.json)
+
 ## TensorFlow model training with CUDA parameter owners — November 4, 2026
 
 Workers now train both Embedding vectors and packed two-layer MLP weights/biases

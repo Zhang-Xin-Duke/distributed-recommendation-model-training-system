@@ -1,0 +1,100 @@
+{
+  "base_commit": "39d21f9139743448b4d84f9fe95c4d1e9808c3e0",
+  "scope": "Local Host-backed two-node orchestration lifecycle and GPU provisioning availability check",
+  "checks": {
+    "ctest_orchestration": {
+      "passed": 1,
+      "failed": 0
+    },
+    "python_syntax": [
+      "scripts/training_node.py",
+      "scripts/distributed_model_training.py",
+      "scripts/fleet_training_links.py"
+    ],
+    "shell_syntax": "scripts/install_training_runtime.sh"
+  },
+  "workload": {
+    "rows": 1024,
+    "dimension": 8,
+    "iterations": 8,
+    "workers": 2,
+    "local_samples": 4,
+    "bag": 4
+  },
+  "resident_rows": 1024,
+  "row_distribution": [
+    512,
+    512
+  ],
+  "optimizer_updates_per_shard": [
+    8,
+    8
+  ],
+  "completed_worker_tasks": 16,
+  "inspected_rows": 37,
+  "initial_loss": 0.693551629781723,
+  "final_loss": 0.6053252816200256,
+  "cleanup": [
+    {
+      "stop_requested": true,
+      "owned_processes_gone": true
+    },
+    {
+      "stop_requested": true,
+      "owned_processes_gone": true
+    }
+  ],
+  "gpu_capacity_status": "not_started_provider_unavailable",
+  "provisioning": {
+    "planned_nodes": 2,
+    "attempted_creations": 1,
+    "created_instances": 0,
+    "checked_epoch": 1793816750.110254,
+    "configuration": "a6000 x1, 6 vCPU",
+    "creation_succeeded": false,
+    "reason": "GPU configuration a6000 x1 is currently unavailable",
+    "account_instances_after_rejection": 0,
+    "ui_observation_date": "2026-11-04",
+    "ui_availability": {
+      "a6000": "SOLD OUT",
+      "l40": "SOLD OUT"
+    }
+  },
+  "not_exercised": [
+    "distinct-GPU multi-node execution",
+    "actual GPU residency above one physical device capacity",
+    "SSH relay integration on rented nodes",
+    "cached Linux runtime installation on new nodes"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "2434657fdec629a93edf301689af16b9d965653db158eebd20d89f89707784d8",
+    "scripts/training_node.py": "8a24f6986e5e33c41ca462f673ea07f38df21ddae4a94645dfc5e0227213a9b8",
+    "scripts/distributed_model_training.py": "94d62a0b34edb7a23a566000f640d7fbdaf884c01804c03e223c94aab4b7989f",
+    "scripts/fleet_training_links.py": "3e63f8b156212fc0918e473e5121ce8948c577508624c0e594c63eecdbbee253",
+    "scripts/install_training_runtime.sh": "0788751a22a549ec5198c2db80d8393b8958368641492876ce9e286f449e9fac",
+    "tests/distributed_model_orchestration.py": "6c32d554627bee353f5595d1e8a35aae495d31ef0f9b61ea8fc97b923ae3ac5c",
+    "docs/DISTRIBUTED_MODEL_TRAINING.md": "f92bce3905d32826c8906ffb7c9170a3d490a937989d6e8a050d4a8a62b21937",
+    "docs/plans/2026-11-04-distributed-capacity-execution.md": "497e650556edfbe836d096c44bc72a008fc241ed192a29a7d6a40ffcc0dc6643"
+  },
+  "local_binary_sha256": {
+    "eps_server": "e7f5c7f66f8750fdcf4395fde14042d863812aa04308c6413f370b9cdc574ad2",
+    "eps_cache_agent": "ccac1278889e74009c8c21d5a47d330534365bf5d5574cfe55378496386c5ba9",
+    "eps_training_prepare": "d4823b4fa7cce00ba44ce96ae7420b77c0d7884e6a5852069dbe73772b55fcad",
+    "eps_training_control": "ae2fdcc1120933accfe7ad7a6eb39f87cb500e1ae22fc5c0e15747e21fdf497a",
+    "eps_training_coordinator": "1195781df20d3dabafa5deea8028ba41c21e1b83d4207a9e4d1ca91b9a240eb2"
+  },
+  "artifacts": {
+    "workflow.log": {
+      "path": "docs/validation/2026-11-04-distributed-training-orchestration/workflow.log",
+      "sha256": "e59a3fd0dbeace429aa0e455c304352a3c7736c2f21348236de3d592ee41130c"
+    },
+    "local-report.json.gz": {
+      "path": "docs/validation/2026-11-04-distributed-training-orchestration/local-report.json.gz",
+      "sha256": "01fcf42c1e018e8d2d213418d0f85c09f28cbc5b87801038e0b3658a574e38c4"
+    },
+    "ctest.log": {
+      "path": "docs/validation/2026-11-04-distributed-training-orchestration/ctest.log",
+      "sha256": "97e849eea4333a2d3c7ddb68f8832f8f12c25a20d763d8e781835666954a6c62"
+    }
+  }
+}

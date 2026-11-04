@@ -1,0 +1,5 @@
+{"phase": "hardware_checked", "global_state_bytes": 98304}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 92952}, {"live": true, "pid": 92953}]}
+{"phase": "all_rows_resident", "rows": 1024}
+{"phase": "worker", "jobs": [{"live": true, "pid": 93108}, {"live": true, "pid": 93107}]}
+{"run": "model-e3ddd2ac8300", "success": true, "initialized_resident_rows": 1024, "global_parameter_optimizer_bytes": 98304, "initial_weighted_loss": 0.693551629781723, "final_weighted_loss": 0.6053252816200256}

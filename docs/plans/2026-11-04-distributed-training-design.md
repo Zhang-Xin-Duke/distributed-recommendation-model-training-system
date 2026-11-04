@@ -148,3 +148,9 @@ across GPU instances and execute the beyond-single-GPU capacity acceptance.
 Reusable key-list handles, durable
 round/range progress, replicated failover, original-framework execution and
 common-quality measurements remain in the full implementation scope.
+
+Node orchestration now has a Host-backed end-to-end lifecycle check covering
+distributed backing/residency, model rounds, sampled optimizer state and owned
+process cleanup. The planned two-node GPU capacity run is pending provider
+availability: its first A6000 creation is rejected and no instance is created.
+The record is `../validation/2026-11-04-distributed-training-orchestration.json`.

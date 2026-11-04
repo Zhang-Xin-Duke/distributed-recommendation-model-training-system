@@ -40,6 +40,12 @@ path. CPU and A6000 GPU runs compare aggregated gradients, complete touched
 weights/Adam state, task progress and loss against a single-worker reference.
 The GPU execution currently uses host staging at the RPC boundary.
 
+[Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
+owner and model worker on each node, initializes local backing/resident rows,
+samples resources and verifies round completion and process cleanup. Its local
+Host-backed workflow passes; the multi-node CUDA capacity measurement awaits
+available GPU instances.
+
 A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
 process. [Device Pull](docs/DEVICE_PULL.md) combines CPU, native CUDA and remote
 Agent contributions into complete model features on GPU, including global mean
