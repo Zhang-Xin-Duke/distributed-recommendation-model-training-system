@@ -1,0 +1,61 @@
+{
+  "test": "public_redis_sdk",
+  "server_version": "Redis server v=8.10.3 sha=00000000:1 malloc=libc bits=64 build=8322dd68b29d6d09",
+  "reports": [
+    {
+      "mode": "config-rejected",
+      "passed": true,
+      "test": "public_redis_sdk",
+      "case": "malformed"
+    },
+    {
+      "mode": "config-rejected",
+      "passed": true,
+      "test": "public_redis_sdk",
+      "case": "empty-clusters"
+    },
+    {
+      "mode": "config-rejected",
+      "passed": true,
+      "test": "public_redis_sdk",
+      "case": "missing-password"
+    },
+    {
+      "mode": "config-rejected",
+      "passed": true,
+      "test": "public_redis_sdk",
+      "case": "absent-file"
+    },
+    {
+      "mode": "config-rejected",
+      "passed": true,
+      "test": "public_redis_sdk",
+      "case": "unset-config"
+    },
+    {
+      "mode": "basic",
+      "passed": true,
+      "test": "public_redis_sdk"
+    },
+    {
+      "mode": "lost-reply",
+      "passed": true,
+      "test": "public_redis_sdk"
+    },
+    {
+      "mode": "inspect-counter",
+      "passed": true,
+      "test": "public_redis_sdk"
+    },
+    {
+      "mode": "unavailable",
+      "passed": true,
+      "test": "public_redis_sdk"
+    }
+  ],
+  "lost_reply_proxy": {
+    "connections": 1,
+    "incr_packets": 1
+  },
+  "cleanup_verified": true
+}

@@ -1,0 +1,123 @@
+Test project <project>/build/tensorflow
+      Start 27: tensorflow_joint_training_checkpoint
+      Start 29: tensorflow_replicated_primary_recovery
+ 1/59 Test #27: tensorflow_joint_training_checkpoint .........   Passed   23.42 sec
+      Start 28: tensorflow_reusable_lookup_layouts
+ 2/59 Test #29: tensorflow_replicated_primary_recovery .......   Passed   24.43 sec
+      Start 24: entropy_peer_checkpoint_control
+ 3/59 Test #24: entropy_peer_checkpoint_control ..............   Passed   12.71 sec
+      Start 30: distributed_model_orchestration
+ 4/59 Test #28: tensorflow_reusable_lookup_layouts ...........   Passed   17.19 sec
+      Start 23: entropy_original_restore_trajectory
+ 5/59 Test #30: distributed_model_orchestration ..............   Passed   11.05 sec
+      Start 26: tensorflow_synchronous_model_cpu
+ 6/59 Test #26: tensorflow_synchronous_model_cpu .............   Passed    8.00 sec
+      Start  3: distributed_training_processes
+ 7/59 Test  #3: distributed_training_processes ...............   Passed    3.89 sec
+      Start  4: synchronous_training_processes
+ 8/59 Test #23: entropy_original_restore_trajectory ..........   Passed   20.87 sec
+      Start 12: cache_policy_fixed_trace_smoke
+ 9/59 Test  #4: synchronous_training_processes ...............   Passed    2.65 sec
+      Start 22: entropy_original_table_cache
+10/59 Test #22: entropy_original_table_cache .................   Passed    4.23 sec
+      Start 21: entropy_original_table_external_shards
+11/59 Test #12: cache_policy_fixed_trace_smoke ...............   Passed    8.57 sec
+      Start 37: tensorflow_graph_periodic_checkpoint
+12/59 Test #21: entropy_original_table_external_shards .......   Passed    4.12 sec
+      Start 35: tensorflow_graph_prepared_automatic_cache
+13/59 Test #37: tensorflow_graph_periodic_checkpoint .........   Passed    4.21 sec
+      Start 34: tensorflow_graph_prepared_external_shards
+14/59 Test #35: tensorflow_graph_prepared_automatic_cache ....   Passed    4.20 sec
+      Start 32: tensorflow_graph_automatic_cache
+15/59 Test #34: tensorflow_graph_prepared_external_shards ....   Passed    4.12 sec
+      Start 33: tensorflow_graph_automatic_coalesced_cache
+16/59 Test #32: tensorflow_graph_automatic_cache .............   Passed    3.92 sec
+      Start 36: tensorflow_graph_coalesced_cache
+17/59 Test #33: tensorflow_graph_automatic_coalesced_cache ...   Passed    3.90 sec
+      Start 31: tensorflow_graph_cache_external_shards
+18/59 Test #36: tensorflow_graph_coalesced_cache .............   Passed    3.89 sec
+      Start 15: capacity_failed_point_diagnostics
+19/59 Test #15: capacity_failed_point_diagnostics ............   Passed    1.38 sec
+      Start 25: tensorflow_graph_external_shards
+20/59 Test #31: tensorflow_graph_cache_external_shards .......   Passed    4.00 sec
+      Start  6: synchronous_gradient_rpc
+21/59 Test  #6: synchronous_gradient_rpc .....................   Passed    0.25 sec
+      Start  5: reusable_lookup_layout_rpc
+22/59 Test  #5: reusable_lookup_layout_rpc ...................   Passed    0.51 sec
+      Start  2: training_progress_rpc
+23/59 Test  #2: training_progress_rpc ........................   Passed    0.16 sec
+      Start 11: automatic_cache_external_shards
+24/59 Test #25: tensorflow_graph_external_shards .............   Passed    3.84 sec
+      Start 13: automatic_cache_coalesced_external_shards
+25/59 Test #11: automatic_cache_external_shards ..............   Passed    1.38 sec
+      Start  9: shard_observation_rpc
+26/59 Test  #9: shard_observation_rpc ........................   Passed    0.12 sec
+      Start  7: in_process_worker_lifecycle
+27/59 Test  #7: in_process_worker_lifecycle ..................   Passed    0.28 sec
+      Start 10: agent_admission_cli
+28/59 Test #10: agent_admission_cli ..........................   Passed    0.38 sec
+      Start 49: training_progress_consistency
+29/59 Test #49: training_progress_consistency ................   Passed    0.05 sec
+      Start 17: cache_agent_process_lifecycle
+30/59 Test #13: automatic_cache_coalesced_external_shards ....   Passed    1.38 sec
+      Start 16: two_process_rpc_and_restore
+31/59 Test #17: cache_agent_process_lifecycle ................   Passed    1.12 sec
+      Start 52: synchronous_gradient_rounds
+32/59 Test #16: two_process_rpc_and_restore ..................   Passed    0.87 sec
+      Start 50: durable_replica_log
+33/59 Test #52: synchronous_gradient_rounds ..................   Passed    0.03 sec
+      Start  8: agent_rpc_admission_queue
+34/59 Test #50: durable_replica_log ..........................   Passed    0.01 sec
+      Start 38: distributed_device_pull_protocol
+35/59 Test #38: distributed_device_pull_protocol .............   Passed    0.05 sec
+      Start 14: rpc_cache_backpressure
+36/59 Test  #8: agent_rpc_admission_queue ....................   Passed    0.15 sec
+      Start 51: reusable_lookup_layout_cache
+37/59 Test #51: reusable_lookup_layout_cache .................   Passed    0.02 sec
+      Start 55: resumable_actor_dependencies
+38/59 Test #55: resumable_actor_dependencies .................   Passed    0.18 sec
+      Start 56: resumable_shard_operations
+39/59 Test #14: rpc_cache_backpressure .......................   Passed    0.40 sec
+      Start 39: agent_admission_lifecycle
+40/59 Test #56: resumable_shard_operations ...................   Passed    0.11 sec
+      Start 53: restored_snapshot_provenance
+41/59 Test #53: restored_snapshot_provenance .................   Passed    0.01 sec
+      Start 54: bounded_sparse_optimizer
+42/59 Test #54: bounded_sparse_optimizer .....................   Passed    0.01 sec
+      Start 18: entropy_table_hook_configuration
+43/59 Test #39: agent_admission_lifecycle ....................   Passed    0.05 sec
+      Start 48: periodic_checkpoint_lifecycle
+44/59 Test #48: periodic_checkpoint_lifecycle ................   Passed    0.02 sec
+      Start 47: bounded_asynchronous_preparation
+45/59 Test #47: bounded_asynchronous_preparation .............   Passed    0.01 sec
+      Start 46: service_phase_timing
+46/59 Test #46: service_phase_timing .........................   Passed    0.01 sec
+      Start 58: coalesced_cross_shard_gathers
+47/59 Test #58: coalesced_cross_shard_gathers ................   Passed    0.02 sec
+      Start 43: automatic_cache_policy_lifecycle
+48/59 Test #43: automatic_cache_policy_lifecycle .............   Passed    0.01 sec
+      Start 59: compact_feature_gradient_semantics
+49/59 Test #18: entropy_table_hook_configuration .............   Passed    0.10 sec
+      Start 20: committed_checkpoint_staging
+50/59 Test #59: compact_feature_gradient_semantics ...........   Passed    0.00 sec
+      Start 41: cost_and_migration_policies
+51/59 Test #41: cost_and_migration_policies ..................   Passed    0.00 sec
+      Start 45: embedding_adapter_lifecycle
+52/59 Test #45: embedding_adapter_lifecycle ..................   Passed    0.00 sec
+      Start 44: agent_control_replay
+53/59 Test #44: agent_control_replay .........................   Passed    0.00 sec
+      Start 40: core_correctness
+54/59 Test #40: core_correctness .............................   Passed    0.01 sec
+      Start 57: concurrent_multi_agent_updates
+55/59 Test #57: concurrent_multi_agent_updates ...............   Passed    0.01 sec
+      Start 42: cache_ownership_and_updates
+56/59 Test #42: cache_ownership_and_updates ..................   Passed    0.01 sec
+      Start 19: checkpoint_filesystem_contract
+57/59 Test #20: committed_checkpoint_staging .................   Passed    0.06 sec
+      Start  1: public_redis_sdk
+58/59 Test #19: checkpoint_filesystem_contract ...............   Passed    0.05 sec
+59/59 Test  #1: public_redis_sdk .............................   Passed    3.12 sec
+
+100% tests passed, 0 tests failed out of 59
+
+Total Test time (real) =  94.33 sec

@@ -147,6 +147,15 @@ reader/cluster execution or additional GPU rental occurred in this preflight.
 [Build inputs and dependency path](ORIGINAL_NATIVE_BUILD.md) ·
 [Inventory and archive hashes](validation/2026-11-01-native-build-preflight.json)
 
+The November 4 [public Redis SDK adapter](PUBLIC_REDIS_SDK.md) replaces the
+missing interface dependency with operational BRPC Redis calls. Isolated real
+Redis checks cover binary batch results, TTL, errors, authentication, concurrent
+clients and a dropped INCR response without automatic replay. The updated native
+dependency query exits zero with 39,343 labels. Build analysis then reaches the
+original `Missing CUDA Environment` requirement on the macOS host. Complete
+original library compilation and training/control execution remain required.
+[Current integration record](validation/2026-11-04-public-redis-sdk.json).
+
 ## Peer/thread checkpoint coordination — November 1, 2026
 
 The subsequent restore check restarts both parameter shards and both peer

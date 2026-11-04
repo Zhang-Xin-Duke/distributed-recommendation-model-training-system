@@ -1,0 +1,15 @@
+{
+  "query_exit_code": 0,
+  "resolved_labels": 39343,
+  "full_local_query_sha256": "5e8360e9bd792d7652b55c4d8d1c840eeea544d9f8536f7cbb7d0dc3ffa7067d",
+  "selected_labels": [
+    "@bilibili-redis//:bilibili-redis",
+    "@bilibili-redis//:include/bili_redis/bili_redis_client.h",
+    "@bilibili-redis//:include/redis_sdk/client.h",
+    "@bilibili-redis//:src/client.cpp",
+    "@common//base:redis"
+  ],
+  "original_library_compiled": false,
+  "build_analysis_exit_code": 1,
+  "build_analysis_blocker": "Missing CUDA Environment"
+}

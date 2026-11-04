@@ -1,0 +1,16 @@
+Computing main repo mapping:
+Loading:
+Loading: 0 packages loaded
+Analyzing: target //entropy:ts_clib.so (0 packages loaded, 0 targets configured)
+ERROR: <native-bazel>/7daba9c2dc902993ef45561026e73092/external/cuda/BUILD:10:21: in failure rule @@cuda//:missing:
+Traceback (most recent call last):
+	File "<native-workspace>/.resources/rules/utilities.bzl", line 272, column 9, in _failure_impl
+		fail("*** FAILURE *** {{ %s }}" % message)
+Error in fail: *** FAILURE *** {{ Missing CUDA Environment }}
+ERROR: <native-bazel>/7daba9c2dc902993ef45561026e73092/external/cuda/BUILD:10:21: Analysis of target '@@cuda//:missing' failed
+ERROR: Analysis of target '//entropy:ts_clib.so' failed; build aborted: Analysis failed
+INFO: Elapsed time: 0.862s
+INFO: 0 processes.
+ERROR: Build did NOT complete successfully
+Loading: 97 packages loaded
+    currently loading: @@re2// ... (3 packages)

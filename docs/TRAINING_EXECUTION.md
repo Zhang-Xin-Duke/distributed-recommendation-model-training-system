@@ -183,8 +183,8 @@ ctest --test-dir build/native -V \
 3. Extend [replicated synchronous rounds](REPLICATED_TRAINING.md) to failure during
    outstanding Pull/Release, worker/coordinator replacement and GPU-owner fencing.
    Add endpoint discovery and supervision around the verified explicit promotion.
-4. Replace the private Redis SDK through the retained interfaces and execute
-   the complete original Entropy training/control path.
+4. Complete the original Entropy build and training/control path with the
+   [public Redis SDK adapter](PUBLIC_REDIS_SDK.md), in its Linux/NVIDIA environment.
 5. Compare time to the same quality target under controlled stragglers,
    communication load and failures. Retain waiting time, bytes, staleness,
    convergence and recovery measurements.

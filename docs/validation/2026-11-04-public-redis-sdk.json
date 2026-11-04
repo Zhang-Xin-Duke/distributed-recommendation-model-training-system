@@ -1,0 +1,154 @@
+{
+  "base_commit": "73d961001da4ccd5ae05c22b05b189e6e740c34f",
+  "recorded_at_utc": "2026-11-04T20:31:16.108240+00:00",
+  "scope": "Independent C++17 BRPC Redis SDK adapter, real Redis process execution and original native dependency integration",
+  "platform": "macOS arm64; local Redis processes; original native dependency query and build analysis",
+  "server_version": "Redis server v=8.10.3 sha=00000000:1 malloc=libc bits=64 build=8322dd68b29d6d09",
+  "checks": {
+    "native-suite": {
+      "passed": 39,
+      "failed": 0
+    },
+    "framework-suite": {
+      "passed": 59,
+      "failed": 0
+    },
+    "native-final-cxx17": {
+      "passed": 1,
+      "failed": 0
+    },
+    "framework-final-cxx17": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "syntax_checks": {
+    "python": "passed",
+    "git_diff": "passed"
+  },
+  "protocol_cases": [
+    "binary keys and values",
+    "nil versus empty strings",
+    "duplicate and reordered batch keys",
+    "per-record TTL expiration",
+    "all-batch validation before write",
+    "request record/byte limits",
+    "per-slot server errors",
+    "raw/merged pipeline replies",
+    "single completion callback",
+    "empty batch",
+    "password authentication",
+    "database isolation",
+    "eight concurrent shared-client threads with 24 write/read cycles each",
+    "timeout and reconnect",
+    "Redis process termination",
+    "lost INCR reply with one executed increment",
+    "invalid/missing configuration and password environment",
+    "65537-byte binary value across buffer boundaries",
+    "mixed successful/error merged pipeline",
+    "error-path completion callback"
+  ],
+  "results": {
+    "all_process_checks_passed": true,
+    "lost_reply_incr_packets": 1,
+    "server_counter_after_lost_reply": 1,
+    "cleanup_verified": true
+  },
+  "original_native_integration": {
+    "query_exit_code": 0,
+    "resolved_labels": 39343,
+    "full_local_query_sha256": "5e8360e9bd792d7652b55c4d8d1c840eeea544d9f8536f7cbb7d0dc3ffa7067d",
+    "selected_labels": [
+      "@bilibili-redis//:bilibili-redis",
+      "@bilibili-redis//:include/bili_redis/bili_redis_client.h",
+      "@bilibili-redis//:include/redis_sdk/client.h",
+      "@bilibili-redis//:src/client.cpp",
+      "@common//base:redis"
+    ],
+    "original_library_compiled": false,
+    "build_analysis_exit_code": 1,
+    "build_analysis_blocker": "Missing CUDA Environment"
+  },
+  "original_wrapper_source_sha256": {
+    "base/redis_base.h": "c9efaaf842d5e7a1afb1e78790843a34c397e12edc18fb10aec3cd6a1168e041",
+    "base/redis_base.cpp": "932c33a46c818b49f4941825fb27d390fb57bcd11bd70a06d27504e0c40be9e4",
+    "ground/redis_ground.cpp": "cce11c6d58f0caa37bcb0a0d59903b1def973e3dab47a48528fafe804d03b5b1",
+    "ground/brpc/cache/redis_lru_cache_client.cpp": "7008a3295e27d9a91b5439e5ce006d6ce251a8697b90b600d8987a99241b9b10",
+    "testing/src/redis_sdk_test.cpp": "16788013f6d2d5a270d98df940eb169beeb877b810068e19887f7647de6d54c0"
+  },
+  "retained_wrapper_behavior": "Original retry/circuit-breaker and write protection unchanged; adapter transport max_retry=0",
+  "build_scope": "Native/framework suites passed, followed by final targeted C++17 protocol/boundary checks after decoupling the adapter from core C++20 requirements",
+  "resolved_issues": [
+    {
+      "stage": "initial process check",
+      "issue": "BRPC internal nil reply is not directly serializable",
+      "resolution": "Canonicalize nil replies before per-slot and merged response conversion; final real Redis checks pass"
+    }
+  ],
+  "not_exercised": [
+    "Linux static adapter linking",
+    "Original ts_clib.so compilation/loading",
+    "Full original Entropy training/control execution",
+    "Original private SDK Prometheus metric registration",
+    "Redis Cluster topology discovery",
+    "State beyond single physical GPU memory capacity"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "67c803863771227cbca3547a78d1fdf83f4488b172f75ee7f608edf227e160fe",
+    "README.md": "db146d17b459d10acb5a0c4b1c345c07967cc1334d8a64701c30b009ad53d204",
+    "adapters/entropy/redis-sdk/BUILD": "2790fa2a2b27a1861eeb7670fa7fe8ffe012f3d8ef6159d7209a9018f6fb7de8",
+    "adapters/entropy/redis-sdk/README.md": "46cb0019f29fc19395ef133fde3863f3a22393cc2f3c6d703e9ec03d2f6c57d3",
+    "adapters/entropy/redis-sdk/WORKSPACE": "b3d97c28bca83f5a417a9ec09730684222e6088bf20c4c7132d5b486861c9849",
+    "adapters/entropy/redis-sdk/include/bili_redis/bili_redis_client.h": "e118abe698a4bed62878ca71119e25b3d01686a24cb81c58a77b8a927ca0c204",
+    "adapters/entropy/redis-sdk/include/redis_sdk/client.h": "0eaa278a0e4d5c9a5bdc5827f778d0eff922e1d92de76a7edd816a74f660bed1",
+    "adapters/entropy/redis-sdk/src/client.cpp": "71a83e31fd52889683d94ca0da576ab84b65e2dcf9fab6f5b2d640137b5f7c8c",
+    "docs/ORIGINAL_NATIVE_BUILD.md": "f536ebd8cb522efea63ddd59b9e087c87b796857cbd54d749924e7531e9d50a1",
+    "docs/PUBLIC_REDIS_SDK.md": "a0d21f1be4057dc155249e4ed1b2840e5001fc7c59bd2d3794d688390c519d22",
+    "docs/TRAINING_EXECUTION.md": "61444cd3292bb96d934215b089af3904989ba36922b1c70fdab27a73b5007883",
+    "docs/VALIDATION.md": "53bf5d40ae6d79a30614fdb914e3d9b5ec998042c421e0cf2275c63852008733",
+    "docs/plans/2026-11-04-distributed-training-design.md": "a724bf4e1db82ce27932a735d80d5b0b510df9316a54ccc415b090f7d42a772b",
+    "docs/plans/2026-11-04-public-redis-sdk.md": "91704d8c4b66ffb32de2158ff50a9c93aee25348d8ef1d91c1d675153965673b",
+    "tests/redis_compat_processes.py": "df98325b037b7f039bf629b4d23eb781c76aa0ecae11ab561174baefc5953970",
+    "tests/redis_compat_tests.cpp": "a24df7ba76ea7a0b66476f87068f49365b5f7869a8a4d6ef41f9b693f96e70e5"
+  },
+  "binary_sha256": {
+    "build/native/eps_redis_compat_tests": "4275b524a359db82774bad4840d578c025685bd2c6f1181ebc4ecf7dc9c24658",
+    "build/native/libeps_redis_compat.a": "1ee126cea69eb9d3c5dd075dc343fa5d97b5a8e9d6727befeefaf8e68bed264f",
+    "build/tensorflow/eps_redis_compat_tests": "c229cdf42a604a63ce12f75713e99ca48dee1c0ebf4e07f58b36c4b717741ced",
+    "build/tensorflow/libeps_redis_compat.a": "0be95fdcb8527dbc143c01e38e2d0400ecd6820abba8c635cb67619f79eeed66"
+  },
+  "artifacts": {
+    "framework-final-cxx17.log": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/framework-final-cxx17.log",
+      "sha256": "664b0f17fbb6a659f669e6b23a0a37519cf28c9cfb4ee52e38ad1ac5cb368f85"
+    },
+    "framework-suite.log": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/framework-suite.log",
+      "sha256": "8fcdba386095b8687534834e882ff9bb694b50afede34bda2c5ed1c72ce77f98"
+    },
+    "native-build-analysis.log": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/native-build-analysis.log",
+      "sha256": "03e2f56d29de93e6f879b30cbc01b6ce30745fb8e0c7968b9efdb02344ad7b4d"
+    },
+    "native-dependency-query.json": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/native-dependency-query.json",
+      "sha256": "5a6cbf53e9568766b0adba7e49ebc039051acfb3fa4e06913dd714208fb451bc"
+    },
+    "native-final-cxx17.log": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/native-final-cxx17.log",
+      "sha256": "c16066b1fb1e3912a8a0a8dfab3cbbba29e3501a7ef8a0cf8a6e0ffd199bba80"
+    },
+    "native-sdk-consumers.log": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/native-sdk-consumers.log",
+      "sha256": "7964ec35331a559f2fcc19839014539edbf1ab809ec0a5c5cae29df15a2ef479"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/native-suite.log",
+      "sha256": "94b20a13d1458a173e5cc4b532abc1b5281ef807e3cb63b186ecd5918dc695f3"
+    },
+    "redis-processes.json": {
+      "path": "docs/validation/2026-11-04-public-redis-sdk/redis-processes.json",
+      "sha256": "bbc3490ef66ad827a125e66d9b82a6feb8b69db6d4819d44cc480f5095c9c805"
+    }
+  }
+}

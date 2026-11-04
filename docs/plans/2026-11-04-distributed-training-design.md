@@ -197,3 +197,14 @@ across outstanding Pull/Release, worker/coordinator process loss and competing
 GPU owners. Automatic discovery/supervision, bounded log compaction,
 gradient-Key metadata reuse, same-quality policy measurements, GPU capacity
 execution and complete original Entropy integration remain in the full scope.
+
+The [public Redis SDK adapter](../PUBLIC_REDIS_SDK.md) now supplies the observed
+manager/client interfaces to the original shared wrapper through real BRPC
+Redis connections. Its ordered per-Key results, binary values, nil/empty
+distinction, TTL, authentication, errors, shared-client concurrency and lost
+write reply are exercised against isolated Redis processes. Automatic transport
+retries are disabled; the retained wrapper's outer retry/circuit-breaker policy
+is unchanged. The original native dependency query completes with 39,343 labels.
+Build analysis reaches the original CUDA environment requirement on macOS, so
+original compilation/execution continues in the matching Linux/NVIDIA environment.
+The record is `../validation/2026-11-04-public-redis-sdk.json`.

@@ -2,15 +2,16 @@
 
 The available code collection contains the framework's Bazel rules, TensorFlow
 SDK and several internal source dependencies in separate repositories. A local
-dependency-graph preflight now identifies the remaining private SDK needed to
-rebuild the original `ts_clib.so` library.
+dependency graph now loads with a public Redis SDK adapter. Building the original
+`ts_clib.so` next requires the matching Linux/NVIDIA toolchain and runtime.
 
 ```mermaid
 flowchart LR
   E[Original ts_clib.so] --> C[costa_op]
   C --> B[bgraph ops_utils]
   B --> R[common base redis]
-  R --> S[Internal Redis SDK: unavailable]
+  R --> S[Public BRPC Redis SDK adapter]
+  E --> G[Linux / NVIDIA toolchain: required for build execution]
   T[TensorFlow 2.12.1 NVIDIA SDK: found] --> E
   W[Bazel rules and local source dependencies: found] --> E
 ```
@@ -33,7 +34,7 @@ original repositories. Compiler metadata records the actual macOS Clang setup
 and an empty CUDA compiler map. The C++ graph loader uses a generated pip label
 resolver; it does not install or validate a Python runtime.
 
-## Remaining source dependency
+## Redis dependency and its replacement
 
 The original target has this dependency path:
 
@@ -52,16 +53,19 @@ interface header nor its SDK implementation was found in the available Code
 collection. Another project contains public hiredis archives; the required
 internal SDK interfaces remain absent.
 
-With repository downloads disabled, the final `deps(//entropy:ts_clib.so)`
-query emits 39,338 partial label records and exits with code 3. Its unresolved
-repository is `bilibili-redis`. These partial labels locate the dependency;
-they do not establish a successful build. No original native library has been
-compiled or loaded by this preflight.
+The November 1 preflight's partial query emitted 39,338 labels and stopped at
+this missing repository. The [public Redis SDK adapter](PUBLIC_REDIS_SDK.md)
+now supplies the observed interfaces with real BRPC Redis command execution.
+The independent workspace registers its `bilibili-redis` target without modifying
+original source or upstream BUILD files. Its per-Key batch response shape follows
+the actual retained consumer, including ordered nil/error values and binary data.
 
-Completion requires either the matching Redis SDK source/headers/libraries, or
-a compatible prebuilt framework runtime and its environment. Once that input is
-available, native compilation and the complete reader/cluster execution checks
-can proceed in a Linux/NVIDIA environment. This preflight rents no GPU.
+The updated dependency query exits zero and resolves 39,343 labels. A subsequent
+build analysis reaches `@@cuda//:missing` and fails with `Missing CUDA Environment`
+on the macOS host with an empty CUDA compiler map. No original library has been
+compiled or loaded by this analysis. The full original reader/cluster/training
+execution remains required in the matching Linux/NVIDIA environment; generated
+pip labels used for C++ graph loading do not establish that Python runtime.
 
-[Machine-readable inventory and verified hashes](validation/2026-11-01-native-build-preflight.json)
-
+[Redis adapter verification and build analysis](validation/2026-11-04-public-redis-sdk.json) ·
+[Earlier build-input inventory](validation/2026-11-01-native-build-preflight.json)
