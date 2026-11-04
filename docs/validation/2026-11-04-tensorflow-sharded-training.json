@@ -1,0 +1,190 @@
+{
+  "base_commit": "be71cab2db56b90b5355b2b9c4f1f72d033027f3",
+  "scope": "TensorFlow trainable Embedding+MLP model, native training IPC/RPC, CUDA parameter owners and one-GPU correctness/residency",
+  "environment": {
+    "packages": {
+      "tensorflow": "2.20.0",
+      "numpy": "2.5.4",
+      "pybind11": "3.1.0"
+    },
+    "hardware": "GPU-75a5d015-6619-5e36-8a44-5dbb5a7f007e, NVIDIA RTX A6000, 49140 MiB, 610.43.02, 8.6\n",
+    "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "source_sha256": {
+      "CMakeLists.txt": "94995b5b465f5f7e54ab59504c658c5aac9ed2ae24af8294d00030b90af826ae",
+      "adapters/entropy/eps_backend.py": "4083fc99cf505256540e1fa3102372afe3a7d071639bfa1f195c69409c91a151",
+      "adapters/entropy/eps_backend_worker.py": "5aa535da6f915a9ea967b11b1c82f279aca681156a0e1c13e67f58530085da4c",
+      "adapters/entropy/python_bindings.cpp": "1db8964643c95741ee066378cae029c7650096e436a17801c447aca04c84bb83",
+      "examples/tensorflow_training_worker.py": "8762e993ffd46d62a8e51bc7eb6e2262ba29281b4a2bb2f28c3711448d88530e",
+      "src/training/prepare_main.cpp": "48699f03d304819cca5b40de1f370abbc65ba9ddf0f899c8ffdca7949e0fc416",
+      "tests/tensorflow_synchronous_training.py": "c3b5965e42acb20fe5f5d0fa43e9f515ef6ef654bc848264a29c57ade7fb043f",
+      "scripts/gpu_validate.sh": "b674b9305a72fd072a26a79cbc8558243cb4a27acbb37b614bdb123aa8991d69"
+    },
+    "binaries_sha256": {
+      "eps_server": "ce4e477898b6087eb7af8fbe5c26e8892d90eee030b48c73fbd4d2ff87e12ef8",
+      "eps_cache_agent": "d7d487e5964889430e2c1e0ef37f10c2199d01bc1028d784820bc3b2b6ee2c09",
+      "eps_training_coordinator": "f12494c7982f144055bfc18802292f8329082e783dee9f9fb9dcca358b831483",
+      "eps_training_control": "81724bdcb1d1b5126e9b39e3e2b14c57ce1a3de1b6213d4ac53f4fc3ed50978d",
+      "eps_training_prepare": "c79615080855fe221481b82ef3e97dd612b1bdfaf73fc779dbd7a76169e24a4a"
+    }
+  },
+  "checks": {
+    "local_framework": {
+      "passed": 51,
+      "failed": 0
+    },
+    "cuda_framework": {
+      "passed": 53,
+      "failed": 0,
+      "skipped": 4,
+      "skipped_scope": "original private source checks not deployed"
+    },
+    "extra_scattered_cuda": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "model_results": {
+    "small-cpu.json": {
+      "test": "tensorflow_synchronous_model_training",
+      "gpu": false,
+      "rows": 64,
+      "dimension": 8,
+      "hidden": 4,
+      "iterations": 8,
+      "model": "trainable_embedding_and_tanh_mlp",
+      "model_reference_max_absolute_error": 2.9802322387695312e-08,
+      "first_global_gradient_max_absolute_error": 4.967053740534411e-09,
+      "initial_weighted_loss": 0.6933857997258503,
+      "final_weighted_loss": 0.6032822330792745
+    },
+    "scattered-cpu.json": {
+      "test": "tensorflow_synchronous_model_training",
+      "gpu": false,
+      "rows": 16384,
+      "dimension": 64,
+      "hidden": 8,
+      "iterations": 8,
+      "model": "trainable_embedding_and_tanh_mlp",
+      "model_reference_max_absolute_error": 9.08970832824707e-07,
+      "first_global_gradient_max_absolute_error": 7.450580596923828e-09,
+      "initial_weighted_loss": 0.6955968737602234,
+      "final_weighted_loss": 0.2756461948156357,
+      "touched_rows": 137,
+      "inspected_rows": 137,
+      "reference_state_scope": "all_touched_rows"
+    },
+    "small-cuda.json": {
+      "test": "tensorflow_synchronous_model_training",
+      "gpu": true,
+      "rows": 64,
+      "dimension": 8,
+      "hidden": 4,
+      "iterations": 8,
+      "model": "trainable_embedding_and_tanh_mlp",
+      "model_reference_max_absolute_error": 2.9802322387695312e-08,
+      "first_global_gradient_max_absolute_error": 1.4901161193847656e-08,
+      "initial_weighted_loss": 0.6933858394622803,
+      "final_weighted_loss": 0.6032822330792745,
+      "touched_rows": 10,
+      "inspected_rows": 10,
+      "reference_state_scope": "all_touched_rows"
+    },
+    "scattered-cuda.json": {
+      "test": "tensorflow_synchronous_model_training",
+      "gpu": true,
+      "rows": 16384,
+      "dimension": 64,
+      "hidden": 8,
+      "iterations": 8,
+      "model": "trainable_embedding_and_tanh_mlp",
+      "model_reference_max_absolute_error": 4.1425228118896484e-06,
+      "first_global_gradient_max_absolute_error": 2.2351741790771484e-08,
+      "initial_weighted_loss": 0.6955968737602234,
+      "final_weighted_loss": 0.2756461799144745,
+      "touched_rows": 137,
+      "inspected_rows": 137,
+      "reference_state_scope": "all_touched_rows"
+    }
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "94995b5b465f5f7e54ab59504c658c5aac9ed2ae24af8294d00030b90af826ae",
+    "adapters/entropy/eps_backend.py": "4083fc99cf505256540e1fa3102372afe3a7d071639bfa1f195c69409c91a151",
+    "adapters/entropy/eps_backend_worker.py": "5aa535da6f915a9ea967b11b1c82f279aca681156a0e1c13e67f58530085da4c",
+    "adapters/entropy/python_bindings.cpp": "1db8964643c95741ee066378cae029c7650096e436a17801c447aca04c84bb83",
+    "examples/tensorflow_training_worker.py": "8762e993ffd46d62a8e51bc7eb6e2262ba29281b4a2bb2f28c3711448d88530e",
+    "src/training/prepare_main.cpp": "48699f03d304819cca5b40de1f370abbc65ba9ddf0f899c8ffdca7949e0fc416",
+    "tests/tensorflow_synchronous_training.py": "c3b5965e42acb20fe5f5d0fa43e9f515ef6ef654bc848264a29c57ade7fb043f",
+    "scripts/gpu_validate.sh": "b674b9305a72fd072a26a79cbc8558243cb4a27acbb37b614bdb123aa8991d69",
+    "docs/TENSORFLOW_SHARDED_TRAINING.md": "230fff4630a18bb85bf69dc84169f9abc95af76b3b5e14b40f218a23961c9543",
+    "docs/plans/2026-11-04-tensorflow-sharded-training.md": "c7260312d2e0c886ef50670847ebdaa1377101d38e250f35aec003e4edb1a3cc"
+  },
+  "archives": {
+    "exit_code": 0,
+    "artifacts": [
+      {
+        "path": "/home/ubuntu/sync-model-validation/model-results.tar.gz",
+        "bytes": 637560,
+        "sha256": "177f31df86f8000b9bdadf03b463e17ea3366dd914f2a263a98069a388af997f"
+      },
+      {
+        "path": "/home/ubuntu/sync-model-validation/portable-runtime.tar.gz",
+        "bytes": 19229996,
+        "sha256": "dd1579b9b097d388c6443abea795c3d9d17535d496d62c1df78cdff87242ea2a"
+      }
+    ]
+  },
+  "cleanup": {
+    "owned_instance_deleted_and_verified_absent": true,
+    "account_instance_count_after_deletion": 0,
+    "finished_epoch": 1793815910.2588658,
+    "observed_lease_seconds": 703.2598519325256
+  },
+  "estimated_base_cost_usd": 0.06999999999999999,
+  "cost_basis": "Observed lease duration rounded up to minutes at the UI base quote; estimate, not invoice",
+  "not_established": [
+    "multi-node GPU model training in the new synchronous mode",
+    "global GPU-resident parameter/optimizer state exceeding one GPU physical memory",
+    "full original Entropy execution",
+    "durable round/range replication and failover"
+  ],
+  "next_gpu_requirement": "Sharded GPU training beyond single-GPU physical memory, with distributed host backing",
+  "artifacts": {
+    "local-framework-suite.log": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/local-framework-suite.log",
+      "sha256": "88ff514c834c9d85c1d9d81d4f04a7ef7ef85ab1b68bb0858ad4556ebd4589b7"
+    },
+    "local-model-final.log": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/local-model-final.log",
+      "sha256": "d8035f9b2644d85b3aee2bafbc257f236cafaf20e341461c46bed79a10c835b8"
+    },
+    "cuda-framework-suite.log": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/cuda-framework-suite.log",
+      "sha256": "4f851f7d884afb71a03246b4c7739cea9fe618f0b6acbe397882eeb96dcf28d2"
+    },
+    "cuda-test-details.log": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/cuda-test-details.log",
+      "sha256": "06ee0a608b6907a10b3c4e1c6a00b1e93bb6610eabc5b003aae0edcad2895404"
+    },
+    "scattered-cuda.log": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/scattered-cuda.log",
+      "sha256": "d85e60152d5c27b0eb9c4243049d9f97739755ad4a71c4de7dacc9f59606323d"
+    },
+    "small-cpu.json.gz": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/small-cpu.json.gz",
+      "sha256": "0ea32c2af1d7491a511bd4e891e19bb28a0a4f87bd893f9a70ebb01dec99c24d"
+    },
+    "scattered-cpu.json.gz": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/scattered-cpu.json.gz",
+      "sha256": "c30dd5db6ca74a4fa1071e14834bc9daf07cf39f5ede5e26a0b2dfa5f30a2669"
+    },
+    "small-cuda.json.gz": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/small-cuda.json.gz",
+      "sha256": "c476dc5a9263bbfd3e1386f46c9f22f7dd854670ff3d0c140c8ce887386a7c76"
+    },
+    "scattered-cuda.json.gz": {
+      "path": "docs/validation/2026-11-04-tensorflow-sharded-training/scattered-cuda.json.gz",
+      "sha256": "75aa87e2ed0deef1c01d450ba36e25e8c2af68c86d9dbd9168e702c10bd220af"
+    }
+  },
+  "artifact_format": "Complete model state reports use gzip-compressed JSON; logs normalize trailing whitespace and the local project root. Raw archive hashes are retained."
+}

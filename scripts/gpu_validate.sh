@@ -21,7 +21,10 @@ python3 -m venv "${dps_work}/environment"
 "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
   'cmake==3.31.6' ninja 'cuda-toolkit[nvcc,cudart,crt,nvvm,cccl]==13.0.3'
 dps_native_tf="${DPS_NATIVE_TF:-OFF}"
-if [[ "${dps_native_tf}" == "ON" ]]; then
+dps_training_python="${DPS_TRAINING_PYTHON:-OFF}"
+dps_python_bridge=OFF
+if [[ "${dps_native_tf}" == "ON" || "${dps_training_python}" == "ON" ]]; then
+  dps_python_bridge=ON
   "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
     pybind11 'tensorflow[and-cuda]==2.20.0'
 fi
@@ -94,7 +97,7 @@ export LD_LIBRARY_PATH="${dps_prefix}/lib:${dps_prefix}/lib64:${dps_cuda}/lib:${
   -DCMAKE_CUDA_COMPILER="${dps_nvcc}" -DCUDAToolkit_ROOT="${dps_cuda}" \
   -DCMAKE_CUDA_ARCHITECTURES="${DPS_CUDA_ARCHITECTURE:-89}" \
   -DEPS_BUILD_BRPC=ON -DEPS_BUILD_CUDA=ON -DEPS_BUILD_TESTS=ON -DEPS_SANITIZERS=OFF \
-  -DEPS_BUILD_RUNTIME="${dps_native_tf}" -DEPS_BUILD_PYTHON="${dps_native_tf}" \
+  -DEPS_BUILD_RUNTIME="${dps_native_tf}" -DEPS_BUILD_PYTHON="${dps_python_bridge}" \
   -DPython3_EXECUTABLE="${dps_python}" "${dps_protobuf_flags[@]}"
 "${dps_cmake}" --build "${dps_work}/build-cuda" -j 6
 "${dps_work}/environment/bin/ctest" --test-dir "${dps_work}/build-cuda" --output-on-failure

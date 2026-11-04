@@ -7,6 +7,8 @@
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
 #include "eps/cache_resolver.hpp"
+#include "eps/brpc_training.hpp"
+#include "eps/brpc_synchronous_gradients.hpp"
 
 namespace py=pybind11;
 using namespace eps;
@@ -19,7 +21,7 @@ class Backend {
  public:
   Backend(std::vector<std::string> endpoints,std::string run,std::uint32_t learner,
           std::uint64_t epoch,std::size_t max_live,const py::dict& preparation)
-      : run_(std::move(run)),epoch_(epoch),count_(endpoints.size()) {
+      : run_(std::move(run)),epoch_(epoch),count_(endpoints.size()),learner_(learner),endpoints_(endpoints) {
     std::vector<std::shared_ptr<ParameterService>> shards;
     for(auto& e:endpoints){
       auto connection=std::make_shared<BrpcParameterService>(e);
@@ -191,8 +193,79 @@ class Backend {
     }
     return result;
   }
+  void ConfigureTraining(std::string coordinator) {
+    if (progress_) throw std::invalid_argument("training already configured");
+    if (learner_ >= 1023) throw std::invalid_argument("synchronous training worker ID must be below 1023");
+    auto progress = std::make_unique<BrpcTrainingProgress>(std::move(coordinator), run_, epoch_, 20000);
+    std::vector<std::unique_ptr<BrpcSynchronousGradients>> collectors;
+    for (const auto& endpoint : endpoints_)
+      collectors.push_back(std::make_unique<BrpcSynchronousGradients>(endpoint, run_, epoch_, 25000));
+    progress_ = std::move(progress); collectors_ = std::move(collectors);
+  }
+  std::uint64_t BeginTraining(std::uint64_t iteration) {
+    if (!progress_) throw std::invalid_argument("training is not configured");
+    py::gil_scoped_release release;
+    return Take(progress_->Begin(learner_, iteration).get()).observed_completion_floor;
+  }
+  void CompleteTraining(std::uint64_t iteration) {
+    if (!progress_) throw std::invalid_argument("training is not configured");
+    py::gil_scoped_release release; Take(progress_->Complete(learner_, iteration).get());
+  }
+  void SubmitSynchronous(std::uint64_t iteration, std::uint64_t samples, const py::list& tables) {
+    if (!progress_ || tables.empty() || tables.size() > 256 || !samples)
+      throw std::invalid_argument("invalid synchronous training submission");
+    std::vector<GradientContribution> packets(count_);
+    for (auto& packet : packets) { packet.task = {run_, epoch_, learner_, iteration}; packet.sample_count = samples; }
+    TableId previous = 0; bool first = true;
+    std::uint64_t retained = 0;
+    for (auto item : tables) {
+      const auto d = py::cast<py::dict>(item);
+      const auto id = py::cast<TableId>(d["table"]);
+      if (!first && id <= previous) throw std::invalid_argument("synchronous tables must be unique and sorted");
+      first = false; previous = id;
+      const auto keys = py::cast<py::array_t<std::uint64_t,py::array::c_style|py::array::forcecast>>(d["keys"]);
+      const auto values = py::cast<py::array_t<float,py::array::c_style|py::array::forcecast>>(d["values"]);
+      if (keys.ndim() != 1 || values.ndim() != 2 || values.shape(0) != keys.size() ||
+          values.shape(1) <= 0 || values.shape(1) > 65536)
+        throw std::invalid_argument("invalid synchronous gradient array layout");
+      const auto bytes = keys.nbytes() + values.nbytes();
+      if (bytes > (16ULL<<20) || retained > (16ULL<<20) - bytes)
+        throw std::invalid_argument("synchronous gradient arrays exceed byte limit");
+      retained += bytes;
+      const auto dim = static_cast<std::uint32_t>(values.shape(1));
+      for (auto& packet : packets) packet.tables.push_back({id, dim, {}, {}});
+      for (py::ssize_t row = 0; row < keys.size(); ++row) {
+        const auto key = keys.data()[row];
+        if (row && keys.data()[row-1] >= key) throw std::invalid_argument("gradient Keys must be unique and sorted");
+        auto& table = packets[key % count_].tables.back();
+        table.keys.push_back(key);
+        table.values.insert(table.values.end(), values.data()+row*dim, values.data()+(row+1)*dim);
+      }
+    }
+    py::gil_scoped_release release;
+    std::vector<std::future<Result<Ack>>> pending;
+    for (std::size_t home = 0; home < count_; ++home)
+      pending.push_back(collectors_[home]->Submit(std::move(packets[home])));
+    std::optional<Error> error;
+    // Drain every shard future even when one fails before reporting the error.
+    for (auto& future : pending) {
+      auto result = future.get(); if (auto* e = std::get_if<Error>(&result)) if (!error) error = *e;
+    }
+    if (error) throw std::runtime_error(error->message);
+  }
+  void AbortTraining(std::string reason) {
+    py::gil_scoped_release release;
+    std::vector<std::future<Result<Ack>>> pending;
+    if (progress_) pending.push_back(progress_->Abort(reason));
+    for (auto& collector : collectors_) pending.push_back(collector->Abort(reason));
+    for (auto& f : pending) (void)f.get();
+  }
  private:
   std::string run_;std::uint64_t epoch_;std::uint32_t count_;
+  std::uint32_t learner_;
+  std::vector<std::string> endpoints_;
+  std::unique_ptr<BrpcTrainingProgress> progress_;
+  std::vector<std::unique_ptr<BrpcSynchronousGradients>> collectors_;
   std::vector<std::shared_ptr<BrpcParameterService>> connections_;
   std::unique_ptr<entropy::TableAdapter> adapter_;
 };
@@ -209,5 +282,8 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("restored_from",&Backend::RestoredFrom)
     .def("save",&Backend::Save).def("stats",&Backend::Stats)
     .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
+    .def("configure_training",&Backend::ConfigureTraining)
+    .def("begin_training",&Backend::BeginTraining).def("complete_training",&Backend::CompleteTraining)
+    .def("submit_synchronous",&Backend::SubmitSynchronous).def("abort_training",&Backend::AbortTraining)
     .def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);
 }

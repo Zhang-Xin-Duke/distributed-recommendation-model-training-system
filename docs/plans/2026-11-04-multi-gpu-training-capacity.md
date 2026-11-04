@@ -43,8 +43,10 @@ resident. It establishes cross-owner updates and an operating envelope. Its
 global state fits within one A6000, so it does not establish this capacity case.
 
 The synchronous-gradient collector supplies fixed-group shard-local reduction
-and one optimizer update per complete round. Finish its network/reference
-checks, then connect this algorithm to the native GPU training path and size
+and one optimizer update per complete round. Its network/reference checks now
+pass, and TensorFlow model forward/backward with CUDA parameter updates passes
+on an A6000, including scattered IDs and fully loaded small tables. Extend this
+verified training path across GPU nodes and size
 the capacity experiment using live device and host-memory availability. Prepare
 and verify the workload before renting resources; retain the existing rental
 budget and recheck the available credit/instances before starting billing.

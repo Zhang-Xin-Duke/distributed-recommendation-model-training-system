@@ -1,5 +1,33 @@
 # Validation record
 
+## TensorFlow model training with CUDA parameter owners — November 4, 2026
+
+Workers now train both Embedding vectors and packed two-layer MLP weights/biases
+through the synchronous parameter service. The model computes pooled features,
+tanh activations, binary cross-entropy and automatic gradients on the requested
+device. Its native client runs in a separate IPC process; the RPC/model boundary
+uses host staging. GPU placement of inputs, loss and both gradients is checked.
+
+The A6000 run passes the eight-round/two-worker model comparison. A second case
+fully initializes and loads 16,384 rows × 64 dimensions on the CUDA owner and
+trains scattered ID bags. All 137 touched rows' final weights and Adam moments
+agree with the single-worker reference within 4.15e-6; first aggregated gradients
+agree within 2.24e-8. Weighted loss decreases from 0.695597 to 0.275646.
+
+The local framework suite passes all 51 checks. The deployed CUDA/framework
+suite passes 53 checks, with four original-source checks skipped because private
+references are excluded from deployment. The separately executed scattered CUDA
+case also passes. Source hashes, hardware, reports and logs are retained before
+the owned instance is deleted and verified absent. A compatible compiled runtime
+bundle is cached locally for subsequent GPU nodes, with no billed snapshot.
+
+These runs verify one-GPU training execution and small-table residency. The
+multi-node capacity case with resident global state above one physical GPU's
+memory remains the next required GPU experiment.
+
+[Model flow and parameter layout](TENSORFLOW_SHARDED_TRAINING.md) ·
+[Canonical execution record](validation/2026-11-04-tensorflow-sharded-training.json)
+
 ## Synchronous sparse gradient rounds — November 4, 2026
 
 Each configured parameter shard now collects one sparse contribution per worker,

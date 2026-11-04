@@ -1,0 +1,1224 @@
+Start testing: Nov 04 18:07 UTC
+----------------------------------------------------------
+1/57 Testing: training_progress_rpc
+1/57 Test: training_progress_rpc
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_training_rpc_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"training_progress_rpc" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:36.024681  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:36.027355  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcTrainingServer] is serving on port=33187.
+I1104 18:07:36.027635  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:33187 in web browser.
+I1104 18:07:36.037214  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcTrainingServer] is going to quit
+W1104 18:07:36.038215  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:36.039032  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcTrainingServer] is serving on port=42559.
+I1104 18:07:36.039040  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:42559 in web browser.
+I1104 18:07:36.070746  5033     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcTrainingServer] is going to quit
+training_rpc saturated_waiters=16 rejected=64 stats_latency_us=187 duplicate_permits=16 lifecycle=pause/checkpoint/resume/abort
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"training_progress_rpc" end time: Nov 04 18:07 UTC
+"training_progress_rpc" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/57 Testing: distributed_training_processes
+2/57 Test: distributed_training_processes
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/training_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_training_coordinator" "/home/ubuntu/sync-model-validation/build-cuda/eps_training_worker" "/home/ubuntu/sync-model-validation/build-cuda/eps_training_control"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"distributed_training_processes" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+{"reports": [{"final_loss": 0.2774560718532344, "initial_loss": 0.6931471805599453, "parameter_shards": 2, "policy": "sequential", "progress_checkpoint_restored": true, "tickets_drained": true, "worker_updates": 160, "workers": 4, "workers_report": [{"admission_wait_ns": 38270684, "completed": 40, "first_local_loss": 0.6931471805599453, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.2870502916191087, "max_admission_lead": 0, "optimizer_step": "per_worker_update", "worker": 0}, {"admission_wait_ns": 38622261, "completed": 40, "first_local_loss": 0.6931471805599453, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.2815552698009292, "max_admission_lead": 0, "optimizer_step": "per_worker_update", "worker": 1}, {"admission_wait_ns": 38357793, "completed": 40, "first_local_loss": 0.6931471805599453, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.28880445990646464, "max_admission_lead": 0, "optimizer_step": "per_worker_update", "worker": 2}, {"admission_wait_ns": 9600486, "completed": 40, "first_local_loss": 0.6877104723461369, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.28247091280224046, "max_admission_lead": 0, "optimizer_step": "per_worker_update", "worker": 3}]}, {"final_loss": 0.27792644856372134, "initial_loss": 0.6931471805599453, "parameter_shards": 2, "policy": "bounded_delay", "progress_checkpoint_restored": true, "tickets_drained": true, "worker_updates": 160, "workers": 4, "workers_report": [{"admission_wait_ns": 33447011, "completed": 40, "first_local_loss": 0.6931471805599453, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.28917704429358004, "max_admission_lead": 2, "optimizer_step": "per_worker_update", "worker": 0}, {"admission_wait_ns": 32293080, "completed": 40, "first_local_loss": 0.6931471805599453, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.28514889687766354, "max_admission_lead": 2, "optimizer_step": "per_worker_update", "worker": 1}, {"admission_wait_ns": 27592428, "completed": 40, "first_local_loss": 0.7081803379154693, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.28909107945756746, "max_admission_lead": 2, "optimizer_step": "per_worker_update", "worker": 2}, {"admission_wait_ns": 7957618, "completed": 40, "first_local_loss": 0.6791071326976589, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.2776841508839359, "max_admission_lead": 2, "optimizer_step": "per_worker_update", "worker": 3}]}, {"final_loss": 0.2802608086312793, "initial_loss": 0.6931471805599453, "parameter_shards": 2, "policy": "eventual", "progress_checkpoint_restored": true, "tickets_drained": true, "worker_updates": 160, "workers": 4, "workers_report": [{"admission_wait_ns": 5349068, "completed": 40, "first_local_loss": 0.6831971864019841, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.26231626084278487, "max_admission_lead": 21, "optimizer_step": "per_worker_update", "worker": 0}, {"admission_wait_ns": 5207421, "completed": 40, "first_local_loss": 0.7031971729164332, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.3420679104923332, "max_admission_lead": 21, "optimizer_step": "per_worker_update", "worker": 1}, {"admission_wait_ns": 6521944, "completed": 40, "first_local_loss": 0.6931471805599453, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.2636366677563271, "max_admission_lead": 21, "optimizer_step": "per_worker_update", "worker": 2}, {"admission_wait_ns": 6735928, "completed": 40, "first_local_loss": 0.7205969167006407, "gradient_reduction": "local_batch_mean", "input_batches_committed": 40, "last_local_loss": 0.23233383893398013, "max_admission_lead": 0, "optimizer_step": "per_worker_update", "worker": 3}]}], "test": "distributed_training_processes"}
+<end of output>
+Test time =   1.57 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_training_processes" end time: Nov 04 18:07 UTC
+"distributed_training_processes" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/57 Testing: synchronous_training_processes
+3/57 Test: synchronous_training_processes
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/synchronous_training_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_training_coordinator" "/home/ubuntu/sync-model-validation/build-cuda/eps_training_worker" "/home/ubuntu/sync-model-validation/build-cuda/eps_training_control"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"synchronous_training_processes" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+{"reports": [{"duplicate_submits_per_shard": 160, "empty_shard_participated": true, "optimizer_steps_per_shard": 40, "parameter_shards": 3, "reduction": "worker_mean", "reference_arithmetic": "separate", "reference_errors": {"fma": 0.0019005016656592488, "separate": 0.0}, "reference_max_absolute_error": 0.0, "rows": [{"first_moment": [0.17589052021503448], "home": 0, "key": 3, "row_updates": 40, "second_moment": [0.0016480135964229703], "weights": [-0.7617957592010498]}, {"first_moment": [-1.1343799997121096e-06], "home": 1, "key": 1, "row_updates": 40, "second_moment": [7.470280394272777e-09], "weights": [0.0019005016656592488]}, {"first_moment": [-0.17589129507541656], "home": 1, "key": 4, "row_updates": 40, "second_moment": [0.001647993572987616], "weights": [0.7618069052696228]}], "worker_batches": 160, "workers": 4}, {"duplicate_submits_per_shard": 160, "empty_shard_participated": true, "optimizer_steps_per_shard": 40, "parameter_shards": 3, "reduction": "sample_mean", "reference_arithmetic": "separate", "reference_errors": {"fma": 5.960464477539063e-08, "separate": 0.0}, "reference_max_absolute_error": 0.0, "rows": [{"first_moment": [0.15163776278495789], "home": 0, "key": 3, "row_updates": 40, "second_moment": [0.0011520757107064128], "weights": [-0.7708812355995178]}, {"first_moment": [-0.004541873000562191], "home": 1, "key": 1, "row_updates": 40, "second_moment": [2.2842186808702536e-05], "weights": [0.5594999194145203]}, {"first_moment": [-0.19229963421821594], "home": 1, "key": 4, "row_updates": 40, "second_moment": [0.002127023646607995], "weights": [0.7500977516174316]}], "worker_batches": 160, "workers": 4}], "test": "synchronous_training_processes"}
+<end of output>
+Test time =   1.70 sec
+----------------------------------------------------------
+Test Passed.
+"synchronous_training_processes" end time: Nov 04 18:07 UTC
+"synchronous_training_processes" time elapsed: 00:00:01
+----------------------------------------------------------
+
+4/57 Testing: synchronous_gradient_rpc
+4/57 Test: synchronous_gradient_rpc
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_synchronous_rpc_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"synchronous_gradient_rpc" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:39.392055  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:39.397211  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is serving on port=37511.
+I1104 18:07:39.397709  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:37511 in web browser.
+I1104 18:07:39.456000  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is going to quit
+W1104 18:07:39.465899  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:39.467760  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is serving on port=41085.
+I1104 18:07:39.467774  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:41085 in web browser.
+I1104 18:07:39.499557  5948     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is going to quit
+PASS synchronous RPC: per-worker response slots, 64 duplicate rejections, averaged optimizer state exact, empty-round clock, write guard, stale control, shutdown
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"synchronous_gradient_rpc" end time: Nov 04 18:07 UTC
+"synchronous_gradient_rpc" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/57 Testing: in_process_worker_lifecycle
+5/57 Test: in_process_worker_lifecycle
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_worker_agent_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"in_process_worker_lifecycle" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:39.544614  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:39.547496  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=41395.
+I1104 18:07:39.547829  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:41395 in web browser.
+I1104 18:07:39.555213  6004     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1104 18:07:39.587389  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:39.588773  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=41395.
+I1104 18:07:39.588784  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:41395 in web browser.
+I1104 18:07:39.686205  5990 4294969856 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:41395} (0x55b32384d7c0)
+I1104 18:07:39.686616  5994 4294969856 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/socket.cpp:2645 AfterRevived] Revived Socket{id=1 addr=127.0.0.1:41395} (0x55b32384d7c0) (Connectable)
+I1104 18:07:39.691195  5983     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"in_process_worker_lifecycle","shared_local_rpc_admission":true,"drained_on_stop":true,"backend_released":true,"endpoint_reused":true}
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"in_process_worker_lifecycle" end time: Nov 04 18:07 UTC
+"in_process_worker_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/57 Testing: distributed_device_pull_cuda
+6/57 Test: distributed_device_pull_cuda
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_device_pull_cuda"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"distributed_device_pull_cuda" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:40.702623  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:40.707970  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=45309.
+I1104 18:07:40.708243  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:45309 in web browser.
+W1104 18:07:40.720097  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:40.722313  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=39109.
+I1104 18:07:40.722332  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:39109 in web browser.
+I1104 18:07:41.151190  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1104 18:07:41.153008  6008     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1104 18:07:41.252114  6098 4294970880 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=3 addr=127.0.0.1:45309} (0x5b3454552cc0)
+I1104 18:07:41.253732  6099 4294970881 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=2 addr=127.0.0.1:39109} (0x5b34545529c0)
+{"test":"distributed_device_pull","backend":"cuda","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   4.44 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_cuda" end time: Nov 04 18:07 UTC
+"distributed_device_pull_cuda" time elapsed: 00:00:04
+----------------------------------------------------------
+
+7/57 Testing: native_worker_cuda_stream
+7/57 Test: native_worker_cuda_stream
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_worker_agent_cuda"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"native_worker_cuda_stream" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:44.907623  6175     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:44.914681  6175     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=46517.
+I1104 18:07:44.914900  6175     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:46517 in web browser.
+I1104 18:07:45.127122  6175     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+I1104 18:07:45.227913  6267 4294969856 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/socket.cpp:2585 CheckHealth] Checking Socket{id=1 addr=127.0.0.1:46517} (0x58e81fb08340)
+{"test":"native_worker_cuda_stream","model_stream":"nondefault","remote_control_local_device_reads":true,"full_optimizer_rows_checked":2,"output_budget_enforced":true,"result_outlives_worker":true}
+<end of output>
+Test time =   4.30 sec
+----------------------------------------------------------
+Test Passed.
+"native_worker_cuda_stream" end time: Nov 04 18:07 UTC
+"native_worker_cuda_stream" time elapsed: 00:00:04
+----------------------------------------------------------
+
+8/57 Testing: agent_rpc_admission_queue
+8/57 Test: agent_rpc_admission_queue
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_agent_rpc_admission_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"agent_rpc_admission_queue" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:48.474982  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:48.477761  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=39571.
+I1104 18:07:48.478089  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:39571 in web browser.
+I1104 18:07:48.495025  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1104 18:07:48.496406  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:48.497434  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=46287.
+I1104 18:07:48.497443  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:46287 in web browser.
+I1104 18:07:48.501267  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+W1104 18:07:48.502253  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:48.502470  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=45305.
+I1104 18:07:48.502478  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:45305 in web browser.
+I1104 18:07:48.522639  6308     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcAgentServer] is going to quit
+{"test":"agent_rpc_admission_burst","independent_clients":8,"requests":256,"active_limit":4,"observed_queued":252,"rejected":0,"state_unchanged":true}
+{"test":"agent_rpc_admission_limits","count_and_byte_rejections":2,"rejected_before_execution":true,"state_unchanged":true}
+{"test":"agent_rpc_admission_optimizer_state","home_streams":8,"updates":256,"host_updates":128,"compact_updates":128,"full_rows_checked":8,"optimizer_state_exact":true,"evicted_rows":8}
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"agent_rpc_admission_queue" end time: Nov 04 18:07 UTC
+"agent_rpc_admission_queue" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/57 Testing: shard_observation_rpc
+9/57 Test: shard_observation_rpc
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_shard_observation_rpc"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"shard_observation_rpc" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+W1104 18:07:48.570788  6342     0 /home/ubuntu/sync-model-validation/brpc-source/src/bthread/bthread.cpp:511 bthread_setconcurrency_by_tag] Fail to set concurrency by tag: 0, tag concurrency should be larger than old oncurrency. old concurrency: 9, new concurrency: 7
+I1104 18:07:48.574634  6342     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcServer] is serving on port=43883.
+I1104 18:07:48.575130  6342     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1250 StartInternal] Check out http://instance-4jin4g07-main:43883 in web browser.
+I1104 18:07:48.583564  6342     0 /home/ubuntu/sync-model-validation/brpc-source/src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcServer] is going to quit
+{"test":"shard_observation_rpc","held_data_completion_threads":4,"stats_latency_ms":0.701977,"acknowledged_updates":4,"optimizer_state_exact":true}
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"shard_observation_rpc" end time: Nov 04 18:07 UTC
+"shard_observation_rpc" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/57 Testing: agent_admission_cli
+10/57 Test: agent_admission_cli
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/agent_admission_cli.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"agent_admission_cli" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+{"test": "agent_admission_cli", "active_limit": 2, "pending_limit": 64, "request_bytes_limit": 65536, "http_statistics_verified": true, "oversized_statistics_payload_rejected": true, "invalid_active_limits_rejected": [0, 129]}
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_cli" end time: Nov 04 18:07 UTC
+"agent_admission_cli" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/57 Testing: automatic_cache_external_shards
+11/57 Test: automatic_cache_external_shards
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"automatic_cache_external_shards" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.71 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_external_shards" end time: Nov 04 18:07 UTC
+"automatic_cache_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/57 Testing: cache_policy_fixed_trace_smoke
+12/57 Test: cache_policy_fixed_trace_smoke
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/cache_policy_trace_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_policy_probe"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"cache_policy_fixed_trace_smoke" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+RUN calibration-b0-cpu_only
+RUN calibration-b0-static
+RUN trace-b0-cpu_only
+RUN trace-b0-static
+RUN trace-b0-frequency
+RUN trace-b0-reuse_cost
+{"completed_trials": 6, "phase_records": 14, "completed_steps": 112, "saved_microseconds_per_access": 0.0, "errors": 0}
+<end of output>
+Test time =   4.62 sec
+----------------------------------------------------------
+Test Passed.
+"cache_policy_fixed_trace_smoke" end time: Nov 04 18:07 UTC
+"cache_policy_fixed_trace_smoke" time elapsed: 00:00:04
+----------------------------------------------------------
+
+13/57 Testing: automatic_cache_coalesced_external_shards
+13/57 Test: automatic_cache_coalesced_external_shards
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/cache_policy_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_policy_rpc_checks" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"automatic_cache_coalesced_external_shards" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+PASS automatic two-shard RPC hot-set replacement and drain; admitted=8 evicted=3 windows=12
+PASS automatic two-shard RPC restored optimizer trajectory; admitted=4 evicted=0 windows=4
+<end of output>
+Test time =   0.72 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_coalesced_external_shards" end time: Nov 04 18:07 UTC
+"automatic_cache_coalesced_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/57 Testing: rpc_cache_backpressure
+14/57 Test: rpc_cache_backpressure
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/overload_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent" "/home/ubuntu/sync-model-validation/build-cuda/eps_overload_checks"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"rpc_cache_backpressure" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+{"test":"rpc_cache_backpressure","configured_live_ticket_limit":32,"offered":64,"admitted":32,"rejected":32,"retry_after_release":true,"state_preserved":true}
+<end of output>
+Test time =   1.24 sec
+----------------------------------------------------------
+Test Passed.
+"rpc_cache_backpressure" end time: Nov 04 18:07 UTC
+"rpc_cache_backpressure" time elapsed: 00:00:01
+----------------------------------------------------------
+
+15/57 Testing: capacity_failed_point_diagnostics
+15/57 Test: capacity_failed_point_diagnostics
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/capacity_failure_processes.py" "/home/ubuntu/sync-model-validation/build-cuda"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"capacity_failed_point_diagnostics" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+{"acknowledged_steps_before_failure": 342, "after_health_probe_shards": [{"active_operations": 0, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 345, "waiting_operations": 0}], "agent_admission": [{"accepted_requests": 728, "active_limit": 32, "active_operations": 0, "agent": 0, "completed_requests": 728, "dispatch_failures": 0, "peak_active_operations": 1, "peak_pending_operations": 1, "peak_request_bytes": 127531, "pending_limit": 4096, "pending_request_bytes": 0, "queue_wait_nanoseconds": 28149769, "queued_operations": 0, "rejected_requests": 0, "request_bytes_limit": 268435456}], "dimension": 16, "elapsed_seconds": 1.001199496, "error": "live ticket limit reached", "errors": 15, "fresh_read_only_probe": {"completed": true, "finite": true}, "gpu_agents": 1, "keys_per_step": 128, "learners": 16, "optimizer_trajectory_verified": false, "post_failure_shards": [{"active_operations": 0, "live_tickets": 0, "queued_payload_bytes": 0, "rejected_operations": 0, "responsive": true, "shard": 0, "updates": 345, "waiting_operations": 0}], "ps_shards": 1, "repeat": 0, "rows": 1024, "sampled_state": {"checked_rows": 16, "completed": true, "finite": true}, "test": "distributed_sparse_training_overload"}
+<end of output>
+Test time =   1.27 sec
+----------------------------------------------------------
+Test Passed.
+"capacity_failed_point_diagnostics" end time: Nov 04 18:07 UTC
+"capacity_failed_point_diagnostics" time elapsed: 00:00:01
+----------------------------------------------------------
+
+16/57 Testing: two_process_rpc_and_restore
+16/57 Test: two_process_rpc_and_restore
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/rpc_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_rpc_checks"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"two_process_rpc_and_restore" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   0.59 sec
+----------------------------------------------------------
+Test Passed.
+"two_process_rpc_and_restore" end time: Nov 04 18:07 UTC
+"two_process_rpc_and_restore" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/57 Testing: cache_agent_process_lifecycle
+17/57 Test: cache_agent_process_lifecycle
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/cache_rpc_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_rpc_checks" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"cache_agent_process_lifecycle" start time: Nov 04 18:07 UTC
+Output:
+----------------------------------------------------------
+CACHE_BACKEND=cuda
+PASS two-shard lookup, mean, sequence, updates and retry
+PASS two-shard restore trajectory
+<end of output>
+Test time =   3.25 sec
+----------------------------------------------------------
+Test Passed.
+"cache_agent_process_lifecycle" end time: Nov 04 18:08 UTC
+"cache_agent_process_lifecycle" time elapsed: 00:00:03
+----------------------------------------------------------
+
+18/57 Testing: entropy_table_hook_configuration
+18/57 Test: entropy_table_hook_configuration
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/entropy_install_tests.py"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"entropy_table_hook_configuration" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.086s
+
+OK
+<end of output>
+Test time =   0.26 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_table_hook_configuration" end time: Nov 04 18:08 UTC
+"entropy_table_hook_configuration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/57 Testing: checkpoint_filesystem_contract
+19/57 Test: checkpoint_filesystem_contract
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/checkpoint_store_tests.py"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"checkpoint_filesystem_contract" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.012s
+
+OK
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"checkpoint_filesystem_contract" end time: Nov 04 18:08 UTC
+"checkpoint_filesystem_contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/57 Testing: committed_checkpoint_staging
+20/57 Test: committed_checkpoint_staging
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/checkpoint_restore_tests.py"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"committed_checkpoint_staging" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.023s
+
+OK
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"committed_checkpoint_staging" end time: Nov 04 18:08 UTC
+"committed_checkpoint_staging" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/57 Testing: entropy_original_table_external_shards
+21/57 Test: entropy_original_table_external_shards
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/entropy_hooks_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"entropy_original_table_external_shards" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_table_external_shards" end time: Nov 04 18:08 UTC
+"entropy_original_table_external_shards" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/57 Testing: entropy_original_table_cache
+22/57 Test: entropy_original_table_cache
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/entropy_hooks_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"entropy_original_table_cache" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_table_cache" end time: Nov 04 18:08 UTC
+"entropy_original_table_cache" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/57 Testing: entropy_original_restore_trajectory
+23/57 Test: entropy_original_restore_trajectory
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/entropy_restore_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent" "/home/ubuntu/sync-model-validation/build-cuda/eps_snapshot_compare"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"entropy_original_restore_trajectory" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved Entropy source is required for the original-method contract
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_original_restore_trajectory" end time: Nov 04 18:08 UTC
+"entropy_original_restore_trajectory" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/57 Testing: entropy_peer_checkpoint_control
+24/57 Test: entropy_peer_checkpoint_control
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/entropy_peer_checkpoint.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_snapshot_compare"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"entropy_peer_checkpoint_control" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+SKIP: preserved train.py and env.py are required
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"entropy_peer_checkpoint_control" end time: Nov 04 18:08 UTC
+"entropy_peer_checkpoint_control" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/57 Testing: tensorflow_graph_external_shards
+25/57 Test: tensorflow_graph_external_shards
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_external_shards" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:08:03.561171: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815687.498832    8829 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "cpu_pool", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.88 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_external_shards" end time: Nov 04 18:08 UTC
+"tensorflow_graph_external_shards" time elapsed: 00:00:10
+----------------------------------------------------------
+
+26/57 Testing: tensorflow_synchronous_model_cpu
+26/57 Test: tensorflow_synchronous_model_cpu
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_synchronous_training.py" "--build" "/home/ubuntu/sync-model-validation/build-cuda" "--out" "/home/ubuntu/sync-model-validation/build-cuda/tf-synchronous-cpu.json"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_synchronous_model_cpu" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+{"dimension": 8, "final_weighted_loss": 0.6032822330792745, "first_global_gradient_max_absolute_error": 4.967053740534411e-09, "gpu": false, "hidden": 4, "initial_weighted_loss": 0.6933857997258503, "inspected_rows": 10, "iterations": 8, "model": "trainable_embedding_and_tanh_mlp", "model_reference_max_absolute_error": 2.9802322387695312e-08, "reference_state_scope": "all_touched_rows", "rows": 64, "test": "tensorflow_synchronous_model_training", "touched_rows": 10}
+<end of output>
+Test time =  14.99 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_synchronous_model_cpu" end time: Nov 04 18:08 UTC
+"tensorflow_synchronous_model_cpu" time elapsed: 00:00:14
+----------------------------------------------------------
+
+27/57 Testing: tensorflow_synchronous_model_cuda
+27/57 Test: tensorflow_synchronous_model_cuda
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_synchronous_training.py" "--build" "/home/ubuntu/sync-model-validation/build-cuda" "--devices" "0" "--out" "/home/ubuntu/sync-model-validation/build-cuda/tf-synchronous-cuda.json"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_synchronous_model_cuda" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+{"dimension": 8, "final_weighted_loss": 0.6032822330792745, "first_global_gradient_max_absolute_error": 1.4901161193847656e-08, "gpu": true, "hidden": 4, "initial_weighted_loss": 0.6933858394622803, "inspected_rows": 10, "iterations": 8, "model": "trainable_embedding_and_tanh_mlp", "model_reference_max_absolute_error": 2.9802322387695312e-08, "reference_state_scope": "all_touched_rows", "rows": 64, "test": "tensorflow_synchronous_model_training", "touched_rows": 10}
+<end of output>
+Test time =  20.32 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_synchronous_model_cuda" end time: Nov 04 18:08 UTC
+"tensorflow_synchronous_model_cuda" time elapsed: 00:00:20
+----------------------------------------------------------
+
+28/57 Testing: tensorflow_graph_cache_external_shards
+28/57 Test: tensorflow_graph_cache_external_shards
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_cache_external_shards" start time: Nov 04 18:08 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:08:49.164926: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815733.680367   10438 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "transfer_unique_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  12.48 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_cache_external_shards" end time: Nov 04 18:09 UTC
+"tensorflow_graph_cache_external_shards" time elapsed: 00:00:12
+----------------------------------------------------------
+
+29/57 Testing: tensorflow_graph_automatic_cache
+29/57 Test: tensorflow_graph_automatic_cache
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_automatic_cache" start time: Nov 04 18:09 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:09:01.635939: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815745.205917   10692 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:08:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.96 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_automatic_cache" end time: Nov 04 18:09 UTC
+"tensorflow_graph_automatic_cache" time elapsed: 00:00:09
+----------------------------------------------------------
+
+30/57 Testing: tensorflow_graph_automatic_coalesced_cache
+30/57 Test: tensorflow_graph_automatic_coalesced_cache
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_automatic_coalesced_cache" start time: Nov 04 18:09 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:09:11.654585: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815755.109161   10945 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.08 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_automatic_coalesced_cache" end time: Nov 04 18:09 UTC
+"tensorflow_graph_automatic_coalesced_cache" time elapsed: 00:00:10
+----------------------------------------------------------
+
+31/57 Testing: tensorflow_graph_prepared_external_shards
+31/57 Test: tensorflow_graph_prepared_external_shards
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_prepared_external_shards" start time: Nov 04 18:09 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:09:21.597360: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815765.121206   11183 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+2026-11-04 18:09:27.806848: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-04 18:09:27.806890: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "cpu_pool", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.62 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_prepared_external_shards" end time: Nov 04 18:09 UTC
+"tensorflow_graph_prepared_external_shards" time elapsed: 00:00:10
+----------------------------------------------------------
+
+32/57 Testing: tensorflow_graph_prepared_automatic_cache
+32/57 Test: tensorflow_graph_prepared_automatic_cache
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_prepared_automatic_cache" start time: Nov 04 18:09 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:09:32.239300: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815775.532860   11450 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+2026-11-04 18:09:38.363671: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-04 18:09:38.363731: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.26 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_prepared_automatic_cache" end time: Nov 04 18:09 UTC
+"tensorflow_graph_prepared_automatic_cache" time elapsed: 00:00:10
+----------------------------------------------------------
+
+33/57 Testing: tensorflow_graph_coalesced_cache
+33/57 Test: tensorflow_graph_coalesced_cache
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_coalesced_cache" start time: Nov 04 18:09 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:09:42.515719: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815785.874105   11726 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "transfer_unique_host", "train_steps": 5, "prepared_inputs": false, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": false, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =   9.71 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_coalesced_cache" end time: Nov 04 18:09 UTC
+"tensorflow_graph_coalesced_cache" time elapsed: 00:00:09
+----------------------------------------------------------
+
+34/57 Testing: tensorflow_graph_periodic_checkpoint
+34/57 Test: tensorflow_graph_periodic_checkpoint
+Command: "/home/ubuntu/sync-model-validation/environment/bin/python" "/home/ubuntu/sync-model-validation/source/tests/tensorflow_processes.py" "/home/ubuntu/sync-model-validation/build-cuda/eps_server" "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_agent"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"tensorflow_graph_periodic_checkpoint" start time: Nov 04 18:09 UTC
+Output:
+----------------------------------------------------------
+2026-11-04 18:09:52.255733: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793815795.728747   11979 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 47002 MB memory:  -> device: 0, name: NVIDIA RTX A6000, pci bus id: 0000:06:00.0, compute capability: 8.6
+2026-11-04 18:09:58.512152: W tensorflow/core/framework/op_kernel.cc:1842] INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+2026-11-04 18:09:58.512204: I tensorflow/core/framework/local_rendezvous.cc:407] Local rendezvous is aborting with status: INVALID_ARGUMENT: ValueError: pulled feature layout differs from the requested schema
+Traceback (most recent call last):
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 267, in __call__
+    return func(device, token, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 145, in __call__
+    outputs = self._call(device, args)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/ops/script_ops.py", line 152, in _call
+    ret = self._func(*args)
+          ^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/environment/lib/python3.12/site-packages/tensorflow/python/autograph/impl/api.py", line 643, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 96, in dispatch
+    return self._checked_outputs(handle, outputs, dimensions)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/home/ubuntu/sync-model-validation/source/adapters/entropy/eps_tensorflow.py", line 69, in _checked_outputs
+    raise ValueError("pulled feature layout differs from the requested schema")
+
+ValueError: pulled feature layout differs from the requested schema
+
+
+{"test": "tensorflow_graph_pull_push_join", "tensorflow": "2.20.0", "cache_route": "automatic_resident_host", "train_steps": 5, "prepared_inputs": true, "loss_before": 0.66015625, "loss_after": 0.5970618724822998, "periodic_checkpoint": true, "checkpoint_shards": 2, "retraces": 0}
+<end of output>
+Test time =  10.39 sec
+----------------------------------------------------------
+Test Passed.
+"tensorflow_graph_periodic_checkpoint" end time: Nov 04 18:10 UTC
+"tensorflow_graph_periodic_checkpoint" time elapsed: 00:00:10
+----------------------------------------------------------
+
+35/57 Testing: distributed_device_pull_protocol
+35/57 Test: distributed_device_pull_protocol
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_device_pull_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"distributed_device_pull_protocol" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+{"test":"distributed_device_pull","backend":"cpu_protocol_reference","shards":2,"training_steps":5,"full_optimizer_rows_per_step":8,"features_per_step":7,"prepared_inputs":2,"native_parts":30,"remote_parts":10,"mid_run_save_resume":true,"assembly_failure_tickets_released":true,"resolver_failure_drained":true}
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"distributed_device_pull_protocol" end time: Nov 04 18:10 UTC
+"distributed_device_pull_protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/57 Testing: agent_admission_lifecycle
+36/57 Test: agent_admission_lifecycle
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_agent_admission_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"agent_admission_lifecycle" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+Agent admission: FIFO, completion lifetime, count/byte limits, exception cleanup and shutdown passed
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"agent_admission_lifecycle" end time: Nov 04 18:10 UTC
+"agent_admission_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/57 Testing: core_correctness
+37/57 Test: core_correctness
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_core_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"core_correctness" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS pooling and sparse update
+PASS sequence and pinned rows
+PASS invalid update is retryable
+PASS drain and exact optimizer restore
+PASS corrupt snapshot
+PASS partitioning and initializer
+PASS mixed request history
+PASS resource bounds and epoch
+PASS ticket and queue payload limits
+PASS concurrent Learner lifecycles
+PASS numeric rejection without partial updates
+PASS out-of-order lifecycle retirement
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"core_correctness" end time: Nov 04 18:10 UTC
+"core_correctness" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/57 Testing: cost_and_migration_policies
+38/57 Test: cost_and_migration_policies
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_planner_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"cost_and_migration_policies" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS cost model, hysteresis, reuse admission and migration budgets
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"cost_and_migration_policies" end time: Nov 04 18:10 UTC
+"cost_and_migration_policies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/57 Testing: cache_ownership_and_updates
+39/57 Test: cache_ownership_and_updates
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"cache_ownership_and_updates" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS host-reference cache lifecycle, mixed updates, row pins, generations and drain/restore
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"cache_ownership_and_updates" end time: Nov 04 18:10 UTC
+"cache_ownership_and_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/57 Testing: automatic_cache_policy_lifecycle
+40/57 Test: automatic_cache_policy_lifecycle
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_cache_policy_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"automatic_cache_policy_lifecycle" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS automatic cache hot-set replacement, pins, budgets, bounded history, retries, fallback and optimizer restore
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"automatic_cache_policy_lifecycle" end time: Nov 04 18:10 UTC
+"automatic_cache_policy_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/57 Testing: agent_control_replay
+41/57 Test: agent_control_replay
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_agent_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"agent_control_replay" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS agent control replay, retired command rejection and acknowledged eviction
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"agent_control_replay" end time: Nov 04 18:10 UTC
+"agent_control_replay" time elapsed: 00:00:00
+----------------------------------------------------------
+
+42/57 Testing: embedding_adapter_lifecycle
+42/57 Test: embedding_adapter_lifecycle
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_adapter_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"embedding_adapter_lifecycle" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS embedding adapter padding, mean/sequence gradients, completion and replay
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"embedding_adapter_lifecycle" end time: Nov 04 18:10 UTC
+"embedding_adapter_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+43/57 Testing: service_phase_timing
+43/57 Test: service_phase_timing
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_phase_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"service_phase_timing" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS sequencer phase times: CPU/mixed ownership, migration, maintenance and duplicate exclusion
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"service_phase_timing" end time: Nov 04 18:10 UTC
+"service_phase_timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+44/57 Testing: bounded_asynchronous_preparation
+44/57 Test: bounded_asynchronous_preparation
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_preparation_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"bounded_asynchronous_preparation" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS bounded preparation: FIFO/cancellation, RPC overlap, update-read boundary, three-shard optimizer replay, save and ticket cleanup
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_asynchronous_preparation" end time: Nov 04 18:10 UTC
+"bounded_asynchronous_preparation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+45/57 Testing: periodic_checkpoint_lifecycle
+45/57 Test: periodic_checkpoint_lifecycle
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_periodic_checkpoint_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"periodic_checkpoint_lifecycle" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS repeated checkpoints, chunked export, monotonic identities, exact restore trajectory and partial-save fencing
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"periodic_checkpoint_lifecycle" end time: Nov 04 18:10 UTC
+"periodic_checkpoint_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+46/57 Testing: training_progress_consistency
+46/57 Test: training_progress_consistency
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_training_progress_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"training_progress_consistency" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+controlled_training policy=0 workers=4 shards=2 updates=160 initial_loss=0.693147 final_loss=0.277846
+controlled_training policy=2 workers=4 shards=2 updates=160 initial_loss=0.693147 final_loss=0.27782
+controlled_training policy=1 workers=4 shards=2 updates=160 initial_loss=0.693147 final_loss=0.277873
+PASS training task consistency: sequential/eventual/bounded-delay, slide-18 boundaries, duplicate completion, pause/restore, abort, and 8-thread progress across all policies
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"training_progress_consistency" end time: Nov 04 18:10 UTC
+"training_progress_consistency" time elapsed: 00:00:00
+----------------------------------------------------------
+
+47/57 Testing: synchronous_gradient_rounds
+47/57 Test: synchronous_gradient_rounds
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_synchronous_gradients_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"synchronous_gradient_rounds" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS synchronous gradients: sum/worker/sample mean, sparse union/empty contribution, duplicates, invalid payloads, budget, timeout/abort, ack ordering, 8-worker/40-round execution
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"synchronous_gradient_rounds" end time: Nov 04 18:10 UTC
+"synchronous_gradient_rounds" time elapsed: 00:00:00
+----------------------------------------------------------
+
+48/57 Testing: restored_snapshot_provenance
+48/57 Test: restored_snapshot_provenance
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_restore_provenance_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"restored_snapshot_provenance" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS validated restore provenance, pristine admission boundary and failed-load publication
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"restored_snapshot_provenance" end time: Nov 04 18:10 UTC
+"restored_snapshot_provenance" time elapsed: 00:00:00
+----------------------------------------------------------
+
+49/57 Testing: bounded_sparse_optimizer
+49/57 Test: bounded_sparse_optimizer
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_weight_bounds_tests" "/home/ubuntu/sync-model-validation/source/tests/fixtures/snapshot-v1-unbounded.bin"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"bounded_sparse_optimizer" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS bounded initialization, Adam moments, mixed-owner updates and snapshot metadata
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"bounded_sparse_optimizer" end time: Nov 04 18:10 UTC
+"bounded_sparse_optimizer" time elapsed: 00:00:00
+----------------------------------------------------------
+
+50/57 Testing: resumable_actor_dependencies
+50/57 Test: resumable_actor_dependencies
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_resumable_actor_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"resumable_actor_dependencies" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS resumable actor: independent progress, FIFO conflicts, barriers, bounded admission, nested continuations and drain
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_actor_dependencies" end time: Nov 04 18:10 UTC
+"resumable_actor_dependencies" time elapsed: 00:00:00
+----------------------------------------------------------
+
+51/57 Testing: resumable_shard_operations
+51/57 Test: resumable_shard_operations
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"resumable_shard_operations" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_shard_operations" end time: Nov 04 18:10 UTC
+"resumable_shard_operations" time elapsed: 00:00:00
+----------------------------------------------------------
+
+52/57 Testing: concurrent_multi_agent_updates
+52/57 Test: concurrent_multi_agent_updates
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_multi_agent_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"concurrent_multi_agent_updates" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS concurrent independent owners and sequential per-agent multi-table contexts
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"concurrent_multi_agent_updates" end time: Nov 04 18:10 UTC
+"concurrent_multi_agent_updates" time elapsed: 00:00:00
+----------------------------------------------------------
+
+53/57 Testing: coalesced_cross_shard_gathers
+53/57 Test: coalesced_cross_shard_gathers
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_coalesced_gather_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"coalesced_cross_shard_gathers" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS coalesced two-shard/three-agent gathers, mixed routes, parallel dispatch, optimizer trajectory and failure cleanup
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"coalesced_cross_shard_gathers" end time: Nov 04 18:10 UTC
+"coalesced_cross_shard_gathers" time elapsed: 00:00:00
+----------------------------------------------------------
+
+54/57 Testing: compact_feature_gradient_semantics
+54/57 Test: compact_feature_gradient_semantics
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_compact_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"compact_feature_gradient_semantics" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS compact gradient ordering, pooling, sequence, payload reduction and validation
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"compact_feature_gradient_semantics" end time: Nov 04 18:10 UTC
+"compact_feature_gradient_semantics" time elapsed: 00:00:00
+----------------------------------------------------------
+
+55/57 Testing: resumable_cuda_shard_operations
+55/57 Test: resumable_cuda_shard_operations
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_resumable_service_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"resumable_cuda_shard_operations" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS resumable service: independent progress, ordered Adam, migration publication, save barrier, retry and failure fencing
+<end of output>
+Test time =   4.29 sec
+----------------------------------------------------------
+Test Passed.
+"resumable_cuda_shard_operations" end time: Nov 04 18:10 UTC
+"resumable_cuda_shard_operations" time elapsed: 00:00:04
+----------------------------------------------------------
+
+56/57 Testing: cuda_state_and_device_results
+56/57 Test: cuda_state_and_device_results
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_cuda_tests"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"cuda_state_and_device_results" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+PASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime
+<end of output>
+Test time =   4.24 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_state_and_device_results" end time: Nov 04 18:10 UTC
+"cuda_state_and_device_results" time elapsed: 00:00:04
+----------------------------------------------------------
+
+57/57 Testing: cuda_concurrent_checked_reads
+57/57 Test: cuda_concurrent_checked_reads
+Command: "/home/ubuntu/sync-model-validation/build-cuda/eps_cuda_stress"
+Directory: /home/ubuntu/sync-model-validation/build-cuda
+"cuda_concurrent_checked_reads" start time: Nov 04 18:10 UTC
+Output:
+----------------------------------------------------------
+{"test":"cuda_checked_read_stress","rows":262144,"dimension":128,"workers":8,"checked_batches":512,"key_occurrences":2097152,"weight_working_set_bytes":134217728,"maximum_absolute_error":0,"device_memory_growth_bytes":0,"backend_state_bytes":402653184,"backend_staging_bytes":50331652,"read_phase_output_allocations":0,"wall_seconds_including_reference_checks":1.01603}
+<end of output>
+Test time =   6.77 sec
+----------------------------------------------------------
+Test Passed.
+"cuda_concurrent_checked_reads" end time: Nov 04 18:10 UTC
+"cuda_concurrent_checked_reads" time elapsed: 00:00:06
+----------------------------------------------------------
+
+End testing: Nov 04 18:10 UTC

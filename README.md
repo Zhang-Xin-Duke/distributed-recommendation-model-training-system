@@ -34,6 +34,12 @@ contribution per worker at each parameter shard, combine matching Keys and apply
 one optimizer update per round. Worker and sample-weighted averaging support
 different training batch sizes, including empty shard contributions.
 
+[TensorFlow model workers](docs/TENSORFLOW_SHARDED_TRAINING.md) train both
+Embedding vectors and two-layer MLP weights/biases through this shared parameter
+path. CPU and A6000 GPU runs compare aggregated gradients, complete touched
+weights/Adam state, task progress and loss against a single-worker reference.
+The GPU execution currently uses host staging at the RPC boundary.
+
 A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
 process. [Device Pull](docs/DEVICE_PULL.md) combines CPU, native CUDA and remote
 Agent contributions into complete model features on GPU, including global mean

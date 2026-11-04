@@ -1,0 +1,25 @@
+UpdateCTestConfiguration  from :PROJECT_ROOT/build/tensorflow/DartConfiguration.tcl
+Test project PROJECT_ROOT/build/tensorflow
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 24
+    Start 24: tensorflow_synchronous_model_cpu
+
+24: Test command: PROJECT_ROOT/build/tensorflow-env/bin/python "PROJECT_ROOT/tests/tensorflow_synchronous_training.py" "--build" "PROJECT_ROOT/build/tensorflow" "--out" "PROJECT_ROOT/build/tensorflow/tf-synchronous-cpu.json"
+24: Working Directory: PROJECT_ROOT/build/tensorflow
+24: Environment variables:
+24:  PYTHONPATH=PROJECT_ROOT/build/tensorflow/python:PROJECT_ROOT/adapters/entropy
+24: Test timeout computed to be: 180
+24: {"dimension": 8, "final_weighted_loss": 0.6032822330792745, "first_global_gradient_max_absolute_error": 4.967053740534411e-09, "gpu": false, "hidden": 4, "initial_weighted_loss": 0.6933857997258503, "inspected_rows": 10, "iterations": 8, "model": "trainable_embedding_and_tanh_mlp", "model_reference_max_absolute_error": 2.9802322387695312e-08, "reference_state_scope": "all_touched_rows", "rows": 64, "test": "tensorflow_synchronous_model_training", "touched_rows": 10}
+1/1 Test #24: tensorflow_synchronous_model_cpu ...   Passed   10.35 sec
+
+The following tests passed:
+	tensorflow_synchronous_model_cpu
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  10.36 sec

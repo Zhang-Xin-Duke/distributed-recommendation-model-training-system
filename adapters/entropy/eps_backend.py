@@ -103,6 +103,21 @@ class Backend:
     def restored_from(self):
         return self._call("restored_from")
 
+    def configure_training(self, coordinator):
+        return self._call("configure_training", coordinator)
+
+    def begin_training(self, iteration):
+        return self._call("begin_training", iteration)
+
+    def complete_training(self, iteration):
+        return self._call("complete_training", iteration)
+
+    def submit_synchronous(self, iteration, sample_count, tables):
+        return self._call("submit_synchronous", iteration, sample_count, tables)
+
+    def abort_training(self, reason):
+        return self._call("abort_training", reason)
+
     def close(self):
         with self._mutex:
             self._closed = True

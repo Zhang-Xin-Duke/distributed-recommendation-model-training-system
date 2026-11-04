@@ -140,7 +140,11 @@ updates. The record is `../validation/2026-11-04-synchronous-gradients.json`.
 All 35 native tests pass; the collective and task-progress cores pass ASan/UBSan
 and TSan. No GPU rental was used for these stages.
 
-Next, integrate the native GPU training path with the new update mode and execute
-the beyond-single-GPU capacity acceptance. Reusable key-list handles, durable
+The TensorFlow worker now trains shared Embedding and MLP parameters through
+the synchronous mode, including verified GPU forward/backward and CUDA owner
+updates on an A6000. Its first global gradient and complete touched state match
+a single-worker reference within the recorded tolerances. Extend this path
+across GPU instances and execute the beyond-single-GPU capacity acceptance.
+Reusable key-list handles, durable
 round/range progress, replicated failover, original-framework execution and
 common-quality measurements remain in the full implementation scope.

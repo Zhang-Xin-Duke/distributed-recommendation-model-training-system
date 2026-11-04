@@ -37,6 +37,12 @@
 也参与每轮归并。[同步训练实现](SYNCHRONOUS_GRADIENTS.md)保留接口和验证记录。
 多 GPU 容量训练、原框架接入与副本接管继续按计划实现。
 
+TensorFlow Worker 现已训练共享的 Embedding 和两层 MLP 参数，前向、反向和参数梯度
+实际运行在 A6000 上，再由 CUDA 参数节点更新。16,384 行 × 64 维的检查已将全表
+加载到 GPU，全部触及参数与 Adam 状态相对单 Worker 参考的最大误差约为 4.1e-6。
+当前 RPC 边界使用主机中转；跨 GPU 节点及超过单卡显存的容量实验继续执行。
+[模型训练流程](TENSORFLOW_SHARDED_TRAINING.md)保留参数布局与检查方法。
+
 [训练执行接口与证据](TRAINING_EXECUTION.md) ·
 [完整实现计划](plans/2026-11-04-distributed-training-design.md)
 
