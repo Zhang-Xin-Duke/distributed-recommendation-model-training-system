@@ -1,0 +1,307 @@
+{
+  "base_commit": "f18c513ebd6b8cedf056fb8f7972daceaed5308f",
+  "recorded_at_utc": "2026-11-04T20:16:21.235800+00:00",
+  "scope": "Synchronous shard after-image replication before acknowledgement, durable primary terms and real CPU TensorFlow retained-gradient recovery",
+  "platform": "macOS arm64; local processes; CPU parameter ownership and TensorFlow model computation",
+  "workload": {
+    "device": "CPU",
+    "workers": 2,
+    "shards": 2,
+    "iterations": 8,
+    "rows": 64,
+    "dimension": 8,
+    "fault_round": 3
+  },
+  "checks": {
+    "native-suite": {
+      "passed": 38,
+      "failed": 0
+    },
+    "framework-suite": {
+      "passed": 58,
+      "failed": 0
+    },
+    "asan-ubsan": {
+      "passed": 1,
+      "failed": 0
+    },
+    "tsan": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "syntax_checks": {
+    "python": "passed",
+    "installer_shell": "passed",
+    "git_diff_check": "passed"
+  },
+  "results": {
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "cleanup_verified": true
+  },
+  "cases": [
+    {
+      "mode": "baseline",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_retries": [
+        0,
+        0
+      ],
+      "lookup_registry_fallbacks": 0,
+      "events": []
+    },
+    {
+      "mode": "lost_ack",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_retries": [
+        30,
+        30
+      ],
+      "lookup_registry_fallbacks": 6,
+      "events": [
+        "duplicate_replica_directory_rejected",
+        "primary_process_loss"
+      ],
+      "last_record": {
+        "bytes": 826,
+        "optimizer_clocks": [
+          {
+            "next": 8,
+            "table": 1
+          }
+        ],
+        "requests": [
+          {
+            "learner": 0,
+            "next": 8
+          },
+          {
+            "learner": 1,
+            "next": 8
+          },
+          {
+            "learner": 1023,
+            "next": 8
+          }
+        ],
+        "round": 7,
+        "rows": 5
+      },
+      "old_primary_fencing": {
+        "grant": {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3766,
+          "bytes": 10118,
+          "next_round": 8,
+          "primary": "future-primary",
+          "term": 3
+        },
+        "rejections": [
+          "replica primary term or round is fenced",
+          "replica primary term or round is fenced"
+        ],
+        "unchanged_state": true
+      },
+      "replica_heads": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3766,
+          "bytes": 10118,
+          "next_round": 8,
+          "primary": "replacement-0",
+          "term": 2
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3766,
+          "bytes": 10630,
+          "next_round": 8,
+          "primary": "primary-1",
+          "term": 1
+        }
+      ]
+    },
+    {
+      "mode": "unreplicated",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_retries": [
+        30,
+        30
+      ],
+      "lookup_registry_fallbacks": 6,
+      "events": [
+        "duplicate_replica_directory_rejected",
+        "standby_process_loss_before_publication",
+        "primary_process_loss"
+      ],
+      "last_record": {
+        "bytes": 830,
+        "optimizer_clocks": [
+          {
+            "next": 8,
+            "table": 1
+          }
+        ],
+        "requests": [
+          {
+            "learner": 0,
+            "next": 8
+          },
+          {
+            "learner": 1,
+            "next": 8
+          },
+          {
+            "learner": 1023,
+            "next": 8
+          }
+        ],
+        "round": 7,
+        "rows": 5
+      },
+      "old_primary_fencing": {
+        "grant": {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3770,
+          "bytes": 10154,
+          "next_round": 8,
+          "primary": "future-primary",
+          "term": 3
+        },
+        "rejections": [
+          "replica primary term or round is fenced",
+          "replica primary term or round is fenced"
+        ],
+        "unchanged_state": true
+      },
+      "replica_heads": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3770,
+          "bytes": 10154,
+          "next_round": 8,
+          "primary": "replacement-0",
+          "term": 2
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3770,
+          "bytes": 10666,
+          "next_round": 8,
+          "primary": "primary-1",
+          "term": 1
+        }
+      ]
+    }
+  ],
+  "durability_boundary": "Process SIGKILL with storage retained; fsync, immutable publication and directory locking implemented; no hardware power-cut injection",
+  "not_exercised": [
+    "CUDA parameter-owner failover",
+    "Failure during outstanding Pull or Release",
+    "Worker or coordinator process loss",
+    "Automatic endpoint discovery or supervision",
+    "Loss of the standby authority disk",
+    "State beyond single physical GPU memory capacity",
+    "Complete original Entropy execution"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "42a9c1acb3b4af5a872be634f0b8f099ceb37ca5d89dff54f7d6490295188b0d",
+    "README.md": "b1115c594b296eaf6ed951c2325a3ccd2a179bcabed50437007e7b82f9d87b2e",
+    "adapters/entropy/eps_backend.py": "44fb128bb1411eb5e542db883493f5be1efbd1a2e1e334a63a4dd9832268d29e",
+    "adapters/entropy/eps_backend_worker.py": "7674eca1ffc74b2b9f04b13fb11d837f024ab7c74deef479e430ef2ead8fe81b",
+    "adapters/entropy/python_bindings.cpp": "29939440c5f5f73d6e7549ecfdddd430ed8a3a50f39362ea7886491cff21d261",
+    "adapters/entropy/table_adapter.cpp": "944b5d6f77e90e4329f260ae4bcd7f06d307a0ff259fc6b160ec83071be670b8",
+    "docs/REPLICATED_TRAINING.md": "d5171469b5a2c3a41b83702adaebeebb9f5383c3f0c9db1e38ec06476866a57d",
+    "docs/TRAINING_EXECUTION.md": "a465921f6acab693531b7d3b736a645879c7bd71539fa830817a63a3196c3d84",
+    "docs/plans/2026-11-04-distributed-training-design.md": "709a45d7819b2a703e4f6caad69f10e561f36664b734f014026eccaa057c948d",
+    "docs/plans/2026-11-04-replicated-rounds.md": "a4caddae3e4ccbbd5cff5919252a1ad13f612b85d2faa2c0643d018c17df8881",
+    "examples/sparse_training_worker.cpp": "3fd9ff61492f97101db8cafaf5870dcdc57eac7b40c5b997eaa5c137aaf0f7a3",
+    "examples/tensorflow_training_worker.py": "fc0ab19af05f104fd59667cf74b0aa34d3bcdd257b21df46786a8488df8edd09",
+    "include/eps/brpc_replica.hpp": "c34e3d41c87577a4217b7ec7f735f1280434d85a82947296c7699f131d28d433",
+    "include/eps/brpc_synchronous_gradients.hpp": "841c0935f339b1c924047324fc7204abaee65d0d9bc08c1cf185f90977e8f216",
+    "include/eps/entropy_adapter.hpp": "dcdfcd4d82afbfaa5ccbe69d26e8c4195aef363a20f22caf0a57e941c22841b5",
+    "include/eps/replica_log.hpp": "9cd5f36226b29f478181dcde43001dbecb7f1bfe3a13b34cf83c278ccca52bf3",
+    "include/eps/runtime.hpp": "95153a8afa8381e408f74f73bc0ce7e43311017cfcada2dc01d6447249042aa8",
+    "include/eps/synchronous_gradients.hpp": "c306884723014f1e2c0aacb4659137692a214cda6948446993ff4764692d5e22",
+    "include/eps/types.hpp": "84d3243572c71f7704b26dc0b1652738ff776bf348f193c1c8d5577c92e92b1b",
+    "proto/embedding_service.proto": "2f48e08ae5b0ac7cd482563b1eae4c4eae51941108935ea81de7eba108195917",
+    "scripts/install_training_runtime.sh": "d9fdb3a4b2a3d7e56f62b061e0f0b100ad71da80e226c58df7def2d96935dfb8",
+    "src/replication/configuration.hpp": "7554e7fbdba71cf2fe40e3b193013312fd152e9f063ebe1454486313da23b433",
+    "src/replication/control_main.cpp": "9b6435ba06cc8c9263c3c4fb4e5837471176113e41eda46526fc2fecfbbc501c",
+    "src/replication/log.cpp": "5f9ac3d329ff1478fc335c5b381878f584e0a111e0346ea777604d9d48e4d9bc",
+    "src/replication/record.cpp": "0c5c1067925d8c8e041cb7e2873c8ed2c88a4b68592cbb62900e9c40e11ad03a",
+    "src/server/main.cpp": "8cbafddc83cac7c3abcd3a133e9f0bfd34a249e91642c26e355d72cc92de8d7b",
+    "src/server/replica_main.cpp": "53c9b693cb06aac40338c197068459cd7596dbec37011a34929e6d13b57bce71",
+    "src/server/request_tracker.hpp": "d4070c5aa7f4b4853b4d8fa369521cd9bf557d739f5e1ba367f20ceab85c3483",
+    "src/server/service.cpp": "a7471bd71c844702ccdb21d135395f3e79b9b15c0de322dafb23714a48d7fc0b",
+    "src/store/snapshot.cpp": "d50831907d0f18f573bc844d461b46006c9db8fd7da6064407b2d5535bea8def",
+    "src/store/snapshot.hpp": "e39364f4ebd5948959a56cca2938de82a0cadb27bf37fa42ced662f44f85a626",
+    "src/training/control_main.cpp": "2bc1d6c346cfa0a3117139bbe3a3fa91ac45ee346386efba9dec7ece3af913af",
+    "src/training/synchronous_gradients.cpp": "f1a4e5c6f2f3190878b9cc75cb34fec1e47fe1afe39ded417741cd1ae2ac1986",
+    "src/transport/brpc_replica_client.cpp": "391289971df3d3ede6056252063f427cd9945e886ab9737dd1788e3c75d4c39a",
+    "src/transport/brpc_replica_server.cpp": "e57ea6621a60c17a2f2feabe03af35fb41c3f11113a0c157b09d578edf43ea65",
+    "src/transport/brpc_replica_server.hpp": "6cac6cfd8d3b7bf4ae5a2291a3b48710ba7c02cf590ecf57036205276d15c3f7",
+    "src/transport/brpc_synchronous_client.cpp": "6290772b3335fdc8199078e1fc4c7fa677f480b0e41441e0e39a12f4070bc03f",
+    "src/transport/brpc_synchronous_server.cpp": "a68ae3683673774603b6ed2ee59a4bead97ac84acfb93c14b98e134655210da5",
+    "src/transport/brpc_synchronous_server.hpp": "ad7eb62910971cd04fa3ac1201a81fe2fc1bb1d5e0bae44c8113c8eff6f665c6",
+    "src/transport/replica_codec.hpp": "ee1d8d8db157e0dda266f0d3078cab96b26b416f96613e230de292098020692d",
+    "src/transport/replicated_rounds.cpp": "34e7dcf2facbd15efd38cb349ad658cbac9bd5ca3e61c3fdac8d4787c01042f6",
+    "src/transport/replicated_rounds.hpp": "aba608e4e4b0a79dcbef1ba29bb182418c31e604f8b252b0152d67936bdb36f9",
+    "src/transport/rpc_dispatch.hpp": "69af6b9242fb18a47551a363ab7a3e1588394f67452b93a22190394380dacde7",
+    "tests/adapter_tests.cpp": "4bd4e13cc66c7af2a59414d1a6c0c49e78de76b184015da4c4d3772c02b33247",
+    "tests/replica_log_tests.cpp": "ec49eea45a5d35b387332439548c7575574358136fd20edb91544dc9beb7bc4c",
+    "tests/tensorflow_replica_training.py": "7868449a3c3a1fbb8c92c95507610c5e45675150f508bb8522325d4b8b9c2b90"
+  },
+  "binary_sha256": {
+    "eps_server": "1edf715ff1a34de346d6f4ba381e9410414cc86a6cab35cac146ef1652e0f3ef",
+    "eps_replica": "8dfb24402ac67cb3f93a0296a12630d54167ee96374a550f90a33a15603ed211",
+    "eps_replica_control": "a67d0cb43d0447de83129b6a9302daabf2df12d89a4dd2dc6d7a030f62d276ee",
+    "eps_training_control": "607e23dd19a4b401140c02c85bb0d9568343f2be1c909c38ebea998e7f559105",
+    "eps_training_coordinator": "8dd828d8cf99cbed2a0792082f22e45b172b471eb71f487662898e6cbebdbf64",
+    "eps_replica_log_tests": "fb9594a8eca19390b9fdcf5c77c5c191a5d1deebf289ba6d84d08f666c8a3deb"
+  },
+  "python_module_sha256": {
+    "_eps_native.cpython-311-darwin.so": "a2185bc73a5fd79741d6a08f9ef239028174f12413e252c2f0ec22ce88b97fc2"
+  },
+  "artifacts": {
+    "asan-ubsan.log": {
+      "path": "docs/validation/2026-11-04-replicated-training/asan-ubsan.log",
+      "sha256": "b0aac6a38033152dd56d5ce53b6758876a5111ec2dec645ec10069994f650071"
+    },
+    "framework-suite.log": {
+      "path": "docs/validation/2026-11-04-replicated-training/framework-suite.log",
+      "sha256": "194842cbc26113e2e2185757c23c97a61269d330338811fb94134370ade1c892"
+    },
+    "model-recovery.json.gz": {
+      "path": "docs/validation/2026-11-04-replicated-training/model-recovery.json.gz",
+      "sha256": "ace8db0871d6a263a6b889576e7f8bd2cc414e61038b7a142122f090d95d6a20"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-replicated-training/native-suite.log",
+      "sha256": "1370d7b0c1f92d417d0f37268449a5bf2b93b9d02555fbf17e5fd83b74fd1e72"
+    },
+    "tsan.log": {
+      "path": "docs/validation/2026-11-04-replicated-training/tsan.log",
+      "sha256": "733de542e06ea6c43b3e243e81cb8dffa5f9cd5823a7e8658af5e899783d087f"
+    }
+  }
+}

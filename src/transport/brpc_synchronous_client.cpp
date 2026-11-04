@@ -1,5 +1,6 @@
 #include "eps/brpc_synchronous_gradients.hpp"
 #include "transport/rpc_call.hpp"
+#include <thread>
 
 namespace eps {
 namespace t = transport;
@@ -22,6 +23,33 @@ BrpcSynchronousGradients::BrpcSynchronousGradients(std::string endpoint, std::st
                                                  std::uint64_t epoch, int timeout)
     : impl_(std::make_shared<Impl>(endpoint, std::move(run), epoch, timeout)) {}
 BrpcSynchronousGradients::~BrpcSynchronousGradients() = default;
+Result<GradientRetryStats> SubmitGradientGroup(const std::vector<BrpcSynchronousGradients*>& shards,
+    const std::vector<GradientContribution>& packets,std::chrono::milliseconds window) {
+  if(shards.empty() || shards.size()!=packets.size() || window.count()<0 || window>std::chrono::seconds(20))
+    return Error{Error::Code::invalid_argument,"invalid synchronous retry group/window"};
+  const auto deadline=std::chrono::steady_clock::now()+window;
+  std::vector<bool> complete(shards.size(),false);GradientRetryStats stats;
+  for(;;) {
+    std::vector<std::pair<std::size_t,std::future<Result<Ack>>>> pending;
+    for(std::size_t home=0;home<shards.size();++home)if(!complete[home]) {
+      if(stats.attempts>=shards.size())++stats.retries;
+      ++stats.attempts;pending.emplace_back(home,shards[home]->Submit(packets[home]));
+    }
+    std::optional<Error> error,fatal;
+    for(auto& [home,future]:pending) {
+      auto result=future.get();
+      if(auto* e=std::get_if<Error>(&result)) {
+        error=*e;
+        if(e->code!=Error::Code::unavailable && !(e->code==Error::Code::capacity_exceeded &&
+            e->message.find("pending gradient response")!=std::string::npos))fatal=*e;
+      }else complete[home]=true;
+    }
+    if(fatal)return *fatal;
+    if(!error)return stats;
+    if(!window.count() || std::chrono::steady_clock::now()>=deadline)return *error;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
 std::future<Result<Ack>> BrpcSynchronousGradients::Submit(GradientContribution c) {
   return t::Call<v1::GradientContribution, v1::Ack, Ack>(impl_, &v1::SynchronousGradientService_Stub::Submit,
     [c=std::move(c), p=impl_](auto& q, auto& a) {
@@ -30,6 +58,7 @@ std::future<Result<Ack>> BrpcSynchronousGradients::Submit(GradientContribution c
       auto* task = q.mutable_task(); task->set_run(c.task.run); task->set_epoch(c.task.epoch);
       task->set_worker(c.task.worker); task->set_iteration(c.task.iteration);
       q.set_sample_count(c.sample_count);
+      q.set_completed_reads(c.completed_reads);
       for (const auto& table : c.tables) {
         auto* out = q.add_tables(); out->set_table_id(table.table); out->set_dimension(table.dimension);
         t::Pack(table.keys, out->mutable_keys(), a); t::Pack(table.values, out->mutable_values(), a);

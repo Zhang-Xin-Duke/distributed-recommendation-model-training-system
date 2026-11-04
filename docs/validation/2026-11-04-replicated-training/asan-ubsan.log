@@ -1,0 +1,7 @@
+Test project <project>/build/asan
+    Start 13: durable_replica_log
+1/1 Test #13: durable_replica_log ..............   Passed    0.25 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.27 sec

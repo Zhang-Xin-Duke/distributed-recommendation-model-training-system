@@ -19,6 +19,7 @@ struct GradientContribution {
   // Gradients are the local batch mean when using sample_mean.
   std::uint64_t sample_count;
   std::vector<GradientTable> tables;
+  std::uint64_t completed_reads = 0;
   bool operator==(const GradientContribution&) const = default;
 };
 struct SynchronousGradientOptions {
@@ -60,7 +61,8 @@ struct SynchronousGradientCheckpoint {
 class SynchronousGradientCollector {
  public:
   using Apply = std::function<Result<Ack>(std::uint64_t, std::vector<GradientTable>)>;
-  SynchronousGradientCollector(SynchronousGradientOptions options, Apply apply);
+  using ReadProgress = std::function<Result<Ack>(std::vector<RequestFrontier>)>;
+  SynchronousGradientCollector(SynchronousGradientOptions options, Apply apply,ReadProgress reads={});
   ~SynchronousGradientCollector();
   SynchronousGradientCollector(const SynchronousGradientCollector&) = delete;
   SynchronousGradientCollector& operator=(const SynchronousGradientCollector&) = delete;
@@ -70,6 +72,7 @@ class SynchronousGradientCollector {
   Result<Ack> Resume();
   Result<SynchronousGradientCheckpoint> Checkpoint() const;
   Result<Ack> Restore(SynchronousGradientCheckpoint checkpoint);
+  Result<Ack> RecoverReplica(std::uint64_t baseline_round, std::uint64_t next_round);
   // Wakes callers immediately; already-dispatched external operations drain
   // before destruction. This does not undo an update already being applied.
   void Abort(std::string reason);

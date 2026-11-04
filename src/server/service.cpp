@@ -673,6 +673,7 @@ std::future<Result<ParameterTrainingMetadata>> CpuParameterService::TrainingMeta
     result.provenance.shard = impl_->options_.shard_id;
     result.provenance.shard_count = impl_->options_.shard_count;
     result.provenance.partition_epoch = impl_->options_.partition_epoch;
+    result.requests = impl_->tracker_.Frontiers();
     for (const auto& [id, table] : impl_->store_->tables()) {
       result.tables.push_back(table.definition);
       result.optimizer_contexts.push_back({{impl_->options_.run_id, 1023, 0, Phase::maintenance},
@@ -717,6 +718,73 @@ std::future<Result<RestoredSnapshot>> CpuParameterService::RestoredFrom() {
     metadata.run=impl_->options_.run_id;metadata.shard=impl_->options_.shard_id;
     metadata.shard_count=impl_->options_.shard_count;metadata.partition_epoch=impl_->options_.partition_epoch;
     return metadata;
+  });
+}
+std::future<Result<Ack>> CpuParameterService::RestoreReplicaBaseline(std::filesystem::path file) {
+  return impl_->Submit<Ack>([this,file=std::move(file)] {
+    impl_->Ready();Require(impl_->draining_ && !impl_->restored_.loaded && impl_->store_->empty() && impl_->tickets_.empty(),
+      "replica restoration requires a fresh paused service");
+    impl_->store_=detail::ReadSnapshot(file,impl_->options_.run_id,impl_->options_.shard_id,
+      impl_->options_.shard_count,impl_->options_.partition_epoch,impl_->options_.state_bytes,&impl_->restored_,true);
+    return Ack{};
+  });
+}
+std::future<Result<Ack>> CpuParameterService::ImportReplicaUpdate(ReplicatedUpdate image) {
+  return impl_->Submit<Ack>([this,image=std::move(image)] {
+    impl_->Ready();Require(impl_->draining_ && impl_->restored_.loaded && impl_->tickets_.empty() && impl_->agents_.empty() &&
+      image.run==impl_->options_.run_id && image.shard==impl_->options_.shard_id && image.shards==impl_->options_.shard_count &&
+      image.epoch==impl_->options_.partition_epoch && image.round!=UINT64_MAX && image.contexts.size()==impl_->store_->tables().size(),
+      "replica image restoration identity/state mismatch");
+    std::set<TableId> tables;
+    for(const auto& c:image.contexts) {
+      auto& t=impl_->store_->Table(c.table);
+      Require(tables.insert(c.table).second && c.shard==image.shard && t.optimizer_sequence==image.round &&
+        c.optimizer_sequence==image.round+1 && c.learning_rate==t.definition.optimizer.learning_rate &&
+        c.beta1_power==t.beta1_power*t.definition.optimizer.beta1 && c.beta2_power==t.beta2_power*t.definition.optimizer.beta2,
+        "replica optimizer image is not the next update");
+    }
+    std::set<std::pair<TableId,Key>> seen;
+    for(const auto& r:image.rows) {
+      auto& t=impl_->store_->Table(r.row.table);
+      Require(tables.contains(r.row.table) && r.row.key%image.shards==image.shard &&
+        seen.emplace(r.row.table,r.row.key).second && r.weights.size()==t.definition.dimension &&
+        r.first_moment.size()==r.weights.size() && r.second_moment.size()==r.weights.size(),"invalid replica row layout");
+      const auto slot=impl_->store_->Ensure(r.row.table,r.row.key);
+      Require(*t.At(slot).updates!=UINT64_MAX && r.row_updates==*t.At(slot).updates+1,"replica row update count is not contiguous");
+      for(const auto* a:{&r.weights,&r.first_moment,&r.second_moment})for(auto f:*a)Require(std::isfinite(f),"non-finite replica image");
+      for(auto f:r.second_moment)Require(f>=0,"negative replicated second moment");
+    }
+    for(const auto& r:image.rows)impl_->store_->Overwrite(r);
+    for(const auto& c:image.contexts){auto& t=impl_->store_->Table(c.table);t.optimizer_sequence=c.optimizer_sequence;t.beta1_power=c.beta1_power;t.beta2_power=c.beta2_power;}
+    impl_->tracker_.RestoreFrontiers(image.requests);impl_->restored_.pristine=false;
+    return Ack{};
+  });
+}
+std::future<Result<Ack>> CpuParameterService::InitializeRequestFrontiers(std::vector<RequestFrontier> progress) {
+  return impl_->Submit<Ack>([this,progress=std::move(progress)] {
+    impl_->Ready();Require(impl_->tickets_.empty() && impl_->stats_.lookups==0 && impl_->stats_.updates==0,
+      "request frontiers must be restored before serving parameter traffic");
+    impl_->tracker_.RestoreFrontiers(progress);return Ack{};
+  });
+}
+std::future<Result<Ack>> CpuParameterService::CertifyReadFrontiers(std::vector<RequestFrontier> progress) {
+  return impl_->Submit<Ack>([this,progress=std::move(progress)] {
+    impl_->Ready();Require(impl_->options_.exclusive_update_learner==1023 && impl_->tickets_.empty(),
+      "read progress certification requires a quiescent synchronous group");
+    impl_->tracker_.CertifyReads(progress);return Ack{};
+  });
+}
+std::future<Result<Ack>> CpuParameterService::InitializeReplicaRows(std::vector<std::pair<TableId,std::uint64_t>> counts) {
+  return impl_->Submit<Ack>([this,counts=std::move(counts)] {
+    impl_->Ready();Require(impl_->tickets_.empty() && impl_->agents_.empty() && impl_->stats_.lookups==0 && impl_->stats_.updates==0,
+      "replica baseline rows must be initialized before serving");
+    for(const auto& [table,total]:counts) {
+      Require(total>0 && total<=(1ULL<<34),"invalid replica table cardinality");
+      const auto previous=impl_->store_->rows();
+      for(std::uint64_t key=impl_->options_.shard_id;key<total;key+=impl_->options_.shard_count)impl_->store_->Ensure(table,key);
+      if(impl_->store_->rows()!=previous)impl_->restored_.pristine=false;
+    }
+    return Ack{};
   });
 }
 std::future<Result<Ack>> CpuParameterService::Resume() {

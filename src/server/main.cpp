@@ -12,6 +12,8 @@
 #include "transport/brpc_server.hpp"
 #include "transport/brpc_synchronous_server.hpp"
 #include "training/checkpoint_json.hpp"
+#include "replication/configuration.hpp"
+#include "transport/replicated_rounds.hpp"
 
 using namespace eps;
 namespace {
@@ -48,13 +50,17 @@ int main(int argc,char** argv) {
     if(policy!="cpu_only" && !caching)throw std::runtime_error("GPU access routes require cache.enabled and an agent");
     RuntimeOptions options;
     const bool synchronous = j.contains("synchronous_training");
+    const bool replicated=synchronous && j.at("synchronous_training").contains("replica");
+    const bool replica_recover=replicated && j.at("synchronous_training").at("replica").value("recover",false);
     if (synchronous) {
       if ((!restore.empty()) != j.at("synchronous_training").contains("restore"))
         throw std::runtime_error("parameter and synchronous group restore must be supplied together");
       options.exclusive_update_learner = 1023;
-      options.start_paused = !restore.empty();
+      options.start_paused = !restore.empty() || replica_recover;
     }
     options.run_id=run.empty()?j.at("run_id").get<std::string>():run;
+    if(replicated && options.run_id!=j.at("run_id").get<std::string>())
+      throw std::runtime_error("replicated run identity must match its configuration");
     options.shard_id=j.at("partition").at("shard_id");
     options.shard_count=j.at("partition").at("shard_count");
     options.partition_epoch=j.at("partition").at("epoch");
@@ -78,7 +84,9 @@ int main(int argc,char** argv) {
       options.cache_dependencies=l.value("cache_dependencies",options.cache_dependencies);
     }
     CpuParameterService service(options);
-    if(!restore.empty()) {
+    if(replica_recover) {
+      if(!restore.empty())throw std::runtime_error("choose replica recovery or joint snapshot restore");
+    } else if(!restore.empty()) {
       Value(service.Restore(restore));
       if (synchronous) for (const auto& t:j.at("tables"))
         Value(service.CreateTable(training::DecodeTable(t,options.shard_count,options.partition_epoch)));
@@ -98,6 +106,22 @@ int main(int argc,char** argv) {
         table.optimizer.weight_bounds=WeightBounds{b.at(0),b.at(1)};
       }
       Value(service.CreateTable(table));
+    }
+    std::shared_ptr<transport::ReplicatedRoundWriter> replica;
+    ReplicaHead replica_head;
+    if(replicated) {
+      const auto& config=j.at("synchronous_training").at("replica");
+      auto scope=replication::Configuration(j);scope.directory=config.at("local_directory").get<std::string>();
+      replica=std::make_shared<transport::ReplicatedRoundWriter>(config.at("endpoint"),scope,
+        ReplicaLease{config.at("term"),config.at("primary")});
+      if(!replica_recover && j.contains("replica_table_rows")) {
+        std::vector<std::pair<TableId,std::uint64_t>> counts;
+        for(auto it=j.at("replica_table_rows").begin();it!=j.at("replica_table_rows").end();++it)
+          counts.emplace_back(static_cast<TableId>(std::stoul(it.key())),it.value().get<std::uint64_t>());
+        Value(service.InitializeReplicaRows(std::move(counts)));
+      }
+      replica_head=replica->Start(service,replica_recover,true);
+      for(const auto& table:j.at("tables"))Value(service.CreateTable(training::DecodeTable(table,options.shard_count,options.partition_epoch)));
     }
     if(caching)for(const auto& agent:j.at("agents")){
       const AgentId id=agent.at("id");
@@ -170,7 +194,7 @@ int main(int argc,char** argv) {
         reduction == "worker_mean" ? GradientReduction::worker_mean : GradientReduction::sum;
       for (const auto& table : j.at("tables"))
         group.tables.push_back({table.at("id"), table.at("dimension"), {}, {}});
-      synchronous_rpc = std::make_unique<transport::BrpcSynchronousServer>(service, std::move(group));
+      synchronous_rpc = std::make_unique<transport::BrpcSynchronousServer>(service, std::move(group),replica);
       if (config.contains("restore")) {
         const auto& state=config.at("restore");
         const auto checkpoint=training::DecodeGroup(state.at("group"));
@@ -181,6 +205,10 @@ int main(int argc,char** argv) {
         expected.shard_count=fingerprint.at("shards");expected.partition_epoch=fingerprint.at("epoch");
         auto result=synchronous_rpc->Restore(checkpoint,expected);
         if (auto* error=std::get_if<Error>(&result)) throw std::runtime_error(error->message);
+      } else if(replica) {
+        auto result=synchronous_rpc->RecoverReplica(replica_head.base_round,replica_head.next_round,
+          !config.at("replica").value("start_paused",false));
+        if(auto* error=std::get_if<Error>(&result))throw std::runtime_error(error->message);
       }
     }
     brpc::Server server;

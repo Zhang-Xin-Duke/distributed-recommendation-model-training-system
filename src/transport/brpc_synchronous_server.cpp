@@ -9,6 +9,7 @@
 #include <brpc/controller.h>
 #include "transport/codec.hpp"
 #include "transport/rpc_dispatch.hpp"
+#include "transport/replicated_rounds.hpp"
 
 namespace eps::transport {
 namespace {
@@ -43,6 +44,7 @@ struct BrpcSynchronousServer::Impl {
   };
   CpuParameterService& parameters;
   SynchronousGradientOptions options;
+  std::shared_ptr<ReplicatedRoundWriter> replica;
   SynchronousGradientCollector collector;
   std::mutex mutex;
   std::condition_variable changed;
@@ -50,23 +52,28 @@ struct BrpcSynchronousServer::Impl {
   bool stopping = false;
   std::thread pump;
 
-  Impl(CpuParameterService& ps, SynchronousGradientOptions o)
-      : parameters(ps), options(std::move(o)), collector(options,
-        [this](auto round, auto tables) { return Apply(round, std::move(tables)); }),
+  Impl(CpuParameterService& ps, SynchronousGradientOptions o,std::shared_ptr<ReplicatedRoundWriter> r)
+      : parameters(ps), options(std::move(o)),replica(std::move(r)), collector(options,
+        [this](auto round, auto tables) { return Apply(round, std::move(tables)); },
+        [this](auto progress)->Result<Ack>{if(replica)return parameters.CertifyReadFrontiers(std::move(progress)).get();return Ack{};}),
         pending(options.workers), pump([this] { Poll(); }) {}
   Result<Ack> Apply(std::uint64_t round, std::vector<GradientTable> tables) {
+    if(replica)replica->BeforeRound(round);
+    std::vector<RowKey> touched;
     LookupRequest request{{options.run, 1023, round, Phase::lookup}, options.epoch, false, {}};
     std::vector<TensorBlock> gradients;
     for (std::size_t i = 0; i < tables.size(); ++i) {
       auto& table = tables[i];
+      if(replica)for(auto key:table.keys)touched.push_back({table.table,key});
       const auto count = table.keys.size();
       request.features.push_back({table.table, static_cast<std::uint32_t>(i), Pooling::sequence,
         std::move(table.keys), {0, count}, {count}});
       gradients.push_back({static_cast<std::uint32_t>(i), {count, table.dimension}, std::move(table.values)});
     }
     auto lookup = Take(parameters.Lookup(std::move(request)));
-    return parameters.Push({{options.run, 1023, round, Phase::push},
-      std::move(lookup.ticket), std::move(gradients)}).get();
+    Take(parameters.Push({{options.run, 1023, round, Phase::push},std::move(lookup.ticket),std::move(gradients)}));
+    if(replica)replica->Commit(parameters,round,touched);
+    return Ack{};
   }
   void Validate(google::protobuf::RpcController* c, const google::protobuf::Message& q) const {
     detail::Require(q.ByteSizeLong() <= (1ULL << 20) &&
@@ -106,10 +113,20 @@ struct BrpcSynchronousServer::Impl {
     changed.notify_all(); if (pump.joinable()) pump.join();
   }
 };
-BrpcSynchronousServer::BrpcSynchronousServer(CpuParameterService& service, SynchronousGradientOptions options)
-    : impl_(std::make_unique<Impl>(service, std::move(options))) {}
+BrpcSynchronousServer::BrpcSynchronousServer(CpuParameterService& service, SynchronousGradientOptions options,std::shared_ptr<ReplicatedRoundWriter> replica)
+    : impl_(std::make_unique<Impl>(service, std::move(options),std::move(replica))) {}
 BrpcSynchronousServer::~BrpcSynchronousServer() { Shutdown(); }
 void BrpcSynchronousServer::Shutdown() { impl_->Shutdown(); }
+Result<Ack> BrpcSynchronousServer::RecoverReplica(std::uint64_t baseline,std::uint64_t next,bool activate) {
+  try {
+    detail::Require(bool(impl_->replica),"replica recovery requires a configured writer");
+    auto metadata=Take(impl_->parameters.TrainingMetadata());
+    for(const auto& c:metadata.optimizer_contexts)detail::Require(c.optimizer_sequence==next,"recovered optimizer/group clock differs");
+    auto r=impl_->collector.RecoverReplica(baseline,next);if(auto* e=std::get_if<Error>(&r))return *e;
+    if(activate){impl_->replica->BeforeRound(next);Take(impl_->parameters.Resume());return impl_->collector.Resume();}
+    return Ack{};
+  }catch(const detail::Failure& e){return e.error();}
+}
 Result<Ack> BrpcSynchronousServer::Restore(SynchronousGradientCheckpoint c, RestoredSnapshot expected) {
   try {
     auto m=Take(impl_->parameters.TrainingMetadata());
@@ -120,6 +137,7 @@ Result<Ack> BrpcSynchronousServer::Restore(SynchronousGradientCheckpoint c, Rest
       p.shard_count==expected.shard_count && p.partition_epoch==c.epoch && p.partition_epoch==expected.partition_epoch,
       "loaded parameter snapshot identity differs from group checkpoint");
     ValidateParameters(m,c);
+    Take(impl_->parameters.InitializeRequestFrontiers({{1023,c.next_round}}));
     return impl_->collector.Restore(std::move(c));
   } catch(const detail::Failure& e) { return e.error(); }
 }
@@ -132,6 +150,7 @@ void BrpcSynchronousServer::Submit(google::protobuf::RpcController* c, const v1:
       "invalid synchronous worker/table count");
     GradientContribution input{{q->task().run(), q->task().epoch(), q->task().worker(), q->task().iteration()},
       q->sample_count(), {}};
+    input.completed_reads=q->completed_reads();
     std::uint64_t decoded = 0;
     const auto& attachment = static_cast<brpc::Controller*>(c)->request_attachment();
     for (const auto& table : q->tables()) {

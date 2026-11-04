@@ -59,6 +59,7 @@ struct RequestId {
   Phase phase;
   bool operator==(const RequestId&) const = default;
 };
+struct RequestFrontier { std::uint32_t learner; std::uint64_t next; };
 
 struct RowKey {
   TableId table;

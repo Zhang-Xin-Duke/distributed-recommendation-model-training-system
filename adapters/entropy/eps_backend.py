@@ -107,8 +107,10 @@ class Backend:
     def restored_from(self):
         return self._call("restored_from")
 
-    def configure_training(self, coordinator):
-        return self._call("configure_training", coordinator)
+    def configure_training(self, coordinator, retry_ms=0):
+        return self._call("configure_training", coordinator, int(retry_ms))
+    def training_retry_count(self):
+        return self._call("training_retry_count")
 
     def begin_training(self, iteration):
         return self._call("begin_training", iteration)

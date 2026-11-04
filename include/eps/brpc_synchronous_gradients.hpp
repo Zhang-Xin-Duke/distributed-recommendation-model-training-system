@@ -18,4 +18,9 @@ class BrpcSynchronousGradients {
   struct Impl;
   std::shared_ptr<Impl> impl_;
 };
+struct GradientRetryStats { std::uint64_t attempts=0,retries=0; };
+// Blocking framework-worker helper; never call from a transport completion.
+// Retains original gradients until every shard acknowledges the same task.
+Result<GradientRetryStats> SubmitGradientGroup(const std::vector<BrpcSynchronousGradients*>&,
+    const std::vector<GradientContribution>&,std::chrono::milliseconds retry_window=std::chrono::milliseconds(0));
 }  // namespace eps

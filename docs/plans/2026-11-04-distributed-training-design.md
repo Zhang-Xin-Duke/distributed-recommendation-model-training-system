@@ -44,9 +44,11 @@ have explicit original-native environment substitutions.
 
 Task-clock policies now run through an independent RPC coordinator, with actual
 worker processes computing sparse gradients against network parameter shards.
-Replica-before-ack, live shard/worker failover and a measured common-quality
-comparison across training consistency policies remain open. Full original
-Entropy execution also remains open.
+Replica-before-ack and explicit primary replacement now execute for synchronous
+rounds with retained worker gradients and CPU-owned state. Outstanding reads,
+worker/coordinator replacement, live GPU-owner fencing and a measured
+common-quality comparison across training consistency policies remain open.
+Full original Entropy execution also remains open.
 
 ## Training-task progress controller
 
@@ -163,8 +165,9 @@ owner TensorFlow test compares all 32 rows and continuation losses against
 uninterrupted training after restarting inside a three-batch input cycle; both
 maximum absolute differences are zero. Injected partial exports do not publish
 a manifest. The record is `../validation/2026-11-04-joint-training-checkpoint.json`.
-This completes coordinated round-boundary restart; replica-backed in-flight
-replay and fenced live replacement remain required work.
+This completes coordinated round-boundary restart. Replicated retained-gradient
+recovery extends it as described below; other in-flight and worker replacement
+paths remain required work.
 
 Worker-to-shard Lookup layouts now support reusable, scoped tokens with bounded
 LRU/idle-TTL registries and same-request full-layout fallback. The two-worker,
@@ -175,3 +178,22 @@ Lookup request bytes decrease about 86%, with zero cached/uncached state or
 loss difference across 503 touched rows. This measurement excludes gradient,
 Agent and response traffic. The record is
 `../validation/2026-11-04-reusable-lookup-layouts.json`.
+
+[Replicated synchronous rounds](../REPLICATED_TRAINING.md) now preserve exact
+parameter/Adam after-images, optimizer clocks and completed transport frontiers
+on disk before update acknowledgement. The separate standby durably grants one
+monotonic primary term; an exclusive directory lock prevents competing local
+replica processes from bypassing that authority. Original-gradient retries
+resume after explicit replacement at a stable service endpoint. The real
+two-worker/two-shard TensorFlow CPU model matches uninterrupted training exactly
+after both lost-ack and unreplicated-update faults. All 64 rows and all worker
+losses are compared. Old-term updates reject without advancing model/task state.
+Native 38/38 and framework 58/58 tests pass, with ASan/UBSan and TSan checks of
+the durable log. The record is
+`../validation/2026-11-04-replicated-training.json`.
+
+The next failure work retains the same training framework and extends recovery
+across outstanding Pull/Release, worker/coordinator process loss and competing
+GPU owners. Automatic discovery/supervision, bounded log compaction,
+gradient-Key metadata reuse, same-quality policy measurements, GPU capacity
+execution and complete original Entropy integration remain in the full scope.

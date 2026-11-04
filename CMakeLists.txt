@@ -22,6 +22,8 @@ add_library(eps_core
   src/update/lazy_adam.cpp
   src/training/training_progress.cpp
   src/training/synchronous_gradients.cpp
+  src/replication/record.cpp
+  src/replication/log.cpp
   src/client/distributed_client.cpp
   src/client/cache_resolver.cpp
   src/cache/access_cost_model.cpp
@@ -94,6 +96,8 @@ if(EPS_BUILD_BRPC)
   protobuf_generate(TARGET eps_proto APPEND_PATH)
   target_include_directories(eps_proto PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
   add_library(eps_brpc src/transport/brpc_client.cpp src/transport/brpc_server.cpp
+    src/transport/brpc_replica_client.cpp src/transport/brpc_replica_server.cpp
+    src/transport/replicated_rounds.cpp
     src/transport/brpc_training_client.cpp src/transport/brpc_training_server.cpp
     src/transport/brpc_synchronous_client.cpp src/transport/brpc_synchronous_server.cpp
     src/transport/brpc_cache_client.cpp src/transport/brpc_agent_server.cpp
@@ -187,6 +191,12 @@ if(EPS_BUILD_BRPC)
   target_link_libraries(eps_training_worker PRIVATE eps_brpc nlohmann_json::nlohmann_json)
   find_package(OpenSSL REQUIRED)
   add_executable(eps_training_control src/training/control_main.cpp src/training/job_checkpoint.cpp)
+  add_executable(eps_replica src/server/replica_main.cpp)
+  target_link_libraries(eps_replica PRIVATE eps_brpc nlohmann_json::nlohmann_json)
+  target_include_directories(eps_replica PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  add_executable(eps_replica_control src/replication/control_main.cpp)
+  target_link_libraries(eps_replica_control PRIVATE eps_brpc nlohmann_json::nlohmann_json)
+  target_include_directories(eps_replica_control PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(eps_training_control PRIVATE eps_brpc nlohmann_json::nlohmann_json OpenSSL::Crypto)
   add_executable(eps_training_prepare src/training/prepare_main.cpp)
   target_link_libraries(eps_training_prepare PRIVATE eps_brpc nlohmann_json::nlohmann_json)
@@ -355,6 +365,11 @@ if(EPS_BUILD_BRPC)
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-lookup-layouts.json")
         set_tests_properties(tensorflow_reusable_lookup_layouts PROPERTIES TIMEOUT 360
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_replicated_primary_recovery
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_replica_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-replica-recovery.json")
+        set_tests_properties(tensorflow_replicated_primary_recovery PROPERTIES TIMEOUT 240
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME distributed_model_orchestration
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/distributed_model_orchestration.py"
             "${CMAKE_CURRENT_BINARY_DIR}")
@@ -455,6 +470,9 @@ if(EPS_BUILD_TESTS)
   set_tests_properties(training_progress_consistency PROPERTIES TIMEOUT 30)
   add_executable(eps_synchronous_gradients_tests tests/synchronous_gradients_tests.cpp)
   add_executable(eps_lookup_layout_cache_tests tests/lookup_layout_cache_tests.cpp)
+  add_executable(eps_replica_log_tests tests/replica_log_tests.cpp)
+  target_link_libraries(eps_replica_log_tests PRIVATE eps_core)
+  add_test(NAME durable_replica_log COMMAND eps_replica_log_tests)
   target_link_libraries(eps_lookup_layout_cache_tests PRIVATE eps_core)
   add_test(NAME reusable_lookup_layout_cache COMMAND eps_lookup_layout_cache_tests)
   target_link_libraries(eps_synchronous_gradients_tests PRIVATE eps_core)

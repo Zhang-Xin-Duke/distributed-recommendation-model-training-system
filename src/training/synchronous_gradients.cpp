@@ -20,6 +20,7 @@ using detail::Require;
 struct SynchronousGradientCollector::Impl {
   SynchronousGradientOptions options;
   Apply apply;
+  ReadProgress reads;
   mutable std::mutex mutex;
   std::condition_variable changed;
   std::vector<std::shared_ptr<const GradientContribution>> inputs;
@@ -33,7 +34,7 @@ struct SynchronousGradientCollector::Impl {
   std::optional<std::chrono::steady_clock::time_point> deadline;
   std::thread executor;
 
-  Impl(SynchronousGradientOptions o, Apply fn) : options(std::move(o)), apply(std::move(fn)) {
+  Impl(SynchronousGradientOptions o, Apply fn,ReadProgress progress) : options(std::move(o)), apply(std::move(fn)),reads(std::move(progress)) {
     Require(!options.run.empty() && options.run.size() <= 256 && options.epoch &&
       options.workers && options.workers <= 1023 && options.shards && options.shards <= 1024 &&
       options.shard < options.shards && !options.tables.empty() && options.tables.size() <= 256 &&
@@ -142,7 +143,14 @@ struct SynchronousGradientCollector::Impl {
       const auto packets = inputs;
       lock.unlock();
       Result<Ack> result;
-      try { result = apply(round, Reduce(packets)); }
+      try {
+        if(reads) {
+          std::vector<RequestFrontier> progress;
+          for(const auto& packet:packets)if(packet->completed_reads)progress.push_back({packet->task.worker,packet->completed_reads});
+          const auto advanced=reads(std::move(progress));if(auto* e=std::get_if<Error>(&advanced))throw detail::Failure(*e);
+        }
+        result = apply(round, Reduce(packets));
+      }
       catch (const detail::Failure& e) { result = e.error(); }
       catch (const std::exception& e) { result = Error{Error::Code::run_failed, e.what()}; }
       lock.lock(); stats.applying = false;
@@ -156,8 +164,8 @@ struct SynchronousGradientCollector::Impl {
   }
 };
 
-SynchronousGradientCollector::SynchronousGradientCollector(SynchronousGradientOptions options, Apply apply)
-    : impl_(std::make_unique<Impl>(std::move(options), std::move(apply))) {}
+SynchronousGradientCollector::SynchronousGradientCollector(SynchronousGradientOptions options, Apply apply,ReadProgress reads)
+    : impl_(std::make_unique<Impl>(std::move(options), std::move(apply),std::move(reads))) {}
 SynchronousGradientCollector::~SynchronousGradientCollector() {
   { std::lock_guard lock(impl_->mutex); impl_->stopping = true; impl_->Fail("gradient collector shutting down"); }
   impl_->changed.notify_all();
@@ -233,5 +241,12 @@ Result<Ack> SynchronousGradientCollector::Restore(SynchronousGradientCheckpoint 
 void SynchronousGradientCollector::Abort(std::string reason) {
   { std::lock_guard lock(impl_->mutex); impl_->Fail(std::move(reason)); }
   impl_->changed.notify_all();
+}
+Result<Ack> SynchronousGradientCollector::RecoverReplica(std::uint64_t baseline,std::uint64_t next) {
+  std::lock_guard lock(impl_->mutex);
+  if(impl_->ever_submitted || impl_->restored || impl_->stats.received_workers || impl_->stats.applying ||
+    !impl_->failure.empty() || baseline>next || next==UINT64_MAX)
+    return Error{Error::Code::invalid_argument,"replica round recovery requires a fresh collector and valid frontier"};
+  impl_->restored=true;impl_->restored_floor=baseline;impl_->stats.next_round=next;impl_->stats.paused=true;return Ack{};
 }
 }  // namespace eps

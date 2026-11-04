@@ -13,8 +13,10 @@ logical progress, replication and recovery, evaluated at a common quality
 target. A standalone RPC coordinator now enforces sequential, eventual and
 bounded-delay task admission across worker processes. Four independent workers
 train a shared sparse model through two parameter-server processes, with task
-completion following acknowledged parameter updates. Replica-backed failover
-and full original Entropy execution remain in the implementation plan.
+completion following acknowledged parameter updates. Synchronous rounds now
+support replica-backed primary recovery with retained-gradient retries. Complete
+original Entropy execution and the remaining failure paths are tracked in the
+implementation plan.
 
 The first implementation targets sparse access to embedding tables: each batch
 touches only a small fraction of a large table. This pattern appears in
@@ -49,6 +51,14 @@ ticket semantics through metadata eviction or registry restart.
 Adam state, gradient rounds, completed worker clocks and the next input batch
 together. New processes start paused, rehydrate existing rows on their owners
 and reopen training after all shard identities and clocks match.
+
+[Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
+parameters, Adam state and request progress on an independent disk-backed replica
+before acknowledging a synchronous round. A replacement primary restores that
+state under a new durable term; workers retain and retry their original gradients.
+Two CPU model-training fault cases cover a lost commit acknowledgement and an
+unpublished update, with zero final state/loss difference from uninterrupted
+training. Outstanding-read and GPU-owner recovery remain in the execution plan.
 
 [Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
 owner and model worker on each node, initializes local backing/resident rows,

@@ -205,6 +205,11 @@ Result<Ack> TableAdapter::Join() {
   if(!impl_->live.empty())return Error{Error::Code::unavailable,"complete Push/Release before Join"};
   return Ack{};
 }
+Result<std::uint64_t> TableAdapter::CompletedReadFrontier() const {
+  std::lock_guard lock(impl_->mutex);
+  if(impl_->closed || !impl_->live.empty())return Error{Error::Code::unavailable,"finish all read lifecycles before certifying progress"};
+  return impl_->next;
+}
 Result<std::vector<SnapshotMetadata>> TableAdapter::Save(std::string id) {
   std::lock_guard lock(impl_->mutex);
   try {

@@ -107,6 +107,7 @@ int main(int argc, char** argv) {
         std::vector<GradientContribution> packets;
         for (std::size_t home = 0; home < shards.size(); ++home)
           packets.push_back({{run, epoch, worker, iteration}, labels.size(), {{1, 1, {}, {}}}});
+        const auto reads=Take(adapter.CompletedReadFrontier());for(auto& packet:packets)packet.completed_reads=reads;
         for (const auto& [key, gradient] : rows) {
           auto& table = packets[key % shards.size()].tables[0];
           table.keys.push_back(key); table.values.push_back(static_cast<float>(gradient));

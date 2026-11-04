@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 #include <nlohmann/json.hpp>
 #include <set>
+#include <atomic>
 #include "eps/entropy_adapter.hpp"
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
@@ -211,13 +212,15 @@ class Backend {
     }
     return result;
   }
-  void ConfigureTraining(std::string coordinator) {
+  void ConfigureTraining(std::string coordinator,unsigned retry_ms) {
     if (progress_) throw std::invalid_argument("training already configured");
     if (learner_ >= 1023) throw std::invalid_argument("synchronous training worker ID must be below 1023");
+    if(retry_ms>20000)throw std::invalid_argument("gradient retry window exceeds 20 seconds");
     auto progress = std::make_unique<BrpcTrainingProgress>(std::move(coordinator), run_, epoch_, 20000);
     std::vector<std::unique_ptr<BrpcSynchronousGradients>> collectors;
     for (const auto& endpoint : endpoints_)
-      collectors.push_back(std::make_unique<BrpcSynchronousGradients>(endpoint, run_, epoch_, 25000));
+      collectors.push_back(std::make_unique<BrpcSynchronousGradients>(endpoint, run_, epoch_,retry_ms?4000:25000));
+    retry_ms_=retry_ms;
     progress_ = std::move(progress); collectors_ = std::move(collectors);
   }
   std::uint64_t BeginTraining(std::uint64_t iteration) {
@@ -233,7 +236,11 @@ class Backend {
     if (!progress_ || tables.empty() || tables.size() > 256 || !samples)
       throw std::invalid_argument("invalid synchronous training submission");
     std::vector<GradientContribution> packets(count_);
-    for (auto& packet : packets) { packet.task = {run_, epoch_, learner_, iteration}; packet.sample_count = samples; }
+    std::uint64_t completed_reads=0;
+    const auto progress=adapter_->CompletedReadFrontier();
+    if(auto* n=std::get_if<std::uint64_t>(&progress))completed_reads=*n;
+    else if(retry_ms_)throw std::runtime_error(std::get<Error>(progress).message);
+    for (auto& packet : packets) { packet.task = {run_, epoch_, learner_, iteration}; packet.sample_count = samples;packet.completed_reads=completed_reads; }
     TableId previous = 0; bool first = true;
     std::uint64_t retained = 0;
     for (auto item : tables) {
@@ -261,16 +268,11 @@ class Backend {
       }
     }
     py::gil_scoped_release release;
-    std::vector<std::future<Result<Ack>>> pending;
-    for (std::size_t home = 0; home < count_; ++home)
-      pending.push_back(collectors_[home]->Submit(std::move(packets[home])));
-    std::optional<Error> error;
-    // Drain every shard future even when one fails before reporting the error.
-    for (auto& future : pending) {
-      auto result = future.get(); if (auto* e = std::get_if<Error>(&result)) if (!error) error = *e;
-    }
-    if (error) throw std::runtime_error(error->message);
+    std::vector<BrpcSynchronousGradients*> group;
+    for(const auto& collector:collectors_)group.push_back(collector.get());
+    retry_count_+=Take(SubmitGradientGroup(group,packets,std::chrono::milliseconds(retry_ms_))).retries;
   }
+  std::uint64_t TrainingRetryCount()const{return retry_count_.load();}
   void AbortTraining(std::string reason) {
     py::gil_scoped_release release;
     std::vector<std::future<Result<Ack>>> pending;
@@ -281,6 +283,8 @@ class Backend {
  private:
   std::string run_;std::uint64_t epoch_;std::uint32_t count_;
   std::uint32_t learner_;
+  unsigned retry_ms_=0;
+  std::atomic<std::uint64_t> retry_count_{0};
   std::vector<std::string> endpoints_;
   std::unique_ptr<BrpcTrainingProgress> progress_;
   std::vector<std::unique_ptr<BrpcSynchronousGradients>> collectors_;
@@ -301,7 +305,8 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("save",&Backend::Save).def("stats",&Backend::Stats)
     .def("lookup_layout_cache",&Backend::LookupCache).def("lookup_transport_stats",&Backend::LookupTransport)
     .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
-    .def("configure_training",&Backend::ConfigureTraining)
+    .def("configure_training",&Backend::ConfigureTraining,py::arg("coordinator"),py::arg("retry_ms")=0)
+    .def("training_retry_count",&Backend::TrainingRetryCount)
     .def("begin_training",&Backend::BeginTraining).def("complete_training",&Backend::CompleteTraining)
     .def("submit_synchronous",&Backend::SubmitSynchronous).def("abort_training",&Backend::AbortTraining)
     .def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);

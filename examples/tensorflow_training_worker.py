@@ -110,7 +110,7 @@ def main():
         backend.create_table(json.dumps(config["table"]))
         if config.get("agents"):
             backend.cache_endpoints([(a["id"], a["endpoint"]) for a in config["agents"]], True)
-        backend.configure_training(config["coordinator"])
+        backend.configure_training(config["coordinator"],config.get("gradient_retry_ms",0))
         batch_sizes = []
         for iteration in range(start_iteration, start_iteration + iterations):
             samples, features, unique_keys, inverse, segment_ids, labels = prepared[iteration % len(prepared)]
@@ -154,6 +154,7 @@ def main():
                           "first_row_gradients": first_gradients,
                           "tensorflow_device_memory": memory,
                           "lookup_transport": backend.lookup_transport_stats(),
+                          "gradient_retry_count": backend.training_retry_count(),
                           "parameter_stats": backend.stats()}, sort_keys=True))
     except Exception as error:
         try:

@@ -185,6 +185,7 @@ message GradientContribution {
   TrainingTask task = 1;
   uint64 sample_count = 2;
   repeated GradientTable tables = 3;
+  uint64 completed_reads = 4;
 }
 message SynchronousGradientStatsReply {
   Status status = 1;
@@ -337,6 +338,30 @@ message SnapshotChunkReply {
 }
 
 message StatsRequest {}
+message ReplicaScope {
+  string run = 1; uint32 shard = 2; uint32 shards = 3; uint64 epoch = 4; string binding = 5;
+}
+message ReplicaLease { uint64 term = 1; string primary = 2; }
+message ReplicaControl { ReplicaScope scope = 1; }
+message ReplicaFence { ReplicaScope scope = 1; uint64 expected = 2; string primary = 3; }
+message ReplicaHeadReply {
+  Status status = 1; ReplicaLease lease = 2; bool baseline = 3;
+  uint64 base_round = 4; uint64 next_round = 5; uint64 bytes = 6; uint64 baseline_bytes = 7;
+}
+message ReplicaChunk {
+  ReplicaScope scope = 1; ReplicaLease lease = 2; bool baseline = 3;
+  uint64 round = 4; uint64 total_bytes = 5; uint64 offset = 6; uint32 bytes = 7;
+}
+message ReplicaRead {
+  ReplicaScope scope = 1; ReplicaLease lease = 2; bool baseline = 3;
+  uint64 round = 4; uint64 offset = 5; uint32 max_bytes = 6;
+}
+service ReplicaService {
+  rpc Head(ReplicaControl) returns (ReplicaHeadReply);
+  rpc Fence(ReplicaFence) returns (ReplicaHeadReply);
+  rpc Write(ReplicaChunk) returns (Ack);
+  rpc Read(ReplicaRead) returns (SnapshotChunkReply);
+}
 message StatsReply {
   Status status = 1;
   uint64 lookups = 2; uint64 updates = 3; uint64 duplicate_requests = 4;

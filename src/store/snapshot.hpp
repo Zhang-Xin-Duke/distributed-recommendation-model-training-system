@@ -14,5 +14,5 @@ void WriteSnapshot(const std::filesystem::path& file, const std::string& run,
 std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& file,
     const std::string& new_run, ShardId shard, std::uint32_t count,
     std::uint64_t epoch, std::uint64_t byte_limit,
-    RestoredSnapshot* provenance=nullptr);
+    RestoredSnapshot* provenance=nullptr, bool replica_same_run=false);
 }  // namespace eps::detail

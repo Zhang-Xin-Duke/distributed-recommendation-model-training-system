@@ -180,8 +180,9 @@ ctest --test-dir build/native -V \
 2. Extend the verified [TensorFlow GPU model path](TENSORFLOW_SHARDED_TRAINING.md)
    across GPU instances and execute the beyond-single-GPU capacity workload.
    Reuse repeated key-list metadata with bounded, epoch-checked handles.
-3. Persist per-range logical update progress; replicate before acknowledgement
-   and fence shard/worker replacement. Exercise lost replies and process failure.
+3. Extend [replicated synchronous rounds](REPLICATED_TRAINING.md) to failure during
+   outstanding Pull/Release, worker/coordinator replacement and GPU-owner fencing.
+   Add endpoint discovery and supervision around the verified explicit promotion.
 4. Replace the private Redis SDK through the retained interfaces and execute
    the complete original Entropy training/control path.
 5. Compare time to the same quality target under controlled stragglers,
@@ -193,3 +194,21 @@ gradient normalization and optimizer-step unit. A round-averaged update and
 per-worker updates have separate aggregation semantics and reference checks.
 
 [Implementation design](plans/2026-11-04-distributed-training-design.md)
+
+## Replicated synchronous-round execution
+
+Each shard now persists exact updated rows, all table optimizer clocks and
+completed transport frontiers locally and on an independent disk-backed replica
+before acknowledging a round. Durable primary terms fence new commits from an
+old role. Workers retain their original sparse gradients across a brief endpoint
+outage; committed-round retries acknowledge without another optimizer update.
+
+Two TensorFlow workers train through two parameter shards and their replicas.
+At round 3, process-failure checks separately interrupt a committed update with
+a lost reply and an update still unpublished at the standby. Both continue to
+round 8 with every one of 64 rows, both Adam moments, row counters, input positions
+and losses identical to uninterrupted training. A later term change rejects the
+old role's next update. Directory locks reject concurrent standby writers on the
+same storage. Native 38/38 and framework 58/58 checks pass; the core log passes
+ASan/UBSan and TSan. This record uses CPU ownership with the original workers and
+coordinator alive. [Protocol and evidence](REPLICATED_TRAINING.md).

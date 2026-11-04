@@ -187,14 +187,15 @@ void WriteSnapshot(const std::filesystem::path& path, const std::string& run,
 
 std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& path,
     const std::string& new_run, ShardId shard, std::uint32_t count,
-    std::uint64_t epoch, std::uint64_t byte_limit, RestoredSnapshot* provenance) {
+    std::uint64_t epoch, std::uint64_t byte_limit, RestoredSnapshot* provenance,bool replica_same_run) {
   File file{::open(path.c_str(), O_RDONLY)};
   Require(file.fd >= 0, "cannot open snapshot", Error::Code::unavailable);
   Binary b(file.fd);
   std::uint64_t magic = 0; b.U64(magic, false);
   Require(magic == kMagic || magic == kMagicV2, "unsupported snapshot format");
   std::string old_run; b.String(old_run, false);
-  Require(old_run != new_run, "restore requires a new run ID");
+  Require(replica_same_run ? old_run==new_run : old_run!=new_run,
+    replica_same_run ? "replica baseline run differs" : "restore requires a new run ID");
   std::uint64_t old_shard = 0, old_count = 0, old_epoch = 0;
   b.U64(old_shard, false); b.U64(old_count, false); b.U64(old_epoch, false);
   Require(old_shard == shard && old_count == count && old_epoch == epoch,

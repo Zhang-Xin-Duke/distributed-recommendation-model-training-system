@@ -19,6 +19,7 @@ int main(){
       {1,0,Pooling::mean,{1,0,1,2,0},{0,3,4,5},0},
       {1,1,Pooling::sequence,{0,2,1,0},{0,2,4},0}};
     auto pulled=Take(adapter.Pull(features));
+    Check(std::holds_alternative<Error>(adapter.CompletedReadFrontier()),"certified reads with a live batch");
     Check(pulled.features[0].shape==std::vector<std::uint64_t>({3,2}),"mean adapter shape");
     Check(pulled.features[0].values==std::vector<float>({0.25,0.25,0.25,0.25,0,0}),"padding changed mean denominator");
     Check(pulled.features[1].values==std::vector<float>({0,0,0.25,0.25,0.25,0.25,0,0}),"sequence padding positions");
@@ -26,6 +27,7 @@ int main(){
     auto gradients=pulled.features;
     gradients[0].values={2,2,3,3,99,99};gradients[1].values={99,99,5,5,7,7,99,99};
     Take(adapter.Push(pulled.handle,gradients));Take(adapter.Push(pulled.handle,gradients));Take(adapter.Join());
+    Check(Take(adapter.CompletedReadFrontier())==1,"read frontier did not advance after completion");
     auto loc=Take(shard->Locations({{1,1},{1,2}}));auto states=Take(shard->ReadState(loc));
     // Key 1 receives (2 / two valid IDs) twice + 7 = 9; key 2 receives 3 + 5 = 8.
     Check(std::abs(states[0].first_moment[0]-0.9f)<1e-6f,"mean gradient divided incorrectly");

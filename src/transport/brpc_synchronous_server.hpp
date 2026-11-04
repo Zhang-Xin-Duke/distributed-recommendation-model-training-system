@@ -5,13 +5,16 @@
 #include "eps/synchronous_gradients.hpp"
 
 namespace eps::transport {
+class ReplicatedRoundWriter;
 class BrpcSynchronousServer final : public v1::SynchronousGradientService {
  public:
   // RuntimeOptions::exclusive_update_learner must be 1023 for this mode.
-  BrpcSynchronousServer(CpuParameterService& parameters, SynchronousGradientOptions options);
+  BrpcSynchronousServer(CpuParameterService& parameters, SynchronousGradientOptions options,
+                        std::shared_ptr<ReplicatedRoundWriter> replica={});
   ~BrpcSynchronousServer() override;
   void Shutdown();
   Result<Ack> Restore(SynchronousGradientCheckpoint checkpoint, RestoredSnapshot expected);
+  Result<Ack> RecoverReplica(std::uint64_t baseline,std::uint64_t next,bool activate=true);
   void Submit(google::protobuf::RpcController*, const v1::GradientContribution*,
               v1::Ack*, google::protobuf::Closure*) override;
   void Stats(google::protobuf::RpcController*, const v1::TrainingControl*,

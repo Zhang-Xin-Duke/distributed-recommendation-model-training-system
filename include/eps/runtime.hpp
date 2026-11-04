@@ -8,6 +8,7 @@
 #include "eps/cache_backend.hpp"
 #include "eps/access_planner.hpp"
 #include "eps/cache_policy.hpp"
+#include "eps/replica_log.hpp"
 
 namespace eps {
 
@@ -41,6 +42,7 @@ struct ParameterTrainingMetadata {
   RestoredSnapshot provenance;
   std::vector<TableDefinition> tables;
   std::vector<UpdateContext> optimizer_contexts;
+  std::vector<RequestFrontier> requests;
 };
 
 struct RuntimeStats {
@@ -117,6 +119,11 @@ class CpuParameterService final : public ParameterService {
   // Restore requires a fresh service and a new run ID. Resume reopens admission
   // after the framework has completed its coordinated save boundary.
   std::future<Result<Ack>> Restore(std::filesystem::path snapshot_file);
+  std::future<Result<Ack>> RestoreReplicaBaseline(std::filesystem::path snapshot_file);
+  std::future<Result<Ack>> ImportReplicaUpdate(ReplicatedUpdate);
+  std::future<Result<Ack>> InitializeRequestFrontiers(std::vector<RequestFrontier>);
+  std::future<Result<Ack>> InitializeReplicaRows(std::vector<std::pair<TableId,std::uint64_t>>);
+  std::future<Result<Ack>> CertifyReadFrontiers(std::vector<RequestFrontier>);
   std::future<Result<RestoredSnapshot>> RestoredFrom();
   std::future<Result<Ack>> Resume();
   std::future<Result<SnapshotChunk>> ReadCheckpoint(CheckpointIdentity,

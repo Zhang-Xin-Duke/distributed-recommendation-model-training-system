@@ -58,7 +58,8 @@ int main(int argc, char** argv) {
             const auto rounds = Take(group.Stats());
             result["shard_stats"].back()["synchronous"] = {{"next_round", rounds.next_round},
               {"received_workers", rounds.received_workers}, {"retained_bytes", rounds.retained_bytes},
-              {"duplicate_submissions", rounds.duplicate_submissions}, {"failed", rounds.failed}};
+              {"duplicate_submissions", rounds.duplicate_submissions}, {"failed", rounds.failed},
+              {"applying",rounds.applying},{"paused",rounds.paused}};
           }
         }
       }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <future>
 #include <brpc/closure_guard.h>
 #include <brpc/controller.h>
 #include "transport/codec.hpp"
