@@ -35,7 +35,8 @@ def recover(job, build, apply=False):
             if cfg['worker'] != w or cfg['run'] != run or cfg.get('epoch', 1) != epoch or cfg['shards'] != endpoints or cfg['journal_workers'] != len(workers):
                 raise ValueError('recovery worker membership differs')
             journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),
-                            cfg.get('journal_record_bytes', 32 << 20), cfg.get('journal_disk_bytes', 1 << 30)))
+                            cfg.get('journal_record_bytes', 32 << 20), cfg.get('journal_disk_bytes', 1 << 30),
+                            allow_sealed=True))
             journals.append(journal)
         base = journals[0].identity['base_round']
         if any(j.identity['base_round']!=base or j.identity['model']!=journals[0].identity['model'] for j in journals):

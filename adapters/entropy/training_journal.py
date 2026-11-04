@@ -35,7 +35,7 @@ def identity(config):
 
 
 class WorkerJournal:
-    def __init__(self, directory, expected, record_bytes=32 << 20, disk_bytes=1 << 30):
+    def __init__(self, directory, expected, record_bytes=32 << 20, disk_bytes=1 << 30, *, allow_sealed=False):
         if not 4096 <= record_bytes <= 32 << 20 or disk_bytes < record_bytes:
             raise ValueError('invalid worker journal budgets')
         self.root = pathlib.Path(directory)
@@ -43,6 +43,8 @@ class WorkerJournal:
         self.lock = open(self.root / 'lock', 'a+b')
         try:
             fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if (self.root / 'handoff.epsh').exists() and not allow_sealed:
+                raise ValueError('worker journal sealed for node handoff; resume from its destination')
             self.record_bytes, self.disk_bytes = record_bytes, disk_bytes
             self.identity = expected
             if not expected['run'] or expected['epoch'] <= 0 or not 0 <= expected['worker'] < expected['workers'] < 1024:
@@ -50,8 +52,9 @@ class WorkerJournal:
             if not 1 <= expected['shards'] <= 1024 or not 0 <= expected['base_round'] < (1 << 63):
                 raise ValueError('invalid journal partition/base round')
             self.digest = hashlib.sha256(canonical(expected)).hexdigest()
-            for p in self.root.glob('.pending-*'):
-                p.unlink()  # Never submitted before immutable publication.
+            for pattern in ('.pending-*', '.handoff-pending-*'):
+                for p in self.root.glob(pattern):
+                    p.unlink()  # Never submitted before immutable publication.
             path = self.root / 'identity.epsj'
             if path.exists():
                 header, payload = self._read(path)
@@ -85,7 +88,8 @@ class WorkerJournal:
         self.close()
 
     def _bytes(self):
-        return sum(p.stat().st_size for p in self.root.iterdir() if p.is_file())
+        control = {'handoff.epsh', 'handoff-receipt.json', '.transfer.json'}
+        return sum(p.stat().st_size for p in self.root.iterdir() if p.is_file() and p.name not in control)
 
     def _encode(self, header, payload):
         meta = canonical(header)
@@ -172,6 +176,8 @@ class WorkerJournal:
         return dict(header, tables=tables)
 
     def put(self, iteration, sample_count, completed_reads, loss, tables):
+        if (self.root / 'handoff.epsh').exists():
+            raise ValueError('sealed worker journal is immutable')
         rounds = self.rounds()
         next_round = rounds[-1] + 1 if rounds else self.identity['base_round']
         if iteration > next_round or iteration < self.identity['base_round']:

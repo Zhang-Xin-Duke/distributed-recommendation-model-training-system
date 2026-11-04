@@ -145,11 +145,13 @@ ctest --test-dir build/tensorflow --output-on-failure \
 ```
 
 The original check uses CPU parameter ownership and retained local/shared
-journal storage. [Replica-backed owner recovery](REPLICA_OWNER_RECOVERY.md)
+journal storage. [Node journal handoff](WORKER_JOURNAL_HANDOFF.md) adds sealed,
+resumable retrieval into manager storage and publication on replacement workers,
+with exact model continuation through serialized node subprocesses. [Replica-backed owner recovery](REPLICA_OWNER_RECOVERY.md)
 extends the tool to term-bound replacement owners, complete row/Adam rehydration
 and resumed training; both Host and L40 CUDA process checks pass, including
 complete 64-row state and loss comparisons after three process-failure cases.
-The CUDA check uses two owner processes on one physical GPU. Multi-node journal retrieval,
+The CUDA check uses two owner processes on one physical GPU. Real cross-host journal handoff,
 node/storage loss, automatic process supervision and stochastic reader/RNG
 integration require their own execution. The [beyond-single-GPU capacity run](MULTIGPU_TRAINING_CAPACITY.md)
 passes with 60 GiB of initialized resident state across two physical GPU nodes;

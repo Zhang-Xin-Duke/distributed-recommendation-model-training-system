@@ -1,0 +1,199 @@
+{
+  "base_commit": "331985a1d5deda13d6f62a1c750171592695c455",
+  "recorded_at_utc": "2026-11-04T22:49:08.890553+00:00",
+  "scope": "Sealed original-gradient journal handoff through persistent node streams, manager reconciliation and replacement-worker publication without shared directories",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "Python 3.11.14"
+  },
+  "checks": {
+    "framework": {
+      "passed": 67,
+      "failed": 0
+    },
+    "handoff_final": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "protocol_cases": [
+    "live_source_lock",
+    "durable_source_seal",
+    "sealed_write_rejected",
+    "corrupt_chunk",
+    "offset_gap",
+    "incomplete_publication",
+    "identity_binding",
+    "bounded_file_reads",
+    "serialized_subprocess_nodes",
+    "persistent_stream_reconnect",
+    "lost_write_ack",
+    "partial_chunk_resume",
+    "exact_uint64_fp32",
+    "continued_destination_preserved",
+    "existing_destination_preserved",
+    "receiver_budgets",
+    "full_size_chunk_streaming_record"
+  ],
+  "cli": {
+    "test": "journal_handoff_cli",
+    "workers": 2,
+    "records": 2,
+    "complete": true,
+    "result": {
+      "workers": 2,
+      "records": 2,
+      "complete": true
+    },
+    "manifest_sha256": [
+      "ad5f6ce6324680319a1368ef9127a110763e0bc5441ed1e329c3279486877a38",
+      "3a147237899fa233b2426aa2ade15251a0561351b7c7eba3916bb0eebe713bf8"
+    ]
+  },
+  "model": {
+    "device": "CPU",
+    "parameter_backend": "host",
+    "workers": 2,
+    "shards": 2,
+    "rows": 64,
+    "dimension": 8,
+    "rounds": 8,
+    "fault_round": 3,
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "cleanup_verified": true,
+    "journal_transport": "serialized local node subprocesses"
+  },
+  "fault_cases": [
+    {
+      "mode": "baseline",
+      "fetches": 0,
+      "stages": 0,
+      "fetched_gradient_records": [],
+      "staged_gradient_records": [],
+      "completed_worker_clocks": [
+        8,
+        8
+      ],
+      "state_rows": 64,
+      "zero_live_tickets": true
+    },
+    {
+      "mode": "after_pull",
+      "fetches": 2,
+      "stages": 2,
+      "fetched_gradient_records": [
+        3,
+        4
+      ],
+      "staged_gradient_records": [
+        3,
+        4
+      ],
+      "completed_worker_clocks": [
+        8,
+        8
+      ],
+      "state_rows": 64,
+      "zero_live_tickets": true
+    },
+    {
+      "mode": "partial_round",
+      "fetches": 2,
+      "stages": 2,
+      "fetched_gradient_records": [
+        4,
+        4
+      ],
+      "staged_gradient_records": [
+        4,
+        4
+      ],
+      "completed_worker_clocks": [
+        8,
+        8
+      ],
+      "state_rows": 64,
+      "zero_live_tickets": true
+    },
+    {
+      "mode": "after_update",
+      "fetches": 2,
+      "stages": 2,
+      "fetched_gradient_records": [
+        4,
+        4
+      ],
+      "staged_gradient_records": [
+        4,
+        4
+      ],
+      "completed_worker_clocks": [
+        8,
+        8
+      ],
+      "state_rows": 64,
+      "zero_live_tickets": true
+    }
+  ],
+  "transport_scope": "Persistent serialized local node subprocesses on one macOS host, separate former/manager/replacement storage directories; SSH transport implemented but cross-host GPU fault execution not measured in this record",
+  "source_sha256": {
+    "CMakeLists.txt": "9119c1bd6b437c40984559121a63349a11651241bb7bea25c70d0eef0b981509",
+    "adapters/entropy/training_journal.py": "a9408f220a20f55661e54ac6cd2d5fef2bf3e752c5d6e261c7534cc16521dfd0",
+    "adapters/entropy/journal_handoff.py": "67cf2d2668fcf2c11e7b649585668b47824f0e051fd3b47d49c893d1cfed3357",
+    "scripts/transfer_worker_journals.py": "133c9787eec601c9f45b45a02a880e71247d3ff125a0bc44cdcc1b7fba009a78",
+    "scripts/recover_training.py": "3fbd5a990222a46fda6cbcf1130029871c924521b7cb43e696dabff72f364513",
+    "tests/journal_handoff_tests.py": "10e6d2b38fd7f0647214a833aaf646f6c8ca91007d27a17b6a624191bd22e48b",
+    "tests/tensorflow_worker_recovery.py": "9818cc3a792d844ede9d5e0cb7c7f2ab6da19612dd694a2ca583cc8e9664d68e"
+  },
+  "binary_sha256": {
+    "eps_server": "da4d74b26cefabb98914fb92f9c58b85529e752925befee60465d53a8f789a4a",
+    "eps_cache_agent": "c466e79f9aa9878a3b88c46ce0f35e06f2ee4933a2b5e74a83c5255730c9d51f",
+    "eps_replica": "5ee50a528c50b11b14c82d875f97f03f50a181893a2fc9dc1a5aa330145fbd44",
+    "eps_replica_control": "d6ee9a4bd17cb0cae79566fe5c742f126b0b570ee513122d7c0e7caab89c7d2f",
+    "eps_training_control": "a241e84d67e96a95dae644afddb7c8d17d632c14b71c0d9e4dc5d1dfa18acf43",
+    "eps_training_prepare": "25808787f530fd0f1d29640a7b9224bcd1d5a3430938b710561a7f623bdd373e",
+    "eps_training_coordinator": "9c00a77732a82eac24c30dfbb58660d5c7c3a7a76abf6eea4541fc6c6adf32f9",
+    "_eps_native.cpython-311-darwin.so": "2827c28e51f1bc3e5d4748bc68e2355481854d0d42c70134e8dbad25c00d0575"
+  },
+  "rental": {
+    "instances_created": 0,
+    "incremental_rental_cost_usd": 0
+  },
+  "remaining_project_requirements": [
+    "Real cross-node CUDA fault recovery and endpoint supervision",
+    "Redundant original-gradient storage for complete source-node/storage loss",
+    "Complete original Entropy native training/control execution",
+    "Bounded log compaction",
+    "Gradient Key metadata reuse",
+    "Same-quality policy and scaling characterization"
+  ],
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-worker-journal-handoff/cli.json",
+      "sha256": "015bb79463552dcf0e6c0911d866d34e66c309d428edf0f2f71cf02b07c8cc18",
+      "bytes": 335
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-journal-handoff/framework.log",
+      "sha256": "d9cca44e46a4225b24ac8eab4e7f1e7b996a0c87a643dcf0167dff209bb97cdc",
+      "bytes": 8886
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-journal-handoff/handoff_final.log",
+      "sha256": "f3132c0bc667a412a95ed3c70209b4b762a094e8c9e32fa203bf46258f90f1d5",
+      "bytes": 404
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-journal-handoff/model.json.gz",
+      "sha256": "320a6f37df66b65ca29f6a33ea78e6b74eed7a73f30de2d5511b4c804cdd5512",
+      "bytes": 44831
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-journal-handoff/protocol.json",
+      "sha256": "a9b382056fc201ea5f394426dcf904ce476caa6bc195f656229ce6c5055b1cae",
+      "bytes": 562
+    }
+  ]
+}

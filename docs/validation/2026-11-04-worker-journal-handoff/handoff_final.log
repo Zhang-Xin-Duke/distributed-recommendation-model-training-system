@@ -1,0 +1,9 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/tensorflow
+    Start 33: worker_journal_handoff
+1/2 Test #33: worker_journal_handoff ..............   Passed    0.49 sec
+    Start 34: tensorflow_worker_journal_handoff
+2/2 Test #34: tensorflow_worker_journal_handoff ...   Passed   49.09 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  49.58 sec

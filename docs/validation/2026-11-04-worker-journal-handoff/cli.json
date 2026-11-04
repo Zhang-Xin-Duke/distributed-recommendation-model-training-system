@@ -1,0 +1,15 @@
+{
+  "test": "journal_handoff_cli",
+  "workers": 2,
+  "records": 2,
+  "complete": true,
+  "result": {
+    "workers": 2,
+    "records": 2,
+    "complete": true
+  },
+  "manifest_sha256": [
+    "ad5f6ce6324680319a1368ef9127a110763e0bc5441ed1e329c3279486877a38",
+    "3a147237899fa233b2426aa2ade15251a0561351b7c7eba3916bb0eebe713bf8"
+  ]
+}

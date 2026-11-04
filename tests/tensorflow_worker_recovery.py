@@ -16,6 +16,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build',type=pathlib.Path,required=True);p.add_argument('--out',type=pathlib.Path)
     p.add_argument('--owners',choices=['none','host','cuda'],default='none')
     p.add_argument('--devices',default='0',help='Physical CUDA ordinals visible to this recovery test')
+    p.add_argument('--handoff',action='store_true',help='Fetch journals through node subprocesses and stage them at replacement workers')
     a=p.parse_args();build=a.build.resolve();source=pathlib.Path(__file__).resolve().parents[1]
     devices=[int(v) for v in a.devices.split(',')]
     if not 1<=len(devices)<=2 or len(set(devices))!=len(devices) or min(devices)<0:
@@ -26,6 +27,10 @@ def main():
     sys.path.insert(0,str(source/'adapters/entropy'))
     from training_journal import WorkerJournal, identity
     from training_recovery import owner_run
+    if a.handoff:
+        sys.path.insert(0,str(source/'scripts'))
+        from transfer_worker_journals import transfer
+        handoff_node=dict(local=True,source=str(source),python=sys.executable)
     hardware=subprocess.check_output(['nvidia-smi','--id='+a.devices,'--query-gpu=uuid,name,memory.total','--format=csv,noheader'],text=True) if gpu else None
     table=dict(id=1,dimension=8,dtype='float32',optimizer=dict(kind='sparse_lazy_adam',learning_rate=.02,beta1=.9,beta2=.999,epsilon=1e-8,
           initial_beta1_power=.9,initial_beta2_power=.999),initialization=dict(min=-.1,max=.1,seed=42))
@@ -153,6 +158,17 @@ def main():
                             cfg['synchronous_training']['replica']['start_paused']=True
                         primaries[home]=launch(build/'eps_server',f'replacement-{home}',cfg)
                     assert [ready(p) for p in primaries]==addresses
+                    if a.handoff:
+                        fetched=[]
+                        for w,cfg in enumerate(worker_configs):
+                            old=copy.deepcopy(cfg)
+                            result=transfer(cfg,handoff_node,handoff_node,root/f'{run}-manager-{w}',run+'-fetch')
+                            worker_configs[w]=copy.deepcopy(result['config']);fetched.append(result)
+                            try:
+                                with WorkerJournal(old['journal_directory'],identity(old)):pass
+                            except ValueError:pass
+                            else:raise AssertionError('sealed source worker was allowed to restart')
+                        events.append(dict(journal_fetch=fetched))
                     job=dict(run=run,epoch=1,end_round=rounds,coordinator_endpoint=coordinator_address,workers=worker_configs,
                              shards=[dict(endpoint=address,config=cfg) for address,cfg in zip(addresses,primary_configs)])
                     planned=recover_tool(job,'plan')
@@ -204,6 +220,17 @@ def main():
                         assert all(w['agents']==agents for w in recovered['workers'])
                     repeated=recover_tool(job,'reconcile')
                     assert repeated['ready'] and repeated['next_round']==expected and not repeated['replayed_rounds']
+                    if a.handoff:
+                        manager_job=copy.deepcopy(job)
+                        staged=[]
+                        for w,cfg in enumerate(recovered['workers']):
+                            result=transfer(cfg,handoff_node,handoff_node,root/f'{run}-replacement-worker-{w}',run+'-stage')
+                            recovered['workers'][w]=result['config']
+                            worker_configs[w]['journal_directory']=result['config']['journal_directory']
+                            staged.append(result)
+                        sealed_recheck=recover_tool(manager_job,'reconcile')
+                        assert sealed_recheck['ready'] and sealed_recheck['next_round']==expected
+                        events.append(dict(journal_stage=staged))
                     command('eps_training_control',settings,'resume')
                     workers=[launch(source/'examples/tensorflow_training_worker.py',f'resumed-{w}',cfg,worker=True) for w,cfg in enumerate(recovered['workers'])]
                     events.append(dict(recovery=recovered,negative_cases=negative,idempotent_reconcile_verified=True,
@@ -246,7 +273,8 @@ def main():
                 hardware=hardware,workers=2,shards=2,rows=64,dimension=8,rounds=rounds,
                 fault_round=target,max_state_absolute_error=maximum,max_loss_absolute_error=loss_error,cleanup_verified=True,reports=reports)
     result.update(comparison_tolerance=tolerance,parameter_owners=2 if resident else 0,
-                  physical_gpus=len(hardware.strip().splitlines()) if hardware else 0)
+                  physical_gpus=len(hardware.strip().splitlines()) if hardware else 0,
+                  journal_handoff=a.handoff, journal_transport='serialized local node subprocesses' if a.handoff else 'local/shared directories')
     if a.out:a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:v for k,v in result.items() if k!='reports'}))
 

@@ -1,0 +1,23 @@
+{
+  "test": "worker_journal_handoff",
+  "checked": [
+    "live_source_lock",
+    "durable_source_seal",
+    "sealed_write_rejected",
+    "corrupt_chunk",
+    "offset_gap",
+    "incomplete_publication",
+    "identity_binding",
+    "bounded_file_reads",
+    "serialized_subprocess_nodes",
+    "persistent_stream_reconnect",
+    "lost_write_ack",
+    "partial_chunk_resume",
+    "exact_uint64_fp32",
+    "continued_destination_preserved",
+    "existing_destination_preserved",
+    "receiver_budgets",
+    "full_size_chunk_streaming_record"
+  ],
+  "success": true
+}

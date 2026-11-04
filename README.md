@@ -77,6 +77,12 @@ task clocks and input positions. CPU model checks restart actual process groups
 after an abandoned read, a partial commit and a lost task completion, preserving
 all parameters, Adam state and per-round loss.
 
+[Worker journal handoff](docs/WORKER_JOURNAL_HANDOFF.md) seals stopped workers'
+original gradients, transfers bounded chunks over persistent node connections
+and publishes complete journals on replacement nodes. Model recovery checks
+fetch to manager storage, reconcile partial rounds and stage independent worker
+copies before continuing the same training input.
+
 [Owner incarnations](docs/OWNER_INCARNATIONS.md) separate the stable training run
 from a replacement parameter owner's identity. Old reads and control commands
 reject at the replacement endpoint while optimizer updates retain their original

@@ -207,7 +207,7 @@ shards acknowledge cancellation, fences late Lookups, and rejects further reads
 when cleanup remains uncertain. CPU and L40 CUDA model runs match uninterrupted
 state/loss exactly; preparation failures retain input-cursor recovery semantics.
 The record is `../validation/2026-11-04-read-lifecycle-recovery.json`. Competing
-GPU owners, automatic discovery/supervision, multi-node journal retrieval, bounded log compaction,
+GPU owners, automatic discovery/supervision, real cross-host journal handoff execution, bounded log compaction,
 gradient-Key metadata reuse, same-quality policy measurements, further capacity/
 scaling characterization and complete original Entropy integration remain in the full scope.
 
@@ -233,3 +233,22 @@ per-round losses exactly. Negative inputs preserve durable frontiers; repeated
 reconciliation does not reapply an update. Native 39/39 and framework 61/61
 checks pass; modified adapter/progress checks pass ASan/UBSan and TSan.
 The record is `../validation/2026-11-04-worker-recovery.json`.
+
+## Worker journal handoff
+
+Stopped-worker journals now support durable source sealing, bounded resumable
+chunks over persistent node streams and validated receiver publication. The
+recovery manager can fetch original gradients into its own storage, reconcile
+partial shard rounds, stage independent replacement-worker copies and continue
+from the recovered input/read positions. Old worker journal paths reject
+training opens after sealing; the manager can repeat reconciliation against
+sealed immutable copies. Full Host model faults cover live reads, partial
+commits and lost task completion, with exact full-state/loss agreement.
+The record is `../validation/2026-11-04-worker-journal-handoff.json`.
+
+These checks execute serialized subprocess node boundaries on one host. Real
+cross-host SSH/CUDA fault execution, automatic role supervision and redundant
+original-gradient storage for complete node/storage loss retain their own
+acceptance requirements. Full original Entropy training/control, bounded log
+compaction, gradient-Key metadata reuse and same-quality measurements also
+remain in scope.

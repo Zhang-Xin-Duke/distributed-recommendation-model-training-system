@@ -419,6 +419,16 @@ if(EPS_BUILD_BRPC)
             "${CMAKE_CURRENT_BINARY_DIR}")
         add_test(NAME durable_worker_gradients
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/worker_journal_tests.py")
+        add_test(NAME worker_journal_handoff
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/journal_handoff_tests.py"
+            "${CMAKE_CURRENT_BINARY_DIR}/journal-handoff-unit.json")
+        set_tests_properties(worker_journal_handoff PROPERTIES TIMEOUT 120)
+        add_test(NAME tensorflow_worker_journal_handoff
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --owners host --handoff
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-journal-handoff.json")
+        set_tests_properties(tensorflow_worker_journal_handoff PROPERTIES TIMEOUT 360
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_worker_recovery
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-worker-recovery.json")
