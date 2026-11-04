@@ -83,6 +83,12 @@ and publishes complete journals on replacement nodes. Model recovery checks
 fetch to manager storage, reconcile partial rounds and stage independent worker
 copies before continuing the same training input.
 
+[Managed training recovery](docs/MANAGED_TRAINING_RECOVERY.md) starts and observes
+named role generations, detects process failure and drives replica promotion,
+owner rehydration, journal handoff and worker continuation. Durable manager phases
+support reentry after journal staging; distinct TCP aliases verify translation
+between worker-visible and manager-visible parameter endpoints.
+
 [Owner incarnations](docs/OWNER_INCARNATIONS.md) separate the stable training run
 from a replacement parameter owner's identity. Old reads and control commands
 reject at the replacement endpoint while optimizer updates retain their original

@@ -1,0 +1,12 @@
+{
+  "test": "role_node_processes",
+  "success": true,
+  "checks": [
+    "completed_command_not_reexecuted",
+    "immutable_role_intent",
+    "lost_start_ack_same_process",
+    "observed_readiness",
+    "orphan_child_cleanup",
+    "repeated_stop"
+  ]
+}

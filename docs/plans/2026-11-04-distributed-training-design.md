@@ -252,3 +252,20 @@ original-gradient storage for complete node/storage loss retain their own
 acceptance requirements. Full original Entropy training/control, bounded log
 compaction, gradient-Key metadata reuse and same-quality measurements also
 remain in scope.
+
+## Managed role recovery
+
+Named node roles now have immutable intent, durable wrapper/child identities and
+inherited launch locks. The manager observes process failure, stops the former
+generation, retrieves original journals, promotes retained replicas, replaces
+owners/primaries, reconstructs task admission and resumes workers. Real TCP
+aliases verify different manager/worker routes; full Host model trajectories
+match uninterrupted training after three fault cases. Manager reentry is checked
+after journal staging and after completion. See
+`../validation/2026-11-04-managed-training-recovery.json`.
+
+The next cross-host CUDA attempt is rejected by unavailable A6000/L40 inventory
+without creating a rental. Prepared source and architecture-matched runtime
+bundles are retained privately. Actual cross-host execution, full node/storage
+loss, original Entropy integration, compaction, gradient metadata reuse and
+common-quality/scaling characterization remain in the overall scope.

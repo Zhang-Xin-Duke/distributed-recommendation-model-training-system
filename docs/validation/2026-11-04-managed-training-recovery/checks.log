@@ -1,0 +1,13 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/tensorflow
+    Start 32: durable_worker_gradients
+1/4 Test #32: durable_worker_gradients .........   Passed    0.08 sec
+    Start 33: worker_journal_handoff
+2/4 Test #33: worker_journal_handoff ...........   Passed    0.46 sec
+    Start 34: managed_role_processes
+3/4 Test #34: managed_role_processes ...........   Passed    0.67 sec
+    Start 35: managed_training_recovery
+4/4 Test #35: managed_training_recovery ........   Passed   56.55 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =  57.76 sec

@@ -22,8 +22,8 @@ from journal_handoff import CHUNK_BYTES
 
 class NodeSessions:
     """One bounded JSON stream per node; reconnect only after a failed observation."""
-    def __init__(self, timeout=60):
-        self.timeout, self.sessions = timeout, {}
+    def __init__(self, timeout=60, entrypoint='adapters/entropy/journal_handoff.py'):
+        self.timeout, self.sessions, self.entrypoint = timeout, {}, entrypoint
 
     def __enter__(self):
         return self
@@ -52,7 +52,7 @@ class NodeSessions:
         key = json.dumps(node, sort_keys=True)
         if key not in self.sessions:
             python = node.get('python', sys.executable if node.get('local') else 'python3')
-            module = str(pathlib.PurePath(node['source']) / 'adapters/entropy/journal_handoff.py')
+            module = str(pathlib.PurePath(node['source']) / self.entrypoint)
             argv = [python, module, '--serve']
             if not node.get('local'):
                 argv = ['ssh', '-o', 'IdentityAgent=none', '-o', 'IdentitiesOnly=yes', '-o', 'BatchMode=yes',

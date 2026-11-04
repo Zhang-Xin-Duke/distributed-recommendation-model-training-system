@@ -1,0 +1,190 @@
+{
+  "base_commit": "2a85b095819d590b9aebe1813fdf44641f19a42e",
+  "recorded_at_utc": "2026-11-04T23:09:32.857418+00:00",
+  "scope": "Named node role generations, observed failure recovery, replica promotion, journal handoff, endpoint alias normalization and manager reentry",
+  "checks": {
+    "targeted_passed": 4,
+    "failed": 0
+  },
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "Python 3.11.14"
+  },
+  "model": {
+    "workers": 2,
+    "parameter_shards": 2,
+    "parameter_owners": 2,
+    "replicas": 2,
+    "physical_gpus": 0,
+    "transport": "persistent serialized local node processes; distinct real TCP aliases for worker and manager routes",
+    "rounds": 8,
+    "rows": 64,
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0
+  },
+  "cases": [
+    {
+      "mode": "baseline",
+      "generation": 0,
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "manager_reentry_after_stage_verified": false,
+      "completed_job_reentry_verified": true,
+      "zero_live_tickets": true
+    },
+    {
+      "mode": "after_pull",
+      "generation": 1,
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "manager_reentry_after_stage_verified": false,
+      "completed_job_reentry_verified": true,
+      "zero_live_tickets": true,
+      "observation_reason": "observed_role_failure",
+      "replica_terms": [
+        2,
+        2
+      ],
+      "next_round": 3,
+      "replayed_rounds": [],
+      "owner_rehydration_rows": 64,
+      "worker_routes_translated": [
+        true,
+        true
+      ]
+    },
+    {
+      "mode": "partial_round",
+      "generation": 1,
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "manager_reentry_after_stage_verified": false,
+      "completed_job_reentry_verified": true,
+      "zero_live_tickets": true,
+      "observation_reason": "observed_role_failure",
+      "replica_terms": [
+        2,
+        2
+      ],
+      "next_round": 4,
+      "replayed_rounds": [
+        3
+      ],
+      "owner_rehydration_rows": 64,
+      "worker_routes_translated": [
+        true,
+        true
+      ]
+    },
+    {
+      "mode": "after_update",
+      "generation": 1,
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "manager_reentry_after_stage_verified": true,
+      "completed_job_reentry_verified": true,
+      "zero_live_tickets": true,
+      "observation_reason": "observed_role_failure",
+      "replica_terms": [
+        2,
+        2
+      ],
+      "next_round": 4,
+      "replayed_rounds": [],
+      "owner_rehydration_rows": 64,
+      "worker_routes_translated": [
+        true,
+        true
+      ]
+    }
+  ],
+  "process_cleanup": {
+    "verified_recorded_groups": 63,
+    "remaining_non_zombie_group_members": 0
+  },
+  "rental": {
+    "allocated": 0,
+    "failures": [
+      {
+        "node": 0,
+        "gpu": "a6000",
+        "error": "usage error: GPU configuration a6000 x1 is currently unavailable"
+      },
+      {
+        "node": 0,
+        "gpu": "l40",
+        "error": "usage error: GPU configuration l40 x1 is currently unavailable"
+      }
+    ],
+    "instances_created": 0,
+    "incremental_rental_cost_usd": 0,
+    "pricing_source": "https://www.thundercompute.com/pricing",
+    "recorded_at_utc": "2026-11-04T23:09:32.830951+00:00"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "bbc91db260908bd9ea9282ff0a57b4c4bf0bd88bc85b175fc7002505b14dc97f",
+    "scripts/role_node.py": "3e63246a13fe23b006afbdc92b488dc36f08129a29771a2a87dac895d59158f9",
+    "scripts/managed_roles.py": "6e71410e03cb531c641ad3d58dd443016b5dcb293ef212654c7dacc280f8a0f1",
+    "scripts/managed_training_recovery.py": "eb97c6f47df93196a76586dea7277ddd419bbc315f27339c442a39083b1c76d5",
+    "scripts/transfer_worker_journals.py": "3469d599138b176cc6cdc30bf62bd3d9a2e1ad056ce72c4daf5359fd5e2e11e4",
+    "tests/role_node_tests.py": "4a048a0f7acee81d97645cda53a3b114cac8a00bcc78b65c5ce4c18acf4b357d",
+    "tests/managed_training_recovery.py": "6a05c8c96961a605a876635b1d8e06e2515d78d6eac3cb0f823a2790fa2e13d5",
+    "tests/tcp_routes.py": "71e7d574abb942fdbaecf9ef0fc5d714dd1fd4ea03b26ef52f8a5acbef6adb96",
+    "scripts/recover_training.py": "3fbd5a990222a46fda6cbcf1130029871c924521b7cb43e696dabff72f364513",
+    "adapters/entropy/training_journal.py": "a9408f220a20f55661e54ac6cd2d5fef2bf3e752c5d6e261c7534cc16521dfd0",
+    "adapters/entropy/journal_handoff.py": "67cf2d2668fcf2c11e7b649585668b47824f0e051fd3b47d49c893d1cfed3357"
+  },
+  "binary_sha256": {
+    "eps_server": "da4d74b26cefabb98914fb92f9c58b85529e752925befee60465d53a8f789a4a",
+    "eps_cache_agent": "c466e79f9aa9878a3b88c46ce0f35e06f2ee4933a2b5e74a83c5255730c9d51f",
+    "eps_replica": "5ee50a528c50b11b14c82d875f97f03f50a181893a2fc9dc1a5aa330145fbd44",
+    "eps_replica_control": "d6ee9a4bd17cb0cae79566fe5c742f126b0b570ee513122d7c0e7caab89c7d2f",
+    "eps_training_control": "a241e84d67e96a95dae644afddb7c8d17d632c14b71c0d9e4dc5d1dfa18acf43",
+    "eps_training_prepare": "25808787f530fd0f1d29640a7b9224bcd1d5a3430938b710561a7f623bdd373e",
+    "eps_training_coordinator": "9c00a77732a82eac24c30dfbb58660d5c7c3a7a76abf6eea4541fc6c6adf32f9"
+  },
+  "transport_scope": "Node control over persistent local subprocesses; BRPC through distinct actual loopback TCP forwards. No physical cross-host CUDA fault execution in this record.",
+  "remaining_requirements": [
+    "Real cross-host CUDA fault execution",
+    "Redundant original-gradient storage for complete node/storage loss",
+    "Complete original Entropy native training/control",
+    "Bounded replica/journal compaction",
+    "Gradient Key metadata reuse",
+    "Common-quality consistency-policy and scaling characterization"
+  ],
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-managed-training-recovery/checks.log",
+      "sha256": "3f558934becc9eeee9e1206f476787f5e3bdd5cccc7dcf246f5380c1c0d0f965",
+      "bytes": 606
+    },
+    {
+      "path": "docs/validation/2026-11-04-managed-training-recovery/model.json.gz",
+      "sha256": "99a2c8cec8430358dadb03b53cc772dc421fc898e0b9863ef7216ed1caa60a3e",
+      "bytes": 86344
+    },
+    {
+      "path": "docs/validation/2026-11-04-managed-training-recovery/rental-attempt.json",
+      "sha256": "50b90bf2b4a4448e445b9d686bb6e6ba671aa1307c549b278ce65c6c8a28121b",
+      "bytes": 486
+    },
+    {
+      "path": "docs/validation/2026-11-04-managed-training-recovery/role-processes.json",
+      "sha256": "10967ce9dc3275f1985bbf16234de67e8e7e97ea6ef5593429f035f353d06b3c",
+      "bytes": 252
+    }
+  ]
+}

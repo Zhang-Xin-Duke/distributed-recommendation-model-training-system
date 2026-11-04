@@ -1,0 +1,19 @@
+{
+  "allocated": 0,
+  "failures": [
+    {
+      "node": 0,
+      "gpu": "a6000",
+      "error": "usage error: GPU configuration a6000 x1 is currently unavailable"
+    },
+    {
+      "node": 0,
+      "gpu": "l40",
+      "error": "usage error: GPU configuration l40 x1 is currently unavailable"
+    }
+  ],
+  "instances_created": 0,
+  "incremental_rental_cost_usd": 0,
+  "pricing_source": "https://www.thundercompute.com/pricing",
+  "recorded_at_utc": "2026-11-04T23:09:32.830951+00:00"
+}

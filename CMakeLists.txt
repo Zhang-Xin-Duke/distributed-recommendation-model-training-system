@@ -423,6 +423,15 @@ if(EPS_BUILD_BRPC)
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/journal_handoff_tests.py"
             "${CMAKE_CURRENT_BINARY_DIR}/journal-handoff-unit.json")
         set_tests_properties(worker_journal_handoff PROPERTIES TIMEOUT 120)
+        add_test(NAME managed_role_processes
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/role_node_tests.py"
+            "${CMAKE_CURRENT_BINARY_DIR}/managed-role-processes.json")
+        set_tests_properties(managed_role_processes PROPERTIES TIMEOUT 120)
+        add_test(NAME managed_training_recovery
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/managed_training_recovery.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/managed-recovery-model.json")
+        set_tests_properties(managed_training_recovery PROPERTIES TIMEOUT 420
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_worker_journal_handoff
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --owners host --handoff
