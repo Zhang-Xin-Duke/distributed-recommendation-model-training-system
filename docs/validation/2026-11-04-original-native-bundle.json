@@ -1,0 +1,65 @@
+{
+  "recorded_at_utc": "2026-11-04T23:52:50.843926+00:00",
+  "base_commit": "321533c491488ffe9db6ac455318e4ba899d7d10",
+  "scope": "Original ts_clib.so private source relocation and dependency/source-input validation",
+  "repository_count": 218,
+  "materialized_files": 40300,
+  "materialized_bytes": 953971436,
+  "dependency_graph": {
+    "original_labels": 39343,
+    "relocated_labels": 39343,
+    "missing": 0,
+    "added": 0,
+    "exit_code": 0,
+    "original_label_log_sha256": "5e8360e9bd792d7652b55c4d8d1c840eeea544d9f8536f7cbb7d0dc3ffa7067d",
+    "relocated_label_log_sha256": "e3d94efe4dd90f02c241da0413a5ff69697bfea0dbb414a5c9e18453db6830a1"
+  },
+  "source_audit": {
+    "verified_files": 40300,
+    "source_labels": 37024,
+    "required_host_inputs": [
+      "@infiniband//:include/infiniband/arch.h",
+      "@infiniband//:include/infiniband/efadv.h",
+      "@infiniband//:include/infiniband/ib_user_ioctl_verbs.h",
+      "@infiniband//:include/infiniband/mlx4dv.h",
+      "@infiniband//:include/infiniband/mlx5_api.h",
+      "@infiniband//:include/infiniband/mlx5_user_ioctl_verbs.h",
+      "@infiniband//:include/infiniband/mlx5dv.h",
+      "@infiniband//:include/infiniband/opcode.h",
+      "@infiniband//:include/infiniband/sa-kern-abi.h",
+      "@infiniband//:include/infiniband/sa.h",
+      "@infiniband//:include/infiniband/tm_types.h",
+      "@infiniband//:include/infiniband/verbs.h",
+      "@infiniband//:include/infiniband/verbs_api.h",
+      "@infiniband//:lib/libibverbs.so.1",
+      "@infiniband//:lib/libmlx5.so.1"
+    ],
+    "native_build_completed": false,
+    "runtime_training_completed": false
+  },
+  "remaining_file_symlinks": 0,
+  "absolute_local_repository_paths": false,
+  "bundle_manifest_sha256": "598e8e4a8839272f9a5bc23974441540b9120be06377c41f991cf2223d54e4b5",
+  "workspace_sha256": "d6ab10b92267668ae3feba09d589558da6685e2b05574c4fa148c6b45d88ce5b",
+  "sdk": {
+    "tensorflow": "2.12.1+NVIDIA",
+    "cuda": "12.2",
+    "cudnn_major": 8,
+    "python_wheel_abi": "cp310"
+  },
+  "tests": {
+    "ctest": "original_native_source_bundle",
+    "passed": 1,
+    "failed": 0,
+    "fixture_cases": [
+      "source tree relocation with original symlink target removed",
+      "per-file digest verification and tampering rejection",
+      "source file absence versus generated output",
+      "missing build metadata rejection",
+      "repository traversal rejection"
+    ]
+  },
+  "native_build_completed": false,
+  "original_training_control_completed": false,
+  "gpu_instances_created": 0
+}

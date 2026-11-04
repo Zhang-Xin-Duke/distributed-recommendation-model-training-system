@@ -67,5 +67,51 @@ compiled or loaded by this analysis. The full original reader/cluster/training
 execution remains required in the matching Linux/NVIDIA environment; generated
 pip labels used for C++ graph loading do not establish that Python runtime.
 
+## Relocatable native inputs
+
+`scripts/original_native_bundle.py` materializes the native target's source and
+build-file closures into an independent workspace. It rewrites repository
+locations relative to the generated WORKSPACE, copies file symlinks as bytes,
+retains workspace-loaded rule repositories and includes the original framework
+tree for its Python training and control entry points. The resulting private
+tree belongs outside version control.
+
+Generate successful Bazel query outputs for `deps(//entropy:ts_clib.so)` and
+`buildfiles(deps(//entropy:ts_clib.so))`, then run:
+
+```sh
+python scripts/original_native_bundle.py \
+  --workspace /path/to/independent-original-workspace \
+  --deps /path/to/native-dependency-labels.log \
+  --buildfiles /path/to/native-buildfile-labels.log \
+  --output /tmp/original-native-portable
+```
+
+After moving the generated directory, run the dependency query again with Bazel
+7.7.0 and `--enable_bzlmod=false`. Query `kind("source file",
+deps(//entropy:ts_clib.so))` separately and audit its inputs:
+
+```sh
+python scripts/original_native_bundle.py \
+  --workspace /tmp/original-native-portable --audit \
+  --sourcefiles /path/to/relocated-source-file-labels.log
+```
+
+The actual relocation retains **39,343 dependency labels**, with zero missing or
+added labels. The bundle contains **40,300 materialized files** across **218 local
+repository declarations**. Its file hashes pass the audit, and no file symlinks
+or absolute local-repository paths remain. Source-file inspection identifies
+15 InfiniBand host inputs, including two shared libraries, to provision on Linux.
+Generated build outputs are kept separate from these missing system inputs.
+
+The recovered SDK's own CUDA configuration specifies **CUDA 12.2 and cuDNN 8**.
+The original Python lockfile selects a **CPython 3.10 TensorFlow 2.12.1 NVIDIA
+wheel**. Linux compilation must use actual compiler, CUDA and system-library
+fixtures, followed by library loading and original training/control execution.
+The portable source audit establishes build-input coverage; native compilation
+and runtime execution are still open.
+
+[Relocation and source-input audit](validation/2026-11-04-original-native-bundle.json).
+
 [Redis adapter verification and build analysis](validation/2026-11-04-public-redis-sdk.json) ·
 [Earlier build-input inventory](validation/2026-11-01-native-build-preflight.json)
