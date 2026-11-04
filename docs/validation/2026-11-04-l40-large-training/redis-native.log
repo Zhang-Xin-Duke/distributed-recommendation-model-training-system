@@ -1,0 +1,7 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+    Start 1: public_redis_sdk
+1/1 Test #1: public_redis_sdk .................   Passed    3.44 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   3.44 sec

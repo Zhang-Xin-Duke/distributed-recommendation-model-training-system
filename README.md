@@ -31,6 +31,13 @@ covers actual residency, GPU model computation and host/device memory placement.
 Existing multi-owner measurements use a smaller global table; the beyond-one-GPU
 capacity experiment remains to be executed.
 
+The [L40 large-table model run](docs/L40_LARGE_TRAINING.md) initializes and keeps
+**30 GiB of parameter/Adam state** on one GPU (2.62 million rows × 1,024 FP32
+dimensions). Two model workers complete eight synchronous rounds; sampled final
+state differs from the CPU global-batch reference by at most `7.62e-6`, with
+weighted loss decreasing from `0.686` to `0.237`. This establishes the per-owner
+working set for the planned beyond-single-GPU workload.
+
 [Synchronous gradient rounds](docs/SYNCHRONOUS_GRADIENTS.md) collect one sparse
 contribution per worker at each parameter shard, combine matching Keys and apply
 one optimizer update per round. Worker and sample-weighted averaging support

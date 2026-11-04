@@ -1,0 +1,5 @@
+{
+  "change": "Use CLIENT PAUSE timeout without Redis 6.2 mode argument; no model/runtime change",
+  "path": "tests/redis_compat_tests.cpp",
+  "sha256": "4a8c37af011e56840f382a2a65443d75ce3c63903d53c4e61175f92e51e71386"
+}

@@ -1,0 +1,142 @@
+{
+  "recorded_at_utc": "2026-11-04T21:23:51.963101+00:00",
+  "base_commit": "7e19c8112bf0d24ea813ccf2eaea08fc9715d1fa",
+  "scope": "Single physical L40 large-table training baseline for distributed capacity execution",
+  "workload": {
+    "rows": 2621440,
+    "dimension": 1024,
+    "hidden": 8,
+    "iterations": 8,
+    "model": "trainable_embedding_and_tanh_mlp",
+    "fully_initialized_resident_rows": 2621440,
+    "parameter_and_adam_bytes": 32212254720,
+    "touched_rows": 521,
+    "inspected_rows": 512,
+    "reference_state_scope": "sampled_touched_rows",
+    "completed": [
+      8,
+      8
+    ]
+  },
+  "physical_gpus": [
+    {
+      "uuid": "GPU-79274814-1dc6-5d48-abed-35e369a96006",
+      "model": "NVIDIA L40",
+      "total_memory_mib": 46068
+    }
+  ],
+  "results": {
+    "model_reference_max_absolute_error": 7.623806595802307e-06,
+    "first_global_gradient_max_absolute_error": 2.3283064365386963e-08,
+    "initial_weighted_loss": 0.6858720481395721,
+    "final_weighted_loss": 0.23731422424316406,
+    "peak_gpu_memory_used_mib": 32535.0,
+    "peak_cgroup_bytes": 35381587968,
+    "resource_samples": 155
+  },
+  "initialization_seconds": 199.040209119,
+  "checks": {
+    "linux_cuda": {
+      "passed": 62,
+      "skipped": 4,
+      "failed": 0,
+      "skip_reason": "Private original-source fixtures absent from archived deployment"
+    },
+    "redis_linux": {
+      "passed_cases": 9,
+      "server_version": "Redis server v=6.0.16 sha=00000000:0 malloc=jemalloc-5.2.1 bits=64 build=d6ed09173b889769",
+      "fixture_patch_sha256": "4a8c37af011e56840f382a2a65443d75ce3c63903d53c4e61175f92e51e71386"
+    },
+    "redis_macos": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "source_provenance": {
+    "model_and_runtime_commit": "7e19c8112bf0d24ea813ccf2eaea08fc9715d1fa",
+    "source_archive_sha256": "b1e09a5ecfdafaecc7a0285ec9843e5e89b2c5c3d7690de8901c7aaceeb480d9",
+    "source_files_verified_against_commit": 212,
+    "redis_fixture_patch": {
+      "path": "tests/redis_compat_tests.cpp",
+      "sha256": "4a8c37af011e56840f382a2a65443d75ce3c63903d53c4e61175f92e51e71386",
+      "change": "Use CLIENT PAUSE timeout without Redis 6.2 mode argument; no model/runtime change"
+    }
+  },
+  "retained_local_archives": {
+    "results": {
+      "name": "l40-results.tar.gz",
+      "bytes": 50865933,
+      "sha256": "2265dfe4ce46889a8c05f7b95672897c8e6a8c935c2c1250b6429f0727ac6178"
+    },
+    "runtime": {
+      "name": "portable-runtime-current.tar.gz",
+      "bytes": 29110219,
+      "sha256": "7a208fe3247181e8260d3fbb9a603cca176675c328065ab1e303bf08745a527d"
+    },
+    "raw_model_report": {
+      "bytes": 159360833,
+      "sha256": "8bf1527415177b0fdee7ac3987b69e4f04165f7bc44bb68118df654ec3c6501b"
+    }
+  },
+  "cleanup": {
+    "owned_instances_remaining": 0,
+    "all_account_instances_remaining": 0,
+    "rental_seconds": 1555.3716530799866,
+    "quoted_hourly_usd": 0.79,
+    "quoted_rental_cost_estimate_usd": 0.34131766857637297,
+    "raw_archives_verified": true,
+    "cleanup_verified": true
+  },
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/model-summary.json.gz",
+      "bytes": 8889,
+      "sha256": "7d6a0fffbfe03d83e34350448204a12da1e5562af9456fefaed38a65f65583bd"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/resource-samples.jsonl.gz",
+      "bytes": 2325,
+      "sha256": "13dab63f2f62c9f6919f370fdcd740834224eeaa47a4d875b6146229d3b96d89"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/environment.json",
+      "bytes": 26425,
+      "sha256": "45ae6000b1227bda4128431255717d50a85144cfc8f2e661ed10682301d03726"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/redis-linux.json",
+      "bytes": 1308,
+      "sha256": "05710909f4aed7abba0cb2eadfb6f28ffcf488ba048f2c9073a4a6618c090827"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/redis-linux-patch.json",
+      "bytes": 222,
+      "sha256": "64b5857bead7ba643b62cc0d560b7d629d9580f7c7412fabb1c3d2811514c113"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/cleanup.json",
+      "bytes": 265,
+      "sha256": "48160f941c94d8a2ecdf6ce31378e38c580f67872f1707cd4ca6b219656ab9b0"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/redis-native.log",
+      "bytes": 268,
+      "sha256": "f3065426332788b3bc56e2e3e84e0c0ee8919e2fd8089fa86dee18ce5c0905a3"
+    },
+    {
+      "path": "docs/validation/2026-11-04-l40-large-training/redis-linux.log",
+      "bytes": 1227,
+      "sha256": "f9d97716d311a983221c0df78c2140032460d72e0f92777e60122a1ac1bfc4dd"
+    }
+  ],
+  "beyond_single_gpu_capacity_executed": false,
+  "remaining_acceptance": [
+    "Global initialized GPU-resident training state exceeding the largest participating GPU physical capacity",
+    "Distinct physical GPU owners and actual GPU model forward/backward",
+    "Full original Entropy execution",
+    "GPU-owner recovery fencing and state rehydration"
+  ],
+  "reproduce": [
+    "python tests/tensorflow_synchronous_training.py --build build-cuda --devices 0 --rows 2621440 --dimension 1024 --hidden 8 --iterations 8 --samples-per-worker 16 --bag-size 16 --out l40-large-training.json"
+  ]
+}

@@ -87,7 +87,7 @@ void Basic(const std::shared_ptr<bilibili::redis::RClientMgr>& manager) {
       Call(*client,{"SET",k,v});Check(Call(*client,{"GET",k}).reply(0).data()==v,"concurrent value changed");}
   }catch(...){++failures;}});
   for(auto& t:threads)t.join();Check(failures==0,"concurrent shared client failed");
-  Call(*client,{"CLIENT","PAUSE","350","ALL"});
+  Call(*client,{"CLIENT","PAUSE","350"});
   auto short_timeout=Open(manager,"plain",false,50);
   Check(Call(*short_timeout,{"GET","persistent"},false).reply(0).is_error(),"timeout became success or nil");
   std::this_thread::sleep_for(std::chrono::milliseconds(450));

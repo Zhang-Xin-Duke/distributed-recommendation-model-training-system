@@ -129,3 +129,9 @@ query are separate from that full integration acceptance.
 Implementation references: [Apache BRPC Redis client](https://github.com/apache/brpc/blob/master/docs/en/redis_client.md),
 [Redis SET and expiration](https://redis.io/docs/latest/commands/set/),
 [Redis pipelining](https://redis.io/docs/latest/develop/using-commands/pipelining/).
+
+The follow-up Linux process check passes on Redis 6.0.16 with the same client
+implementation. Its timeout fixture uses `CLIENT PAUSE timeout`; the optional
+mode argument was introduced in Redis 6.2. See the
+[official command history](https://redis.io/docs/latest/commands/client-pause/)
+and [L40/Linux validation record](validation/2026-11-04-l40-large-training.json).
