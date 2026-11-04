@@ -1,0 +1,40 @@
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+{"phase": "waiting_for_a6000_build", "pid": 337, "live": true}
+Both GPU nodes validated; starting cross-node model
+{"phase": "hardware_checked", "global_state_bytes": 1572864}
+{"phase": "all_rows_resident", "rows": 4096}
+{"phase": "worker", "jobs": [{"live": true, "pid": 48757}, {"live": true, "pid": 8021}]}
+{"phase": "worker", "jobs": [{"exit_code": 0, "finished": 1793831165.2225895}, {"live": true, "pid": 8021}]}
+{"run": "capacity-small-two-gpu", "success": true, "initialized_resident_rows": 4096, "global_parameter_optimizer_bytes": 1572864, "initial_weighted_loss": 0.695997029542923, "final_weighted_loss": 0.2720062732696533}
+{"phase": "cross_node_reference_passed", "max_state_absolute_error": 8.940696716308594e-07, "max_loss_absolute_error": 5.960464477539063e-08, "tolerance": 5e-05, "compared_rows": 64, "physical_gpus": ["GPU-1faab100-4e7b-5b5f-a1a6-439174bcae81", "GPU-6973fa98-62e0-5c8d-8199-dcdca4da0ac2"]}
+{"phase": "hardware_checked", "global_state_bytes": 64424509440}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"live": true, "pid": 11288}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"exit_code": 0, "finished": 1793831378.6671085}]}
+{"phase": "prepare", "jobs": [{"live": true, "pid": 51028}, {"exit_code": 0, "finished": 1793831378.6671085}]}
+{"phase": "all_rows_resident", "rows": 5242880}
+{"phase": "worker", "jobs": [{"live": true, "pid": 64837}, {"live": true, "pid": 33108}]}
+{"phase": "worker", "jobs": [{"live": true, "pid": 64837}, {"live": true, "pid": 33108}]}
+{"run": "capacity-sixty-gib-two-gpu", "success": true, "initialized_resident_rows": 5242880, "global_parameter_optimizer_bytes": 64424509440, "initial_weighted_loss": 0.6939463913440704, "final_weighted_loss": 0.23058557510375977}
+{"phase": "capacity_complete", "global_state_gib": 60, "largest_single_gpu_gib": 47.98828125, "cleanup_verified": true}

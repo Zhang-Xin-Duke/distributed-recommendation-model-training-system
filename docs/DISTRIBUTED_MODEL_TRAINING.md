@@ -140,8 +140,11 @@ complete and both nodes' owned process cleanup is verified.
 ctest --test-dir build/tensorflow -V -R '^distributed_model_orchestration$'
 ```
 
-The first two-A6000 provisioning attempt is rejected before creating an instance:
-the provider reports the configuration unavailable, and its UI also lists L40
-as sold out. The published record contains no multi-GPU capacity result. Linux
-runtime deployment and SSH relay integration await available GPU nodes.
-[Source hashes, local workflow report and provisioning rejection](validation/2026-11-04-distributed-training-orchestration.json).
+The first two-A6000 provisioning attempt was rejected before an instance was
+created. A later L40 + A6000 deployment executes the same lifecycle across
+distinct GPU nodes and scoped SSH relays. It initializes and retains 60 GiB
+of parameter/Adam state, exceeds either single GPU's physical memory, and
+completes eight real GPU model-training rounds. Both nodes' processes and rented
+instances are verified cleaned up.
+[Multi-GPU capacity result](MULTIGPU_TRAINING_CAPACITY.md) ·
+[Initial Host workflow and provisioning rejection](validation/2026-11-04-distributed-training-orchestration.json).

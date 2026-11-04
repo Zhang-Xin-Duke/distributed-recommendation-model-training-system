@@ -216,8 +216,8 @@ Host and L40 CUDA process checks pass with complete state/loss comparisons.
 [Read-lifecycle recovery](READ_LIFECYCLE_RECOVERY.md) additionally handles partial
 Pull/Release RPC failures and delayed Lookups in real CPU/CUDA model runs.
 Automatic endpoint discovery and cross-node recovery require further execution.
-The beyond-single-GPU capacity experiment
-and complete original Entropy integration remain in the overarching project
+The [two-node capacity experiment](MULTIGPU_TRAINING_CAPACITY.md) passes at
+60 GiB. Complete original Entropy integration remains in the overarching project
 scope. Runtime power-loss behavior relies on the implemented fsync/publication
 protocol; the executed fault injections kill processes while preserving disk.
 

@@ -150,17 +150,22 @@ and TSan. No GPU rental was used for these stages.
 The TensorFlow worker now trains shared Embedding and MLP parameters through
 the synchronous mode, including verified GPU forward/backward and CUDA owner
 updates on an A6000. Its first global gradient and complete touched state match
-a single-worker reference within the recorded tolerances. Extend this path
-across GPU instances and execute the beyond-single-GPU capacity acceptance.
+a single-worker reference within the recorded tolerances. This path also runs
+across GPU instances as recorded below; the beyond-single-GPU capacity run passes.
 Gradient-submission Key metadata reuse, durable
 round/range progress, replicated failover, original-framework execution and
 common-quality measurements remain in the full implementation scope.
 
 Node orchestration now has a Host-backed end-to-end lifecycle check covering
 distributed backing/residency, model rounds, sampled optimizer state and owned
-process cleanup. The planned two-node GPU capacity run is pending provider
-availability: its first A6000 creation is rejected and no instance is created.
-The record is `../validation/2026-11-04-distributed-training-orchestration.json`.
+process cleanup. Following its first provisioning rejection, an L40 + A6000
+deployment initializes 60 GiB of actual resident parameter/Adam state and
+completes eight real GPU model-training rounds, exceeding the larger card's
+47.99 GiB physical capacity. Loss decreases from 0.694 to 0.231. The preceding
+small cross-node comparison has maximum state/loss errors of 8.94e-7 / 5.96e-8.
+Both rented instances and all training processes are cleaned up. Records are
+`../validation/2026-11-04-distributed-training-orchestration.json` and
+`../validation/2026-11-04-multi-gpu-training-capacity.json`.
 
 Joint synchronous-training restart now couples complete parameter/Adam snapshots,
 gradient next-round counters, task-progress clocks, model configuration and
@@ -203,8 +208,8 @@ when cleanup remains uncertain. CPU and L40 CUDA model runs match uninterrupted
 state/loss exactly; preparation failures retain input-cursor recovery semantics.
 The record is `../validation/2026-11-04-read-lifecycle-recovery.json`. Competing
 GPU owners, automatic discovery/supervision, multi-node journal retrieval, bounded log compaction,
-gradient-Key metadata reuse, same-quality policy measurements, GPU capacity
-execution and complete original Entropy integration remain in the full scope.
+gradient-Key metadata reuse, same-quality policy measurements, further capacity/
+scaling characterization and complete original Entropy integration remain in the full scope.
 
 The [public Redis SDK adapter](../PUBLIC_REDIS_SDK.md) now supplies the observed
 manager/client interfaces to the original shared wrapper through real BRPC

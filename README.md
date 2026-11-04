@@ -1,11 +1,11 @@
 # Distributed Parameter Server
 
-**Distributed storage, access and updates for machine-learning parameters.**
+**Sharded parameter storage and optimizer updates for distributed training.**
 
 Training workers pull the parameters needed for a batch and push gradients back
 for updates. Distributed Parameter Server partitions those parameters across
-server shards and manages batched access and optimizer state. GPU workers cache
-complete parameter rows and execute resident pooling and sparse updates.
+server shards and manages batched access and optimizer state. GPU parameter
+owners hold complete rows and execute resident pooling and sparse updates.
 
 [Distributed training execution](docs/TRAINING_EXECUTION.md) is the central
 implementation track: worker task dependencies, gradient/update semantics,
@@ -23,20 +23,20 @@ touches only a small fraction of a large table. This pattern appears in
 recommendation, advertising, knowledge graphs, graph learning and word-embedding
 models.
 
-The principal multi-GPU scenario is training a model whose parameter and
-optimizer state exceeds one GPU's memory. The capacity path shards embedding
-rows and their optimizer state across GPU owners, with workers pulling required
-vectors and returning sparse gradients. [Capacity acceptance](docs/plans/2026-11-04-multi-gpu-training-capacity.md)
-covers actual residency, GPU model computation and host/device memory placement.
-Existing multi-owner measurements use a smaller global table; the beyond-one-GPU
-capacity experiment remains to be executed.
+The principal multi-GPU scenario is training when parameter and optimizer state
+exceeds one GPU's memory. The service partitions embedding rows across GPU
+owners; workers pull required vectors, run GPU forward/backward and return
+sparse gradients to the corresponding owners.
 
-The [L40 large-table model run](docs/L40_LARGE_TRAINING.md) initializes and keeps
-**30 GiB of parameter/Adam state** on one GPU (2.62 million rows × 1,024 FP32
-dimensions). Two model workers complete eight synchronous rounds; sampled final
-state differs from the CPU global-batch reference by at most `7.62e-6`, with
-weighted loss decreasing from `0.686` to `0.237`. This establishes the per-owner
-working set for the planned beyond-single-GPU workload.
+![Multi-GPU training capacity and loss](docs/assets/multi-gpu-training-capacity.svg)
+
+**Executed capacity:** two physical GPU nodes—L40 and RTX A6000—hold **60 GiB
+of initialized, resident parameter/Adam state**, with **30 GiB per owner**.
+The larger single GPU exposes 47.99 GiB. Both workers finish eight synchronous
+rounds and mean training loss decreases from **0.694 to 0.231**. The workload
+uses 5.24 million rows × 1,024 FP32 dimensions and a two-layer MLP. A preceding
+small cross-node run matches reference parameters/Adam state within `8.94e-7`.
+[Workload, memory placement and validation](docs/MULTIGPU_TRAINING_CAPACITY.md).
 
 [Synchronous gradient rounds](docs/SYNCHRONOUS_GRADIENTS.md) collect one sparse
 contribution per worker at each parameter shard, combine matching Keys and apply
@@ -88,9 +88,8 @@ on one physical GPU; cross-node capacity is recorded separately.
 
 [Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
 owner and model worker on each node, initializes local backing/resident rows,
-samples resources and verifies round completion and process cleanup. Its local
-Host-backed workflow passes; the multi-node CUDA capacity measurement awaits
-available GPU instances.
+samples resources and verifies round completion and process cleanup. Its Host-backed workflow and two-node CUDA capacity execution pass, including
+complete residency counts, GPU model placement and verified process cleanup.
 
 A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
 process. [Device Pull](docs/DEVICE_PULL.md) combines CPU, native CUDA and remote

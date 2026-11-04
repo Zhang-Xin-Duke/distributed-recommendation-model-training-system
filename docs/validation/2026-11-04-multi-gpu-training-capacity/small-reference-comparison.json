@@ -1,0 +1,10 @@
+{
+  "max_state_absolute_error": 8.940696716308594e-07,
+  "max_loss_absolute_error": 5.960464477539063e-08,
+  "tolerance": 5e-05,
+  "compared_rows": 64,
+  "physical_gpus": [
+    "GPU-1faab100-4e7b-5b5f-a1a6-439174bcae81",
+    "GPU-6973fa98-62e0-5c8d-8199-dcdca4da0ac2"
+  ]
+}

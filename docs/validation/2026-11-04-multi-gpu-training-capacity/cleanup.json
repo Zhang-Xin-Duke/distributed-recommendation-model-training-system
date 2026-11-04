@@ -1,0 +1,29 @@
+{
+  "started_epoch": 1793831480.765066,
+  "nodes": [
+    {
+      "node": 0,
+      "matching_instances_before": 1,
+      "quoted_usd_per_hour": 0.79,
+      "lease_uuid_sha256": "1da1f0c5de019479b054fcf45cc47d898732a78e9ce2b9de9ac5d199a81cea0d",
+      "delete_exit_code": 0,
+      "observed_duration_seconds": 1956.9231660366058,
+      "estimated_rental_cost_usd": 0.4294
+    },
+    {
+      "node": 1,
+      "matching_instances_before": 1,
+      "quoted_usd_per_hour": 0.35,
+      "lease_uuid_sha256": "cc4c31fa176661a920575b4bf3c57edffb4c09acce088ff59164d0cb056c5b88",
+      "delete_exit_code": 0,
+      "observed_duration_seconds": 988.0864579677582,
+      "estimated_rental_cost_usd": 0.0961
+    }
+  ],
+  "finished_epoch": 1793831485.937412,
+  "owned_instances_remaining": 0,
+  "authoritative_inventory_verified": true,
+  "tunnel_processes_stop_requested": [],
+  "ssh_tunnels_gone": true,
+  "cost_scope": "Estimate from observed creation-to-deletion interval and quoted hourly rates, not a provider invoice or refreshed credit balance."
+}

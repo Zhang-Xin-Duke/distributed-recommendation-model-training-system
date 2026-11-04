@@ -54,3 +54,19 @@ budget and recheck the available credit/instances before starting billing.
 The overarching task-progress, repeated-Key metadata, durable range progress,
 replication/failover and original-framework requirements remain in
 [the distributed-training plan](2026-11-04-distributed-training-design.md).
+
+## Executed capacity milestone
+
+The L40 + A6000 run completes this fixed-workload residency case: 5,242,880
+initialized rows × 1,024 FP32 dimensions occupy 60 GiB globally, split into
+30 GiB per owner. The largest participating GPU exposes 47.99 GiB. Both workers
+execute GPU forward/backward for eight rounds and loss decreases from 0.694 to
+0.231. All resident row counts remain complete; 64 touched rows have finite
+weights/moments and exactly eight updates. A preceding small cross-node model
+comparison has maximum state/loss errors of 8.94e-7 / 5.96e-8.
+
+[Execution and resource measurements](../MULTIGPU_TRAINING_CAPACITY.md) retain
+the workload, host backing, SSH transport, sampled memory peaks and cleanup.
+This establishes one beyond-single-GPU training capacity point. Hot-Key skew,
+cross-node recovery, full original Entropy execution and the remaining
+common-quality/scaling measurements retain their requirements above.

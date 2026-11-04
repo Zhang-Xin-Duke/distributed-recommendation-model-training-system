@@ -1,0 +1,232 @@
+{
+  "source_commit": "44864d848dedd9df57d7df07348dbf45fed62943",
+  "recorded_at_utc": "2026-11-04T22:32:11.451549+00:00",
+  "scope": "Two distinct GPU nodes train a sharded sparse model with 60 GiB of initialized resident parameter and Adam state, exceeding the largest participating single GPU",
+  "workload": {
+    "rows": 5242880,
+    "dimension": 1024,
+    "iterations": 8,
+    "workers": 2,
+    "local_samples": 16,
+    "bag": 16
+  },
+  "transport": "Two SSH loopback forwards through the operator host; separate physical GPU nodes",
+  "global_parameter_optimizer_bytes": 64424509440,
+  "largest_single_gpu_bytes": 51527024640,
+  "initialized_resident_rows": 5242880,
+  "small_model_reference": {
+    "max_state_absolute_error": 8.940696716308594e-07,
+    "max_loss_absolute_error": 5.960464477539063e-08,
+    "tolerance": 5e-05,
+    "compared_rows": 64,
+    "physical_gpus": [
+      "GPU-1faab100-4e7b-5b5f-a1a6-439174bcae81",
+      "GPU-6973fa98-62e0-5c8d-8199-dcdca4da0ac2"
+    ]
+  },
+  "nodes": [
+    {
+      "node": 0,
+      "gpu": {
+        "uuid": "GPU-1faab100-4e7b-5b5f-a1a6-439174bcae81",
+        "name": "NVIDIA L40",
+        "total_bytes": 48305799168,
+        "free_bytes": 47696576512
+      },
+      "initialized_rows": 2621440,
+      "resident_rows": 2621440,
+      "parameter_optimizer_bytes": 32212254720,
+      "cpu_parameter_state_bytes": 32233226240,
+      "preparation_seconds": 227.612458004,
+      "sampled_peak_gpu_used_bytes": 33643560960,
+      "sampled_peak_cgroup_current_bytes": 34649595904,
+      "sampled_peak_owned_process_rss_bytes": 34050699264,
+      "resource_sample_count": 183,
+      "worker_completed": 8,
+      "step_seconds": [
+        4.88536636903882,
+        2.286297518759966,
+        2.0762341301888227,
+        2.3709811121225357,
+        1.7861742861568928,
+        2.6326365936547518,
+        1.8882459588348866,
+        2.0993470065295696
+      ],
+      "median_step_seconds": 2.1928222626447678,
+      "losses": [
+        0.6861999034881592,
+        0.47474241256713867,
+        0.4294360280036926,
+        0.3837651014328003,
+        0.3399698734283447,
+        0.29956114292144775,
+        0.26307183504104614,
+        0.23058557510375977
+      ],
+      "tensorflow_device_memory": {
+        "current": 4355072,
+        "peak": 6289664
+      }
+    },
+    {
+      "node": 1,
+      "gpu": {
+        "uuid": "GPU-6973fa98-62e0-5c8d-8199-dcdca4da0ac2",
+        "name": "NVIDIA RTX A6000",
+        "total_bytes": 51527024640,
+        "free_bytes": 51527024640
+      },
+      "initialized_rows": 2621440,
+      "resident_rows": 2621440,
+      "parameter_optimizer_bytes": 32212254720,
+      "cpu_parameter_state_bytes": 32233226240,
+      "preparation_seconds": 197.66559265,
+      "sampled_peak_gpu_used_bytes": 32283557888,
+      "sampled_peak_cgroup_current_bytes": 34645127168,
+      "sampled_peak_owned_process_rss_bytes": 34087354368,
+      "resource_sample_count": 184,
+      "worker_completed": 8,
+      "step_seconds": [
+        4.350890465080738,
+        2.2647982705384493,
+        2.08859009668231,
+        2.1851461734622717,
+        1.951356254518032,
+        2.515011141076684,
+        1.9844845719635487,
+        2.20024605281651
+      ],
+      "median_step_seconds": 2.192696113139391,
+      "losses": [
+        0.7016928791999817,
+        0.4744412302970886,
+        0.4294356405735016,
+        0.3837650716304779,
+        0.3399698734283447,
+        0.29956114292144775,
+        0.26307183504104614,
+        0.23058557510375977
+      ],
+      "tensorflow_device_memory": {
+        "current": 4436736,
+        "peak": 6289664
+      }
+    }
+  ],
+  "results": {
+    "success": true,
+    "initial_weighted_loss": 0.6939463913440704,
+    "final_weighted_loss": 0.23058557510375977,
+    "completed_tasks": 16,
+    "completed_worker_clocks": [
+      8,
+      8
+    ],
+    "touched_rows": 521,
+    "inspected_rows": 64,
+    "row_updates_per_inspected_row": 8,
+    "zero_live_tickets": true,
+    "process_cleanup": [
+      {
+        "stop_requested": true,
+        "owned_processes_gone": true
+      },
+      {
+        "stop_requested": true,
+        "owned_processes_gone": true
+      }
+    ]
+  },
+  "measurement_scope": {
+    "small": "4096 rows x 32 FP32 dimensions; 64 sampled touched rows, full weight/Adam vectors, all worker losses compared with deterministic Host training; no comparison of all 4096 rows",
+    "capacity": "All 5,242,880 rows initialized/resident across both GPUs; 521 rows touched during training, 64 touched rows inspected for finite complete vectors and exact update counts; this large run has no full-state CPU replay",
+    "memory": "Parameter/Adam bytes exclude metadata/workspaces. Device/host peaks are one-second samples over preparation and training; CPU backing copies remain distributed one shard per node. Cgroup samples include other retained build/environment caches.",
+    "performance": "Step times describe this SSH-relayed synthetic workload; no throughput scaling claim or maximum supported model-size claim"
+  },
+  "command": "python scripts/distributed_model_training.py --fleet <private-fleet.json> --rows 5242880 --dimension 1024 --hidden 8 --samples 16 --bag 16 --iterations 8 --require-capacity --run capacity-sixty-gib-two-gpu --out <results>",
+  "source_sha256": {
+    "scripts/distributed_model_training.py": "94d62a0b34edb7a23a566000f640d7fbdaf884c01804c03e223c94aab4b7989f",
+    "scripts/training_node.py": "8a24f6986e5e33c41ca462f673ea07f38df21ddae4a94645dfc5e0227213a9b8",
+    "scripts/fleet_capacity_sweep.py": "8a93bed837df4e8154b9f1eae1e3b7017221f4f65f8cb6d34073eecd9c3e1958",
+    "examples/tensorflow_training_worker.py": "b0ed236b1e026ae104ef6b9da86095c92ba6346b2b6da0d2c4d5202b4cee797f",
+    "src/training/prepare_main.cpp": "7604fd5f4370d62391f4b4610ce5cc39e8ef3f8a65f6bd665cfec00d7a3316da",
+    "src/training/training_progress.cpp": "0d98097a84fe0a6c5bd8a75261814dd84acd89c8e2a749237fa6519cfd2674f6",
+    "src/training/control_main.cpp": "4bfa594047484d5705c13e7d5133a9bee9b12a41a03767c40fe50fd711a7e4fc",
+    "adapters/entropy/table_adapter.cpp": "5b693171571461c8e094405de4b949d4098c938d730b887b850c34f62f9a0005",
+    "src/client/distributed_client.cpp": "b6316362939ca55fb6c1c67606b1839941891a802224a3ef0110b519db96ab6c",
+    "src/server/service.cpp": "ddbd41cdb6f1598c1175bdae878becf448a2520d8a321aeb8c0c66679a47d304"
+  },
+  "runtime_provenance": "2026-11-04-read-lifecycle-recovery.json and its node environment/runtime manifests; same source code, separately built sm89 and sm86 runtimes",
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-multi-gpu-training-capacity/execution.log",
+      "bytes": 3669,
+      "sha256": "ab499a859b214974c515f49e03fb4fffc2228c15c8debde5614ab6769e1e9ec6"
+    },
+    {
+      "path": "docs/validation/2026-11-04-multi-gpu-training-capacity/large.json.gz",
+      "bytes": 1913532,
+      "sha256": "2ba2f308efb7e2b650d4d966562d137091654153ecd4b61c691bb42fbc67a7f9"
+    },
+    {
+      "path": "docs/validation/2026-11-04-multi-gpu-training-capacity/reference.json.gz",
+      "bytes": 47173,
+      "sha256": "7df6173ee273eff7f3589c83705bdabcffc56fa3c5e581a58e2ccae105d0d38c"
+    },
+    {
+      "path": "docs/validation/2026-11-04-multi-gpu-training-capacity/small-reference-comparison.json",
+      "bytes": 274,
+      "sha256": "5d1df33380ff4a12be3ad006536d959bc6c5dd839a2cc12a8964082b1e15e8de"
+    },
+    {
+      "path": "docs/validation/2026-11-04-multi-gpu-training-capacity/small.json.gz",
+      "bytes": 48178,
+      "sha256": "68e6fe6f5168b608f43df24da09dd76ff11847c620cc25052e40ac2e2892728f"
+    },
+    {
+      "path": "docs/validation/2026-11-04-multi-gpu-training-capacity/cleanup.json",
+      "bytes": 1040,
+      "sha256": "517c26af73f0952d94cb7f7c0eec6eeebbb8ddd3e76c7f014ed82ad0f01d4f48"
+    },
+    {
+      "path": "scripts/plot_training_capacity.py",
+      "bytes": 2509,
+      "sha256": "2c78193a9bdef1ce1d7ba8557916dc91e9eef71b3999d51b25fd4682951cc088"
+    },
+    {
+      "path": "docs/assets/multi-gpu-training-capacity.svg",
+      "bytes": 21006,
+      "sha256": "0df1bcaa000b8fdfa55e30d1ec42cd8f7de5769c7616d78cc51d04c7afbc146f"
+    }
+  ],
+  "rental_cleanup": {
+    "started_epoch": 1793831480.765066,
+    "nodes": [
+      {
+        "node": 0,
+        "matching_instances_before": 1,
+        "quoted_usd_per_hour": 0.79,
+        "lease_uuid_sha256": "1da1f0c5de019479b054fcf45cc47d898732a78e9ce2b9de9ac5d199a81cea0d",
+        "delete_exit_code": 0,
+        "observed_duration_seconds": 1956.9231660366058,
+        "estimated_rental_cost_usd": 0.4294
+      },
+      {
+        "node": 1,
+        "matching_instances_before": 1,
+        "quoted_usd_per_hour": 0.35,
+        "lease_uuid_sha256": "cc4c31fa176661a920575b4bf3c57edffb4c09acce088ff59164d0cb056c5b88",
+        "delete_exit_code": 0,
+        "observed_duration_seconds": 988.0864579677582,
+        "estimated_rental_cost_usd": 0.0961
+      }
+    ],
+    "finished_epoch": 1793831485.937412,
+    "owned_instances_remaining": 0,
+    "authoritative_inventory_verified": true,
+    "tunnel_processes_stop_requested": [],
+    "ssh_tunnels_gone": true,
+    "cost_scope": "Estimate from observed creation-to-deletion interval and quoted hourly rates, not a provider invoice or refreshed credit balance."
+  }
+}
