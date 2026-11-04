@@ -4,6 +4,7 @@
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_training.hpp"
 #include "eps/brpc_synchronous_gradients.hpp"
+#include "job_checkpoint.hpp"
 
 using namespace eps;
 namespace {
@@ -16,12 +17,15 @@ template<class T> T Take(std::future<Result<T>> f) {
 int main(int argc, char** argv) {
   try {
     if (argc != 5 || std::string(argv[1]) != "--config" || std::string(argv[3]) != "--action")
-      throw std::runtime_error("usage: eps_training_control --config FILE --action stats|inspect|pause|checkpoint|resume|abort");
+      throw std::runtime_error("usage: eps_training_control --config FILE --action stats|inspect|pause|checkpoint|resume|abort|save-job|restore-config|resume-job");
     std::ifstream file(argv[2]);
     if (!file) throw std::runtime_error("cannot open training control config");
     nlohmann::json j; file >> j;
-    BrpcTrainingProgress c(j.at("coordinator"), j.at("run"), j.value("epoch", std::uint64_t(1)), 5000);
     const std::string action = argv[4];
+    if (action == "save-job" || action == "restore-config" || action == "resume-job") {
+      std::cout << training::JobCheckpoint(j, action).dump() << '\n'; return 0;
+    }
+    BrpcTrainingProgress c(j.at("coordinator"), j.at("run"), j.value("epoch", std::uint64_t(1)), 5000);
     nlohmann::json result;
     if (action == "stats" || action == "inspect") {
       const auto s = Take(c.Stats());

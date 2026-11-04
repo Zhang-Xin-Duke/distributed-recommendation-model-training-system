@@ -42,6 +42,7 @@ class CpuParameterService::Impl {
             options_.max_queued_operations > 0, "invalid request limits");
     Require(!options_.exclusive_update_learner || *options_.exclusive_update_learner < 1024,
       "invalid exclusive update learner");
+    draining_ = options_.start_paused;
   }
 
   template <typename T, typename Fn>
@@ -569,8 +570,9 @@ class CpuParameterService::Impl {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
                (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
       }), "invalid snapshot ID");
+    const bool already_saved = draining_ && saved_checkpoint_ == id;
     draining_ = true;
-    saved_checkpoint_.clear();
+    if (!already_saved) saved_checkpoint_.clear();
     Require(tickets_.empty(), "drain in progress: complete or release outstanding tickets",
             Error::Code::unavailable);
     for(;;){
@@ -589,7 +591,7 @@ class CpuParameterService::Impl {
     }
     const auto file = options_.snapshot_directory / id /
         ("shard-" + std::to_string(options_.shard_id) + ".bin");
-    detail::WriteSnapshot(file, options_.run_id, *store_);
+    if (!already_saved) detail::WriteSnapshot(file, options_.run_id, *store_);
     SnapshotMetadata result{id, options_.shard_id, options_.partition_epoch, {file.string()}, {}};
     for (const auto& [table, t] : store_->tables())
       result.optimizer_contexts.push_back({{options_.run_id, 0, 0, Phase::maintenance},
@@ -638,6 +640,8 @@ CpuParameterService::~CpuParameterService() {
 std::future<Result<Ack>> CpuParameterService::CreateTable(TableDefinition table) {
   return impl_->Submit<Ack>([this,table]()->detail::ActorTask<Ack>{
     impl_->Ready();const bool existed=impl_->store_->tables().contains(table.id);
+    Require(existed || !impl_->draining_, "cannot add a table while parameter admission is paused",
+      Error::Code::unavailable);
     impl_->store_->Create(table);
     if(!existed)impl_->restored_.pristine=false;
     for(const auto& [id,backend]:impl_->agents_)
@@ -660,6 +664,23 @@ std::future<Result<Ack>> CpuParameterService::Push(PushRequest request) {
   auto input=std::make_shared<PushRequest>(std::move(request));
   return impl_->SubmitIndependent<Ack>([this,input]{return impl_->Push(std::move(*input));},
     [this,input]{return impl_->PushDependencies(*input);},bytes);
+}
+std::future<Result<ParameterTrainingMetadata>> CpuParameterService::TrainingMetadata() {
+  return impl_->actor_.Observe<ParameterTrainingMetadata>([this] {
+    impl_->Ready(); ParameterTrainingMetadata result;
+    result.provenance = impl_->restored_;
+    result.provenance.run = impl_->options_.run_id;
+    result.provenance.shard = impl_->options_.shard_id;
+    result.provenance.shard_count = impl_->options_.shard_count;
+    result.provenance.partition_epoch = impl_->options_.partition_epoch;
+    for (const auto& [id, table] : impl_->store_->tables()) {
+      result.tables.push_back(table.definition);
+      result.optimizer_contexts.push_back({{impl_->options_.run_id, 1023, 0, Phase::maintenance},
+        impl_->options_.shard_id, id, table.optimizer_sequence, table.definition.optimizer.learning_rate,
+        table.beta1_power, table.beta2_power});
+    }
+    return result;
+  });
 }
 std::future<Result<Ack>> CpuParameterService::Release(ReleaseRequest request) {
   auto input=std::make_shared<ReleaseRequest>(std::move(request));

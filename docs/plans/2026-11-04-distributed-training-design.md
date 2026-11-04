@@ -154,3 +154,14 @@ distributed backing/residency, model rounds, sampled optimizer state and owned
 process cleanup. The planned two-node GPU capacity run is pending provider
 availability: its first A6000 creation is rejected and no instance is created.
 The record is `../validation/2026-11-04-distributed-training-orchestration.json`.
+
+Joint synchronous-training restart now couples complete parameter/Adam snapshots,
+gradient next-round counters, task-progress clocks, model configuration and
+worker input positions in one published manifest. Fresh processes remain paused
+through verification and existing-row owner rehydration. The two-shard/two-Host-
+owner TensorFlow test compares all 32 rows and continuation losses against
+uninterrupted training after restarting inside a three-batch input cycle; both
+maximum absolute differences are zero. Injected partial exports do not publish
+a manifest. The record is `../validation/2026-11-04-joint-training-checkpoint.json`.
+This completes coordinated round-boundary restart; replica-backed in-flight
+replay and fenced live replacement remain required work.

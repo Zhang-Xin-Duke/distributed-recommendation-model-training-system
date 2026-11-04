@@ -184,8 +184,9 @@ if(EPS_BUILD_BRPC)
   target_include_directories(eps_training_coordinator PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_executable(eps_training_worker examples/sparse_training_worker.cpp)
   target_link_libraries(eps_training_worker PRIVATE eps_brpc nlohmann_json::nlohmann_json)
-  add_executable(eps_training_control src/training/control_main.cpp)
-  target_link_libraries(eps_training_control PRIVATE eps_brpc nlohmann_json::nlohmann_json)
+  find_package(OpenSSL REQUIRED)
+  add_executable(eps_training_control src/training/control_main.cpp src/training/job_checkpoint.cpp)
+  target_link_libraries(eps_training_control PRIVATE eps_brpc nlohmann_json::nlohmann_json OpenSSL::Crypto)
   add_executable(eps_training_prepare src/training/prepare_main.cpp)
   target_link_libraries(eps_training_prepare PRIVATE eps_brpc nlohmann_json::nlohmann_json)
   add_executable(eps_capacity_probe tests/capacity_probe.cpp)
@@ -337,6 +338,11 @@ if(EPS_BUILD_BRPC)
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_synchronous_training.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-synchronous-cpu.json")
         set_tests_properties(tensorflow_synchronous_model_cpu PROPERTIES TIMEOUT 180
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_joint_training_checkpoint
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-joint-checkpoint.json")
+        set_tests_properties(tensorflow_joint_training_checkpoint PROPERTIES TIMEOUT 240
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME distributed_model_orchestration
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/distributed_model_orchestration.py"

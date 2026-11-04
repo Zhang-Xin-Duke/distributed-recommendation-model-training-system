@@ -194,11 +194,27 @@ message SynchronousGradientStatsReply {
   uint64 duplicate_submissions = 5;
   bool applying = 6;
   bool failed = 7;
+  bool paused = 8;
+}
+message SynchronousTableSchema { uint32 table_id = 1; uint32 dimension = 2; }
+message SynchronousGradientCheckpointReply {
+  Status status = 1;
+  string source_run = 2;
+  uint64 epoch = 3;
+  uint32 workers = 4;
+  uint32 shard = 5;
+  uint32 shards = 6;
+  repeated SynchronousTableSchema tables = 7;
+  uint32 reduction = 8;
+  uint64 next_round = 9;
 }
 service SynchronousGradientService {
   rpc Submit(GradientContribution) returns (Ack);
   rpc Stats(TrainingControl) returns (SynchronousGradientStatsReply);
   rpc Abort(TrainingControl) returns (Ack);
+  rpc Pause(TrainingControl) returns (Ack);
+  rpc Resume(TrainingControl) returns (Ack);
+  rpc Checkpoint(TrainingControl) returns (SynchronousGradientCheckpointReply);
 }
 
 message LookupRequest {

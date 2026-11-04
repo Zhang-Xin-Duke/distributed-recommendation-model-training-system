@@ -99,6 +99,13 @@ and abort operations. A restored coordinator starts paused with its saved
 completed counts. Its progress-only checkpoint does not by itself restore
 parameter files or input cursors.
 
+The [joint checkpoint controller](JOINT_TRAINING_CHECKPOINT.md) couples those
+clocks with complete parameter/Adam snapshots, gradient collector rounds,
+model configuration and actual worker input positions. `save-job` publishes
+its manifest after all shard exports validate; `restore-config` and `resume-job`
+verify fresh-run restoration before task admission opens. Existing rows can be
+rehydrated onto GPU owners while training is still paused.
+
 `eps_training_worker` is an executable sparse-logistic training path, configured
 with a worker identity, its local examples, parameter endpoints and coordinator.
 The worker pools ID-selected scalar parameters, computes a binary logistic loss

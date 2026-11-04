@@ -11,12 +11,19 @@ class BrpcSynchronousServer final : public v1::SynchronousGradientService {
   BrpcSynchronousServer(CpuParameterService& parameters, SynchronousGradientOptions options);
   ~BrpcSynchronousServer() override;
   void Shutdown();
+  Result<Ack> Restore(SynchronousGradientCheckpoint checkpoint, RestoredSnapshot expected);
   void Submit(google::protobuf::RpcController*, const v1::GradientContribution*,
               v1::Ack*, google::protobuf::Closure*) override;
   void Stats(google::protobuf::RpcController*, const v1::TrainingControl*,
              v1::SynchronousGradientStatsReply*, google::protobuf::Closure*) override;
   void Abort(google::protobuf::RpcController*, const v1::TrainingControl*,
              v1::Ack*, google::protobuf::Closure*) override;
+  void Pause(google::protobuf::RpcController*, const v1::TrainingControl*,
+             v1::Ack*, google::protobuf::Closure*) override;
+  void Resume(google::protobuf::RpcController*, const v1::TrainingControl*,
+              v1::Ack*, google::protobuf::Closure*) override;
+  void Checkpoint(google::protobuf::RpcController*, const v1::TrainingControl*,
+                  v1::SynchronousGradientCheckpointReply*, google::protobuf::Closure*) override;
  private:
   struct Impl;
   std::unique_ptr<Impl> impl_;

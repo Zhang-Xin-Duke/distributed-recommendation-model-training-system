@@ -34,6 +34,13 @@ struct RuntimeOptions {
   // Synchronous round application reserves one learner stream for updates;
   // ordinary workers can only perform read-only lookups in this mode.
   std::optional<std::uint32_t> exclusive_update_learner;
+  bool start_paused = false;
+};
+
+struct ParameterTrainingMetadata {
+  RestoredSnapshot provenance;
+  std::vector<TableDefinition> tables;
+  std::vector<UpdateContext> optimizer_contexts;
 };
 
 struct RuntimeStats {
@@ -98,6 +105,7 @@ class CpuParameterService final : public ParameterService {
   std::future<Result<Ack>> CreateTable(TableDefinition table) override;
   std::future<Result<LookupReply>> Lookup(LookupRequest request) override;
   std::future<Result<Ack>> Push(PushRequest request) override;
+  std::future<Result<ParameterTrainingMetadata>> TrainingMetadata();
   std::future<Result<Ack>> Release(ReleaseRequest request) override;
   std::future<Result<std::vector<RowState>>> ReadState(
       std::vector<LocatedRow> rows) override;

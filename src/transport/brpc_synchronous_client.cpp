@@ -41,11 +41,30 @@ std::future<Result<SynchronousGradientStats>> BrpcSynchronousGradients::Stats() 
     &v1::SynchronousGradientService_Stub::Stats,
     [p=impl_](auto& q, auto&) { p->Control(q); }, [](const auto& r, const auto&) {
       return SynchronousGradientStats{r.next_round(), r.received_workers(), r.retained_bytes(),
-        r.duplicate_submissions(), r.applying(), r.failed()};
+        r.duplicate_submissions(), r.applying(), r.failed(), r.paused()};
     });
 }
 std::future<Result<Ack>> BrpcSynchronousGradients::Abort(std::string reason) {
   return t::Call<v1::TrainingControl, v1::Ack, Ack>(impl_, &v1::SynchronousGradientService_Stub::Abort,
     [p=impl_, reason=std::move(reason)](auto& q, auto&) { p->Control(q); q.set_reason(reason); }, t::AckDecoder);
+}
+#define EPS_SYNC_CONTROL(Name) \
+std::future<Result<Ack>> BrpcSynchronousGradients::Name() { \
+  return t::Call<v1::TrainingControl,v1::Ack,Ack>(impl_, &v1::SynchronousGradientService_Stub::Name, \
+    [p=impl_](auto& q,auto&) { p->Control(q); }, t::AckDecoder); \
+}
+EPS_SYNC_CONTROL(Pause)
+EPS_SYNC_CONTROL(Resume)
+#undef EPS_SYNC_CONTROL
+std::future<Result<SynchronousGradientCheckpoint>> BrpcSynchronousGradients::Checkpoint() {
+  return t::Call<v1::TrainingControl,v1::SynchronousGradientCheckpointReply,SynchronousGradientCheckpoint>(impl_,
+    &v1::SynchronousGradientService_Stub::Checkpoint,
+    [p=impl_](auto& q,auto&) { p->Control(q); }, [](const auto& r,const auto&) {
+      detail::Require(r.reduction() <= 2 && r.tables_size() <= 256, "invalid synchronous checkpoint reply");
+      SynchronousGradientCheckpoint c{r.source_run(),r.epoch(),r.workers(),r.shard(),r.shards(),{},
+        static_cast<GradientReduction>(r.reduction()),r.next_round()};
+      for (const auto& t:r.tables()) c.tables.push_back({t.table_id(),t.dimension(),{}, {}});
+      return c;
+    });
 }
 }  // namespace eps

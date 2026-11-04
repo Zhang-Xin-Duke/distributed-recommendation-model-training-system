@@ -1,9 +1,11 @@
 #include <chrono>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
+#include "eps/brpc_synchronous_gradients.hpp"
 
 using namespace eps;
 namespace {
@@ -30,32 +32,58 @@ int main(int argc, char** argv) {
       (8ULL<<20)/(dim*12+256));
     if (!batch) throw std::runtime_error("invalid preparation batch size");
     const bool resident = j.value("resident", true);
+    const bool restoring = j.value("restore_existing", false);
     if (!j.value("workers", 2u) || j.value("workers", 2u) > 1022)
       throw std::runtime_error("preparation reserves learner 1022; use at most 1022 training workers");
     if (j.contains("only_shard") && j.at("only_shard").get<std::size_t>() >= addresses.size())
       throw std::runtime_error("preparation shard index is outside the topology");
-    nlohmann::json result = {{"rows", rows}, {"dimension", dim}, {"resident", resident},
+    nlohmann::json result = {{"rows", rows}, {"dimension", dim}, {"resident", resident}, {"restore_existing", restoring},
       {"logical_parameter_optimizer_bytes", rows*dim*12}, {"shards", nlohmann::json::array()}};
     const auto started = std::chrono::steady_clock::now();
     for (std::size_t home = 0; home < addresses.size(); ++home) {
       if (j.contains("only_shard") && j.at("only_shard").get<std::size_t>() != home) continue;
       BrpcParameterService shard(addresses[home], 30000);
+      if (restoring) {
+        const auto source = Take(shard.RestoredFrom());
+        if (!source.loaded || !source.pristine || source.run != run || source.shard != home ||
+            source.shard_count != addresses.size() || source.partition_epoch != epoch)
+          throw std::runtime_error("rehydration requires a pristine restored parameter shard");
+        BrpcSynchronousGradients group(addresses[home], run, epoch);
+        const auto checkpoint = Take(group.Checkpoint()); // Requires paused, empty and matching optimizer clocks.
+        if (!std::any_of(checkpoint.tables.begin(), checkpoint.tables.end(), [&](const auto& t) {
+              return t.table == table && t.dimension == dim;
+            })) throw std::runtime_error("rehydration table dimension differs from restored schema");
+      }
       std::uint64_t sequence = 0, initialized = 0;
       for (std::uint64_t begin = home; begin < rows;) {
         std::vector<Key> keys; std::vector<RowKey> moving;
         for (std::uint64_t count = 0; count < batch && begin < rows; ++count, begin += addresses.size()) {
           keys.push_back(begin); moving.push_back({table, begin});
         }
-        const auto id = RequestId{run, 1022, sequence++, Phase::lookup};
         const auto count = keys.size();
-        auto lookup = Take(shard.Lookup({id, epoch, true,
-          {{table, 0, Pooling::sequence, std::move(keys), {0, count}, {count}}}}));
-        Take(shard.Release({{run, 1022, id.sequence, Phase::release}, lookup.ticket}));
-        if (resident) {
+        if (!restoring) {
+          const auto id = RequestId{run, 1022, sequence++, Phase::lookup};
+          auto lookup = Take(shard.Lookup({id, epoch, true,
+            {{table, 0, Pooling::sequence, std::move(keys), {0, count}, {count}}}}));
+          Take(shard.Release({{run, 1022, id.sequence, Phase::release}, lookup.ticket}));
+        } else {
+          // Existing rows only: never initialize a missing row or consume a training read ticket.
+          auto locations = Take(shard.Locations(moving));
+          if (locations.size() != count) throw std::runtime_error("rehydration omitted restored rows");
+          moving.clear();
+          for (const auto& location : locations) {
+            if (location.placement == Placement::cpu) moving.push_back(location.row);
+            else if (!resident || location.placement != Placement::gpu ||
+                     location.agent != j.at("agents").at(home).at("id").get<AgentId>())
+              throw std::runtime_error("restored row has unexpected placement");
+          }
+        }
+        if (resident && !moving.empty()) {
           const auto agent = j.at("agents").at(home).at("id").get<AgentId>();
+          const auto migrating = moving.size();
           auto placed = Take(shard.MoveRows({run, std::move(moving), agent, Placement::gpu,
             {16ULL<<20, 16ULL<<20, 1, 0}}));
-          if (placed.size() != count) throw std::runtime_error("migration omitted parameter rows");
+          if (placed.size() != migrating) throw std::runtime_error("migration omitted parameter rows");
           for (const auto& row : placed)
             if (row.placement != Placement::gpu || row.agent != agent || row.home != home)
               throw std::runtime_error("migration returned incorrect parameter ownership");

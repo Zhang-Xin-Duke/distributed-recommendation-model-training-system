@@ -89,6 +89,8 @@ void AckAndTimeout() {
   Check(entered.get_future().wait_for(3s) == std::future_status::ready, "apply never entered");
   Check(c.Stats().applying && c.Stats().next_round == 0 &&
         result.wait_for(0s) != std::future_status::ready, "ack preceded parameter application");
+  Check(std::holds_alternative<Error>(c.Pause()) && !c.Stats().paused,
+        "an applying optimizer round was checkpointed");
   c.Abort("aborted during apply"); Reject(result, Error::Code::run_failed);
   release.set_value();
   options.workers = 2; options.round_timeout = 20ms;
@@ -119,12 +121,43 @@ void ConcurrentRounds() {
   Check(!failures && calls == rounds && c.Stats().next_round == rounds,
         "concurrent collective did not finish exactly once per round");
 }
+void CheckpointBoundary() {
+  auto options = Options(GradientReduction::sum); options.workers = 2;
+  SynchronousGradientCollector original(options, [](auto, auto) -> Result<Ack> { return Ack{}; });
+  Check(std::holds_alternative<Error>(original.Checkpoint()), "unpaused checkpoint accepted");
+  auto first = original.Submit(Packet(0, 0, {}, {}));
+  Check(std::holds_alternative<Error>(original.Pause()) && !original.Stats().paused,
+        "partial round was frozen");
+  Take(original.Submit(Packet(1, 0, {}, {}))); Take(first);
+  Check(std::holds_alternative<Ack>(original.Pause()), "boundary pause failed");
+  Reject(original.Submit(Packet(0, 1, {}, {})), Error::Code::unavailable);
+  const auto saved = std::get<SynchronousGradientCheckpoint>(original.Checkpoint());
+  Check(saved.next_round == 1, "wrong saved next round");
+  options.run = "restored";
+  std::atomic<unsigned> calls = 0;
+  SynchronousGradientCollector restored(options, [&](auto round, auto) -> Result<Ack> {
+    Check(round == 1, "restore repeated retired round"); ++calls; return Ack{};
+  });
+  auto wrong = saved; wrong.workers = 3;
+  Check(std::holds_alternative<Error>(restored.Restore(wrong)), "mismatched membership restored");
+  Check(std::holds_alternative<Ack>(restored.Restore(saved)) && restored.Stats().paused,
+        "restore did not preserve paused state");
+  auto packet = Packet(0, 0, {}, {}); packet.task.run = options.run;
+  Reject(restored.Submit(packet), Error::Code::retired_request);
+  packet.task.iteration = 1;
+  Reject(restored.Submit(packet), Error::Code::unavailable);
+  Check(std::holds_alternative<Ack>(restored.Resume()), "resume failed");
+  auto pending = restored.Submit(packet); packet.task.worker = 1;
+  Take(restored.Submit(packet)); Take(pending); Take(restored.Submit(packet));
+  Check(calls == 1 && restored.Stats().next_round == 2, "resumed retry repeated application");
+  Check(std::holds_alternative<Error>(restored.Restore(saved)), "live collector restored twice");
+}
 }
 int main() {
   try {
     for (auto reduction : {GradientReduction::sum, GradientReduction::worker_mean, GradientReduction::sample_mean})
       for (bool reverse : {false, true}) Averaging(reduction, reverse);
-    ValidationAndFailure(); AckAndTimeout(); ConcurrentRounds();
+    ValidationAndFailure(); AckAndTimeout(); ConcurrentRounds(); CheckpointBoundary();
     std::cout << "PASS synchronous gradients: sum/worker/sample mean, sparse union/empty contribution, "
                  "duplicates, invalid payloads, budget, timeout/abort, ack ordering, 8-worker/40-round execution\n";
   } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }

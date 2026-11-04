@@ -101,6 +101,11 @@ or workspace. Live hardware checks decide whether each node can hold its shard.
 SSH relay results must identify their controller transport; they are not direct
 network/RDMA performance measurements.
 
+[Joint checkpoint restart](JOINT_TRAINING_CHECKPOINT.md) restores parameter and
+optimizer state together with training rounds and input positions. The
+preparation tool's `restore_existing` mode reloads saved rows onto their owners
+without reinitialization, before the job controller opens task admission.
+
 ## Job lifecycle and evidence
 
 `training_node.py` retains per-role job descriptions, wrapper/child PIDs, output

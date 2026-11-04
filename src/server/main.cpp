@@ -11,6 +11,7 @@
 #include "eps/cost_planner.hpp"
 #include "transport/brpc_server.hpp"
 #include "transport/brpc_synchronous_server.hpp"
+#include "training/checkpoint_json.hpp"
 
 using namespace eps;
 namespace {
@@ -48,8 +49,10 @@ int main(int argc,char** argv) {
     RuntimeOptions options;
     const bool synchronous = j.contains("synchronous_training");
     if (synchronous) {
-      if (!restore.empty()) throw std::runtime_error("synchronous round restore requires a matching group checkpoint");
+      if ((!restore.empty()) != j.at("synchronous_training").contains("restore"))
+        throw std::runtime_error("parameter and synchronous group restore must be supplied together");
       options.exclusive_update_learner = 1023;
+      options.start_paused = !restore.empty();
     }
     options.run_id=run.empty()?j.at("run_id").get<std::string>():run;
     options.shard_id=j.at("partition").at("shard_id");
@@ -75,7 +78,11 @@ int main(int argc,char** argv) {
       options.cache_dependencies=l.value("cache_dependencies",options.cache_dependencies);
     }
     CpuParameterService service(options);
-    if(!restore.empty())Value(service.Restore(restore));
+    if(!restore.empty()) {
+      Value(service.Restore(restore));
+      if (synchronous) for (const auto& t:j.at("tables"))
+        Value(service.CreateTable(training::DecodeTable(t,options.shard_count,options.partition_epoch)));
+    }
     else for(const auto& t:j.at("tables")) {
       if(t.value("dtype",std::string("float32"))!="float32" ||
          t.at("optimizer").value("kind",std::string())!="sparse_lazy_adam")
@@ -157,6 +164,17 @@ int main(int argc,char** argv) {
       for (const auto& table : j.at("tables"))
         group.tables.push_back({table.at("id"), table.at("dimension"), {}, {}});
       synchronous_rpc = std::make_unique<transport::BrpcSynchronousServer>(service, std::move(group));
+      if (config.contains("restore")) {
+        const auto& state=config.at("restore");
+        const auto checkpoint=training::DecodeGroup(state.at("group"));
+        const auto& fingerprint=state.at("parameter_snapshot");
+        RestoredSnapshot expected;
+        expected.source_run=fingerprint.at("source_run");expected.bytes=fingerprint.at("bytes");
+        expected.checksum=fingerprint.at("checksum");expected.shard=fingerprint.at("shard");
+        expected.shard_count=fingerprint.at("shards");expected.partition_epoch=fingerprint.at("epoch");
+        auto result=synchronous_rpc->Restore(checkpoint,expected);
+        if (auto* error=std::get_if<Error>(&result)) throw std::runtime_error(error->message);
+      }
     }
     brpc::Server server;
     if(server.AddService(&rpc,brpc::SERVER_DOESNT_OWN_SERVICE)!=0)

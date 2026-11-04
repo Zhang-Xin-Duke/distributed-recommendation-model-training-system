@@ -1,0 +1,145 @@
+Test project <project>/build/tensorflow
+      Start 26: distributed_model_orchestration
+      Start 24: tensorflow_synchronous_model_cpu
+ 1/53 Test #24: tensorflow_synchronous_model_cpu .............   Passed   10.43 sec
+      Start  2: distributed_training_processes
+ 2/53 Test #26: distributed_model_orchestration ..............   Passed   11.46 sec
+      Start 22: entropy_peer_checkpoint_control
+ 3/53 Test  #2: distributed_training_processes ...............   Passed    4.61 sec
+      Start  3: synchronous_training_processes
+ 4/53 Test  #3: synchronous_training_processes ...............   Passed    3.02 sec
+      Start 21: entropy_original_restore_trajectory
+ 5/53 Test #22: entropy_peer_checkpoint_control ..............   Passed   14.54 sec
+      Start  1: training_progress_rpc
+ 6/53 Test  #1: training_progress_rpc ........................   Passed    0.27 sec
+      Start 10: cache_policy_fixed_trace_smoke
+ 7/53 Test #10: cache_policy_fixed_trace_smoke ...............   Passed    9.51 sec
+      Start 19: entropy_original_table_external_shards
+ 8/53 Test #19: entropy_original_table_external_shards .......   Passed    4.52 sec
+      Start  4: synchronous_gradient_rpc
+ 9/53 Test  #4: synchronous_gradient_rpc .....................   Passed    0.40 sec
+      Start 20: entropy_original_table_cache
+10/53 Test #21: entropy_original_restore_trajectory ..........   Passed   23.28 sec
+      Start 33: tensorflow_graph_periodic_checkpoint
+11/53 Test #20: entropy_original_table_cache .................   Passed    4.78 sec
+      Start 31: tensorflow_graph_prepared_automatic_cache
+12/53 Test #33: tensorflow_graph_periodic_checkpoint .........   Passed    4.74 sec
+      Start 30: tensorflow_graph_prepared_external_shards
+13/53 Test #31: tensorflow_graph_prepared_automatic_cache ....   Passed    4.67 sec
+      Start 28: tensorflow_graph_automatic_cache
+14/53 Test #30: tensorflow_graph_prepared_external_shards ....   Passed    4.50 sec
+      Start 29: tensorflow_graph_automatic_coalesced_cache
+15/53 Test #28: tensorflow_graph_automatic_cache .............   Passed    4.35 sec
+      Start 45: training_progress_consistency
+16/53 Test #45: training_progress_consistency ................   Passed    0.16 sec
+      Start 32: tensorflow_graph_coalesced_cache
+17/53 Test #29: tensorflow_graph_automatic_coalesced_cache ...   Passed    4.27 sec
+      Start 27: tensorflow_graph_cache_external_shards
+18/53 Test #32: tensorflow_graph_coalesced_cache .............   Passed    4.42 sec
+      Start 13: capacity_failed_point_diagnostics
+19/53 Test #27: tensorflow_graph_cache_external_shards .......   Passed    4.39 sec
+      Start 46: synchronous_gradient_rounds
+20/53 Test #46: synchronous_gradient_rounds ..................   Passed    0.10 sec
+      Start  7: shard_observation_rpc
+21/53 Test  #7: shard_observation_rpc ........................   Passed    0.27 sec
+      Start 23: tensorflow_graph_external_shards
+22/53 Test #13: capacity_failed_point_diagnostics ............   Passed    1.55 sec
+      Start  9: automatic_cache_external_shards
+23/53 Test  #9: automatic_cache_external_shards ..............   Passed    1.73 sec
+      Start 11: automatic_cache_coalesced_external_shards
+24/53 Test #23: tensorflow_graph_external_shards .............   Passed    4.28 sec
+      Start  5: in_process_worker_lifecycle
+25/53 Test #11: automatic_cache_coalesced_external_shards ....   Passed    1.56 sec
+      Start  8: agent_admission_cli
+26/53 Test  #8: agent_admission_cli ..........................   Passed    0.42 sec
+      Start 15: cache_agent_process_lifecycle
+27/53 Test  #5: in_process_worker_lifecycle ..................   Passed    0.43 sec
+      Start 14: two_process_rpc_and_restore
+28/53 Test #14: two_process_rpc_and_restore ..................   Passed    1.09 sec
+      Start  6: agent_rpc_admission_queue
+29/53 Test #15: cache_agent_process_lifecycle ................   Passed    1.24 sec
+      Start 34: distributed_device_pull_protocol
+30/53 Test #34: distributed_device_pull_protocol .............   Passed    0.16 sec
+      Start 12: rpc_cache_backpressure
+31/53 Test  #6: agent_rpc_admission_queue ....................   Passed    0.32 sec
+      Start 49: resumable_actor_dependencies
+32/53 Test #49: resumable_actor_dependencies .................   Passed    0.36 sec
+      Start 35: agent_admission_lifecycle
+33/53 Test #35: agent_admission_lifecycle ....................   Passed    0.14 sec
+      Start 50: resumable_shard_operations
+34/53 Test #12: rpc_cache_backpressure .......................   Passed    0.61 sec
+      Start 47: restored_snapshot_provenance
+35/53 Test #50: resumable_shard_operations ...................   Passed    0.23 sec
+      Start 48: bounded_sparse_optimizer
+36/53 Test #47: restored_snapshot_provenance .................   Passed    0.13 sec
+      Start 16: entropy_table_hook_configuration
+37/53 Test #16: entropy_table_hook_configuration .............   Passed    0.10 sec
+      Start 44: periodic_checkpoint_lifecycle
+38/53 Test #48: bounded_sparse_optimizer .....................   Passed    0.16 sec
+      Start 43: bounded_asynchronous_preparation
+39/53 Test #44: periodic_checkpoint_lifecycle ................   Passed    0.09 sec
+      Start 42: service_phase_timing
+40/53 Test #43: bounded_asynchronous_preparation .............   Passed    0.11 sec
+      Start 39: automatic_cache_policy_lifecycle
+41/53 Test #42: service_phase_timing .........................   Passed    0.11 sec
+      Start 40: agent_control_replay
+42/53 Test #39: automatic_cache_policy_lifecycle .............   Passed    0.12 sec
+      Start 52: coalesced_cross_shard_gathers
+43/53 Test #40: agent_control_replay .........................   Passed    0.21 sec
+      Start 18: committed_checkpoint_staging
+44/53 Test #52: coalesced_cross_shard_gathers ................   Passed    0.18 sec
+      Start 36: core_correctness
+45/53 Test #18: committed_checkpoint_staging .................   Passed    0.07 sec
+      Start 51: concurrent_multi_agent_updates
+46/53 Test #51: concurrent_multi_agent_updates ...............   Passed    0.14 sec
+      Start 53: compact_feature_gradient_semantics
+47/53 Test #36: core_correctness .............................   Passed    0.17 sec
+      Start 17: checkpoint_filesystem_contract
+48/53 Test #17: checkpoint_filesystem_contract ...............   Passed    0.05 sec
+      Start 38: cache_ownership_and_updates
+49/53 Test #53: compact_feature_gradient_semantics ...........   Passed    0.09 sec
+      Start 41: embedding_adapter_lifecycle
+50/53 Test #38: cache_ownership_and_updates ..................   Passed    0.11 sec
+      Start 37: cost_and_migration_policies
+51/53 Test #37: cost_and_migration_policies ..................   Passed    0.13 sec
+      Start 25: tensorflow_joint_training_checkpoint
+52/53 Test #41: embedding_adapter_lifecycle ..................   Passed    0.22 sec
+53/53 Test #25: tensorflow_joint_training_checkpoint .........***Failed   12.16 sec
+CACHE_BACKEND=host
+I1104 13:57:33.241123   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=59670.
+I1104 13:57:33.248290   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:59670 in web browser.
+
+CACHE_BACKEND=host
+I1104 13:57:33.369211   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcAgentServer] is serving on port=59671.
+I1104 13:57:33.373349   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:59671 in web browser.
+
+I1104 13:57:33.496648   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is serving on port=59673.
+I1104 13:57:33.502409   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:59673 in web browser.
+
+I1104 13:57:33.625777   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is serving on port=59675.
+I1104 13:57:33.631850   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:59675 in web browser.
+
+I1104 13:57:33.754929   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcTrainingServer] is serving on port=59676.
+I1104 13:57:33.761189   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:59676 in web browser.
+
+eps_training_prepare: shard is draining
+
+Traceback (most recent call last):
+  File "<project>/tests/tensorflow_checkpoint_training.py", line 239, in <module>
+    main()
+  File "<project>/tests/tensorflow_checkpoint_training.py", line 210, in main
+    resumed = phase("after-restart", rounds-split, templates, manifest_path)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<project>/tests/tensorflow_checkpoint_training.py", line 110, in phase
+    assert preparation.returncode == 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+
+98% tests passed, 1 tests failed out of 53
+
+Total Test time (real) =  79.67 sec
+
+The following tests FAILED:
+	 25 - tensorflow_joint_training_checkpoint (Failed)
+Errors while running CTest

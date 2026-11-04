@@ -62,7 +62,7 @@ Each shard can be prepared locally using `only_shard`; the topology still lists
 all shards so Key ownership is unchanged. Preparation reserves learner 1022,
 so runs using this utility support worker IDs 0 through 1021. It is a fresh-run
 initialization utility; coordinated checkpoint restart follows the job's restore
-protocol.
+protocol in [joint training checkpoint and restart](JOINT_TRAINING_CHECKPOINT.md).
 
 ## Reference and executed checks
 

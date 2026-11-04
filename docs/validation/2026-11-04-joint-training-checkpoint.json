@@ -1,0 +1,176 @@
+{
+  "base_commit": "accbe8e71803a97dce3b8e4061f4136b46af82a2",
+  "scope": "CPU two-shard/two-Host-owner TensorFlow joint checkpoint, fresh-process restart and owner rehydration",
+  "checks": {
+    "native_suite": {
+      "passed": 35,
+      "failed": 0
+    },
+    "framework_initial": {
+      "passed": 52,
+      "failed": 1,
+      "reason": "New restore_existing test ran against the prior preparation binary; rebuilt preparation and reran affected tests"
+    },
+    "framework_final_coverage": {
+      "passed": 53,
+      "failed": 0,
+      "method": "52 initial passing checks plus corrected checkpoint and three affected final retests"
+    },
+    "affected_final_retests": {
+      "passed": 3,
+      "failed": 0
+    },
+    "gradient_rpc_and_core": {
+      "passed": 2,
+      "failed": 0
+    },
+    "asan_ubsan": {
+      "passed": 1,
+      "failed": 0
+    },
+    "tsan": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "workload": {
+    "device": "CPU",
+    "shards": 2,
+    "workers": 2,
+    "iterations": 8,
+    "checkpoint_round": 4,
+    "input_cycle_batches": 3,
+    "compared_rows": 32
+  },
+  "results": {
+    "max_state_absolute_error": 0.0,
+    "max_continuation_loss_error": 0.0,
+    "checkpoint_sha256": "fb25bf323def8d10ea170953d3d1f224160bf65fa8abf7800fcb8e004afac3bf"
+  },
+  "negative_cases": [
+    {
+      "action": "save-job",
+      "reason": "eps_training_control: worker input iteration mismatch"
+    },
+    {
+      "action": "save-job",
+      "reason": "eps_training_control: checkpoint write failed"
+    },
+    {
+      "action": "save-job",
+      "reason": "eps_training_control: checkpoint directory already exists or parent is absent"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: parameter snapshot native checksum mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: missing parameter snapshot"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: checkpoint gradient group mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: checkpoint table schema mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: worker input dataset fingerprint mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: parameter checkpoint fingerprint mismatch"
+    },
+    {
+      "action": "resume-job",
+      "reason": "eps_training_control: restored gradient group differs from manifest"
+    },
+    {
+      "action": "worker-input",
+      "reason": "incorrect restored input cursor rejected"
+    },
+    {
+      "action": "worker-input",
+      "reason": "incorrect restored input cursor rejected"
+    }
+  ],
+  "not_exercised": [
+    "CUDA checkpoint and rehydration",
+    "state exceeding one physical GPU capacity",
+    "in-flight crash replay and replica-backed live failover",
+    "complete original Entropy execution"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "08122efa01dd56c5f7ad9b6c54ee2763afdab0f71e518d62d152febaf9e2098b",
+    "README.md": "c609fcdbe1ad7af68d5b744a1bef91502ff696dbcde45d8fa89a648e87a46097",
+    "docs/DISTRIBUTED_MODEL_TRAINING.md": "c5b6136d8b1ec7e7c002615c40ebe9ad83661fd5191c4c71c980c3b16b9a23c9",
+    "docs/JOINT_TRAINING_CHECKPOINT.md": "c60ce1e66923d7f9c9f9a113b7d846fc7bb263a2fb5b652266edcfc095c9615e",
+    "docs/TENSORFLOW_SHARDED_TRAINING.md": "884634d34360334d69a56f00254a21bffdf55f4cdca9eeb44ab75488b1342c87",
+    "docs/TRAINING_EXECUTION.md": "5367f1337b28870360064bf30ea339cb5244af40100131866aa7d8e288f983d7",
+    "docs/plans/2026-11-04-distributed-training-design.md": "b21bb10dfa4949ee2ec83cc16ac000f9f2a98f580108f721fdde5b4450c66e16",
+    "docs/plans/2026-11-04-joint-training-checkpoint.md": "2bc8f9bb8f298541d8c0a7b79a72f5b8de1ed13fc8382fc366679b4675a8e749",
+    "examples/tensorflow_training_worker.py": "cef1b3a5737be84874e127108be367cac9e6c15a3342a8b14a62cb85405e14a4",
+    "include/eps/brpc_synchronous_gradients.hpp": "89fe7bba9929b17f3254194730695d2f183b9235446f172ef8830f33f4d76386",
+    "include/eps/runtime.hpp": "eec3f301cb0c2f11ac024a53f24635d5e28126f6051fb421d99b5c62dcc623c0",
+    "include/eps/synchronous_gradients.hpp": "15a1e20d5cfe2e2a155eafca7cde623c211a0d0603bf49f1134376a7c318c5b0",
+    "proto/embedding_service.proto": "9cb7dac4cc4f19371ee5e833735f7861123e52703e3c239f7ac62e527c913601",
+    "src/server/main.cpp": "ff5b64a3f5b3ef607ffdecb01f62728e05846f21c6d0a48d09c1d7dfc379167c",
+    "src/server/service.cpp": "7c41a27a25793c7f7a1b035e31fab2467ff4dab93e26beff5c64857a05076636",
+    "src/training/checkpoint_json.hpp": "cce093bdc489e068997ddd47ec1a49d4cdac3053390b228742a6d85b4f0056d4",
+    "src/training/control_main.cpp": "e3a1db2fb98798eccbd84ec9c6ba8614fd05706cf0a215ca2bc590ecc0aace96",
+    "src/training/job_checkpoint.cpp": "3265b076116671667d982839a004f5f82cba4b802e4b9862cc46a9139b41521d",
+    "src/training/job_checkpoint.hpp": "770afeca5bf7f092f639826526abe051d94862281cc3f7789f1d452548e199d0",
+    "src/training/prepare_main.cpp": "ba64a4a0419c8c7a7aaa7d887b3ccd9e1d49e194b6f4306e14c5b0bf02d3b3b6",
+    "src/training/synchronous_gradients.cpp": "b8067b7bdbf1224750aa1c71f5dfda1b04d152d63b0e34b5f80223f453e99f16",
+    "src/transport/brpc_synchronous_client.cpp": "1f636f3ae217dd3dd70b5988debaa5e5e3f49d49897f9e8b4bc53c5efb49f349",
+    "src/transport/brpc_synchronous_server.cpp": "c878dd783d1bf3f7985a976aecc6c99343367dc7ccc2ab4ad813e684cbeca0b8",
+    "src/transport/brpc_synchronous_server.hpp": "8804faf8be9b980efb0802db1abf11fed4b8a0b377e499bca80f4ef3867e204e",
+    "tests/synchronous_gradients_tests.cpp": "00e49605f0241936f2cb2507e612a80d60c240ab0387d31613ed384ce3d8bab8",
+    "tests/synchronous_rpc_tests.cpp": "a05a24d4139f19bb1569763e35c715c9cb6a55c1e4a2f42343d7756b645e4424",
+    "tests/tensorflow_checkpoint_training.py": "8070a90af9ab2b6a5f3a28f0a3d77087ddd9fae58a58e73207465700a3ef8267"
+  },
+  "binary_sha256": {
+    "eps_server": "23dd9b113339ee3e7ae0c362d9d944b33dcaa5a2a5de68df48d1597cff543816",
+    "eps_cache_agent": "4b70067acc7deaf2e0f77a16c2cabd9531d05e3f0700db18f3308ef604d4adf9",
+    "eps_training_prepare": "fd09d59ec1deda686b0a73f652da007de0a93fea57a063eff2fc5e2ef70af9b7",
+    "eps_training_control": "484cc79c19b2d45bc8c934e71aa99f0764b6055bd7b70e8416ce7c5520fbb43d",
+    "eps_training_coordinator": "c7619c378b4003fa868e13717bb242d9d62d087597e5ec3aae453f6aea3092cd"
+  },
+  "artifacts": {
+    "asan-ubsan.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/asan-ubsan.log",
+      "sha256": "20204d9cf8d51912bfdc1208eb5c221bcd28fc338da0553b96cd4691ff77e4e1"
+    },
+    "framework-suite-initial.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/framework-suite-initial.log",
+      "sha256": "75584e8a7e5071519ef660cca52bd2bbd1c5a46e263be7ba25964c36f2284b7d"
+    },
+    "framework-targeted-final.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/framework-targeted-final.log",
+      "sha256": "9dfd75a9561e9e8c9db0f978655c2b85da3a124eb807413e46927cb42bb6794e"
+    },
+    "gradient-core-final.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/gradient-core-final.log",
+      "sha256": "eefa6ee3dc789b0372dd3c278c52be5a06909d6651005cfb65740d851d8d2721"
+    },
+    "gradient-rpc.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/gradient-rpc.log",
+      "sha256": "5bb2b63db99a6a1d4dee198b326f9cda3925ecf9c18bd18897fa788ca2ffd0da"
+    },
+    "model-report.json.gz": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/model-report.json.gz",
+      "sha256": "c6e107a0caff9c3700ddde1fafdf36387a8b5228d5029da11b625a5faf965d53"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/native-suite.log",
+      "sha256": "70da34bad2bfa4f49de46bc7d5da4289814e7bc92086b4b1a61a04dec438fff0"
+    },
+    "tsan.log": {
+      "path": "docs/validation/2026-11-04-joint-training-checkpoint/tsan.log",
+      "sha256": "d5216417afe0684c29e5142a50e95d54ab372a729e1f706fa0a234e8b04e5a6e"
+    }
+  }
+}

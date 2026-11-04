@@ -1,0 +1,9 @@
+Test project <project>/build/native
+    Start  4: synchronous_gradient_rpc
+1/2 Test  #4: synchronous_gradient_rpc .........   Passed    0.57 sec
+    Start 28: synchronous_gradient_rounds
+2/2 Test #28: synchronous_gradient_rounds ......   Passed    0.03 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.60 sec

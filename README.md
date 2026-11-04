@@ -40,6 +40,11 @@ path. CPU and A6000 GPU runs compare aggregated gradients, complete touched
 weights/Adam state, task progress and loss against a single-worker reference.
 The GPU execution currently uses host staging at the RPC boundary.
 
+[Joint training checkpoints](docs/JOINT_TRAINING_CHECKPOINT.md) restore parameters,
+Adam state, gradient rounds, completed worker clocks and the next input batch
+together. New processes start paused, rehydrate existing rows on their owners
+and reopen training after all shard identities and clocks match.
+
 [Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
 owner and model worker on each node, initializes local backing/resident rows,
 samples resources and verifies round completion and process cleanup. Its local

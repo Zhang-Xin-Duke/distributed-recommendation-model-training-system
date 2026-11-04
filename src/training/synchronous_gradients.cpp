@@ -28,6 +28,8 @@ struct SynchronousGradientCollector::Impl {
   SynchronousGradientStats stats;
   std::string failure;
   bool stopping = false, settled = false;
+  bool ever_submitted = false, restored = false;
+  std::uint64_t restored_floor = 0;
   std::optional<std::chrono::steady_clock::time_point> deadline;
   std::thread executor;
 
@@ -169,10 +171,13 @@ std::shared_future<Result<Ack>> SynchronousGradientCollector::Submit(GradientCon
     Require(c.task.worker < impl_->options.workers && c.task.iteration != UINT64_MAX,
       "invalid gradient worker or round");
     Require(impl_->failure.empty(), impl_->failure.c_str(), Error::Code::run_failed);
+    Require(c.task.iteration >= impl_->restored_floor, "gradient iteration predates this restored run",
+      Error::Code::retired_request);
     if (c.task.iteration < impl_->stats.next_round) {
       ++impl_->stats.duplicate_submissions; return Ready(Ack{});
     }
     Require(c.task.iteration == impl_->stats.next_round, "gradient round is not current");
+    Require(!impl_->stats.paused, "synchronous gradient admission paused", Error::Code::unavailable);
     auto& slot = impl_->inputs[c.task.worker];
     if (slot) {
       Require(*slot == c, "in-flight gradient retry changed its payload");
@@ -182,6 +187,7 @@ std::shared_future<Result<Ack>> SynchronousGradientCollector::Submit(GradientCon
     Require(bytes <= impl_->options.gradient_bytes - impl_->stats.retained_bytes,
       "synchronous gradient memory budget exhausted", Error::Code::capacity_exceeded);
     slot = std::make_shared<const GradientContribution>(std::move(c));
+    impl_->ever_submitted = true;
     impl_->stats.retained_bytes += bytes; ++impl_->stats.received_workers;
     if (!impl_->deadline) impl_->deadline = std::chrono::steady_clock::now() + impl_->options.round_timeout;
     impl_->changed.notify_one(); return impl_->future;
@@ -189,6 +195,40 @@ std::shared_future<Result<Ack>> SynchronousGradientCollector::Submit(GradientCon
 }
 SynchronousGradientStats SynchronousGradientCollector::Stats() const {
   std::lock_guard lock(impl_->mutex); return impl_->stats;
+}
+Result<Ack> SynchronousGradientCollector::Pause() {
+  std::lock_guard lock(impl_->mutex);
+  if (!impl_->failure.empty()) return Error{Error::Code::run_failed, impl_->failure};
+  if (impl_->stats.received_workers || impl_->stats.applying)
+    return Error{Error::Code::unavailable, "finish the complete gradient round before pausing"};
+  impl_->stats.paused = true; return Ack{};
+}
+Result<Ack> SynchronousGradientCollector::Resume() {
+  std::lock_guard lock(impl_->mutex);
+  if (!impl_->failure.empty()) return Error{Error::Code::run_failed, impl_->failure};
+  impl_->stats.paused = false; return Ack{};
+}
+Result<SynchronousGradientCheckpoint> SynchronousGradientCollector::Checkpoint() const {
+  std::lock_guard lock(impl_->mutex);
+  if (!impl_->failure.empty()) return Error{Error::Code::run_failed, impl_->failure};
+  if (!impl_->stats.paused || impl_->stats.received_workers || impl_->stats.applying)
+    return Error{Error::Code::unavailable, "gradient checkpoint requires a paused round boundary"};
+  const auto& o = impl_->options;
+  return SynchronousGradientCheckpoint{o.run, o.epoch, o.workers, o.shard, o.shards,
+    o.tables, o.reduction, impl_->stats.next_round};
+}
+Result<Ack> SynchronousGradientCollector::Restore(SynchronousGradientCheckpoint c) {
+  std::lock_guard lock(impl_->mutex);
+  const auto& o = impl_->options;
+  if (!impl_->failure.empty()) return Error{Error::Code::run_failed, impl_->failure};
+  if (impl_->ever_submitted || impl_->restored || impl_->stats.received_workers || impl_->stats.applying)
+    return Error{Error::Code::invalid_argument, "gradient restore requires a fresh collector"};
+  if (c.source_run.empty() || c.source_run == o.run || c.epoch != o.epoch || c.workers != o.workers ||
+      c.shard != o.shard || c.shards != o.shards || c.tables != o.tables || c.reduction != o.reduction || c.next_round == UINT64_MAX)
+    return Error{Error::Code::invalid_argument, "gradient checkpoint identity/schema differs"};
+  impl_->restored = true; impl_->restored_floor = c.next_round;
+  impl_->stats.next_round = c.next_round; impl_->stats.paused = true;
+  return Ack{};
 }
 void SynchronousGradientCollector::Abort(std::string reason) {
   { std::lock_guard lock(impl_->mutex); impl_->Fail(std::move(reason)); }

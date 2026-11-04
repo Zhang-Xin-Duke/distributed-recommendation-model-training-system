@@ -40,6 +40,17 @@ struct SynchronousGradientStats {
   std::uint64_t duplicate_submissions = 0;
   bool applying = false;
   bool failed = false;
+  bool paused = false;
+};
+struct SynchronousGradientCheckpoint {
+  std::string source_run;
+  std::uint64_t epoch;
+  std::uint32_t workers;
+  ShardId shard;
+  std::uint32_t shards;
+  std::vector<GradientTable> tables;
+  GradientReduction reduction;
+  std::uint64_t next_round;
 };
 
 // One fixed-group, shard-local synchronous update stream. The application
@@ -55,6 +66,10 @@ class SynchronousGradientCollector {
   SynchronousGradientCollector& operator=(const SynchronousGradientCollector&) = delete;
   std::shared_future<Result<Ack>> Submit(GradientContribution contribution);
   SynchronousGradientStats Stats() const;
+  Result<Ack> Pause();
+  Result<Ack> Resume();
+  Result<SynchronousGradientCheckpoint> Checkpoint() const;
+  Result<Ack> Restore(SynchronousGradientCheckpoint checkpoint);
   // Wakes callers immediately; already-dispatched external operations drain
   // before destruction. This does not undo an update already being applied.
   void Abort(std::string reason);

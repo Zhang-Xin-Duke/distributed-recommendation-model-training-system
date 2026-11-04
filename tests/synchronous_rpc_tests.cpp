@@ -129,8 +129,52 @@ void MissingWorker() {
   Check(Take(c.Stats()).failed && Take(h.parameters.Stats()).updates == 0,
     "incomplete round changed parameters or remained live");
 }
+void CheckpointAndRestore() {
+  Harness h(2); BrpcSynchronousGradients c(h.Address(), "sync");
+  Reject(c.Checkpoint(), Error::Code::unavailable);
+  auto a = c.Submit(Packet(0, 0)); Take(c.Submit(Packet(1, 0))); Take(std::move(a));
+  Take(c.Pause()); const auto saved = Take(c.Checkpoint());
+  Check(saved.next_round == 1 && Take(c.Stats()).paused, "RPC checkpoint boundary mismatch");
+  Reject(c.Submit(Packet(0, 1)), Error::Code::unavailable);
+  BrpcParameterService access(h.Address());
+  const auto snapshot = Take(access.DrainAndFlush("round-one"));
+  const auto retry = Take(access.DrainAndFlush("round-one"));
+  Check(retry.state_files == snapshot.state_files, "lost save acknowledgement retry changed snapshot");
+  const auto original = Take(access.ReadState(Take(access.Locations({{1, 1}})))).at(0);
+  RuntimeOptions o; o.run_id = "restored"; o.start_paused = true; o.exclusive_update_learner = 1023;
+  CpuParameterService parameters(o); Take(parameters.Restore(snapshot.state_files.at(0)));
+  Take(parameters.CreateTable(Table()));
+  auto changed = Table(); changed.optimizer.learning_rate *= 2;
+  Check(std::holds_alternative<Error>(parameters.CreateTable(changed).get()), "different optimizer restored");
+  SynchronousGradientOptions options; options.run = o.run_id; options.workers = 2;
+  options.tables = {{1, 2, {}, {}}}; options.reduction = GradientReduction::worker_mean;
+  transport::BrpcSynchronousServer rounds(parameters, options);
+  const auto provenance = Take(parameters.RestoredFrom());
+  auto wrong = provenance; ++wrong.checksum;
+  Check(std::holds_alternative<Error>(rounds.Restore(saved, wrong)), "wrong snapshot identity restored");
+  auto clock = saved; ++clock.next_round;
+  Check(std::holds_alternative<Error>(rounds.Restore(clock, provenance)), "wrong optimizer clock restored");
+  Check(std::holds_alternative<Ack>(rounds.Restore(saved, provenance)), "valid group restore rejected");
+  brpc::Server server;
+  Check(server.AddService(&rounds, brpc::SERVER_DOESNT_OWN_SERVICE) == 0, "register restored RPC");
+  Check(server.Start("127.0.0.1:0", nullptr) == 0, "start restored RPC");
+  BrpcSynchronousGradients resumed(butil::endpoint2str(server.listen_address()).c_str(), o.run_id);
+  auto packet = Packet(0, 0); packet.task.run = o.run_id;
+  Reject(resumed.Submit(packet), Error::Code::retired_request);
+  packet.task.iteration = 1; Reject(resumed.Submit(packet), Error::Code::unavailable);
+  Take(resumed.Resume());
+  a = resumed.Submit(packet); packet = Packet(1, 1); packet.task.run = o.run_id;
+  Take(resumed.Submit(packet)); Take(std::move(a)); Take(resumed.Submit(packet));
+  Take(c.Resume()); a = c.Submit(Packet(0, 1)); Take(c.Submit(Packet(1, 1))); Take(std::move(a));
+  const auto expected = Take(access.ReadState(Take(access.Locations({{1, 1}})))).at(0);
+  const auto actual = Take(parameters.ReadState({{{1, 1}, 0, Placement::cpu, 0, 0, 0}})).at(0);
+  Check(actual.weights == expected.weights && actual.first_moment == expected.first_moment &&
+    actual.second_moment == expected.second_moment && actual.row_updates == 2 && original.row_updates == 1,
+    "restored round differs from uninterrupted optimizer update");
+  rounds.Shutdown(); server.Stop(0); server.Join();
+}
 }
 int main() {
-  try { RoundApplicationAndAdmission(); MissingWorker(); }
+  try { RoundApplicationAndAdmission(); MissingWorker(); CheckpointAndRestore(); }
   catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

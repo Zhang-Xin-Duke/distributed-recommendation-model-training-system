@@ -11,6 +11,9 @@ class BrpcSynchronousGradients {
   std::future<Result<Ack>> Submit(GradientContribution contribution);
   std::future<Result<SynchronousGradientStats>> Stats();
   std::future<Result<Ack>> Abort(std::string reason);
+  std::future<Result<Ack>> Pause();
+  std::future<Result<Ack>> Resume();
+  std::future<Result<SynchronousGradientCheckpoint>> Checkpoint();
  private:
   struct Impl;
   std::shared_ptr<Impl> impl_;

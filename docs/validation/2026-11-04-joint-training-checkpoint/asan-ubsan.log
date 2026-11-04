@@ -1,0 +1,7 @@
+Test project <project>/build/asan
+    Start 13: synchronous_gradient_rounds
+1/1 Test #13: synchronous_gradient_rounds ......   Passed    0.15 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.15 sec

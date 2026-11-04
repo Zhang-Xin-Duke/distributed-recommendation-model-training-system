@@ -1,18 +1,31 @@
 #include "transport/brpc_synchronous_server.hpp"
 
 #include <condition_variable>
+#include <algorithm>
 #include <mutex>
 #include <optional>
 #include <thread>
 #include <brpc/closure_guard.h>
 #include <brpc/controller.h>
 #include "transport/codec.hpp"
+#include "transport/rpc_dispatch.hpp"
 
 namespace eps::transport {
 namespace {
 template<class T> T Take(std::future<Result<T>> f) {
   auto r = f.get(); if (auto* e = std::get_if<Error>(&r)) throw detail::Failure(*e);
   return std::get<T>(std::move(r));
+}
+void ValidateParameters(const ParameterTrainingMetadata& m, const SynchronousGradientCheckpoint& c) {
+  detail::Require(m.tables.size() == c.tables.size() && m.optimizer_contexts.size() == c.tables.size(),
+    "parameter table set differs from gradient checkpoint");
+  for (const auto& schema:c.tables) {
+    auto table=std::find_if(m.tables.begin(),m.tables.end(),[&](const auto& t){return t.id==schema.table;});
+    auto context=std::find_if(m.optimizer_contexts.begin(),m.optimizer_contexts.end(),[&](const auto& t){return t.table==schema.table;});
+    detail::Require(table!=m.tables.end() && table->dimension==schema.dimension && table->shard_count==c.shards &&
+      table->partition_epoch==c.epoch && context!=m.optimizer_contexts.end() && context->optimizer_sequence==c.next_round,
+      "parameter optimizer clock/schema differs from gradient checkpoint");
+  }
 }
 template<class R, class F> void Reply(R* r, google::protobuf::Closure* done, F operation) {
   brpc::ClosureGuard guard(done);
@@ -97,6 +110,19 @@ BrpcSynchronousServer::BrpcSynchronousServer(CpuParameterService& service, Synch
     : impl_(std::make_unique<Impl>(service, std::move(options))) {}
 BrpcSynchronousServer::~BrpcSynchronousServer() { Shutdown(); }
 void BrpcSynchronousServer::Shutdown() { impl_->Shutdown(); }
+Result<Ack> BrpcSynchronousServer::Restore(SynchronousGradientCheckpoint c, RestoredSnapshot expected) {
+  try {
+    auto m=Take(impl_->parameters.TrainingMetadata());
+    const auto& p=m.provenance;
+    detail::Require(p.loaded && p.pristine && p.source_run==c.source_run &&
+      p.source_run==expected.source_run && p.bytes==expected.bytes && p.checksum==expected.checksum &&
+      p.shard==c.shard && p.shard==expected.shard && p.shard_count==c.shards &&
+      p.shard_count==expected.shard_count && p.partition_epoch==c.epoch && p.partition_epoch==expected.partition_epoch,
+      "loaded parameter snapshot identity differs from group checkpoint");
+    ValidateParameters(m,c);
+    return impl_->collector.Restore(std::move(c));
+  } catch(const detail::Failure& e) { return e.error(); }
+}
 void BrpcSynchronousServer::Submit(google::protobuf::RpcController* c, const v1::GradientContribution* q,
                                   v1::Ack* r, google::protobuf::Closure* done) {
   brpc::ClosureGuard guard(done);
@@ -145,10 +171,54 @@ void BrpcSynchronousServer::Stats(google::protobuf::RpcController* c, const v1::
     r->set_next_round(s.next_round); r->set_received_workers(s.received_workers);
     r->set_retained_bytes(s.retained_bytes); r->set_duplicate_submissions(s.duplicate_submissions);
     r->set_applying(s.applying); r->set_failed(s.failed);
+    r->set_paused(s.paused);
   });
 }
 void BrpcSynchronousServer::Abort(google::protobuf::RpcController* c, const v1::TrainingControl* q,
                                  v1::Ack* r, google::protobuf::Closure* done) {
   Reply(r, done, [&] { impl_->Control(c, *q); impl_->collector.Abort(q->reason()); impl_->changed.notify_all(); });
+}
+void BrpcSynchronousServer::Pause(google::protobuf::RpcController* c,const v1::TrainingControl* q,
+                                 v1::Ack* r,google::protobuf::Closure* done) {
+  Reply(r,done,[&] {
+    impl_->Control(c,*q); auto result=impl_->collector.Pause();
+    if (auto* e=std::get_if<Error>(&result)) SetError(r->mutable_status(),*e);
+  });
+}
+void BrpcSynchronousServer::Resume(google::protobuf::RpcController* c,const v1::TrainingControl* q,
+                                  v1::Ack* r,google::protobuf::Closure* done) {
+  Reply(r,done,[&] {
+    impl_->Control(c,*q); std::lock_guard lock(impl_->mutex);
+    auto boundary=impl_->collector.Checkpoint();
+    if (auto* e=std::get_if<Error>(&boundary)) throw detail::Failure(*e);
+    ValidateParameters(Take(impl_->parameters.TrainingMetadata()),std::get<SynchronousGradientCheckpoint>(boundary));
+    Take(impl_->parameters.Resume());
+    auto result=impl_->collector.Resume();
+    if (auto* e=std::get_if<Error>(&result)) SetError(r->mutable_status(),*e);
+  });
+}
+void BrpcSynchronousServer::Checkpoint(google::protobuf::RpcController* c,const v1::TrainingControl* q,
+                                      v1::SynchronousGradientCheckpointReply* r,google::protobuf::Closure* done) {
+  brpc::ClosureGuard guard(done);
+  try {
+    impl_->Control(c,*q);
+    auto result=impl_->collector.Checkpoint();
+    if (auto* e=std::get_if<Error>(&result)) throw detail::Failure(*e);
+    const auto checkpoint=std::get<SynchronousGradientCheckpoint>(std::move(result));
+    Dispatch<ParameterTrainingMetadata>(c,q,r,guard.release(),
+      [&](const auto&){return impl_->parameters.TrainingMetadata();},
+      [this,checkpoint](const auto& metadata,auto* out,auto&) {
+        auto current=impl_->collector.Checkpoint();
+        if (auto* e=std::get_if<Error>(&current)) throw detail::Failure(*e);
+        detail::Require(std::get<SynchronousGradientCheckpoint>(current).next_round==checkpoint.next_round,
+          "gradient boundary changed during checkpoint inspection");
+        ValidateParameters(metadata,checkpoint);
+        out->set_source_run(checkpoint.source_run);out->set_epoch(checkpoint.epoch);
+        out->set_workers(checkpoint.workers);out->set_shard(checkpoint.shard);out->set_shards(checkpoint.shards);
+        out->set_reduction(static_cast<unsigned>(checkpoint.reduction));out->set_next_round(checkpoint.next_round);
+        for (const auto& t:checkpoint.tables) {auto* s=out->add_tables();s->set_table_id(t.table);s->set_dimension(t.dimension);}
+      },{},CompletionExecutor::Observations());
+  } catch(const detail::Failure& e) {SetError(r->mutable_status(),e.error());}
+    catch(const std::exception& e) {SetError(r->mutable_status(),{Error::Code::run_failed,e.what()});}
 }
 }  // namespace eps::transport
