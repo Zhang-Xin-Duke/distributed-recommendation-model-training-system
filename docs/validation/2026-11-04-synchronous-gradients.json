@@ -1,0 +1,215 @@
+{
+  "base_commit": "4bba4c4dfa79f862825908824f7836690264c044",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "scope": "Shard-local synchronous sparse gradient collection and real CPU worker/shard process training",
+  "reductions": [
+    "sum",
+    "worker_mean",
+    "sample_mean"
+  ],
+  "optimizer_step_unit": "one acknowledged complete worker-group round per table/shard, including empty tables",
+  "process_results": [
+    {
+      "duplicate_submits_per_shard": 160,
+      "empty_shard_participated": true,
+      "optimizer_steps_per_shard": 40,
+      "parameter_shards": 3,
+      "reduction": "worker_mean",
+      "reference_arithmetic": "fma",
+      "reference_errors": {
+        "fma": 0.0,
+        "separate": 0.0019005016656592488
+      },
+      "reference_max_absolute_error": 0.0,
+      "rows": [
+        {
+          "first_moment": [
+            0.17589084804058075
+          ],
+          "home": 0,
+          "key": 3,
+          "row_updates": 40,
+          "second_moment": [
+            0.001648000325076282
+          ],
+          "weights": [
+            -0.7618017792701721
+          ]
+        },
+        {
+          "first_moment": [
+            0.0
+          ],
+          "home": 1,
+          "key": 1,
+          "row_updates": 40,
+          "second_moment": [
+            0.0
+          ],
+          "weights": [
+            0.0
+          ]
+        },
+        {
+          "first_moment": [
+            -0.17589084804058075
+          ],
+          "home": 1,
+          "key": 4,
+          "row_updates": 40,
+          "second_moment": [
+            0.001648000325076282
+          ],
+          "weights": [
+            0.7618017792701721
+          ]
+        }
+      ],
+      "worker_batches": 160,
+      "workers": 4
+    },
+    {
+      "duplicate_submits_per_shard": 160,
+      "empty_shard_participated": true,
+      "optimizer_steps_per_shard": 40,
+      "parameter_shards": 3,
+      "reduction": "sample_mean",
+      "reference_arithmetic": "fma",
+      "reference_errors": {
+        "fma": 0.0,
+        "separate": 5.960464477539063e-08
+      },
+      "reference_max_absolute_error": 0.0,
+      "rows": [
+        {
+          "first_moment": [
+            0.1516377478837967
+          ],
+          "home": 0,
+          "key": 3,
+          "row_updates": 40,
+          "second_moment": [
+            0.001152075594291091
+          ],
+          "weights": [
+            -0.7708812355995178
+          ]
+        },
+        {
+          "first_moment": [
+            -0.004541871603578329
+          ],
+          "home": 1,
+          "key": 1,
+          "row_updates": 40,
+          "second_moment": [
+            2.284218317072373e-05
+          ],
+          "weights": [
+            0.5594999194145203
+          ]
+        },
+        {
+          "first_moment": [
+            -0.19229961931705475
+          ],
+          "home": 1,
+          "key": 4,
+          "row_updates": 40,
+          "second_moment": [
+            0.0021270234137773514
+          ],
+          "weights": [
+            0.7500976920127869
+          ]
+        }
+      ],
+      "worker_batches": 160,
+      "workers": 4
+    }
+  ],
+  "checks": {
+    "native": {
+      "passed": 35,
+      "failed": 0
+    },
+    "asan_ubsan_core": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tsan_core": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "rpc_cases": [
+    "one waiting response slot per worker",
+    "64 duplicate pending calls rejected without occupying other workers slots",
+    "ordinary worker writes rejected",
+    "stale administrative control rejected",
+    "exact averaged parameter/moment state",
+    "empty round advances optimizer context",
+    "missing worker timeout applies no update",
+    "shutdown wakes an admitted waiting submit"
+  ],
+  "not_exercised": [
+    "new synchronous mode with GPU model workers",
+    "GPU-resident total state exceeding one GPU memory",
+    "crash-persistent round replay or replica failover",
+    "full original Entropy execution",
+    "synchronous joint parameter/input/group checkpoint restore"
+  ],
+  "next_primary_acceptance": "GPU model training with parameter and optimizer state sharded beyond single-GPU memory",
+  "source_sha256": {
+    "CMakeLists.txt": "517443481779cf9fc9f78d03f6c422d1f6518aff0f4327b3435aae82a5060eba",
+    "proto/embedding_service.proto": "9087e5d1d2d604c9d98d332854fc2106199ab47c767431e4be2fa62d9ef0a977",
+    "include/eps/runtime.hpp": "9f72d3b03bb1c4b8416671c4804e4bec7b9bec137575ad01a5ec304f212003b7",
+    "include/eps/synchronous_gradients.hpp": "fcbd893da14b530f4045c7e1b45c93f1e2d3ccdd0ab21c52f13df713f4d29851",
+    "include/eps/brpc_synchronous_gradients.hpp": "68fa40a169e4c57ab341741139020f96eda4144480ada9b552df2dc77b2dd8e9",
+    "src/training/synchronous_gradients.cpp": "2c8b31c32bbafc30f4cafdd49700f16adac9dc359fc94f2be0ace40a97af4ffa",
+    "src/transport/brpc_synchronous_client.cpp": "fcceb0b219d973dc6ca66ed38a7b15df13c5853a3abad42eace0e39b754f947c",
+    "src/transport/brpc_synchronous_server.cpp": "a16dffb14b7c65a1e830caa7a0802846f5e6ac078c98c3be12980b529642297c",
+    "src/transport/brpc_synchronous_server.hpp": "d413d44c55b4769d377c51f8cc22c88a7a330f99445764f02b85afeea0643484",
+    "src/server/main.cpp": "1d4d654755a8134379d1f72e8afd1b3357f59bb7b9ee9cf846190777aa95d4c2",
+    "src/server/service.cpp": "11ec216c3f37751df64c8aac2255f0efd0418d507a22bb78e363054fe58a6827",
+    "src/training/control_main.cpp": "7b1a0d271f0e58e85d2cfc378fd552db62eddeb24b160b227deb7c516e92f124",
+    "examples/sparse_training_worker.cpp": "98fe9db0dfc7549b92560af34c1c29d205d1f63e7bdc35db6091b137154bca44",
+    "tests/synchronous_gradients_tests.cpp": "22b4554f18b2f0faa0678a96e6dab13522329319cc28f98fb382b9ccbeb5ce01",
+    "tests/synchronous_rpc_tests.cpp": "82bc44b0bf565341273b0f86f46979aeb28d768cf89a72575963807f9b1141ca",
+    "tests/synchronous_training_processes.py": "11fe56ec76618af2a97903e2b8d7a2cccc7c371d286478f7730a59eb898eecc2"
+  },
+  "binary_sha256": {
+    "eps_server": "cec3e1e145fa3713244579ce3eb8b87b64756ea730679fc909332c709ae6fbe8",
+    "eps_training_worker": "be10bd6f815449a2ca68d85b399f244072d0b70e978f8da80c543b9c6a46c907",
+    "eps_training_coordinator": "064e3bab2b14da27f6379fcedf5edcbb04313316986aaeed868273ac90901f60",
+    "eps_training_control": "71488c988f69e7c20e725b16655dd2fd7b249ecb7113d2a5500470a827676fc3",
+    "eps_synchronous_gradients_tests": "f3509ba136c58e3e7db998842f43f34ba2245fba86dde22d79812de828e6f100",
+    "eps_synchronous_rpc_tests": "a4aa9ae078dbc0c4522c028b9abe5c202d31e1bb684f238043772d799937e123"
+  },
+  "logs": {
+    "core.log": {
+      "path": "docs/validation/2026-11-04-synchronous-gradients/core.log",
+      "sha256": "9eaecf5db2febf6c130a22dfd2eb41a3d5c37446406f4c2c056829f9e8c09837"
+    },
+    "rpc.log": {
+      "path": "docs/validation/2026-11-04-synchronous-gradients/rpc.log",
+      "sha256": "3e4bde1f1d26a54a93b25271c46177cac7b2dc7f3c58399f092fcf4807d19391"
+    },
+    "processes.log": {
+      "path": "docs/validation/2026-11-04-synchronous-gradients/processes.log",
+      "sha256": "21b0f85d85f1981ebb3f36dce3fe9295400fcf47b2dc26b3ae7fc2c988a66825"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-synchronous-gradients/native-suite.log",
+      "sha256": "44c208794ea399b3492c3e238804cffb77cd6f86ac1f75de9fd757989763f7e1"
+    },
+    "asan-ubsan.log": {
+      "path": "docs/validation/2026-11-04-synchronous-gradients/asan-ubsan.log",
+      "sha256": "4765c2781a6c818a2074833b8a223432214563369e2ae16acfd25f7444fe14e4"
+    },
+    "tsan.log": {
+      "path": "docs/validation/2026-11-04-synchronous-gradients/tsan.log",
+      "sha256": "aa4a7e1379bc4fc9bfcb2fd233310c1f74162fd3e01ee4d0c873b52aeb4d4da2"
+    }
+  }
+}

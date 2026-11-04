@@ -1,5 +1,38 @@
 # Validation record
 
+## Synchronous sparse gradient rounds — November 4, 2026
+
+Each configured parameter shard now collects one sparse contribution per worker,
+reduces matching Keys and acknowledges one optimizer update for the round. Sum,
+worker mean and sample-weighted local-mean reductions have core checks. The
+network path reserves the round writer stream, keeps read-only Pull available
+and rejects ordinary worker writes. Empty contributions participate; an empty
+round advances optimizer context without modifying absent rows.
+
+The process check runs four independent worker processes and three parameter
+shards, with unequal local batch sizes and a controlled slow worker. Worker-mean
+and sample-mean runs each complete 40 rounds / 160 worker batches, with exactly
+40 updates per shard. One shard has zero Keys throughout; it still completes
+every round. Each shard receives 160 completed-round retries without another
+update. Complete final weights and Adam moments match an independent FP32 model
+reference with zero maximum absolute error on this build. The reference accounts
+for fused versus separate moment arithmetic as a whole-model choice.
+
+The BRPC check also rejects 64 duplicate pending calls while leaving other
+workers' response slots available. It checks stale control identities, missing
+worker timeout, shutdown, write guards and exact full optimizer state against
+one averaged update. All 35 native checks pass. The new collective core and task
+progress checks pass under ASan/UBSan and TSan; installed BRPC binaries remain
+outside those sanitizer builds. No GPU rental occurred in this stage.
+
+[Implementation and contracts](SYNCHRONOUS_GRADIENTS.md) ·
+[Source hashes, process results and logs](validation/2026-11-04-synchronous-gradients.json)
+
+The principal next GPU acceptance is actual training state exceeding one GPU's
+memory, with parameter/optimizer shards resident on multiple GPUs and real model
+forward/backward. Existing small-state multi-owner measurements remain separate
+from that [capacity requirement](plans/2026-11-04-multi-gpu-training-capacity.md).
+
 ## Distributed training RPC and worker processes — November 4, 2026
 
 A separate BRPC coordinator now admits tasks from independent training-worker

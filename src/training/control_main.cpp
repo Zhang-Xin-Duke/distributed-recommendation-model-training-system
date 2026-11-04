@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_training.hpp"
+#include "eps/brpc_synchronous_gradients.hpp"
 
 using namespace eps;
 namespace {
@@ -48,6 +49,13 @@ int main(int argc, char** argv) {
           const auto stats = Take(shard.Stats());
           result["shard_stats"].push_back({{"live_tickets", stats.live_tickets},
             {"updates", stats.updates}, {"rows", stats.rows}});
+          if (j.value("synchronous", false)) {
+            BrpcSynchronousGradients group(addresses[home], j.at("run"), j.value("epoch", std::uint64_t(1)));
+            const auto rounds = Take(group.Stats());
+            result["shard_stats"].back()["synchronous"] = {{"next_round", rounds.next_round},
+              {"received_workers", rounds.received_workers}, {"retained_bytes", rounds.retained_bytes},
+              {"duplicate_submissions", rounds.duplicate_submissions}, {"failed", rounds.failed}};
+          }
         }
       }
     } else if (action == "checkpoint") {

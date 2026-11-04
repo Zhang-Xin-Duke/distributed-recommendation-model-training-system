@@ -175,6 +175,32 @@ service TrainingService {
   rpc Abort(TrainingControl) returns (Ack);
 }
 
+message GradientTable {
+  uint32 table_id = 1;
+  uint32 dimension = 2;
+  PayloadSlice keys = 3;
+  PayloadSlice values = 4;
+}
+message GradientContribution {
+  TrainingTask task = 1;
+  uint64 sample_count = 2;
+  repeated GradientTable tables = 3;
+}
+message SynchronousGradientStatsReply {
+  Status status = 1;
+  uint64 next_round = 2;
+  uint32 received_workers = 3;
+  uint64 retained_bytes = 4;
+  uint64 duplicate_submissions = 5;
+  bool applying = 6;
+  bool failed = 7;
+}
+service SynchronousGradientService {
+  rpc Submit(GradientContribution) returns (Ack);
+  rpc Stats(TrainingControl) returns (SynchronousGradientStatsReply);
+  rpc Abort(TrainingControl) returns (Ack);
+}
+
 message LookupRequest {
   RequestIdentity identity = 1;
   uint64 partition_epoch = 2;

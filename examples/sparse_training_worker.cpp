@@ -4,10 +4,12 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <thread>
 #include <nlohmann/json.hpp>
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_training.hpp"
+#include "eps/brpc_synchronous_gradients.hpp"
 #include "eps/entropy_adapter.hpp"
 
 using namespace eps;
@@ -24,6 +26,7 @@ double Loss(double score, double label) {
 
 int main(int argc, char** argv) {
   std::unique_ptr<BrpcTrainingProgress> progress;
+  std::vector<std::unique_ptr<BrpcSynchronousGradients>> collectives;
   try {
     if (argc != 3 || std::string(argv[1]) != "--config")
       throw std::runtime_error("usage: eps_training_worker --config FILE");
@@ -38,8 +41,13 @@ int main(int argc, char** argv) {
     if (iterations == 0 || iterations > 1000000000)
       throw std::runtime_error("iterations must be in [1, 1000000000]");
     std::vector<std::shared_ptr<ParameterService>> shards;
-    for (const auto& address : j.at("shards"))
+    const auto mode = j.value("update_mode", std::string("per_worker"));
+    if (mode != "per_worker" && mode != "synchronous") throw std::runtime_error("invalid update mode");
+    const bool synchronous = mode == "synchronous";
+    for (const auto& address : j.at("shards")) {
       shards.push_back(std::make_shared<BrpcParameterService>(address.get<std::string>()));
+      if (synchronous) collectives.push_back(std::make_unique<BrpcSynchronousGradients>(address, run, epoch));
+    }
     if (shards.empty() || shards.size() > 1024) throw std::runtime_error("invalid shard group");
     entropy::TableAdapter adapter({run, worker, epoch}, shards);
     TableDefinition table{1, 1, static_cast<std::uint32_t>(shards.size()), epoch,
@@ -76,7 +84,7 @@ int main(int argc, char** argv) {
       max_lead = std::max(max_lead, iteration - permit.observed_completion_floor);
       if (slow_ms && iteration % slow_every == 0)
         std::this_thread::sleep_for(std::chrono::milliseconds(slow_ms));
-      auto batch = Take(adapter.Pull({feature}));
+      auto batch = Take(adapter.Pull({feature}, synchronous));
       auto gradients = batch.features;
       auto& values = gradients.at(0).values;
       if (values.size() != labels.size()) throw std::runtime_error("unexpected model output shape");
@@ -89,7 +97,30 @@ int main(int argc, char** argv) {
         // LazyAdam advances once per acknowledged worker update on each shard.
         values[sample] = static_cast<float>((1. / (1. + std::exp(-score)) - labels[sample]) / labels.size());
       }
-      Take(adapter.Push(batch.handle, std::move(gradients)));
+      if (!synchronous) Take(adapter.Push(batch.handle, std::move(gradients)));
+      else {
+        std::map<Key, double> rows;
+        for (std::size_t sample = 0; sample < labels.size(); ++sample)
+          for (auto at = feature.offsets[sample]; at < feature.offsets[sample+1]; ++at)
+            rows[feature.keys[at]] += values[sample];
+        Take(adapter.Release(batch.handle));
+        std::vector<GradientContribution> packets;
+        for (std::size_t home = 0; home < shards.size(); ++home)
+          packets.push_back({{run, epoch, worker, iteration}, labels.size(), {{1, 1, {}, {}}}});
+        for (const auto& [key, gradient] : rows) {
+          auto& table = packets[key % shards.size()].tables[0];
+          table.keys.push_back(key); table.values.push_back(static_cast<float>(gradient));
+        }
+        std::vector<std::future<Result<Ack>>> acknowledgements;
+        for (std::size_t home = 0; home < shards.size(); ++home)
+          acknowledgements.push_back(collectives[home]->Submit(packets[home]));
+        // Submit to every shard before waiting; even an empty shard contribution
+        // is required for that shard's fixed-group round to finish.
+        for (auto& ack : acknowledgements) Take(std::move(ack));
+        if (j.value("retry_completed_submit", false))
+          for (std::size_t home = 0; home < shards.size(); ++home)
+            Take(collectives[home]->Submit(std::move(packets[home])));
+      }
       // All owning shards have acknowledged the actual update before the
       // coordinator advances this worker's contiguous completed-task count.
       Take(progress->Complete(worker, iteration));
@@ -102,9 +133,10 @@ int main(int argc, char** argv) {
       {"input_batches_committed", completed}, {"max_admission_lead", max_lead},
       {"admission_wait_ns", wait_ns}, {"first_local_loss", first_loss},
       {"last_local_loss", last_loss}, {"gradient_reduction", "local_batch_mean"},
-      {"optimizer_step", "per_worker_update"}}.dump() << '\n';
+      {"optimizer_step", synchronous ? "per_group_round" : "per_worker_update"}}.dump() << '\n';
   } catch (const std::exception& e) {
     if (progress) { try { (void)progress->Abort(e.what()).get(); } catch (...) {} }
+    for (auto& collective : collectives) { try { (void)collective->Abort(e.what()).get(); } catch (...) {} }
     std::cerr << "eps_training_worker: " << e.what() << '\n'; return 1;
   }
 }

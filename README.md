@@ -21,6 +21,19 @@ touches only a small fraction of a large table. This pattern appears in
 recommendation, advertising, knowledge graphs, graph learning and word-embedding
 models.
 
+The principal multi-GPU scenario is training a model whose parameter and
+optimizer state exceeds one GPU's memory. The capacity path shards embedding
+rows and their optimizer state across GPU owners, with workers pulling required
+vectors and returning sparse gradients. [Capacity acceptance](docs/plans/2026-11-04-multi-gpu-training-capacity.md)
+covers actual residency, GPU model computation and host/device memory placement.
+Existing multi-owner measurements use a smaller global table; the beyond-one-GPU
+capacity experiment remains to be executed.
+
+[Synchronous gradient rounds](docs/SYNCHRONOUS_GRADIENTS.md) collect one sparse
+contribution per worker at each parameter shard, combine matching Keys and apply
+one optimizer update per round. Worker and sample-weighted averaging support
+different training batch sizes, including empty shard contributions.
+
 A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
 process. [Device Pull](docs/DEVICE_PULL.md) combines CPU, native CUDA and remote
 Agent contributions into complete model features on GPU, including global mean

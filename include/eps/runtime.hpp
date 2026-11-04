@@ -31,6 +31,9 @@ struct RuntimeOptions {
   std::uint64_t dependency_payload_bytes = 64ULL << 20;
   bool cache_dependencies = true;
   std::uint32_t max_observation_operations = 16;
+  // Synchronous round application reserves one learner stream for updates;
+  // ordinary workers can only perform read-only lookups in this mode.
+  std::optional<std::uint32_t> exclusive_update_learner;
 };
 
 struct RuntimeStats {

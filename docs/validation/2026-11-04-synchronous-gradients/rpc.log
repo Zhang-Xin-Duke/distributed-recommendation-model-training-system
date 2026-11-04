@@ -1,0 +1,29 @@
+UpdateCTestConfiguration  from :/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/DartConfiguration.tcl
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 4
+    Start 4: synchronous_gradient_rpc
+
+4: Test command: /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/eps_synchronous_rpc_tests
+4: Working Directory: /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+4: Test timeout computed to be: 30
+4: I1104 12:47:50.086706   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is serving on port=56437.
+4: I1104 12:47:50.096832   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:56437 in web browser.
+4: I1104 12:47:50.153764   259     0 src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is going to quit
+4: I1104 12:47:50.155014   259     0 src/brpc/server.cpp:1247 StartInternal] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is serving on port=56439.
+4: I1104 12:47:50.155022   259     0 src/brpc/server.cpp:1250 StartInternal] Check out http://XINs-MacBook-Pro-542.local:56439 in web browser.
+4: I1104 12:47:50.193651   259     0 src/brpc/server.cpp:1307 Stop] Server[eps::transport::BrpcSynchronousServer+eps::transport::BrpcServer] is going to quit
+4: PASS synchronous RPC: per-worker response slots, 64 duplicate rejections, averaged optimizer state exact, empty-round clock, write guard, stale control, shutdown
+1/1 Test #4: synchronous_gradient_rpc .........   Passed    0.55 sec
+
+The following tests passed:
+	synchronous_gradient_rpc
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.55 sec

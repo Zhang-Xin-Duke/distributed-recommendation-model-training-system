@@ -40,6 +40,8 @@ class CpuParameterService::Impl {
     Require(!options_.run_id.empty() && options_.run_id.size() <= 1024, "invalid run ID");
     Require(options_.request_history >= 4 && options_.max_live_tickets > 0 &&
             options_.max_queued_operations > 0, "invalid request limits");
+    Require(!options_.exclusive_update_learner || *options_.exclusive_update_learner < 1024,
+      "invalid exclusive update learner");
   }
 
   template <typename T, typename Fn>
@@ -134,6 +136,9 @@ class CpuParameterService::Impl {
   LookupReply Lookup(LookupRequest request) {
     Ready();
     Identity(request.id, Phase::lookup);
+    Require(!options_.exclusive_update_learner || request.read_only ||
+      request.id.learner == *options_.exclusive_update_learner,
+      "this training mode requires read-only worker Pull and synchronous gradient Submit");
     Require(request.partition_epoch == options_.partition_epoch, "partition epoch mismatch",
             Error::Code::stale_generation);
     const auto name = TicketName(request.id);
@@ -230,6 +235,8 @@ class CpuParameterService::Impl {
   detail::ActorTask<Ack> Push(PushRequest request) {
     Ready();
     Identity(request.id, Phase::push);
+    Require(!options_.exclusive_update_learner || request.id.learner == *options_.exclusive_update_learner,
+      "ordinary worker Push is disabled for synchronous training");
     const auto completed = tracker_.CompletedAs(request.id);
     if (completed) {
       Require(*completed == Phase::push, "lookup was released without an update");

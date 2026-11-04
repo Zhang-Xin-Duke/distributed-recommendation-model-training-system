@@ -6,6 +6,12 @@ reference for the training mechanisms and evaluation priorities. Existing
 Entropy integration remains a requirement; replacing its private Redis client
 is an integration task alongside this training work.
 
+The principal multi-GPU scenario is training when parameter/optimizer state
+outgrows one GPU. Shard that state across owners and execute real GPU model
+forward/backward with sparse Pull/Push. [Capacity acceptance](2026-11-04-multi-gpu-training-capacity.md)
+defines actual residency, host-memory placement, correctness and communication
+measurements; existing small-state multi-owner results do not establish it.
+
 ## Roles and requirements
 
 - Workers own partitioned examples and run model forward/backward (slides 4,
@@ -123,7 +129,18 @@ leaves ready slow-worker admission and completion responsive.
 All 32 native checks pass. The modified admission core passes ASan/UBSan and
 TSan, including eight-thread progress and four-worker/two-actor sparse updates.
 Source-hashed records are `../validation/2026-11-04-training-progress.json` and
-`../validation/2026-11-04-training-rpc.json`. Cross-worker gradient aggregation,
-reusable key-list handles, replicated progress/failover, original-framework
-execution and common-quality measurements remain in the steps above. No GPU
-rental was used for these stages.
+`../validation/2026-11-04-training-rpc.json`.
+
+Shard-local synchronous gradient aggregation now adds sum, worker mean and
+sample-weighted mean modes, finite collection timeout and one update per complete
+round. Four real worker processes train through three parameter shards for 40
+rounds under both averaging modes, including an empty shard. Weights and Adam
+moments match an independent model reference, and completed retries do not add
+updates. The record is `../validation/2026-11-04-synchronous-gradients.json`.
+All 35 native tests pass; the collective and task-progress cores pass ASan/UBSan
+and TSan. No GPU rental was used for these stages.
+
+Next, integrate the native GPU training path with the new update mode and execute
+the beyond-single-GPU capacity acceptance. Reusable key-list handles, durable
+round/range progress, replicated failover, original-framework execution and
+common-quality measurements remain in the full implementation scope.

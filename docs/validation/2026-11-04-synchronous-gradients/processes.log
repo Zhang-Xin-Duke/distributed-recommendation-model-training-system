@@ -1,0 +1,23 @@
+UpdateCTestConfiguration  from :/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/DartConfiguration.tcl
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 3
+    Start 3: synchronous_training_processes
+
+3: Test command: /opt/homebrew/Caskroom/miniconda/base/bin/python3.13 "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/tests/synchronous_training_processes.py" "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/eps_server" "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/eps_training_coordinator" "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/eps_training_worker" "/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native/eps_training_control"
+3: Working Directory: /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+3: Test timeout computed to be: 120
+3: {"reports": [{"duplicate_submits_per_shard": 160, "empty_shard_participated": true, "optimizer_steps_per_shard": 40, "parameter_shards": 3, "reduction": "worker_mean", "reference_arithmetic": "fma", "reference_errors": {"fma": 0.0, "separate": 0.0019005016656592488}, "reference_max_absolute_error": 0.0, "rows": [{"first_moment": [0.17589084804058075], "home": 0, "key": 3, "row_updates": 40, "second_moment": [0.001648000325076282], "weights": [-0.7618017792701721]}, {"first_moment": [0.0], "home": 1, "key": 1, "row_updates": 40, "second_moment": [0.0], "weights": [0.0]}, {"first_moment": [-0.17589084804058075], "home": 1, "key": 4, "row_updates": 40, "second_moment": [0.001648000325076282], "weights": [0.7618017792701721]}], "worker_batches": 160, "workers": 4}, {"duplicate_submits_per_shard": 160, "empty_shard_participated": true, "optimizer_steps_per_shard": 40, "parameter_shards": 3, "reduction": "sample_mean", "reference_arithmetic": "fma", "reference_errors": {"fma": 0.0, "separate": 5.960464477539063e-08}, "reference_max_absolute_error": 0.0, "rows": [{"first_moment": [0.1516377478837967], "home": 0, "key": 3, "row_updates": 40, "second_moment": [0.001152075594291091], "weights": [-0.7708812355995178]}, {"first_moment": [-0.004541871603578329], "home": 1, "key": 1, "row_updates": 40, "second_moment": [2.284218317072373e-05], "weights": [0.5594999194145203]}, {"first_moment": [-0.19229961931705475], "home": 1, "key": 4, "row_updates": 40, "second_moment": [0.0021270234137773514], "weights": [0.7500976920127869]}], "worker_batches": 160, "workers": 4}], "test": "synchronous_training_processes"}
+1/1 Test #3: synchronous_training_processes ...   Passed    3.29 sec
+
+The following tests passed:
+	synchronous_training_processes
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   3.30 sec

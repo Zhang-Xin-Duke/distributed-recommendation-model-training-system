@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 #include <nlohmann/json.hpp>
 #include <brpc/server.h>
 #include <butil/endpoint.h>
@@ -8,6 +10,7 @@
 #include "eps/brpc_cache_backend.hpp"
 #include "eps/cost_planner.hpp"
 #include "transport/brpc_server.hpp"
+#include "transport/brpc_synchronous_server.hpp"
 
 using namespace eps;
 namespace {
@@ -43,6 +46,11 @@ int main(int argc,char** argv) {
       throw std::runtime_error("access.policy must be cpu_only, transfer_unique or cost");
     if(policy!="cpu_only" && !caching)throw std::runtime_error("GPU access routes require cache.enabled and an agent");
     RuntimeOptions options;
+    const bool synchronous = j.contains("synchronous_training");
+    if (synchronous) {
+      if (!restore.empty()) throw std::runtime_error("synchronous round restore requires a matching group checkpoint");
+      options.exclusive_update_learner = 1023;
+    }
     options.run_id=run.empty()?j.at("run_id").get<std::string>():run;
     options.shard_id=j.at("partition").at("shard_id");
     options.shard_count=j.at("partition").at("shard_count");
@@ -131,13 +139,39 @@ int main(int argc,char** argv) {
       co.budget.reserve_slots=cache.value("reserve_slots",co.budget.reserve_slots);
       Value(service.ConfigureCachePolicy(std::move(co)));
     }
-    transport::BrpcServer rpc(service,options.shard_id);brpc::Server server;
+    transport::BrpcServer rpc(service,options.shard_id);
+    std::unique_ptr<transport::BrpcSynchronousServer> synchronous_rpc;
+    if (synchronous) {
+      const auto& config = j.at("synchronous_training");
+      SynchronousGradientOptions group;
+      group.run = options.run_id; group.epoch = options.partition_epoch;
+      group.shard = options.shard_id; group.shards = options.shard_count;
+      group.workers = config.at("workers");
+      group.gradient_bytes = config.value("gradient_bytes", group.gradient_bytes);
+      group.round_timeout = std::chrono::milliseconds(config.value("round_timeout_ms", 30000));
+      const auto reduction = config.value("reduction", std::string("sample_mean"));
+      if (reduction != "sample_mean" && reduction != "worker_mean" && reduction != "sum")
+        throw std::runtime_error("invalid synchronous gradient reduction");
+      group.reduction = reduction == "sample_mean" ? GradientReduction::sample_mean :
+        reduction == "worker_mean" ? GradientReduction::worker_mean : GradientReduction::sum;
+      for (const auto& table : j.at("tables"))
+        group.tables.push_back({table.at("id"), table.at("dimension"), {}, {}});
+      synchronous_rpc = std::make_unique<transport::BrpcSynchronousServer>(service, std::move(group));
+    }
+    brpc::Server server;
     if(server.AddService(&rpc,brpc::SERVER_DOESNT_OWN_SERVICE)!=0)
       throw std::runtime_error("cannot register parameter service");
-    brpc::ServerOptions server_options;server_options.max_concurrency=1024;
+    if (synchronous_rpc && server.AddService(synchronous_rpc.get(),brpc::SERVER_DOESNT_OWN_SERVICE)!=0)
+      throw std::runtime_error("cannot register synchronous gradient service");
+    brpc::ServerOptions server_options;server_options.max_concurrency=synchronous ? 0 : 1024;
     const auto address=listen.empty()?j.at("listen").get<std::string>():listen;
     if(server.Start(address.c_str(),&server_options)!=0)throw std::runtime_error("cannot start parameter server");
     std::cout<<"READY "<<butil::endpoint2str(server.listen_address()).c_str()<<std::endl;
-    server.RunUntilAskedToQuit();return 0;
+    if (!synchronous_rpc) server.RunUntilAskedToQuit();
+    else {
+      while (!brpc::IsAskedToQuit()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      synchronous_rpc->Shutdown(); server.Stop(0); server.Join();
+    }
+    return 0;
   } catch(const std::exception& e) {std::cerr<<"eps_server: "<<e.what()<<'\n';return 1;}
 }

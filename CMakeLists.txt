@@ -20,6 +20,7 @@ add_library(eps_core
   src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
   src/training/training_progress.cpp
+  src/training/synchronous_gradients.cpp
   src/client/distributed_client.cpp
   src/client/cache_resolver.cpp
   src/cache/access_cost_model.cpp
@@ -93,6 +94,7 @@ if(EPS_BUILD_BRPC)
   target_include_directories(eps_proto PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
   add_library(eps_brpc src/transport/brpc_client.cpp src/transport/brpc_server.cpp
     src/transport/brpc_training_client.cpp src/transport/brpc_training_server.cpp
+    src/transport/brpc_synchronous_client.cpp src/transport/brpc_synchronous_server.cpp
     src/transport/brpc_cache_client.cpp src/transport/brpc_agent_server.cpp
     src/transport/worker_cache_agent.cpp)
   if(EPS_BUILD_RUNTIME AND UNIX AND NOT APPLE)
@@ -207,6 +209,16 @@ if(EPS_BUILD_BRPC)
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_training_coordinator>
         $<TARGET_FILE:eps_training_worker> $<TARGET_FILE:eps_training_control>)
     set_tests_properties(distributed_training_processes PROPERTIES TIMEOUT 180)
+    add_test(NAME synchronous_training_processes
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/synchronous_training_processes.py"
+        $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_training_coordinator>
+        $<TARGET_FILE:eps_training_worker> $<TARGET_FILE:eps_training_control>)
+    set_tests_properties(synchronous_training_processes PROPERTIES TIMEOUT 120)
+    add_executable(eps_synchronous_rpc_tests tests/synchronous_rpc_tests.cpp)
+    target_link_libraries(eps_synchronous_rpc_tests PRIVATE eps_brpc)
+    target_include_directories(eps_synchronous_rpc_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    add_test(NAME synchronous_gradient_rpc COMMAND eps_synchronous_rpc_tests)
+    set_tests_properties(synchronous_gradient_rpc PROPERTIES TIMEOUT 30)
     add_executable(eps_worker_agent_tests tests/worker_agent_tests.cpp)
     target_link_libraries(eps_worker_agent_tests PRIVATE eps_brpc)
     add_test(NAME in_process_worker_lifecycle COMMAND eps_worker_agent_tests)
@@ -406,6 +418,10 @@ if(EPS_BUILD_TESTS)
   target_link_libraries(eps_training_progress_tests PRIVATE eps_core)
   add_test(NAME training_progress_consistency COMMAND eps_training_progress_tests)
   set_tests_properties(training_progress_consistency PROPERTIES TIMEOUT 30)
+  add_executable(eps_synchronous_gradients_tests tests/synchronous_gradients_tests.cpp)
+  target_link_libraries(eps_synchronous_gradients_tests PRIVATE eps_core)
+  add_test(NAME synchronous_gradient_rounds COMMAND eps_synchronous_gradients_tests)
+  set_tests_properties(synchronous_gradient_rounds PROPERTIES TIMEOUT 30)
   add_executable(eps_weight_bounds_tests tests/weight_bounds_tests.cpp)
   add_executable(eps_restore_provenance_tests tests/restore_provenance_tests.cpp)
   target_link_libraries(eps_restore_provenance_tests PRIVATE eps_core)

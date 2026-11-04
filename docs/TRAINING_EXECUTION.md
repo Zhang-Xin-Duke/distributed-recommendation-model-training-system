@@ -164,9 +164,9 @@ ctest --test-dir build/native -V \
 
 1. Integrate RPC task progress with the original training executor and its joint
    parameter/input checkpoint; add durable replay and worker replacement.
-2. Define and implement synchronous gradient aggregation/normalization and
-   optimizer-step boundaries, alongside asynchronous update policies. Reuse
-   repeated key-list metadata with bounded, epoch-checked handles.
+2. Connect [synchronous shard-local gradient rounds](SYNCHRONOUS_GRADIENTS.md)
+   to native GPU model workers and the beyond-single-GPU capacity workload.
+   Reuse repeated key-list metadata with bounded, epoch-checked handles.
 3. Persist per-range logical update progress; replicate before acknowledgement
    and fence shard/worker replacement. Exercise lost replies and process failure.
 4. Replace the private Redis SDK through the retained interfaces and execute
