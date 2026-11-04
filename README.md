@@ -10,9 +10,11 @@ complete parameter rows and execute resident pooling and sparse updates.
 [Distributed training execution](docs/TRAINING_EXECUTION.md) is the central
 implementation track: worker task dependencies, gradient/update semantics,
 logical progress, replication and recovery, evaluated at a common quality
-target. The task-progress core now implements sequential, eventual and
-bounded-delay admission; multi-process training and replica-backed failover
-remain in the implementation plan.
+target. A standalone RPC coordinator now enforces sequential, eventual and
+bounded-delay task admission across worker processes. Four independent workers
+train a shared sparse model through two parameter-server processes, with task
+completion following acknowledged parameter updates. Replica-backed failover
+and full original Entropy execution remain in the implementation plan.
 
 The first implementation targets sparse access to embedding tables: each batch
 touches only a small fraction of a large table. This pattern appears in

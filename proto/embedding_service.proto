@@ -131,6 +131,50 @@ message AgentWork {
 message CreateTableRequest { TableDefinition table = 1; }
 message Ack { Status status = 1; }
 
+// Task progress is separate from parameter ownership and optimizer versions.
+message TrainingTask {
+  string run = 1;
+  uint64 epoch = 2;
+  uint32 worker = 3;
+  uint64 iteration = 4;
+}
+message TrainingControl { string run = 1; uint64 epoch = 2; string reason = 3; }
+message TrainingPermitReply {
+  Status status = 1;
+  TrainingTask task = 2;
+  uint64 observed_completion_floor = 3;
+}
+message TrainingStatsReply {
+  Status status = 1;
+  repeated uint64 completed = 2;
+  uint64 completion_floor = 3;
+  uint64 granted_tasks = 4;
+  uint64 completed_tasks = 5;
+  uint64 duplicate_completions = 6;
+  uint32 active = 7;
+  uint32 waiting = 8;
+  bool paused = 9;
+  bool failed = 10;
+}
+message TrainingCheckpointReply {
+  Status status = 1;
+  string source_run = 2;
+  uint64 epoch = 3;
+  // 0: sequential; 1: eventual; 2: bounded delay.
+  uint32 consistency = 4;
+  uint64 max_delay = 5;
+  repeated uint64 completed = 6;
+}
+service TrainingService {
+  rpc Begin(TrainingTask) returns (TrainingPermitReply);
+  rpc Complete(TrainingTask) returns (Ack);
+  rpc Stats(TrainingControl) returns (TrainingStatsReply);
+  rpc Pause(TrainingControl) returns (Ack);
+  rpc Checkpoint(TrainingControl) returns (TrainingCheckpointReply);
+  rpc Resume(TrainingControl) returns (Ack);
+  rpc Abort(TrainingControl) returns (Ack);
+}
+
 message LookupRequest {
   RequestIdentity identity = 1;
   uint64 partition_epoch = 2;

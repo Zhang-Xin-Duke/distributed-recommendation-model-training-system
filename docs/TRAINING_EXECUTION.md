@@ -60,6 +60,58 @@ controller finishes matching parameter/input restoration. Abort is terminal and
 wakes waiting callers; the training executor still owns cleanup of parameter
 handles and any device work already submitted.
 
+## RPC coordinator and worker execution
+
+`eps_training_coordinator` runs the progress controller as a separate BRPC
+service. Workers use `BrpcTrainingProgress` to obtain a permit and report the
+completed task. Run/epoch checks also cover administrative calls, so an old job
+cannot pause, resume or abort a new one.
+
+```mermaid
+sequenceDiagram
+    participant W as Training worker process
+    participant C as Progress coordinator process
+    participant P as Parameter shard processes
+    W->>C: Begin(worker, iteration)
+    C-->>W: Permit when dependency rule allows
+    W->>P: Pull IDs for this data batch
+    P-->>W: Parameter features
+    Note over W: Model forward, mean loss, backward
+    W->>P: Push sparse gradients
+    P-->>W: Update acknowledgements from owning shards
+    W->>C: Complete(worker, iteration)
+    Note over C: Advance contiguous worker clock
+```
+
+Waiting Begin calls use one completion loop and a bounded pending-RPC list.
+Complete and Stats do not use that waiting list or the parameter-service
+completion pool. At capacity, the controller rejects admissions that would
+need a new wait slot without registering a task. Immediately eligible work
+still runs: the slow worker must be able to finish the task that unblocks the
+waiting workers. Completion/abort/pause signals wake the loop; a 10 ms fallback
+poll also retires disconnected requests. Retrying Begin uses the same task
+identity and existing permit rather than allocating another task.
+
+Shutdown fails waiting admissions before the BRPC server joins outstanding
+calls. Pause releases dependency waiters and allows already-admitted tasks to
+drain. `eps_training_control` provides stats, inspect, pause, checkpoint, resume
+and abort operations. A restored coordinator starts paused with its saved
+completed counts. Its progress-only checkpoint does not by itself restore
+parameter files or input cursors.
+
+`eps_training_worker` is an executable sparse-logistic training path, configured
+with a worker identity, its local examples, parameter endpoints and coordinator.
+The worker pools ID-selected scalar parameters, computes a binary logistic loss
+and submits gradients. The loss reduction is the local batch mean; each worker
+Push advances LazyAdam once on each owning shard. The three admission policies
+use this same update algorithm. Sequential task admission does not combine
+the workers' gradients into one averaged optimizer step.
+
+The worker waits for all Push acknowledgements before Complete. On a training
+error it aborts the job so dependency waiters wake. A failure after some shards
+apply an update can leave a partial task; coordinated rollback/replay requires
+the replication, range-progress and ownership-fencing work listed below.
+
 ## Executed verification
 
 The C++ checks cover the exact bounded-delay boundary, sequential/zero-delay
@@ -85,10 +137,33 @@ ctest --test-dir build/native -V -R '^training_progress_consistency$'
 The same target runs under the existing ASan/UBSan and TSan core builds.
 [Verified records, source hashes and logs](validation/2026-11-04-training-progress.json).
 
+The RPC check saturates 16 waiting-call slots with duplicate admissions while
+64 additional calls receive capacity errors. Stats, the slow worker's Begin
+and completion still proceed. It also checks stale control identities,
+duplicate completion, pause/checkpoint/resume, terminal abort, a timed-out Begin
+followed by retry and shutdown with a waiting caller.
+
+The process test launches four worker processes, two parameter-server processes
+and a coordinator. Each policy completes 160 acknowledged worker updates with
+the same local-mean-gradient/per-worker-LazyAdam algorithm and a controlled slow
+worker. It checks actual row-update counts, finite weights/moments, zero live
+tickets, policy bounds and reduced loss. The final progress checkpoint is loaded
+by a fresh coordinator, verified paused and explicitly resumed. This restore
+check covers coordinator clocks; parameter/input restoration is separate.
+
+```sh
+cmake --build build/native --target eps_server eps_training_coordinator \
+  eps_training_worker eps_training_control eps_training_rpc_tests -j 4
+ctest --test-dir build/native -V \
+  -R '^(training_progress_rpc|distributed_training_processes)$'
+```
+
+[RPC/process evidence](validation/2026-11-04-training-rpc.json).
+
 ## Work remaining for complete training acceptance
 
-1. Connect the controller through RPC to real worker processes and parameter
-   shards, preserving update acknowledgements and input positions.
+1. Integrate RPC task progress with the original training executor and its joint
+   parameter/input checkpoint; add durable replay and worker replacement.
 2. Define and implement synchronous gradient aggregation/normalization and
    optimizer-step boundaries, alongside asynchronous update policies. Reuse
    repeated key-list metadata with bounded, epoch-checked handles.

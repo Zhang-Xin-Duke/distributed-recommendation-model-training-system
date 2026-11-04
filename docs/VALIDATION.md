@@ -1,5 +1,33 @@
 # Validation record
 
+## Distributed training RPC and worker processes — November 4, 2026
+
+A separate BRPC coordinator now admits tasks from independent training-worker
+processes. Four workers pull sparse parameters from two parameter-server
+processes, compute binary logistic gradients with local batch-mean reduction,
+wait for all Push acknowledgements and then report task completion. Sequential,
+bounded-delay (`tau=2`) and eventual policies each complete 160 worker updates.
+The controlled model's loss decreases from 0.693 to approximately 0.28; exact
+touched-row update counts, finite optimizer state and drained tickets verify
+the connection between task progress and parameter changes. This is a CPU
+correctness workload, not a same-quality training-speed comparison.
+
+The RPC overload case holds 16 waiting admissions while 64 more return capacity
+errors. Stats and slow-worker progress continue, including a ready Begin while
+the waiting list is full. Additional cases cover stale administrative identities,
+duplicate completion, timeout/retry, pause/checkpoint/resume, abort and shutdown
+with a pending caller. A fresh coordinator restores the process run's task
+clocks paused and resumes explicitly; this check restores progress only.
+
+All 32 native checks pass. The modified core admission path also passes its
+ASan/UBSan and TSan checks; installed BRPC libraries are not sanitizer-built.
+No GPU was rented for this stage. Cross-worker gradient aggregation, replicated
+update acknowledgement/failover and full original Entropy execution remain
+implementation requirements.
+
+[Training execution](TRAINING_EXECUTION.md) ·
+[Canonical process results, source hashes and logs](validation/2026-11-04-training-rpc.json)
+
 ## Training-task consistency core — November 4, 2026
 
 The fixed-worker-group progress controller implements the lecture's sequential,

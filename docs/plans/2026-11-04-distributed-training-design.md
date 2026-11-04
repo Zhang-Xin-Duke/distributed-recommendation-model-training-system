@@ -36,9 +36,11 @@ bounded requests and coordinated checkpoint/restore. Native TensorFlow graphs
 execute real model gradients. Source-method checks and peer checkpoint checks
 have explicit original-native environment substitutions.
 
-There is currently no training-task clock policy, replica-before-ack protocol,
-live shard/worker failover or measured common-quality comparison across training
-consistency policies. Full original Entropy execution also remains open.
+Task-clock policies now run through an independent RPC coordinator, with actual
+worker processes computing sparse gradients against network parameter shards.
+Replica-before-ack, live shard/worker failover and a measured common-quality
+comparison across training consistency policies remain open. Full original
+Entropy execution also remains open.
 
 ## Training-task progress controller
 
@@ -84,7 +86,7 @@ protocol work, not guarantees of the initial fixed-group controller.
 
 1. Implement and verify the C++ task-progress controller: slide-18 boundaries,
    duplicate/malformed tasks, pause/drain, fresh-run restore, abort and concurrent
-   workers. This establishes the control component; network integration remains.
+   workers. This establishes the control component for network integration.
 2. Expose progress RPCs, connect real worker processes to the controller and
    existing parameter shards, and execute a real sparse training workload.
    Define gradient aggregation/normalization and optimizer-step semantics
@@ -111,9 +113,17 @@ failure behavior; component tests do not substitute for that acceptance.
 
 ## Current execution record
 
-Step 1's C++ core is implemented. Native, ASan/UBSan and TSan checks pass,
-including eight-thread progress and four-worker/two-actor sparse logistic-loss
-updates through the existing parameter API. The source-hashed record is
-`../validation/2026-11-04-training-progress.json`. Network controller integration,
-aggregation, replication/failover, original-framework execution and common-quality
-measurements remain in the steps above. No GPU rental was used for this stage.
+Step 1's C++ core and step 2's RPC/worker execution are implemented. Four worker
+processes train through two parameter-server processes and a separate coordinator
+under each policy. Each policy completes 160 local-mean-gradient/per-worker
+LazyAdam updates, checks actual row-update counts and lowers controlled loss.
+The RPC overload check also verifies that a saturated dependency-wait list
+leaves ready slow-worker admission and completion responsive.
+
+All 32 native checks pass. The modified admission core passes ASan/UBSan and
+TSan, including eight-thread progress and four-worker/two-actor sparse updates.
+Source-hashed records are `../validation/2026-11-04-training-progress.json` and
+`../validation/2026-11-04-training-rpc.json`. Cross-worker gradient aggregation,
+reusable key-list handles, replicated progress/failover, original-framework
+execution and common-quality measurements remain in the steps above. No GPU
+rental was used for these stages.

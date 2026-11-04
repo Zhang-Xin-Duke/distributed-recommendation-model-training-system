@@ -1,0 +1,248 @@
+{
+  "base_commit": "f4ec73bd0bce601041feeffad8e2e15af5dd96d8",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "brpc_version": "1.18.0",
+  "scope": "CPU training through four worker processes, two parameter-server processes and one RPC coordinator; core sanitizer checks",
+  "algorithm": {
+    "model": "sparse scalar-embedding logistic loss",
+    "worker_gradient_reduction": "local batch mean",
+    "optimizer": "SparseLazyAdam",
+    "optimizer_step_unit": "one acknowledged worker update per owning shard",
+    "cross_worker_gradient_averaging": false
+  },
+  "process_results": [
+    {
+      "final_loss": 0.2781266898478673,
+      "initial_loss": 0.6931471805599453,
+      "parameter_shards": 2,
+      "policy": "sequential",
+      "progress_checkpoint_restored": true,
+      "tickets_drained": true,
+      "worker_updates": 160,
+      "workers": 4,
+      "workers_report": [
+        {
+          "admission_wait_ns": 42338493,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.28420831828007087,
+          "max_admission_lead": 0,
+          "optimizer_step": "per_worker_update",
+          "worker": 0
+        },
+        {
+          "admission_wait_ns": 41806086,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.2876469622067318,
+          "max_admission_lead": 0,
+          "optimizer_step": "per_worker_update",
+          "worker": 1
+        },
+        {
+          "admission_wait_ns": 42189334,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.28347118781770553,
+          "max_admission_lead": 0,
+          "optimizer_step": "per_worker_update",
+          "worker": 2
+        },
+        {
+          "admission_wait_ns": 6168999,
+          "completed": 40,
+          "first_local_loss": 0.7060610923487605,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.2864141917432154,
+          "max_admission_lead": 0,
+          "optimizer_step": "per_worker_update",
+          "worker": 3
+        }
+      ]
+    },
+    {
+      "final_loss": 0.27793262552704134,
+      "initial_loss": 0.6931471805599453,
+      "parameter_shards": 2,
+      "policy": "bounded_delay",
+      "progress_checkpoint_restored": true,
+      "tickets_drained": true,
+      "worker_updates": 160,
+      "workers": 4,
+      "workers_report": [
+        {
+          "admission_wait_ns": 43322416,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.2873823016112642,
+          "max_admission_lead": 2,
+          "optimizer_step": "per_worker_update",
+          "worker": 0
+        },
+        {
+          "admission_wait_ns": 43540042,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.287841458602818,
+          "max_admission_lead": 2,
+          "optimizer_step": "per_worker_update",
+          "worker": 1
+        },
+        {
+          "admission_wait_ns": 43340459,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.2874977613047917,
+          "max_admission_lead": 2,
+          "optimizer_step": "per_worker_update",
+          "worker": 2
+        },
+        {
+          "admission_wait_ns": 5227669,
+          "completed": 40,
+          "first_local_loss": 0.7025405075896873,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.277908582026034,
+          "max_admission_lead": 0,
+          "optimizer_step": "per_worker_update",
+          "worker": 3
+        }
+      ]
+    },
+    {
+      "final_loss": 0.28129989366915975,
+      "initial_loss": 0.6931471805599453,
+      "parameter_shards": 2,
+      "policy": "eventual",
+      "progress_checkpoint_restored": true,
+      "tickets_drained": true,
+      "worker_updates": 160,
+      "workers": 4,
+      "workers_report": [
+        {
+          "admission_wait_ns": 5690708,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.25765003497637134,
+          "max_admission_lead": 24,
+          "optimizer_step": "per_worker_update",
+          "worker": 0
+        },
+        {
+          "admission_wait_ns": 5772337,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.3525813225955292,
+          "max_admission_lead": 24,
+          "optimizer_step": "per_worker_update",
+          "worker": 1
+        },
+        {
+          "admission_wait_ns": 5557458,
+          "completed": 40,
+          "first_local_loss": 0.6931471805599453,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.25692563063342805,
+          "max_admission_lead": 24,
+          "optimizer_step": "per_worker_update",
+          "worker": 2
+        },
+        {
+          "admission_wait_ns": 4536336,
+          "completed": 40,
+          "first_local_loss": 0.7187535251283586,
+          "gradient_reduction": "local_batch_mean",
+          "input_batches_committed": 40,
+          "last_local_loss": 0.22559266957358273,
+          "max_admission_lead": 0,
+          "optimizer_step": "per_worker_update",
+          "worker": 3
+        }
+      ]
+    }
+  ],
+  "rpc_overload_result": "training_rpc saturated_waiters=16 rejected=64 stats_latency_us=148 duplicate_permits=16 lifecycle=pause/checkpoint/resume/abort",
+  "checks": {
+    "native_suite": {
+      "passed": 32,
+      "failed": 0
+    },
+    "asan_ubsan_training_core": {
+      "passed": 1,
+      "failed": 0
+    },
+    "tsan_training_core": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "restore_scope": "Task-progress clocks restored into a fresh paused coordinator, explicitly resumed; parameter/input restoration is not exercised here",
+  "not_exercised": [
+    "GPU training via the new coordinator",
+    "common-quality performance comparison",
+    "replica-before-ack",
+    "live worker/shard replacement",
+    "full original Entropy execution"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "24e63328176a56455c0a6ea7ac51536980c6e834cd6df3ff4376ade453858070",
+    "proto/embedding_service.proto": "e9a6bbd0738d0b85d1baae34677a6c13f184b3d4a27c907c53c2c1711d46e2ec",
+    "include/eps/training_progress.hpp": "06553d1466060c764519d3c129a3630895d1e8f9ff6f94bc71dfb81c0c78565d",
+    "include/eps/brpc_training.hpp": "58c68df0e3c784fa63359d4d0d1678f3c275f0264c92ea52829164005546da0a",
+    "src/training/training_progress.cpp": "6704210ba5c9bf517095bb9b633aa4f86ddada66fbc9d287d6bfca41222ba75c",
+    "src/transport/brpc_training_client.cpp": "83785d46be920fd111c044fb85f16884e1485fe0d8d045964808589d5405bc9e",
+    "src/transport/brpc_training_server.cpp": "0d8ca42714280077da988284b503ea44fa1b9d146d5eda2b689bfc1ece06745a",
+    "src/transport/brpc_training_server.hpp": "ed229460291bbc9c92312de4732607c94fa667569403fa9a0c158e7edae7cd00",
+    "src/server/training_main.cpp": "a6496f8d932cf64093ae49ec61964f444adf8cdb4181ca0ff0ae6ca2f786f05c",
+    "src/training/control_main.cpp": "ffd20fbd9ff50292e62c9bb177d4d1dcc1d06f87f573d8c820c4407c7bb8cdec",
+    "examples/sparse_training_worker.cpp": "011bbc5680476de135671201d551f7d14cc35fd1dc2e2fbeb0ec4dfca90f177f",
+    "tests/training_progress_tests.cpp": "a9498ac856ae86d91a4fa1629fe44ec548d6ab895c205d468349a81eb88aa342",
+    "tests/training_rpc_tests.cpp": "75a4faee8a02c6f3e394716dfc9301926fecfc6d37115c7c4a293fa4c2243adf",
+    "tests/training_processes.py": "6a59d7635e8008becde8021eafab39a65a8b0cb61015940b48a9f98141b7c2a3"
+  },
+  "binaries_sha256": {
+    "eps_server": "b1e296c3530ac440858c55db0ee78e1144dbd61fd898b4409a39d97279cdfb28",
+    "eps_training_coordinator": "53fac34058d1ba00bee55551e0a052b8d1ad888f571241952e29de6afc67a815",
+    "eps_training_worker": "12ff448c866a5bbc2c27a6f43d84c9300b1118265755ee5159e7e799b52df954",
+    "eps_training_control": "46a3d0dbf458134909923d0e2e30b22266e7c72be7c227dec569b38e245f6550",
+    "eps_training_rpc_tests": "088dd38b62745f07de50c6c48bba2f36dc2c9b9942bc87a4f7e0e0404394e046",
+    "eps_training_progress_tests": "8df8b5d8cee81f5b1af27431345154a72f974c16b501f84ca248526da0141ec1"
+  },
+  "logs": {
+    "targeted.log": {
+      "path": "docs/validation/2026-11-04-training-rpc/targeted.log",
+      "sha256": "e4205dee057564d6ed6fb215f44fd12f4c9d512ca100d20642dbdcbe0698d7e3"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-training-rpc/native-suite.log",
+      "sha256": "ba439a7efdef3d2d8dc393f71dbfa63d3837e690da7fbae3af0d3bc57c1f881a"
+    },
+    "asan-ubsan.log": {
+      "path": "docs/validation/2026-11-04-training-rpc/asan-ubsan.log",
+      "sha256": "17389a8bb51532f264e6af02de3b2ce74adb37d7b8302f24c8917821c5827367"
+    },
+    "tsan.log": {
+      "path": "docs/validation/2026-11-04-training-rpc/tsan.log",
+      "sha256": "686e4292baa6e3283222b2466ce0c6b66ef83113b74d5e7ca5872419a1fe9f6e"
+    }
+  }
+}

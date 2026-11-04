@@ -90,7 +90,7 @@ TrainingProgressController::~TrainingProgressController() {
   try { Abort("training progress controller destroyed"); } catch (...) {}
 }
 
-std::shared_future<Result<TrainingPermit>> TrainingProgressController::Begin(TrainingTask task) {
+std::shared_future<Result<TrainingPermit>> TrainingProgressController::Begin(TrainingTask task, bool allow_wait) {
   std::lock_guard lock(impl_->mutex);
   if (auto error = impl_->Validate(task)) return Ready<TrainingPermit>(*error);
   if (!impl_->failure.empty()) return Ready<TrainingPermit>(impl_->Failed());
@@ -102,8 +102,14 @@ std::shared_future<Result<TrainingPermit>> TrainingProgressController::Begin(Tra
     return Ready<TrainingPermit>({Error::Code::invalid_argument, "worker iterations must be contiguous"});
   }
   auto& request = impl_->requests[task.worker];
-  if (request) return request->future;
+  if (request) {
+    if (!allow_wait && !request->active)
+      return Ready<TrainingPermit>({Error::Code::capacity_exceeded, "no capacity for a dependency waiter"});
+    return request->future;
+  }
   if (impl_->paused) return Ready<TrainingPermit>({Error::Code::unavailable, "training admission paused"});
+  if (!allow_wait && !impl_->Eligible(task.iteration, impl_->Floor()))
+    return Ready<TrainingPermit>({Error::Code::capacity_exceeded, "no capacity for a dependency waiter"});
   request = std::make_unique<Impl::Request>(std::move(task));
   auto future = request->future;
   impl_->GrantReady();

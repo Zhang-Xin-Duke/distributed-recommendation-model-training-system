@@ -69,6 +69,21 @@ void Sequential(TrainingConsistency policy = TrainingConsistency::sequential) {
         stats.duplicate_completions == 1, "incorrect sequential clocks");
 }
 
+void Backpressure() {
+  TrainingProgressController c({"training", 1, 2});
+  Take(c.Complete(Permit(c.Begin(Task(0, 0), false)).task));
+  Reject(c.Begin(Task(0, 1), false).get(), Error::Code::capacity_exceeded);
+  Check(!c.Stats().waiting && !c.Stats().active, "rejected admission changed task state");
+  auto waiting = c.Begin(Task(0, 1));
+  Reject(c.Begin(Task(0, 1), false).get(), Error::Code::capacity_exceeded);
+  Check(c.Stats().waiting == 1, "backpressure duplicated an existing waiter");
+  Take(c.Complete(Permit(c.Begin(Task(1, 0), false)).task));
+  const auto retried = Permit(c.Begin(Task(0, 1), false));
+  Check(retried.task == Permit(waiting).task && c.Stats().granted_tasks == 3,
+        "backpressure blocked a ready slow-worker permit or duplicated a task");
+  Take(c.Complete(retried.task));
+}
+
 void BoundedDelay() {
   TrainingProgressController controller({"training", 1, 2, TrainingConsistency::bounded_delay, 1});
   for (std::uint64_t iteration = 0; iteration < 2; ++iteration) {
@@ -287,6 +302,7 @@ int main() {
   try {
     Sequential();
     Sequential(TrainingConsistency::bounded_delay);
+    Backpressure();
     BoundedDelay();
     Eventual();
     PauseRestore();

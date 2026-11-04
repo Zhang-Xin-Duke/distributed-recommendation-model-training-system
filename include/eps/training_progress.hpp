@@ -66,7 +66,9 @@ class TrainingProgressController {
   TrainingProgressController(const TrainingProgressController&) = delete;
   TrainingProgressController& operator=(const TrainingProgressController&) = delete;
 
-  std::shared_future<Result<TrainingPermit>> Begin(TrainingTask task);
+  // With allow_wait=false, return capacity_exceeded rather than registering a
+  // new dependency waiter. Immediately eligible work can still make progress.
+  std::shared_future<Result<TrainingPermit>> Begin(TrainingTask task, bool allow_wait = true);
   Result<Ack> Complete(TrainingTask task);
   Result<Ack> Pause();
   Result<TrainingProgressCheckpoint> Checkpoint() const;
