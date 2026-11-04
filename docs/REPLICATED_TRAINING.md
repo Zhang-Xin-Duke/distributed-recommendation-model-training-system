@@ -208,9 +208,11 @@ chunk retries, partial publication, corruption and size/disk limits under
 ASan/UBSan and TSan.
 
 This execution covers CPU ownership and failures after gradients are retained.
-Failure during an outstanding Pull/Release, loss of worker/coordinator processes,
-automatic endpoint discovery and fencing/reinitializing live GPU owners require
-further implementation and execution. The beyond-single-GPU capacity experiment
+[Durable worker recovery](WORKER_RECOVERY.md) extends it to worker/coordinator
+process loss, abandoned completed-Pull tickets and partially committed rounds.
+Partial Pull/Release RPC failures, automatic endpoint discovery and
+fencing/reinitializing live GPU owners require further execution.
+The beyond-single-GPU capacity experiment
 and complete original Entropy integration remain in the overarching project
 scope. Runtime power-loss behavior relies on the implemented fsync/publication
 protocol; the executed fault injections kill processes while preserving disk.

@@ -111,6 +111,10 @@ class Backend:
         return self._call("configure_training", coordinator, int(retry_ms))
     def training_retry_count(self):
         return self._call("training_retry_count")
+    def completed_read_frontier(self):
+        return self._call("completed_read_frontier")
+    def restore_read_frontier(self, next_sequence):
+        return self._call("restore_read_frontier", next_sequence)
 
     def begin_training(self, iteration):
         return self._call("begin_training", iteration)

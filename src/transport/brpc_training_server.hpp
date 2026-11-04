@@ -12,6 +12,7 @@ class BrpcTrainingServer final : public v1::TrainingService {
                               std::size_t max_pending = 4096);
   ~BrpcTrainingServer() override;
   Result<Ack> Restore(TrainingProgressCheckpoint checkpoint);
+  Result<Ack> RecoverSynchronousRound(std::uint64_t next);
   // Call before Server::Stop/Join so outstanding Begin callbacks can drain.
   void Shutdown();
 #define EPS_TRAINING_RPC(Name, Request, Response) \

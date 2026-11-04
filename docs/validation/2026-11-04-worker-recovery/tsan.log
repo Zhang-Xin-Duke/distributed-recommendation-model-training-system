@@ -1,0 +1,9 @@
+Test project <project>/build/tsan
+    Start  8: embedding_adapter_lifecycle
+1/2 Test  #8: embedding_adapter_lifecycle ......   Passed    1.08 sec
+    Start 12: training_progress_consistency
+2/2 Test #12: training_progress_consistency ....   Passed    0.38 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   1.46 sec

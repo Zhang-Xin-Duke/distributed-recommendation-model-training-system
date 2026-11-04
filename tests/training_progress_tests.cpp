@@ -300,6 +300,15 @@ void SparseTrainingIntegration(TrainingConsistency policy, std::uint64_t delay) 
 
 int main() {
   try {
+    TrainingProgressController recovered({"recover",1,2,TrainingConsistency::sequential,0});
+    Reject(recovered.RecoverSynchronousRound(UINT64_MAX),Error::Code::invalid_argument);
+    Take(recovered.RecoverSynchronousRound(50000));
+    Check(recovered.Stats().paused && recovered.Stats().completed==std::vector<std::uint64_t>({50000,50000}),"recovered round/cursor differs");
+    Reject(recovered.Begin({"recover",1,0,50000}).get(),Error::Code::unavailable);
+    Reject(recovered.RecoverSynchronousRound(50000),Error::Code::invalid_argument);
+    Take(recovered.Resume());Take(recovered.Begin({"recover",1,0,50000}).get());Take(recovered.Complete({"recover",1,0,50000}));
+    TrainingProgressController eventual_recovery({"eventual-recovery",1,2,TrainingConsistency::eventual,0});
+    Reject(eventual_recovery.RecoverSynchronousRound(1),Error::Code::invalid_argument);
     Sequential();
     Sequential(TrainingConsistency::bounded_delay);
     Backpressure();

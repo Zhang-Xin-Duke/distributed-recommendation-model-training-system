@@ -73,6 +73,8 @@ class TrainingProgressController {
   Result<Ack> Pause();
   Result<TrainingProgressCheckpoint> Checkpoint() const;
   Result<Ack> Restore(TrainingProgressCheckpoint checkpoint);
+  // Trusted startup after the manager reconciles replica-backed shard rounds.
+  Result<Ack> RecoverSynchronousRound(std::uint64_t next);
   Result<Ack> Resume();
   void Abort(std::string reason);
   TrainingProgressStats Stats() const;

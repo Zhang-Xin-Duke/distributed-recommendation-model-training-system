@@ -403,6 +403,14 @@ if(EPS_BUILD_BRPC)
         add_test(NAME distributed_model_orchestration
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/distributed_model_orchestration.py"
             "${CMAKE_CURRENT_BINARY_DIR}")
+        add_test(NAME durable_worker_gradients
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/worker_journal_tests.py")
+        add_test(NAME tensorflow_worker_recovery
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-worker-recovery.json")
+        set_tests_properties(tensorflow_worker_recovery PROPERTIES TIMEOUT 300
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        set_tests_properties(durable_worker_gradients PROPERTIES TIMEOUT 30)
         set_tests_properties(distributed_model_orchestration PROPERTIES TIMEOUT 120)
         if(EPS_BUILD_CUDA)
           add_test(NAME tensorflow_synchronous_model_cuda

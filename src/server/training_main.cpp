@@ -23,6 +23,11 @@ int main(int argc, char** argv) {
       policy == "eventual" ? eps::TrainingConsistency::eventual : eps::TrainingConsistency::bounded_delay,
       j.value("max_delay", std::uint64_t(0))};
     eps::transport::BrpcTrainingServer rpc(options, j.value("max_pending_rpcs", std::size_t(4096)));
+    if(j.contains("replica_next_round")) {
+      if(j.contains("restore"))throw std::runtime_error("choose replica recovery or checkpoint restore");
+      auto result=rpc.RecoverSynchronousRound(j.at("replica_next_round"));
+      if(const auto* error=std::get_if<eps::Error>(&result))throw std::runtime_error(error->message);
+    }
     if (j.contains("restore")) {
       const auto& s = j.at("restore");
       const auto consistency = s.at("consistency").get<unsigned>();

@@ -119,6 +119,9 @@ void BrpcTrainingServer::Shutdown() { impl_->Shutdown(); }
 Result<Ack> BrpcTrainingServer::Restore(TrainingProgressCheckpoint checkpoint) {
   return impl_->progress.Restore(std::move(checkpoint));
 }
+Result<Ack> BrpcTrainingServer::RecoverSynchronousRound(std::uint64_t next) {
+  return impl_->progress.RecoverSynchronousRound(next);
+}
 
 void BrpcTrainingServer::Begin(google::protobuf::RpcController* c, const v1::TrainingTask* q,
                                v1::TrainingPermitReply* r, google::protobuf::Closure* done) {

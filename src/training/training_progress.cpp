@@ -188,6 +188,16 @@ Result<Ack> TrainingProgressController::Restore(TrainingProgressCheckpoint check
   return Ack{};
 }
 
+Result<Ack> TrainingProgressController::RecoverSynchronousRound(std::uint64_t next) {
+  std::lock_guard lock(impl_->mutex);
+  if(!impl_->failure.empty())return impl_->Failed();
+  if(impl_->ever_started || impl_->restored || next==UINT64_MAX ||
+      impl_->options.consistency!=TrainingConsistency::sequential ||
+      std::any_of(impl_->requests.begin(),impl_->requests.end(),[](const auto& r){return bool(r);}))
+    return Error{Error::Code::invalid_argument,"synchronous recovery requires a fresh sequential controller"};
+  std::fill(impl_->completed.begin(),impl_->completed.end(),next);
+  impl_->restored=true;impl_->paused=true;return Ack{};
+}
 Result<Ack> TrainingProgressController::Resume() {
   std::lock_guard lock(impl_->mutex);
   if (!impl_->failure.empty()) return impl_->Failed();

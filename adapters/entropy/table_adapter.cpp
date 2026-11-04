@@ -95,6 +95,7 @@ struct TableAdapter::Impl {
   std::map<std::uint64_t,Batch> live;
   std::map<std::uint64_t,bool> completed;
   bool closed=false;
+  bool read_stream_restored=false;
   std::optional<std::string> saved_checkpoint,resumed_checkpoint;
 };
 TableAdapter::TableAdapter(AdapterOptions o,std::vector<std::shared_ptr<ParameterService>> s)
@@ -209,6 +210,13 @@ Result<std::uint64_t> TableAdapter::CompletedReadFrontier() const {
   std::lock_guard lock(impl_->mutex);
   if(impl_->closed || !impl_->live.empty())return Error{Error::Code::unavailable,"finish all read lifecycles before certifying progress"};
   return impl_->next;
+}
+Result<Ack> TableAdapter::RestoreReadFrontier(std::uint64_t next) {
+  std::lock_guard lock(impl_->mutex);
+  if(impl_->closed || impl_->read_stream_restored || impl_->next || !impl_->live.empty() ||
+      !impl_->completed.empty() || !impl_->preparation.Empty() || next==UINT64_MAX)
+    return Error{Error::Code::invalid_argument,"read-stream recovery requires a fresh adapter"};
+  impl_->next=next;impl_->read_stream_restored=true;return Ack{};
 }
 Result<std::vector<SnapshotMetadata>> TableAdapter::Save(std::string id) {
   std::lock_guard lock(impl_->mutex);

@@ -62,6 +62,7 @@ class TableAdapter {
   Result<Ack> Release(std::uint64_t handle);
   Result<Ack> Join();
   Result<std::uint64_t> CompletedReadFrontier() const;
+  Result<Ack> RestoreReadFrontier(std::uint64_t next);
   // Called after the framework closes input and completes every Pull lifecycle.
   // A successful save leaves the services drained until restart or explicit resume.
   Result<std::vector<SnapshotMetadata>> Save(std::string snapshot_id);

@@ -41,6 +41,7 @@ assert hasattr(_eps_native.Backend,'submit_synchronous')
 assert hasattr(_eps_native.Backend,'lookup_layout_cache'), 'Runtime bundle predates reusable lookup metadata; rebuild from current source'
 assert hasattr(_eps_native.Backend,'lookup_transport_stats')
 assert hasattr(_eps_native.Backend,'training_retry_count'), 'Runtime bundle predates replicated training retries'
+assert hasattr(_eps_native.Backend,'restore_read_frontier'), 'Runtime bundle predates durable worker recovery'
 binary=root/'portable-runtime/bin'
 for p in binary.iterdir():
     text=subprocess.check_output(['ldd',str(p)],text=True)

@@ -273,6 +273,8 @@ class Backend {
     retry_count_+=Take(SubmitGradientGroup(group,packets,std::chrono::milliseconds(retry_ms_))).retries;
   }
   std::uint64_t TrainingRetryCount()const{return retry_count_.load();}
+  std::uint64_t ReadFrontier(){return Take(adapter_->CompletedReadFrontier());}
+  void RestoreReadFrontier(std::uint64_t next){Take(adapter_->RestoreReadFrontier(next));}
   void AbortTraining(std::string reason) {
     py::gil_scoped_release release;
     std::vector<std::future<Result<Ack>>> pending;
@@ -307,6 +309,7 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
     .def("configure_training",&Backend::ConfigureTraining,py::arg("coordinator"),py::arg("retry_ms")=0)
     .def("training_retry_count",&Backend::TrainingRetryCount)
+    .def("completed_read_frontier",&Backend::ReadFrontier).def("restore_read_frontier",&Backend::RestoreReadFrontier)
     .def("begin_training",&Backend::BeginTraining).def("complete_training",&Backend::CompleteTraining)
     .def("submit_synchronous",&Backend::SubmitSynchronous).def("abort_training",&Backend::AbortTraining)
     .def("cache_endpoints",&Backend::Cache,py::arg("agents"),py::arg("coalesce")=false);

@@ -37,6 +37,16 @@ int main(){
     auto eval=Take(adapter.Pull(features,true));Take(adapter.Release(eval.handle));Take(adapter.Release(eval.handle));
     Check(std::holds_alternative<Error>(adapter.Push(eval.handle,gradients)),"Push after Release succeeded");
     Take(adapter.Join());
+    Check(std::holds_alternative<Error>(adapter.RestoreReadFrontier(5)),"active adapter accepted stream reset");
+    RuntimeOptions restored_options;restored_options.run_id="restored-read";
+    auto restored_shard=std::make_shared<CpuParameterService>(restored_options);
+    Take(restored_shard->InitializeRequestFrontiers({{0,50000}}));
+    entropy::TableAdapter restored({"restored-read",0,1,2,4},{restored_shard});
+    Take(restored.CreateTable({1,2,1,1,{.01f,.9f,.999f,1e-8f,.9f,.999f},.25f,.25f,42}));
+    Take(restored.RestoreReadFrontier(50000));
+    auto continued=Take(restored.Pull(features,true));Check(continued.handle==50000,"restored stream restarted at zero");
+    Take(restored.Release(continued.handle));Check(Take(restored.CompletedReadFrontier())==50001,"restored stream failed to continue");
+    Check(std::holds_alternative<Error>(restored.RestoreReadFrontier(50001)),"stream reset accepted twice");
     std::cout<<"PASS embedding adapter padding, mean/sequence gradients, completion and replay\n";
     return 0;
   }catch(const std::exception& e){std::cerr<<"FAIL adapter: "<<e.what()<<'\n';return 1;}

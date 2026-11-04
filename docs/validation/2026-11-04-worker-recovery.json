@@ -1,0 +1,348 @@
+{
+  "base_commit": "cdb9140b420a1a6333186ef8bc9719b9467c6607",
+  "recorded_at_utc": "2026-11-04T20:51:01.241252+00:00",
+  "scope": "Durable original worker gradients and same-run replica-backed job recovery after worker/coordinator process loss",
+  "platform": "macOS arm64; CPU model and parameter ownership; retained local worker/replica storage",
+  "workload": {
+    "workers": 2,
+    "shards": 2,
+    "rows": 64,
+    "dimension": 8,
+    "rounds": 8,
+    "fault_round": 3
+  },
+  "checks": {
+    "native-suite": {
+      "passed": 39,
+      "failed": 0
+    },
+    "framework-suite": {
+      "passed": 61,
+      "failed": 0
+    },
+    "final-recovery": {
+      "passed": 2,
+      "failed": 0
+    },
+    "asan-ubsan": {
+      "passed": 2,
+      "failed": 0
+    },
+    "tsan": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "syntax_checks": {
+    "python": "passed",
+    "installer_shell": "passed",
+    "git_diff": "passed"
+  },
+  "results": {
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "cleanup_verified": true
+  },
+  "old_worker_process_groups_checked": 6,
+  "active_old_worker_process_groups": [],
+  "cases": [
+    {
+      "mode": "baseline",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_replayed_iterations": [
+        [],
+        []
+      ]
+    },
+    {
+      "mode": "after_pull",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_replayed_iterations": [
+        [],
+        [
+          3
+        ]
+      ],
+      "recovered_next_round": 3,
+      "replayed_rounds": [],
+      "negative_cases": [
+        {
+          "case": "changed_input",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 36, in recover\n    journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/adapters/entropy/training_journal.py\", line 59, in __init__\n    raise ValueError('worker journal model/input/run identity mismatch')\nValueError: worker journal model/input/run identity mismatch"
+        },
+        {
+          "case": "end_before_durable_round",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 83, in recover\n    raise ValueError('recovery round exceeds requested training end')\nValueError: recovery round exceeds requested training end"
+        },
+        {
+          "case": "unreconciled_gpu_owner",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 45, in recover\n    raise ValueError('GPU parameter-owner recovery requires fencing and rehydration before job recovery')\nValueError: GPU parameter-owner recovery requires fencing and rehydration before job recovery"
+        },
+        {
+          "case": "live_worker_journal_lock",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 36, in recover\n    journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/adapters/entropy/training_journal.py\", line 45, in __init__\n    fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)\nBlockingIOError: [Errno 35] Resource temporarily unavailable"
+        }
+      ],
+      "idempotent_reconcile_verified": true,
+      "pre_fault_completed": [
+        3,
+        3
+      ],
+      "pre_fault_shards": [
+        {
+          "live_tickets": 1,
+          "rows": 32,
+          "synchronous": {
+            "applying": false,
+            "duplicate_submissions": 0,
+            "failed": false,
+            "next_round": 3,
+            "paused": false,
+            "received_workers": 1,
+            "retained_bytes": 1263
+          },
+          "updates": 3
+        },
+        {
+          "live_tickets": 1,
+          "rows": 32,
+          "synchronous": {
+            "applying": false,
+            "duplicate_submissions": 0,
+            "failed": false,
+            "next_round": 3,
+            "paused": false,
+            "received_workers": 1,
+            "retained_bytes": 1263
+          },
+          "updates": 3
+        }
+      ]
+    },
+    {
+      "mode": "partial_round",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_replayed_iterations": [
+        [],
+        []
+      ],
+      "recovered_next_round": 4,
+      "replayed_rounds": [
+        3
+      ],
+      "negative_cases": [
+        {
+          "case": "changed_input",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 36, in recover\n    journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/adapters/entropy/training_journal.py\", line 59, in __init__\n    raise ValueError('worker journal model/input/run identity mismatch')\nValueError: worker journal model/input/run identity mismatch"
+        },
+        {
+          "case": "end_before_durable_round",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 83, in recover\n    raise ValueError('recovery round exceeds requested training end')\nValueError: recovery round exceeds requested training end"
+        },
+        {
+          "case": "unreconciled_gpu_owner",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 45, in recover\n    raise ValueError('GPU parameter-owner recovery requires fencing and rehydration before job recovery')\nValueError: GPU parameter-owner recovery requires fencing and rehydration before job recovery"
+        },
+        {
+          "case": "live_worker_journal_lock",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 36, in recover\n    journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/adapters/entropy/training_journal.py\", line 45, in __init__\n    fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)\nBlockingIOError: [Errno 35] Resource temporarily unavailable"
+        },
+        {
+          "case": "missing_partially_committed_gradient",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 87, in recover\n    raise ValueError('worker journal cannot cover durable shard rounds')\nValueError: worker journal cannot cover durable shard rounds"
+        }
+      ],
+      "idempotent_reconcile_verified": true,
+      "pre_fault_completed": [
+        3,
+        3
+      ],
+      "pre_fault_shards": [
+        {
+          "live_tickets": 0,
+          "rows": 32,
+          "synchronous": {
+            "applying": false,
+            "duplicate_submissions": 0,
+            "failed": false,
+            "next_round": 4,
+            "paused": false,
+            "received_workers": 0,
+            "retained_bytes": 0
+          },
+          "updates": 4
+        },
+        {
+          "live_tickets": 0,
+          "rows": 32,
+          "synchronous": {
+            "applying": true,
+            "duplicate_submissions": 0,
+            "failed": false,
+            "next_round": 3,
+            "paused": false,
+            "received_workers": 2,
+            "retained_bytes": 2798
+          },
+          "updates": 4
+        }
+      ]
+    },
+    {
+      "mode": "after_update",
+      "completed": [
+        8,
+        8
+      ],
+      "compared_rows": 64,
+      "worker_replayed_iterations": [
+        [],
+        []
+      ],
+      "recovered_next_round": 4,
+      "replayed_rounds": [],
+      "negative_cases": [
+        {
+          "case": "changed_input",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 36, in recover\n    journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/adapters/entropy/training_journal.py\", line 59, in __init__\n    raise ValueError('worker journal model/input/run identity mismatch')\nValueError: worker journal model/input/run identity mismatch"
+        },
+        {
+          "case": "end_before_durable_round",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 83, in recover\n    raise ValueError('recovery round exceeds requested training end')\nValueError: recovery round exceeds requested training end"
+        },
+        {
+          "case": "unreconciled_gpu_owner",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 45, in recover\n    raise ValueError('GPU parameter-owner recovery requires fencing and rehydration before job recovery')\nValueError: GPU parameter-owner recovery requires fencing and rehydration before job recovery"
+        },
+        {
+          "case": "live_worker_journal_lock",
+          "reason": "Traceback (most recent call last):\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 179, in <module>\n    main()\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 163, in main\n    result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/scripts/recover_training.py\", line 36, in recover\n    journal = stack.enter_context(WorkerJournal(cfg['journal_directory'], identity(cfg),\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<home>/Desktop/\u79cb\u62db/project/SparseEmbeddingRuntime/adapters/entropy/training_journal.py\", line 45, in __init__\n    fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)\nBlockingIOError: [Errno 35] Resource temporarily unavailable"
+        }
+      ],
+      "idempotent_reconcile_verified": true,
+      "pre_fault_completed": [
+        3,
+        4
+      ],
+      "pre_fault_shards": [
+        {
+          "live_tickets": 0,
+          "rows": 32,
+          "synchronous": {
+            "applying": false,
+            "duplicate_submissions": 0,
+            "failed": false,
+            "next_round": 4,
+            "paused": false,
+            "received_workers": 0,
+            "retained_bytes": 0
+          },
+          "updates": 4
+        },
+        {
+          "live_tickets": 0,
+          "rows": 32,
+          "synchronous": {
+            "applying": false,
+            "duplicate_submissions": 0,
+            "failed": false,
+            "next_round": 4,
+            "paused": false,
+            "received_workers": 0,
+            "retained_bytes": 0
+          },
+          "updates": 4
+        }
+      ]
+    }
+  ],
+  "core_scope": "Read/task progress restored independently at sequence 50000; fresh-only recovery; modified adapter/controller under ASan/UBSan and TSan",
+  "coverage_note": "Complete suites followed by final recovery checks after GPU-owner admission rejection and completion-plan reporting",
+  "not_exercised": [
+    "GPU parameter-owner recovery (manager rejects until fenced/rehydrated)",
+    "Partially successful Pull/Release RPC loss",
+    "Multi-node worker-journal retrieval",
+    "Loss of worker or replica storage",
+    "Automatic endpoint discovery/process supervision",
+    "Stochastic reader/RNG restoration",
+    "Beyond-single-physical-GPU memory capacity",
+    "Complete original Entropy training execution"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "31203efb8204a3426613e4a96bfb0c7370daf0f4db4fdef14e7bdabac748e235",
+    "README.md": "5a4fc0ed04e4bb73ee5b64f230d53c292d96b6ca46e61949150a004e930bce0f",
+    "adapters/entropy/eps_backend.py": "54441e0971da277cd5250186596f59614160ebfc2bf464276e5fb8c9468a7515",
+    "adapters/entropy/eps_backend_worker.py": "20c31d19d6575fac28ea516259d51717db62f64b3051ca292599209bb54b4452",
+    "adapters/entropy/python_bindings.cpp": "012051afa715651b421b9052b69d03823ddf54f6e168c834af9454353fd8ce84",
+    "adapters/entropy/table_adapter.cpp": "5558a2c2a3a2ff5788d2bbb1f7e2e1562915591b357764549b772e7cc6f17dcb",
+    "adapters/entropy/training_journal.py": "3a516e6c2e6711451ac898937eb3d659400e0427ea0ec27607c25ab8c0d3ad18",
+    "docs/REPLICATED_TRAINING.md": "4d2a316b3f799238e25fae13ffd9e5ef8beca4f8558be4757cce0807fbdbe7de",
+    "docs/TRAINING_EXECUTION.md": "3e51c7f2329de30450efc416aa40d1bae9141ea4fc2807934db034b78ceef94b",
+    "docs/WORKER_RECOVERY.md": "cd087d7f1cad354659d78a66737613bcb710f63c601845609e4a6d89a1cf0ba4",
+    "docs/plans/2026-11-04-distributed-training-design.md": "e16ae1aca759ff20c5768eaa05825c14acd10a667cb8949a30dacb9616e5ce76",
+    "docs/plans/2026-11-04-worker-recovery.md": "efef29602f7962a9ff68b2d196bfd6a77e8bbce4eb27319a7dd8a20aa53ca119",
+    "examples/tensorflow_training_worker.py": "5db2e9019c5a4fe588da911ade9708449eae5b764e3ecf0c535159bcc446c676",
+    "include/eps/entropy_adapter.hpp": "38aa8133969755d52991023173dc9a11cb695fd351ba9d7367d6d8e4f901fb03",
+    "include/eps/training_progress.hpp": "599dd2d6c2ca89d16dfcb5e31c9dec21f5d8b4d32d92a14ddce79104b0cf9f9d",
+    "scripts/install_training_runtime.sh": "e566c24f8b94d4d9507e43a2b3633719382046271b3fa987b6623f209fc39ab1",
+    "scripts/recover_training.py": "55cef25fa69c76106682234e51f626a8025144aa0322ae7a951ada58c57e6b13",
+    "src/server/training_main.cpp": "e22f1a401500cbd3ab5f874d2e462a7cf588d8b959465717772afee129f2bc1d",
+    "src/training/training_progress.cpp": "0d98097a84fe0a6c5bd8a75261814dd84acd89c8e2a749237fa6519cfd2674f6",
+    "src/transport/brpc_training_server.cpp": "9137838d042f053c2137b537b1abee1ff9327d7b60c8d8d9042d374b4c4d3543",
+    "src/transport/brpc_training_server.hpp": "5dc575da838d39f85e5661c286283d19beeb982138fc2e6caed0321717497161",
+    "tests/adapter_tests.cpp": "ecd1c6ed7d633174d432d5686e164662d13f65b22802f47769219ecf50ceee1b",
+    "tests/tensorflow_worker_recovery.py": "734980f39ad7beaf9a818a4d1bdbd2cf9ce969947f5d18e79043a9e6de4050c1",
+    "tests/training_progress_tests.cpp": "29f053b3eefbebefc1234f422a523fc2897387999535c9472679df2e8e492984",
+    "tests/worker_journal_tests.py": "f7abd785568239e37180eb30a26b5a9d3af4d94208bf8d0bb430c6cf11572986"
+  },
+  "binary_sha256": {
+    "eps_server": "1edf715ff1a34de346d6f4ba381e9410414cc86a6cab35cac146ef1652e0f3ef",
+    "eps_replica": "8dfb24402ac67cb3f93a0296a12630d54167ee96374a550f90a33a15603ed211",
+    "eps_replica_control": "a67d0cb43d0447de83129b6a9302daabf2df12d89a4dd2dc6d7a030f62d276ee",
+    "eps_training_coordinator": "d745cbd2d6a64bbb4e06aac9f51562ca86193b9e501c0f8200a351326e6cee10",
+    "eps_training_control": "607e23dd19a4b401140c02c85bb0d9568343f2be1c909c38ebea998e7f559105",
+    "eps_adapter_tests": "3653b5095595aca821ecd7b6887b3b1929ce99086e42be16dde6bc35fc67db6d",
+    "eps_training_progress_tests": "595b9691bd4f262c8916e6f3d08cbd84f9291aaeb2a3a610ee22bee9229752eb"
+  },
+  "python_module_sha256": {
+    "_eps_native.cpython-311-darwin.so": "798840722e4b22638db70c48eedb656b1a1d179d409f6e2b638d5fbc0f1bb7eb"
+  },
+  "artifacts": {
+    "asan-ubsan.log": {
+      "path": "docs/validation/2026-11-04-worker-recovery/asan-ubsan.log",
+      "sha256": "0a5635cd9635923eb4baa09055b4ce0654e272408e5ce1adea56e55b2e12dd5f"
+    },
+    "final-recovery.log": {
+      "path": "docs/validation/2026-11-04-worker-recovery/final-recovery.log",
+      "sha256": "b1e6b6497adb9fd05fc9a48e9a28a3334409c2b1327bfd5991f5fd6053e9a3ba"
+    },
+    "framework-suite.log": {
+      "path": "docs/validation/2026-11-04-worker-recovery/framework-suite.log",
+      "sha256": "910961b8269d184364de33b9e3e6dc435d2d91be8b160920cf0e0dea97fb33ed"
+    },
+    "model-recovery.json.gz": {
+      "path": "docs/validation/2026-11-04-worker-recovery/model-recovery.json.gz",
+      "sha256": "b81301e622cdc78a81374e74d60eec276794fb02c75e898de5a054c73f669e61"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-worker-recovery/native-suite.log",
+      "sha256": "5025e9ce777f04d770d4faa75a5fe66bd51cc87a8c2d023abba86774177cc97e"
+    },
+    "tsan.log": {
+      "path": "docs/validation/2026-11-04-worker-recovery/tsan.log",
+      "sha256": "91936ba45f3b9af8fc73117710162c97b0041c8a5e8388a8bd72e1ff08b3468f"
+    }
+  }
+}

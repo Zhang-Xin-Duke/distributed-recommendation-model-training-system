@@ -1,0 +1,9 @@
+Test project <project>/build/tensorflow
+    Start 31: durable_worker_gradients
+1/2 Test #31: durable_worker_gradients .........   Passed    0.07 sec
+    Start 32: tensorflow_worker_recovery
+2/2 Test #32: tensorflow_worker_recovery .......   Passed   40.83 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  40.91 sec

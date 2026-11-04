@@ -175,14 +175,14 @@ ctest --test-dir build/native -V \
 
 ## Work remaining for complete training acceptance
 
-1. Integrate RPC task progress with the original training executor and its joint
-   parameter/input checkpoint; add durable replay and worker replacement.
+1. Integrate RPC task progress and durable worker replay with the original
+   training executor and its joint parameter/input/RNG checkpoint.
 2. Extend the verified [TensorFlow GPU model path](TENSORFLOW_SHARDED_TRAINING.md)
    across GPU instances and execute the beyond-single-GPU capacity workload.
    Reuse repeated key-list metadata with bounded, epoch-checked handles.
-3. Extend [replicated synchronous rounds](REPLICATED_TRAINING.md) to failure during
-   outstanding Pull/Release, worker/coordinator replacement and GPU-owner fencing.
-   Add endpoint discovery and supervision around the verified explicit promotion.
+3. Extend [worker/coordinator recovery](WORKER_RECOVERY.md) to partial Pull/Release
+   RPC failures, GPU-owner fencing and multi-node journal retrieval. Add endpoint
+   discovery and supervision around the verified explicit promotion/restart.
 4. Complete the original Entropy build and training/control path with the
    [public Redis SDK adapter](PUBLIC_REDIS_SDK.md), in its Linux/NVIDIA environment.
 5. Compare time to the same quality target under controlled stragglers,
@@ -212,3 +212,15 @@ old role's next update. Directory locks reject concurrent standby writers on the
 same storage. Native 38/38 and framework 58/58 checks pass; the core log passes
 ASan/UBSan and TSan. This record uses CPU ownership with the original workers and
 coordinator alive. [Protocol and evidence](REPLICATED_TRAINING.md).
+
+## Durable worker and coordinator restart
+
+Workers now journal original gradients and matching input/read progress before
+submission. The recovery manager locks those journals, verifies durable replica
+frontiers, rolls forward a partially committed round and emits matching paused
+coordinator/worker restart configurations. The real CPU model process test
+covers an abandoned Pull ticket, partial shard commit and lost task completion.
+All 64 parameter/Adam rows and all eight rounds of losses match uninterrupted
+training exactly. Native 39/39 and framework 61/61 checks pass; final recovery
+checks also verify rejected inputs and idempotent reconciliation.
+[Workflow and evidence](WORKER_RECOVERY.md).

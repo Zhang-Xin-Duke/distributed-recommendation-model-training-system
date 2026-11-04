@@ -105,12 +105,29 @@ def main():
 
     backend = Backend(config["shards"], config["run"], config["worker"], config.get("epoch", 1))
     losses, observed_devices, first_gradients, times = [], {}, None, []
+    journal, replayed = None, []
+    def test_gate(stage, iteration):
+        gate=config.get("test_pause",{})
+        if gate.get("stage")==stage and gate.get("iteration")==iteration:
+            path=pathlib.Path(gate["path"])
+            pathlib.Path(str(path)+'.waiting').write_text(json.dumps(dict(
+                stage=stage,iteration=iteration,pid=os.getpid(),native_pid=backend._process.pid)))
+            deadline=time.monotonic()+30
+            while not path.exists():
+                if time.monotonic()>deadline:raise RuntimeError('test pause expired')
+                time.sleep(.02)
     try:
+        if config.get("journal_directory"):
+            from training_journal import WorkerJournal, identity
+            journal=WorkerJournal(config['journal_directory'],identity(config),
+                                  config.get('journal_record_bytes',32<<20),config.get('journal_disk_bytes',1<<30))
         backend.lookup_layout_cache(config.get("reuse_lookup_layouts", True))
         backend.create_table(json.dumps(config["table"]))
         if config.get("agents"):
             backend.cache_endpoints([(a["id"], a["endpoint"]) for a in config["agents"]], True)
         backend.configure_training(config["coordinator"],config.get("gradient_retry_ms",0))
+        if 'read_sequence' in config:
+            backend.restore_read_frontier(config['read_sequence'])
         batch_sizes = []
         for iteration in range(start_iteration, start_iteration + iterations):
             samples, features, unique_keys, inverse, segment_ids, labels = prepared[iteration % len(prepared)]
@@ -118,27 +135,39 @@ def main():
             floor = backend.begin_training(iteration)
             if floor > iteration:
                 raise RuntimeError("training permit floor exceeds current iteration")
-            handle, arrays = backend.pull(features, True)
-            backend.release(handle)
-            with tf.device(device):
-                embedding = tf.convert_to_tensor(arrays[0], dtype=tf.float32)
-                dense = tf.convert_to_tensor(arrays[1], dtype=tf.float32)
-                loss, logits, g_embedding, g_dense = forward_backward(embedding, dense, segment_ids, labels)
-            observed_devices = {"embedding": embedding.device, "packed_mlp": dense.device,
+            saved=journal.get(iteration) if journal else None
+            if saved:
+                if saved['sample_count']!=len(samples) or saved['completed_reads']!=backend.completed_read_frontier():
+                    raise ValueError('retained gradient sample/read cursor mismatch')
+                value=saved['loss'];tables=saved['tables'];replayed.append(iteration)
+                unique_keys,values=tables[0]['keys'],tables[0]['values']
+            else:
+                handle, arrays = backend.pull(features, True)
+                test_gate('after_pull',iteration)
+                backend.release(handle)
+                with tf.device(device):
+                    embedding = tf.convert_to_tensor(arrays[0], dtype=tf.float32)
+                    dense = tf.convert_to_tensor(arrays[1], dtype=tf.float32)
+                    loss, logits, g_embedding, g_dense = forward_backward(embedding, dense, segment_ids, labels)
+                observed_devices = {"embedding": embedding.device, "packed_mlp": dense.device,
                                 "loss": loss.device, "embedding_gradient": g_embedding.device,
                                 "mlp_gradient": g_dense.device}
-            if gpu and not all("GPU:" in d.upper() for d in observed_devices.values()):
-                raise RuntimeError("model computation fell back from the requested GPU")
-            value = float(loss.numpy())
-            gradients = np.concatenate((g_embedding.numpy(), g_dense.numpy()), axis=0)
-            values = np.zeros((len(unique_keys), dimension), dtype=np.float32)
-            np.add.at(values, inverse, gradients)
-            if not np.isfinite(value) or not np.isfinite(values).all() or not np.isfinite(logits.numpy()).all():
-                raise RuntimeError("non-finite model output or gradient")
+                if gpu and not all("GPU:" in d.upper() for d in observed_devices.values()):
+                    raise RuntimeError("model computation fell back from the requested GPU")
+                value = float(loss.numpy())
+                gradients = np.concatenate((g_embedding.numpy(), g_dense.numpy()), axis=0)
+                values = np.zeros((len(unique_keys), dimension), dtype=np.float32)
+                np.add.at(values, inverse, gradients)
+                if not np.isfinite(value) or not np.isfinite(values).all() or not np.isfinite(logits.numpy()).all():
+                    raise RuntimeError("non-finite model output or gradient")
+                tables=[dict(table=1,keys=unique_keys,values=values)]
+                if journal:
+                    journal.put(iteration,len(samples),backend.completed_read_frontier(),value,tables)
+            test_gate('after_journal',iteration)
             if iteration == start_iteration and config.get("record_gradients", False):
                 first_gradients = {"keys": unique_keys.tolist(), "values": values.tolist()}
-            backend.submit_synchronous(iteration, len(samples),
-                                       [dict(table=1, keys=unique_keys, values=values)])
+            backend.submit_synchronous(iteration, len(samples),tables)
+            test_gate('after_update',iteration)
             backend.complete_training(iteration)
             batch_sizes.append(len(samples))
             losses.append(value)
@@ -155,6 +184,7 @@ def main():
                           "tensorflow_device_memory": memory,
                           "lookup_transport": backend.lookup_transport_stats(),
                           "gradient_retry_count": backend.training_retry_count(),
+                          "replayed_iterations": replayed,
                           "parameter_stats": backend.stats()}, sort_keys=True))
     except Exception as error:
         try:
@@ -164,6 +194,7 @@ def main():
         raise
     finally:
         backend.close()
+        if journal:journal.close()
 
 
 if __name__ == "__main__":

@@ -60,6 +60,12 @@ Two CPU model-training fault cases cover a lost commit acknowledgement and an
 unpublished update, with zero final state/loss difference from uninterrupted
 training. Outstanding-read and GPU-owner recovery remain in the execution plan.
 
+[Worker/coordinator recovery](docs/WORKER_RECOVERY.md) journals original gradients
+before submission, rolls a partially committed round forward and reconstructs
+task clocks and input positions. CPU model checks restart actual process groups
+after an abandoned read, a partial commit and a lost task completion, preserving
+all parameters, Adam state and per-round loss.
+
 [Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
 owner and model worker on each node, initializes local backing/resident rows,
 samples resources and verifies round completion and process cleanup. Its local

@@ -45,8 +45,9 @@ have explicit original-native environment substitutions.
 Task-clock policies now run through an independent RPC coordinator, with actual
 worker processes computing sparse gradients against network parameter shards.
 Replica-before-ack and explicit primary replacement now execute for synchronous
-rounds with retained worker gradients and CPU-owned state. Outstanding reads,
-worker/coordinator replacement, live GPU-owner fencing and a measured
+rounds with retained worker gradients and CPU-owned state. Durable worker logs
+now support CPU job restart after worker/coordinator loss and abandoned read
+tickets. Partial Pull/Release RPC failures, live GPU-owner fencing and a measured
 common-quality comparison across training consistency policies remain open.
 Full original Entropy execution also remains open.
 
@@ -193,8 +194,8 @@ the durable log. The record is
 `../validation/2026-11-04-replicated-training.json`.
 
 The next failure work retains the same training framework and extends recovery
-across outstanding Pull/Release, worker/coordinator process loss and competing
-GPU owners. Automatic discovery/supervision, bounded log compaction,
+across partial Pull/Release RPC failures and competing GPU owners. Automatic
+discovery/supervision, multi-node journal retrieval, bounded log compaction,
 gradient-Key metadata reuse, same-quality policy measurements, GPU capacity
 execution and complete original Entropy integration remain in the full scope.
 
@@ -208,3 +209,15 @@ is unchanged. The original native dependency query completes with 39,343 labels.
 Build analysis reaches the original CUDA environment requirement on macOS, so
 original compilation/execution continues in the matching Linux/NVIDIA environment.
 The record is `../validation/2026-11-04-public-redis-sdk.json`.
+
+[Durable worker recovery](../WORKER_RECOVERY.md) persists original sparse
+gradients, sample count, completed-read frontier and loss before any shard
+submission. The manager reconciles partially committed shard rounds using those
+packets, reconstructs a paused sequential coordinator and restores worker input
+and transport cursors. Fresh worker/coordinator/primary processes recover the
+same run after live-read, partial-commit and lost-task-completion faults. The
+two-worker/two-shard CPU test matches every one of 64 parameter/Adam rows and all
+per-round losses exactly. Negative inputs preserve durable frontiers; repeated
+reconciliation does not reapply an update. Native 39/39 and framework 61/61
+checks pass; modified adapter/progress checks pass ASan/UBSan and TSan.
+The record is `../validation/2026-11-04-worker-recovery.json`.
