@@ -113,5 +113,22 @@ and runtime execution are still open.
 
 [Relocation and source-input audit](validation/2026-11-04-original-native-bundle.json).
 
+## Matching Python runtime rebuild inputs
+
+The recovered collection also contains the NVIDIA TensorFlow 2.12.1 source
+archive and the corresponding builder inputs. The archive is extracted into a
+private working directory, and all **13 framework patches** apply successfully.
+All **nine dependency patches** also apply to **12 materialized dependency
+overrides**. The OpenSSL override uses the already recovered local SDK instead
+of the initializer's remote fetch. The Snappy and zlib directory layouts are
+reproduced with local file moves after reviewing their small initializer scripts.
+
+The builder records Clang 18, LLD 18 and CPython 3.10. Dependency archives and
+patch inputs are retained privately for the Linux rebuild; the original builder
+initializer is not executed. The matching Python wheel still needs compilation
+and loading before it can supply the original framework's runtime.
+
+[Source and dependency preparation](validation/2026-11-04-original-tensorflow-source.json).
+
 [Redis adapter verification and build analysis](validation/2026-11-04-public-redis-sdk.json) ·
 [Earlier build-input inventory](validation/2026-11-01-native-build-preflight.json)

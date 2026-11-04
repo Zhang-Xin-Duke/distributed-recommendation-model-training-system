@@ -1,0 +1,142 @@
+{
+  "recorded_at_utc": "2026-11-04T23:55:53.478975+00:00",
+  "scope": "Recovered NVIDIA TensorFlow2.12.1 source, original patch sequence and local dependency materialization for native training runtime rebuild",
+  "source_archive_sha256": "d66ba85aaeb3183103abcff3d7874b0c85201bfb422f250683c970fbe6226b75",
+  "source_archive_bytes": 69911710,
+  "framework_patches": [
+    {
+      "name": "tensorflow-001-dependencies.patch",
+      "sha256": "b5234409bb608120794da19aca4011ff1cd1262011daa5cd786d78175775e33e",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-002-clang.patch",
+      "sha256": "08cf58bebe92540d54cb24113f8a3292cae419f3a43cd1980ad678f846ba02a4",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-003-build.patch",
+      "sha256": "3b808af796328f4ef80b6189179c0fe142a6a1263e37ea7944d64c4e5713e246",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-004-logging.patch",
+      "sha256": "f6d70e0adfeba2c2cc94c837260148e2059408df076b32c1df8be3aa545e0640",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-005-profiling.patch",
+      "sha256": "e13c3bf50a17d3a76d9f8e52eb35f8afd94aec205ebc72821c461721ba8f93aa",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-006-update.patch",
+      "sha256": "e1f9f96f178f6a7e0625a981bccef7baf0736b3b6a5619f8f7c2964642554cd5",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-007-lld.patch",
+      "sha256": "a5cc5678522a5069265a1f0df9b7cea82303bd43d1cf24c42502aae78ccdbd95",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-008-nccl.patch",
+      "sha256": "66418652c997f09752141fa9a74d903d3b8138247c6dec156a6b670456371e7b",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-009-json.patch",
+      "sha256": "c29a9686ae65cef7e0ee9beb5f09ee0088bcf54617c39c732893448bc3d82c34",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-010-linking.patch",
+      "sha256": "f7b46fe4e1cfac1b5f50f7e717f270e29a5f6c8321c24721d4b09b67313f6516",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-011-stability.patch",
+      "sha256": "71a0d8bf7440aeb814f8b3651a3560f5029a8e5e81a0071d3ce72ada1eed6c69",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-012-openssl.patch",
+      "sha256": "0c36af63580ead14cd55dee3926d31760ff5e789b1b5e49feb82e98bd8035a22",
+      "exit_code": 0
+    },
+    {
+      "name": "tensorflow-013-matmul.patch",
+      "sha256": "8329ee8fc9d27b5ed860a32a55df64af3fe364b828d1cecccb2d244401d6fa3d",
+      "exit_code": 0
+    }
+  ],
+  "framework_patch_count": 13,
+  "dependency_override_count": 12,
+  "dependency_patches": [
+    {
+      "name": "c-ares-1.18.1",
+      "sha256": "f0d5a4c3b46dc412f82557f0161d375d97a99cb17905de307b30eaed36256662",
+      "exit_code": 0
+    },
+    {
+      "name": "crc32c-1.1.2",
+      "sha256": "cc0bdc5c7ff9542e559f1bd8da4eb43083b3a36cc707f8e6f55d96573a5f6db8",
+      "exit_code": 0
+    },
+    {
+      "name": "cudnn-frontend-0.8.0-nvidia",
+      "sha256": "31293b4c7f0faac3eb6a26899579d234ed8286398af66e70b56fc4e0b04920c8",
+      "exit_code": 0
+    },
+    {
+      "name": "curl-8.5.0",
+      "sha256": "961f3a38d1fae93346ba91a39041ffd121c7a40b52e462629e5e2a28a0d198fb",
+      "exit_code": 0
+    },
+    {
+      "name": "grpc-1.46.3",
+      "sha256": "8c125710345b1fa09acb9afb00043be7229caffaa7e8b453d4d0e01bddc97f6b",
+      "exit_code": 0
+    },
+    {
+      "name": "jsoncpp-1.9.5",
+      "sha256": "6ad6127778b37a209c9a6ef351398f89850cd1c9e4f0915fb1717af5be0b2f7b",
+      "exit_code": 0
+    },
+    {
+      "name": "snappy-1.2.1",
+      "sha256": "4204be0696ca43cad6fab86b9cbfe802b33ed8bcf7ba9ca56a0668d6297cf8f6",
+      "exit_code": 0
+    },
+    {
+      "name": "zlib-1.3.1",
+      "sha256": "7dc9304a6a2e48a60f257f015365c770f5b5a53246f4747fc97f92bf9174dbd7",
+      "exit_code": 0
+    },
+    {
+      "name": "openssl-3.0.18-bili",
+      "sha256": "1cd29eaa0534da21a6022f98e4d5e3704929c58d4039d92994311256a35dc2d7",
+      "exit_code": 0
+    }
+  ],
+  "dependency_layouts": [
+    {
+      "name": "snappy-1.2.1",
+      "moved_files": 20,
+      "initializer_sha256": "7a0577869516698912365a82d576cc340e9a68c08f66b4a84207151f4370338e",
+      "original_shell_not_executed": true
+    },
+    {
+      "name": "zlib-1.3.1",
+      "moved_files": 25,
+      "initializer_sha256": "c9f3a29b559304b6c0ce8b0639249d73343c03ab9db1ee0ed9049d9ae6cba6a9",
+      "original_shell_not_executed": true
+    }
+  ],
+  "openssl_source": "Recovered local SDK headers and compiled libraries; original remote fetch was not run",
+  "original_initializer_executed": false,
+  "python_wheel_built": false,
+  "native_library_compiled": false,
+  "original_training_control_completed": false,
+  "gpu_instances_created": 0
+}
