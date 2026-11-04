@@ -427,6 +427,21 @@ if(EPS_BUILD_BRPC)
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/role_node_tests.py"
             "${CMAKE_CURRENT_BINARY_DIR}/managed-role-processes.json")
         set_tests_properties(managed_role_processes PROPERTIES TIMEOUT 120)
+        add_test(NAME worker_gradient_replica
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/gradient_replica_tests.py"
+            "${CMAKE_CURRENT_BINARY_DIR}/gradient-replica-unit.json")
+        set_tests_properties(worker_gradient_replica PROPERTIES TIMEOUT 120)
+        add_test(NAME tensorflow_gradient_replica_failure
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_gradient_replica_failure.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/gradient-replica-failure.json")
+        set_tests_properties(tensorflow_gradient_replica_failure PROPERTIES TIMEOUT 120
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME managed_gradient_replicas
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/managed_training_recovery.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --gradient-replicas
+            --out "${CMAKE_CURRENT_BINARY_DIR}/gradient-replicas-model.json")
+        set_tests_properties(managed_gradient_replicas PROPERTIES TIMEOUT 480
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME managed_training_recovery
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/managed_training_recovery.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/managed-recovery-model.json")

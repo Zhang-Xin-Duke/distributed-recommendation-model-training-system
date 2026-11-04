@@ -116,3 +116,9 @@ overall project acceptance.
 [Validation record](validation/2026-11-04-replica-owner-recovery.json) includes the
 full model trajectories, role/owner preparation records, source/binary hashes
 and regression logs.
+
+Follow-up [cross-node gradient-replica validation](WORKER_GRADIENT_REPLICAS.md)
+executes owner rehydration and model continuation across two distinct A6000
+GPU instances. Both worker-local journals are removed; remote originals supply
+partial-round reconciliation. Complete 64-row state and every loss match
+uninterrupted GPU training exactly.

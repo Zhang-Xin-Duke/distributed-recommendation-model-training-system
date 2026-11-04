@@ -269,3 +269,24 @@ without creating a rental. Prepared source and architecture-matched runtime
 bundles are retained privately. Actual cross-host execution, full node/storage
 loss, original Entropy integration, compaction, gradient metadata reuse and
 common-quality/scaling characterization remain in the overall scope.
+
+## Durable original-gradient replicas
+
+Workers now persist exact gradient records to opposite-node TCP replica services
+before Submit. Bounded chunk/commit publication, durable duplicate acknowledgement
+and writer generations preserve original records through interruption. Managed
+recovery can delete both former worker-local journals, retrieve remote originals,
+seed fresh worker/replica stores and continue the same input and updates.
+
+The local framework suite passes 72/72. Two actual A6000 instances execute all
+three recovery faults with GPU model computation and CUDA parameter owners. All
+64 complete parameter/Adam rows and every loss match uninterrupted GPU training
+exactly; maximum state/loss differences from the CPU reference are 2.98e-8 /
+5.96e-8. Replica histories finish at round 8, and manager reentry after staging
+passes. Both instances and all 75 recorded remote process groups are cleaned up.
+The record is `../validation/2026-11-04-worker-gradient-replicas.json`.
+
+Next acceptance priorities retain complete original Entropy native build/load/
+training/control execution, physical-node loss with surviving authority and
+replacement placement/routing, bounded replica/journal compaction, gradient-Key
+metadata reuse and common-quality/scaling characterization.

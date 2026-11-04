@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import pathlib
+import shutil
 import socket
 import sys
 import tempfile
@@ -19,7 +20,7 @@ def endpoint():
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--build',type=pathlib.Path,required=True);p.add_argument('--out',type=pathlib.Path,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--build',type=pathlib.Path,required=True);p.add_argument('--out',type=pathlib.Path,required=True);p.add_argument('--gradient-replicas',action='store_true');a=p.parse_args()
     build=a.build.resolve();reports=[]
     with tempfile.TemporaryDirectory(prefix='eps-managed-recovery-') as tmp, TCPRoutes() as routes:
         root=pathlib.Path(tmp)
@@ -29,18 +30,35 @@ def main():
             for h in range(2):
                 nodes.append(dict(local=True,root=str(root/f'{mode}-node-{h}'),source=str(ROOT),python=sys.executable,bin_dir=str(build),module_dir=str(build/'python'),gpu=False,shards=[s if j==h else routes.route(s) for j,s in enumerate(shards)],agents=[dict(a,endpoint=a['endpoint'] if j==h else routes.route(a['endpoint'])) for j,a in enumerate(agents)],replicas=[r if j!=h else routes.route(r) for j,r in enumerate(replicas)],coordinator=coordinator if h==0 else routes.route(coordinator),ps_listen=shards[h],agent_listen=agents[h]['endpoint'],replica_listen=replicas[1-h],coordinator_listen=coordinator))
             manager=dict(bin_dir=str(build),module_dir=str(build/'python'),shards=[routes.route(s) for s in shards],agents=[dict(a,endpoint=routes.route(a['endpoint'])) for a in agents],replicas=[routes.route(r) for r in replicas],coordinator=routes.route(coordinator))
-            fleet=dict(nodes=nodes,manager=manager)
+            mirrors=a.gradient_replicas and mode!='baseline'
+            if mirrors:
+                listens=[endpoint(),endpoint()]
+                mirror_endpoints=[listens[1-w] for w in range(2)]
+                for h,n in enumerate(nodes):
+                    n.update(journal_mirror_listen=listens[h],journal_mirrors=[routes.route(e) for e in mirror_endpoints])
+                manager['journal_mirrors']=[routes.route(e) for e in mirror_endpoints]
+            fleet=dict(nodes=nodes,manager=manager,mirror_worker_journals=mirrors)
             try:
-                restarted=False
-                if mode=='after_update':
+                restarted=False;deleted=[]
+                if mode=='after_update' or mirrors:
                     class ManagerStopped(Exception):pass
                     def stop_manager(phase):
-                        if phase=='journals_staged':raise ManagerStopped()
+                        if mirrors and phase=='former_roles_stopped':
+                            for w,n in enumerate(nodes):
+                                directory=pathlib.Path(n['root'])/'results'/('managed-'+mode)/'roles'/f'worker-{w}-g0'/'journal'
+                                shutil.rmtree(directory);deleted.append(w)
+                        if mode=='after_update' and phase=='journals_staged':raise ManagerStopped()
                     try:execute(fleet,'managed-'+mode,root/(mode+'-manager'),mode,on_checkpoint=stop_manager)
                     except ManagerStopped:restarted=True
-                    else:raise AssertionError('manager checkpoint interruption not reached')
+                    else:
+                        if mode=='after_update':raise AssertionError('manager checkpoint interruption not reached')
                 result=execute(fleet,'managed-'+mode,root/(mode+'-manager'),None if mode=='baseline' else mode)
                 result['manager_reentry_after_stage_verified']=restarted
+                result['worker_local_journals_deleted']=deleted
+                if mirrors:
+                    assert deleted==[0,1]
+                    assert all(x['from_gradient_replica'] for x in result['steps']['journals_fetched'])
+                    assert all(x['next_round']==8 for x in result['model']['gradient_replicas'])
                 assert result['recovered']==(mode!='baseline')
                 if mode!='baseline':assert result['steps']['observation']['reason']=='observed_role_failure'
                 assert all(x['owned_processes_gone'] for x in result['cleanup'])
@@ -55,9 +73,9 @@ def main():
                 from managed_roles import ManagedRoles
                 with ManagedRoles(nodes,'managed-'+mode) as cleanup:
                     for generation in [1,0]:
-                        for kind in ['worker','primary','owner','coordinator','replica']:
+                        for kind in ['worker','primary','owner','coordinator','replica',*(['journal-mirror'] if mirrors else [])]:
                             for h in ([None] if kind=='coordinator' else range(2)):
-                                index=0 if h is None else 1-h if kind=='replica' else h
+                                index=0 if h is None else 1-h if kind in ['replica','journal-mirror'] else h
                                 role=f'coordinator-g{generation}' if h is None else f'{kind}-{h}-g{generation}'
                                 cleanup.stop(index,role)
                 raise
@@ -69,7 +87,7 @@ def main():
             for field in ['weights','first_moment','second_moment']:maximum=max(maximum,max(abs(a-b) for a,b in zip(row[field],want[field])))
         for actual,want in zip(got['loss_history'],reference['loss_history']):loss_error=max(loss_error,max(abs(a-b) for a,b in zip(actual,want)))
     assert maximum==0 and loss_error==0,(maximum,loss_error)
-    result=dict(test='managed_training_recovery',workers=2,parameter_shards=2,parameter_owners=2,replicas=2,physical_gpus=0,transport='persistent serialized local node processes; distinct real TCP aliases for worker and manager routes',rounds=8,rows=64,max_state_absolute_error=maximum,max_loss_absolute_error=loss_error,cleanup_verified=True,reports=reports)
+    result=dict(test='managed_gradient_replicas' if a.gradient_replicas else 'managed_training_recovery',workers=2,parameter_shards=2,parameter_owners=2,replicas=2,physical_gpus=0,gradient_replication=a.gradient_replicas,transport='persistent local node processes and real TCP aliases'+('; framed TCP gradient replication' if a.gradient_replicas else ''),rounds=8,rows=64,max_state_absolute_error=maximum,max_loss_absolute_error=loss_error,cleanup_verified=True,reports=reports)
     a.out.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k!='reports'}))
 
 

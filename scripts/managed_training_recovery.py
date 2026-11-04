@@ -30,7 +30,10 @@ from recover_training import recover
 
 def execute(fleet, run, out, fault=None, on_checkpoint=None):
     nodes=fleet['nodes'];manager=fleet['manager'];count=len(nodes)
+    mirror_enabled=fleet.get('mirror_worker_journals',False)
     if count!=2:raise ValueError('managed recovery currently requires two worker/shard nodes')
+    if mirror_enabled and (len(manager.get('journal_mirrors',[]))!=count or any(len(n.get('journal_mirrors',[]))!=count or not n.get('journal_mirror_listen') for n in nodes)):
+        raise ValueError('gradient replication requires node and manager journal routes')
     if not re.fullmatch(r'[a-z0-9_-]{1,64}',run):raise ValueError('invalid managed training run identity')
     out=pathlib.Path(out).resolve();out.mkdir(parents=True,exist_ok=True)
     sys.path.insert(0,manager['module_dir'])
@@ -114,7 +117,14 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
     for w,n in enumerate(nodes):
         cfg=dict(run=run,epoch=1,shards=n['shards'],coordinator=n['coordinator'],worker=w,dimension=dimension,hidden=hidden,iterations=rounds,batches=batches[w],table=table,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(n['agents'])],device='/GPU:0' if n.get('gpu') else '/CPU:0',journal_directory=str(path(w,f'worker-{w}-g0')/'journal'),journal_workers=count)
         if w==0 and fault in ['after_pull','after_update']:cfg['test_pause']=dict(stage=fault,iteration=target,path=str(path(w,'worker-0-g0')/'gate'))
+        if mirror_enabled:cfg['journal_mirror']=dict(endpoint=n['journal_mirrors'][w],generation=1,writer=f'worker-{w}-g0')
         workers.append(cfg)
+    def mirror_role(roles,worker,generation):
+        host=(worker+1)%count;name=f'journal-mirror-{worker}-g{generation}'
+        cfg=dict(listen=nodes[host]['journal_mirror_listen'],directory=str(path(host,name)/'store'),worker_config=workers[worker],generation=generation+1,writer=f'worker-{worker}-g{generation}')
+        roles.ensure(host,name,[nodes[host]['python'],str(pathlib.PurePath(nodes[host]['source'])/'scripts/journal_replica_server.py')],cfg)
+        roles.ready(host,name)
+        return dict(worker=worker,generation=generation+1,host=host)
     manager_node=dict(local=True,source=str(ROOT),python=sys.executable)
     with ManagedRoles(nodes,run) as roles:
         def inspect_hardware():
@@ -127,6 +137,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
         for generation in [0,1]:
             for h in range(count):
                 for kind,index in [('owner',h),('primary',h),('worker',h),('replica',(h+1)%count)]:roles.roles[f'{kind}-{h}-g{generation}']=index
+                if mirror_enabled:roles.roles[f'journal-mirror-{h}-g{generation}']=(h+1)%count
             roles.roles[f'coordinator-g{generation}']=0
         terminal=False
         try:
@@ -137,6 +148,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                 roles.ensure(0,'coordinator-g0',[binary(0,'eps_training_coordinator')],dict(schema_version=1,run=run,listen=nodes[0]['coordinator_listen'],workers=count,consistency='sequential',max_delay=0));roles.ready(0,'coordinator-g0')
                 return dict(ready=True)
             step('initial_roles',initial)
+            if mirror_enabled:step('initial_gradient_replicas',lambda:[mirror_role(roles,w,0) for w in range(count)])
             def start_workers(configs,generation):
                 for w,cfg in enumerate(configs):roles.ensure(w,f'worker-{w}-g{generation}',[nodes[w]['python'],str(pathlib.PurePath(nodes[w]['source'])/'examples/tensorflow_training_worker.py')],cfg,dict(CUDA_VISIBLE_DEVICES='0' if nodes[w].get('gpu') else ''))
                 return dict(started=True)
@@ -150,6 +162,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                     failed=any(s['state']=='exited' and s.get('result',{}).get('exit_code',1)!=0 for s in states)
                     failed|=any(not roles.status(h,f'{kind}-{h}-g0')['live_child'] for h in range(count) for kind in ['primary','owner'])
                     failed|=not roles.status(0,'coordinator-g0')['live_child']
+                    if mirror_enabled:failed|=any(not roles.status((w+1)%count,f'journal-mirror-{w}-g0')['live_child'] for w in range(count))
                     if failed:return dict(recovery=True,reason='observed_role_failure',injected_fault=fault if injected else None,pre_fault=injected)
                     if fault:
                         try:state=command('eps_training_control',dict(settings,keys=[]),'inspect')
@@ -171,10 +184,10 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
             if observed['recovery']:
                 def stop_generation():
                     report=[]
-                    for kind in ['worker','primary','owner','coordinator','replica']:
+                    for kind in ['worker','primary','owner','coordinator','replica',*(['journal-mirror'] if mirror_enabled else [])]:
                         homes=range(count) if kind!='coordinator' else [None]
                         for h in homes:
-                            index=0 if h is None else (h+1)%count if kind=='replica' else h
+                            index=0 if h is None else (h+1)%count if kind in ['replica','journal-mirror'] else h
                             role='coordinator-g0' if h is None else f'{kind}-{h}-g0'
                             result=roles.stop(index,role);report.append(dict(role=role,**result))
                     if not all(r['owned_processes_gone'] for r in report):raise RuntimeError('former role remains live')
@@ -183,7 +196,10 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                 def fetch():
                     result=[]
                     for w,cfg in enumerate(workers):
-                        record=transfer(cfg,nodes[w],manager_node,out/f'worker-{w}-journal','fetch-'+run)
+                        host=(w+1)%count if mirror_enabled else w
+                        source_cfg=dict(cfg,journal_directory=str(path(host,f'journal-mirror-{w}-g0')/'store')) if mirror_enabled else cfg
+                        record=transfer(source_cfg,nodes[host],manager_node,out/f'worker-{w}-journal','fetch-'+run)
+                        record['from_gradient_replica']=mirror_enabled
                         record['config']['shards']=manager['shards'];record['config']['coordinator']=manager['coordinator'];result.append(record)
                     return result
                 fetched=step('journals_fetched',fetch)
@@ -203,8 +219,13 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                     for w,cfg in enumerate(reconciled['workers']):
                         result=transfer(cfg,manager_node,nodes[w],str(path(w,f'worker-{w}-g1')/'journal'),'stage-'+run)
                         result['config'].update(shards=nodes[w]['shards'],coordinator=nodes[w]['coordinator'],agents=[dict(a,owner_run=owner_run(run,1,h,2,f'primary-{h}-g1')) for h,a in enumerate(nodes[w]['agents'])]);staged.append(result)
+                        if mirror_enabled:
+                            host=(w+1)%count
+                            result['gradient_replica_seed']=transfer(cfg,manager_node,nodes[host],str(path(host,f'journal-mirror-{w}-g1')/'store'),'stage-'+run)
+                            result['config']['journal_mirror']=dict(endpoint=nodes[w]['journal_mirrors'][w],generation=2,writer=f'worker-{w}-g1')
                     return staged
                 staged=step('journals_staged',stage)
+                if mirror_enabled:step('replacement_gradient_replicas',lambda:[mirror_role(roles,w,1) for w in range(count)])
                 def resume():
                     state=command('eps_training_control',dict(settings,keys=[]),'inspect')
                     if state['paused']:command('eps_training_control',settings,'resume')
@@ -224,9 +245,19 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                     with WorkerJournal(receipt['config']['journal_directory'],journal_identity(receipt['config'])) as journal:
                         if journal.rounds()!=list(range(rounds)):raise RuntimeError('completed worker journal has incomplete round history')
                         histories.append([journal.get(t)['loss'] for t in range(rounds)])
-                return dict(workers=outputs,state=final,loss_history=histories,final_journal_receipts=receipts)
+                mirror_states=[]
+                if mirror_enabled:
+                    from gradient_replica import ReplicaClient
+                    for w,receipt in enumerate(receipts):
+                        with WorkerJournal(receipt['config']['journal_directory'],journal_identity(receipt['config'])) as journal:
+                            peer=ReplicaClient(dict(endpoint=manager['journal_mirrors'][w],generation=generation+1,writer=f'worker-{w}-g{generation}'),journal)
+                            try:mirror_state=peer.call('status')
+                            finally:peer.close()
+                        if mirror_state['next_round']!=rounds or mirror_state['records']!=rounds:raise RuntimeError('gradient replica history did not complete')
+                        mirror_states.append(mirror_state)
+                return dict(workers=outputs,state=final,loss_history=histories,final_journal_receipts=receipts,gradient_replicas=mirror_states)
             final=step('final_model',finish);terminal=True
-            result=dict(run=run,fault=fault,recovered=observed['recovery'],generation=generation,model=final,steps=saved['steps'],hardware=hardware,workload=dict(rows=rows,dimension=dimension,rounds=rounds,hidden=hidden,inspected_rows=len(inspect_keys)))
+            result=dict(run=run,fault=fault,recovered=observed['recovery'],generation=generation,model=final,steps=saved['steps'],hardware=hardware,mirror_worker_journals=mirror_enabled,workload=dict(rows=rows,dimension=dimension,rounds=rounds,hidden=hidden,inspected_rows=len(inspect_keys)))
         finally:
             if terminal:
                 cleanup=roles.cleanup()

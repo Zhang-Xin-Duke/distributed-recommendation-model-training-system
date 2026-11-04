@@ -105,7 +105,7 @@ def main():
 
     backend = Backend(config["shards"], config["run"], config["worker"], config.get("epoch", 1))
     losses, observed_devices, first_gradients, times = [], {}, None, []
-    journal, replayed = None, []
+    journal, mirror, replayed = None, None, []
     read_retries=0
     read_retry_ms=int(config.get('read_retry_ms',2000))
     if not 0<=read_retry_ms<=10000:raise ValueError('read retry budget must be between 0 and 10000 milliseconds')
@@ -124,6 +124,10 @@ def main():
             from training_journal import WorkerJournal, identity
             journal=WorkerJournal(config['journal_directory'],identity(config),
                                   config.get('journal_record_bytes',32<<20),config.get('journal_disk_bytes',1<<30))
+        if config.get('journal_mirror'):
+            if journal is None:raise ValueError('gradient replication requires a local worker journal')
+            from gradient_replica import ReplicaClient
+            mirror=ReplicaClient(config['journal_mirror'],journal)
         backend.lookup_layout_cache(config.get("reuse_lookup_layouts", True))
         backend.create_table(json.dumps(config["table"]))
         if config.get("agents"):
@@ -176,6 +180,7 @@ def main():
                 tables=[dict(table=1,keys=unique_keys,values=values)]
                 if journal:
                     journal.put(iteration,len(samples),backend.completed_read_frontier(),value,tables)
+            if mirror:mirror.ensure(iteration)
             test_gate('after_journal',iteration)
             if iteration == start_iteration and config.get("record_gradients", False):
                 first_gradients = {"keys": unique_keys.tolist(), "values": values.tolist()}
@@ -199,6 +204,7 @@ def main():
                           "gradient_retry_count": backend.training_retry_count(),
                           "read_retry_count": read_retries,
                           "replayed_iterations": replayed,
+                          "gradient_replica": mirror.stats() if mirror else None,
                           "parameter_stats": backend.stats()}, sort_keys=True))
     except Exception as error:
         try:
@@ -207,6 +213,7 @@ def main():
             pass
         raise
     finally:
+        if mirror:mirror.close()
         backend.close()
         if journal:journal.close()
 

@@ -46,7 +46,7 @@ metadata, framework allocations and transfer staging are reported separately.
 
 ## Executed workload
 
-The model averages sparse Embedding lookups, then runs a two-layer MLP with an
+The model sums each example's Embedding vectors, then runs a two-layer MLP with an
 eight-unit hidden layer. Both workers use 16 examples and 16 IDs per example,
 for eight synchronous rounds. The controlled input is repeated across rounds.
 All 5,242,880 table rows are initialized and loaded before training begins;

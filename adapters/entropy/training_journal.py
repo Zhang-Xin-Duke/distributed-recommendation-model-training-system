@@ -88,8 +88,8 @@ class WorkerJournal:
         self.close()
 
     def _bytes(self):
-        control = {'handoff.epsh', 'handoff-receipt.json', '.transfer.json'}
-        return sum(p.stat().st_size for p in self.root.iterdir() if p.is_file() and p.name not in control)
+        control = {'handoff.epsh', 'handoff-receipt.json', '.transfer.json', 'mirror-owner.json', 'mirror-pending.json'}
+        return sum(p.stat().st_size for p in self.root.iterdir() if p.is_file() and p.name not in control and not p.name.startswith('.mirror-part-'))
 
     def _encode(self, header, payload):
         meta = canonical(header)
@@ -101,7 +101,11 @@ class WorkerJournal:
     def _read(self, path):
         if path.stat().st_size > self.record_bytes:
             raise ValueError('worker record exceeds budget')
-        data = path.read_bytes()
+        return self._decode(path.read_bytes())
+
+    def _decode(self, data):
+        if len(data) > self.record_bytes:
+            raise ValueError('worker record exceeds budget')
         if len(data) < 48 or data[:8] != MAGIC or hashlib.sha256(data[:-32]).digest() != data[-32:]:
             raise ValueError('worker record checksum/format mismatch')
         length, = struct.unpack('<Q', data[8:16])
@@ -147,6 +151,9 @@ class WorkerJournal:
         if not path.exists():
             return None
         header, payload = self._read(path)
+        return self._gradient(iteration, header, payload)
+
+    def _gradient(self, iteration, header, payload):
         if len(payload) > 16 << 20:
             raise ValueError('worker gradient exceeds submission budget')
         if header['kind'] != 'gradient' or header['identity_sha256'] != self.digest or header['iteration'] != iteration:
@@ -174,6 +181,20 @@ class WorkerJournal:
         if offset != len(payload):
             raise ValueError('worker gradient has trailing bytes')
         return dict(header, tables=tables)
+
+    def import_record(self, iteration, data):
+        """Publish the original validated binary record without re-encoding it."""
+        if (self.root / 'handoff.epsh').exists():
+            raise ValueError('sealed worker journal is immutable')
+        rounds = self.rounds()
+        next_round = rounds[-1] + 1 if rounds else self.identity['base_round']
+        if type(iteration) is not int or not self.identity['base_round'] <= iteration <= next_round:
+            raise ValueError('imported worker gradient round is not contiguous')
+        record = self._gradient(iteration, *self._decode(data))
+        if iteration == next_round and rounds and record['completed_reads'] <= self.get(rounds[-1])['completed_reads']:
+            raise ValueError('imported worker read progress is not monotonic')
+        self._publish(self.root / f'round-{iteration}.epsw', data)
+        return dict(iteration=iteration, sha256=hashlib.sha256(data).hexdigest(), durable=True)
 
     def put(self, iteration, sample_count, completed_reads, loss, tables):
         if (self.root / 'handoff.epsh').exists():

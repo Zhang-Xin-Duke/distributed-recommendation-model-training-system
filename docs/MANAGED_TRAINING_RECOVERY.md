@@ -5,7 +5,9 @@ coordinator and model workers through durable node role interfaces. It observes
 actual process identities, stops the former generation after a failure, restores
 parameters under new replica terms and continues the same model and input.
 Worker journals move between independent node directories through the existing
-sealed handoff protocol.
+sealed handoff protocol. Optional [gradient replicas](WORKER_GRADIENT_REPLICAS.md)
+retain original records before Submit and supply recovery after worker-local
+journal storage is lost.
 
 ```mermaid
 flowchart LR
@@ -145,9 +147,12 @@ ctest --test-dir build/tensorflow --output-on-failure \
 ```
 
 [Validation record](validation/2026-11-04-managed-training-recovery.json) retains
-the source/binary hashes and full model trajectories. Real cross-host CUDA fault
-execution is prepared; this phase's A6000 and L40 creation attempts were rejected
-for unavailable inventory and created no instance. Complete source-node/storage
-loss additionally requires redundant original-gradient storage. Original Entropy
-execution, log compaction, gradient metadata reuse and common-quality/scaling
-measurements remain in overall project acceptance.
+the source/binary hashes and full model trajectories. Follow-up
+[worker-gradient replica execution](WORKER_GRADIENT_REPLICAS.md) verifies real
+cross-node CUDA recovery on two A6000 instances: both local journals are deleted,
+all 64 parameter/Adam rows and losses match uninterrupted GPU training exactly,
+and manager reentry after journal staging passes. Both instances and their
+managed process groups are cleaned up. Complete physical-node loss additionally
+requires surviving parameter authority and replacement placement/routing.
+Original Entropy execution, log compaction, gradient metadata reuse and
+common-quality/scaling measurements remain in overall project acceptance.

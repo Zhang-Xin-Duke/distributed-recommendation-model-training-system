@@ -1,0 +1,17 @@
+{
+  "test": "worker_gradient_replica",
+  "success": true,
+  "checks": [
+    "exact_raw_import",
+    "immutable_import_retry",
+    "corruption_and_gap_rejected",
+    "lost_successful_commit_ack",
+    "old_generation_rejected",
+    "model_identity_rejected",
+    "restart_partial_staging",
+    "full_size_chunk_streaming",
+    "generation_bound_store_restart",
+    "restart_after_durable_publication_before_cleanup",
+    "delayed_old_writer_rejected_at_replacement"
+  ]
+}

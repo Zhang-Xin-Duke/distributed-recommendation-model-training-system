@@ -1,0 +1,396 @@
+{
+  "base_commit": "242d334e9d0a6125eaf30515ae85b3c20dd82c49",
+  "recorded_at_utc": "2026-11-04T23:36:45.660958+00:00",
+  "scope": "Pre-Submit fsync-backed original-gradient replication and recovery after deletion of both worker-local journals",
+  "checks": {
+    "framework_passed": 72,
+    "failed": 0
+  },
+  "workload": {
+    "workers": 2,
+    "parameter_shards": 2,
+    "owners": 2,
+    "rounds": 8,
+    "rows": 64,
+    "dimension": 8,
+    "hidden": 4
+  },
+  "cpu": {
+    "physical_gpus": 0,
+    "device": "CPU",
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0
+  },
+  "gpu": {
+    "physical_gpus": 2,
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "cpu_reference_max_state_absolute_error": 2.9802322387695312e-08,
+    "cpu_reference_max_loss_absolute_error": 5.960464477539063e-08,
+    "tolerance": 5e-05,
+    "cleanup_verified": true
+  },
+  "gpu_hardware": [
+    {
+      "gpu": {
+        "uuid": "GPU-0458e144-21d3-5575-8f97-f5475b0b1e5c",
+        "name": "NVIDIA RTX A6000",
+        "total_bytes": 51527024640,
+        "free_bytes": 51527024640
+      },
+      "host_available_bytes": 51338874880,
+      "cgroup_limit_bytes": 51539607552
+    },
+    {
+      "gpu": {
+        "uuid": "GPU-c3d6ae89-3974-5952-96ce-452f1c9de0d2",
+        "name": "NVIDIA RTX A6000",
+        "total_bytes": 51527024640,
+        "free_bytes": 51527024640
+      },
+      "host_available_bytes": 51338526720,
+      "cgroup_limit_bytes": 51539607552
+    }
+  ],
+  "cases": {
+    "cpu": [
+      {
+        "mode": "baseline",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [],
+        "manager_reentry_after_stage_verified": false
+      },
+      {
+        "mode": "after_pull",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [
+          0,
+          1
+        ],
+        "manager_reentry_after_stage_verified": false,
+        "recovery_sources": "opposite-node gradient replicas",
+        "mirror_states": [
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          },
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          }
+        ],
+        "replica_terms": [
+          2,
+          2
+        ],
+        "replayed_rounds": [],
+        "resident_rows": 64
+      },
+      {
+        "mode": "partial_round",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [
+          0,
+          1
+        ],
+        "manager_reentry_after_stage_verified": false,
+        "recovery_sources": "opposite-node gradient replicas",
+        "mirror_states": [
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          },
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          }
+        ],
+        "replica_terms": [
+          2,
+          2
+        ],
+        "replayed_rounds": [
+          3
+        ],
+        "resident_rows": 64
+      },
+      {
+        "mode": "after_update",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [
+          0,
+          1
+        ],
+        "manager_reentry_after_stage_verified": true,
+        "recovery_sources": "opposite-node gradient replicas",
+        "mirror_states": [
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          },
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          }
+        ],
+        "replica_terms": [
+          2,
+          2
+        ],
+        "replayed_rounds": [],
+        "resident_rows": 64
+      }
+    ],
+    "gpu": [
+      {
+        "mode": "baseline",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [],
+        "manager_reentry_after_stage_verified": false
+      },
+      {
+        "mode": "after_pull",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [
+          0,
+          1
+        ],
+        "manager_reentry_after_stage_verified": false,
+        "recovery_sources": "opposite-node gradient replicas",
+        "mirror_states": [
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          },
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          }
+        ],
+        "replica_terms": [
+          2,
+          2
+        ],
+        "replayed_rounds": [],
+        "resident_rows": 64
+      },
+      {
+        "mode": "partial_round",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [
+          0,
+          1
+        ],
+        "manager_reentry_after_stage_verified": false,
+        "recovery_sources": "opposite-node gradient replicas",
+        "mirror_states": [
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          },
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          }
+        ],
+        "replica_terms": [
+          2,
+          2
+        ],
+        "replayed_rounds": [
+          3
+        ],
+        "resident_rows": 64
+      },
+      {
+        "mode": "after_update",
+        "completed": [
+          8,
+          8
+        ],
+        "compared_rows": 64,
+        "worker_local_journals_deleted": [
+          0,
+          1
+        ],
+        "manager_reentry_after_stage_verified": true,
+        "recovery_sources": "opposite-node gradient replicas",
+        "mirror_states": [
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          },
+          {
+            "generation": 2,
+            "next_round": 8,
+            "records": 8
+          }
+        ],
+        "replica_terms": [
+          2,
+          2
+        ],
+        "replayed_rounds": [],
+        "resident_rows": 64
+      }
+    ]
+  },
+  "protocol_cases": [
+    "exact_raw_import",
+    "immutable_import_retry",
+    "corruption_and_gap_rejected",
+    "lost_successful_commit_ack",
+    "old_generation_rejected",
+    "model_identity_rejected",
+    "restart_partial_staging",
+    "full_size_chunk_streaming",
+    "generation_bound_store_restart",
+    "restart_after_durable_publication_before_cleanup",
+    "delayed_old_writer_rejected_at_replacement"
+  ],
+  "durability_failure": {
+    "local_gradient_retained": true,
+    "optimizer_updates": [
+      0,
+      0
+    ],
+    "completed_worker_clocks": [
+      0
+    ]
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "5861ec517591fe42cac7b6bcefd91c0c1949d9d13fbbcaed67b5ee84a1beb745",
+    "adapters/entropy/training_journal.py": "8f6dced7eaa7bc998b1fa498be741c4ff7671c8eec7a9d628a00866196ee5341",
+    "adapters/entropy/gradient_replica.py": "972d94f0582858a543670d9c54cec20523d0e3790e007684689a1fa3be760a88",
+    "scripts/journal_replica_server.py": "e4a5d74403a9ea4be2c10285ce410b9959fd9a22affaa4a31346854f3e95c1e2",
+    "examples/tensorflow_training_worker.py": "3e63acfa9eb627738be49c2c17cd0afd893fc81e2460ec4b6fe22354aa59b5e4",
+    "scripts/managed_training_recovery.py": "d36c8e1cf6a9c153e631228a778080698366e59baea2a08af1d7d6ca98a5e749",
+    "tests/gradient_replica_tests.py": "05f813e4b24e05fae09af195856b35d5517fe946f9df0f7a0fb2e796b99d0191",
+    "tests/tensorflow_gradient_replica_failure.py": "8f8a98640882120deec50633d461394d7bad8c2a8d13e75334635799c4f11467",
+    "tests/managed_training_recovery.py": "112a4ad4608a414709d9360946499f269acd5f368c97821f119b9d855abe9f97"
+  },
+  "native_binary_source_scope": "Native C++/CUDA/Protobuf sources match the checksum-verified sm86 bundle; current Python sources are separately hashed in both node environment records.",
+  "deployment_source_archive_sha256": "b091b4165645b8849e2a7b3380fbfe6d104d0e182197bc10089764b4094a1b4d",
+  "rental_cleanup": {
+    "started_epoch": 1793835312.424226,
+    "nodes": [
+      {
+        "node": 0,
+        "lease_uuid_sha256": "ee5ae709bf17d27b8d09ab5072204a78b5d96f868b6858a4502a89a2cee51b19",
+        "quoted_usd_per_hour": 0.35,
+        "created_observed_epoch": 1793834569.771768,
+        "delete_exit_code": 0,
+        "observed_duration_seconds": 748.0621829032898,
+        "estimated_rental_cost_usd": 0.0727
+      },
+      {
+        "node": 1,
+        "lease_uuid_sha256": "767121853ffba6ccbb123687f1ee4a058d6fc1dc135833c80a2207ba8c515eaf",
+        "quoted_usd_per_hour": 0.35,
+        "created_observed_epoch": 1793834572.728768,
+        "delete_exit_code": 0,
+        "observed_duration_seconds": 745.1051828861237,
+        "estimated_rental_cost_usd": 0.0724
+      }
+    ],
+    "finished_epoch": 1793835317.833951,
+    "owned_instances_remaining": 0,
+    "authoritative_inventory_verified": true,
+    "cost_scope": "Observed creation-to-deletion interval times published hourly rate; estimate, not provider invoice.",
+    "pricing_source": "https://www.thundercompute.com/pricing",
+    "ssh_tunnels_gone": true
+  },
+  "remaining_requirements": [
+    "Complete physical-node loss with surviving parameter authority and replacement placement/routing",
+    "Complete original Entropy native training/control execution",
+    "Bounded replica/journal compaction",
+    "Gradient Key metadata reuse",
+    "Common-quality policy and scaling characterization"
+  ],
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/cpu-model.json.gz",
+      "sha256": "9bd2e5165fea842707778b045694dec46a97ea2c97b0d1715eb7447b0acb7d1b",
+      "bytes": 85697
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/failed-durability.json",
+      "sha256": "740a93e32df29b7bd7a3f61b88c15c263ec26a669e3460ab468bffc4046a0786",
+      "bytes": 7369
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/framework.log",
+      "sha256": "b4b5358378330b9c7ab9c1d4e4d55fba0152186f72a0bfdf5659576baaf9c43e",
+      "bytes": 9521
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/gpu-execution.log",
+      "sha256": "ec4ee1faf9c22542f1ba931c4d37e1218dcdacc913f752a889f0a7ae15eae988",
+      "bytes": 4368
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/gpu-model.json.gz",
+      "sha256": "b693a610c9717b535488f1d2bf05a72a24ca024bd3541650f7a1507ba74c74ec",
+      "bytes": 89733
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/node-0-environment.json",
+      "sha256": "36c605a5ea3c42d16f683971f910de890c7b8eb87cd94b59254907e4a8809a2b",
+      "bytes": 26734
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/node-1-environment.json",
+      "sha256": "f83d4d5903ca035653f186025b29173c8e5b9d34a3fd32e2a37c255db80db488",
+      "bytes": 26734
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/protocol.json",
+      "sha256": "78ce0c18b2217bc2811ae9ab358b94163993fb418cae3fb9e6724214fd6f290a",
+      "bytes": 470
+    },
+    {
+      "path": "docs/validation/2026-11-04-worker-gradient-replicas/rental-cleanup.json",
+      "sha256": "6b5134bb54b8f2ec020e106b49bbe3009b705961d8534ffe536176e72907622d",
+      "bytes": 1056
+    }
+  ]
+}

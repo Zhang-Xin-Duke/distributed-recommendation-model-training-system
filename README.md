@@ -83,6 +83,12 @@ and publishes complete journals on replacement nodes. Model recovery checks
 fetch to manager storage, reconcile partial rounds and stage independent worker
 copies before continuing the same training input.
 
+[Worker gradient replicas](docs/WORKER_GRADIENT_REPLICAS.md) durably copy each
+original gradient to another node before parameter submission. Across two
+A6000 GPU instances, three fault cases delete both worker-local journals,
+recover from opposite-node replicas and complete eight rounds. All 64 rows'
+weights/Adam state and per-round losses match uninterrupted GPU training exactly.
+
 [Managed training recovery](docs/MANAGED_TRAINING_RECOVERY.md) starts and observes
 named role generations, detects process failure and drives replica promotion,
 owner rehydration, journal handoff and worker continuation. Durable manager phases

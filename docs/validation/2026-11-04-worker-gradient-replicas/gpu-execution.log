@@ -1,0 +1,60 @@
+{"phase": "waiting_for_install", "node": 0, "pid": 358, "live": true, "exit": null}
+{"phase": "waiting_for_install", "node": 1, "pid": 368, "live": true, "exit": null}
+{"phase": "hardware", "run": "gpu-gradient-baseline"}
+{"phase": "initial_roles", "run": "gpu-gradient-baseline"}
+{"phase": "initial_workers", "run": "gpu-gradient-baseline"}
+{"phase": "observation", "run": "gpu-gradient-baseline"}
+{"phase": "final_model", "run": "gpu-gradient-baseline"}
+{"phase": "gpu_case_complete", "mode": "baseline", "completed": [8, 8], "deleted": []}
+{"phase": "hardware", "run": "gpu-gradient-after_pull"}
+{"phase": "initial_roles", "run": "gpu-gradient-after_pull"}
+{"phase": "initial_gradient_replicas", "run": "gpu-gradient-after_pull"}
+{"phase": "initial_workers", "run": "gpu-gradient-after_pull"}
+{"phase": "observation", "run": "gpu-gradient-after_pull"}
+{"phase": "former_roles_stopped", "run": "gpu-gradient-after_pull"}
+{"phase": "journals_fetched", "run": "gpu-gradient-after_pull"}
+{"phase": "replacement_roles", "run": "gpu-gradient-after_pull"}
+{"phase": "recovery_plan", "run": "gpu-gradient-after_pull"}
+{"phase": "replacement_coordinator", "run": "gpu-gradient-after_pull"}
+{"phase": "reconciled", "run": "gpu-gradient-after_pull"}
+{"phase": "journals_staged", "run": "gpu-gradient-after_pull"}
+{"phase": "replacement_gradient_replicas", "run": "gpu-gradient-after_pull"}
+{"phase": "admission_resumed", "run": "gpu-gradient-after_pull"}
+{"phase": "replacement_workers", "run": "gpu-gradient-after_pull"}
+{"phase": "final_model", "run": "gpu-gradient-after_pull"}
+{"phase": "gpu_case_complete", "mode": "after_pull", "completed": [8, 8], "deleted": [0, 1]}
+{"phase": "hardware", "run": "gpu-gradient-partial_round"}
+{"phase": "initial_roles", "run": "gpu-gradient-partial_round"}
+{"phase": "initial_gradient_replicas", "run": "gpu-gradient-partial_round"}
+{"phase": "initial_workers", "run": "gpu-gradient-partial_round"}
+{"phase": "observation", "run": "gpu-gradient-partial_round"}
+{"phase": "former_roles_stopped", "run": "gpu-gradient-partial_round"}
+{"phase": "journals_fetched", "run": "gpu-gradient-partial_round"}
+{"phase": "replacement_roles", "run": "gpu-gradient-partial_round"}
+{"phase": "recovery_plan", "run": "gpu-gradient-partial_round"}
+{"phase": "replacement_coordinator", "run": "gpu-gradient-partial_round"}
+{"phase": "reconciled", "run": "gpu-gradient-partial_round"}
+{"phase": "journals_staged", "run": "gpu-gradient-partial_round"}
+{"phase": "replacement_gradient_replicas", "run": "gpu-gradient-partial_round"}
+{"phase": "admission_resumed", "run": "gpu-gradient-partial_round"}
+{"phase": "replacement_workers", "run": "gpu-gradient-partial_round"}
+{"phase": "final_model", "run": "gpu-gradient-partial_round"}
+{"phase": "gpu_case_complete", "mode": "partial_round", "completed": [8, 8], "deleted": [0, 1]}
+{"phase": "hardware", "run": "gpu-gradient-after_update"}
+{"phase": "initial_roles", "run": "gpu-gradient-after_update"}
+{"phase": "initial_gradient_replicas", "run": "gpu-gradient-after_update"}
+{"phase": "initial_workers", "run": "gpu-gradient-after_update"}
+{"phase": "observation", "run": "gpu-gradient-after_update"}
+{"phase": "former_roles_stopped", "run": "gpu-gradient-after_update"}
+{"phase": "journals_fetched", "run": "gpu-gradient-after_update"}
+{"phase": "replacement_roles", "run": "gpu-gradient-after_update"}
+{"phase": "recovery_plan", "run": "gpu-gradient-after_update"}
+{"phase": "replacement_coordinator", "run": "gpu-gradient-after_update"}
+{"phase": "reconciled", "run": "gpu-gradient-after_update"}
+{"phase": "journals_staged", "run": "gpu-gradient-after_update"}
+{"phase": "replacement_gradient_replicas", "run": "gpu-gradient-after_update"}
+{"phase": "admission_resumed", "run": "gpu-gradient-after_update"}
+{"phase": "replacement_workers", "run": "gpu-gradient-after_update"}
+{"phase": "final_model", "run": "gpu-gradient-after_update"}
+{"phase": "gpu_case_complete", "mode": "after_update", "completed": [8, 8], "deleted": [0, 1]}
+{"test": "cross_node_gradient_replica_recovery", "physical_gpus": 2, "workers": 2, "shards": 2, "rounds": 8, "compared_rows": 64, "max_state_absolute_error": 0.0, "max_loss_absolute_error": 0.0, "cpu_reference_max_state_absolute_error": 2.9802322387695312e-08, "cpu_reference_max_loss_absolute_error": 5.960464477539063e-08, "tolerance": 5e-05, "cleanup_verified": true}
