@@ -193,6 +193,24 @@ class Backend {
     }
     return result;
   }
+  void LookupCache(bool enabled) {
+    py::gil_scoped_release release;
+    for (const auto& connection : connections_) connection->SetLookupLayoutCache(enabled);
+  }
+  std::vector<std::map<std::string,std::uint64_t>> LookupTransport() {
+    py::gil_scoped_release release;
+    std::vector<std::map<std::string,std::uint64_t>> result;
+    for (const auto& connection : connections_) {
+      const auto s = connection->LookupTransport();
+      result.push_back({{"full_requests",s.full_requests},{"token_requests",s.token_requests},
+        {"fallback_requests",s.fallback_requests},{"request_bytes",s.request_bytes},
+        {"avoided_request_bytes",s.avoided_request_bytes},{"cache_entries",s.cache.entries},
+        {"cache_bytes",s.cache.bytes},{"cache_hits",s.cache.hits},{"cache_misses",s.cache.misses},
+        {"cache_evictions",s.cache.evictions},{"cache_expirations",s.cache.expirations},
+        {"cache_rejected",s.cache.rejected}});
+    }
+    return result;
+  }
   void ConfigureTraining(std::string coordinator) {
     if (progress_) throw std::invalid_argument("training already configured");
     if (learner_ >= 1023) throw std::invalid_argument("synchronous training worker ID must be below 1023");
@@ -281,6 +299,7 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("push",&Backend::Push).def("release",&Backend::Release).def("join",&Backend::Join)
     .def("restored_from",&Backend::RestoredFrom)
     .def("save",&Backend::Save).def("stats",&Backend::Stats)
+    .def("lookup_layout_cache",&Backend::LookupCache).def("lookup_transport_stats",&Backend::LookupTransport)
     .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
     .def("configure_training",&Backend::ConfigureTraining)
     .def("begin_training",&Backend::BeginTraining).def("complete_training",&Backend::CompleteTraining)

@@ -146,7 +146,14 @@ int main(int argc,char** argv) {
       co.budget.reserve_slots=cache.value("reserve_slots",co.budget.reserve_slots);
       Value(service.ConfigureCachePolicy(std::move(co)));
     }
-    transport::BrpcServer rpc(service,options.shard_id);
+    LookupLayoutCacheOptions layout_options;
+    if (j.contains("lookup_layout_cache")) {
+      const auto& cache = j.at("lookup_layout_cache");
+      layout_options.entries = cache.value("entries", layout_options.entries);
+      layout_options.bytes = cache.value("bytes", layout_options.bytes);
+      layout_options.idle_ttl = std::chrono::milliseconds(cache.value("idle_ttl_ms", std::int64_t(60000)));
+    }
+    transport::BrpcServer rpc(service,options.shard_id,layout_options);
     std::unique_ptr<transport::BrpcSynchronousServer> synchronous_rpc;
     if (synchronous) {
       const auto& config = j.at("synchronous_training");

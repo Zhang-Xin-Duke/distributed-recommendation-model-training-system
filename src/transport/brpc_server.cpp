@@ -8,6 +8,15 @@
 #include "transport/rpc_dispatch.hpp"
 
 namespace eps::transport {
+void BrpcServer::LookupLayoutStats(google::protobuf::RpcController*, const wire::StatsRequest*,
+    wire::LookupLayoutStatsReply* out, google::protobuf::Closure* done) {
+  brpc::ClosureGuard guard(done);
+  const auto stats = layouts_.Stats();
+#define EPS_LAYOUT_STAT(name) out->set_##name(stats.name);
+  EPS_LAYOUT_STAT(entries) EPS_LAYOUT_STAT(bytes) EPS_LAYOUT_STAT(hits) EPS_LAYOUT_STAT(misses)
+  EPS_LAYOUT_STAT(registrations) EPS_LAYOUT_STAT(evictions) EPS_LAYOUT_STAT(expirations) EPS_LAYOUT_STAT(rejected)
+#undef EPS_LAYOUT_STAT
+}
 void BrpcServer::Stats(google::protobuf::RpcController* c,const wire::StatsRequest* q,
                        wire::StatsReply* r,google::protobuf::Closure* done){
   Dispatch<RuntimeStats>(c,q,r,done,[&](const auto&){return service_.Stats();},
@@ -80,15 +89,40 @@ void BrpcServer::MoveRows(google::protobuf::RpcController* c,const wire::MoveReq
 }
 void BrpcServer::Lookup(google::protobuf::RpcController* c,const wire::LookupRequest* q,
                       wire::LookupReply* r,google::protobuf::Closure* done) {
+  struct Registration {
+    LookupLayoutScope scope;
+    std::shared_ptr<const LookupLayoutCache::Layout> layout;
+    bool miss = false;
+  };
+  auto registration = std::make_shared<Registration>();
   Dispatch<LookupReply>(c,q,r,done,[&](const auto& a) {
     detail::Require(q->features_size()<=4096,"too many features");
     LookupRequest request{Decode(q->identity()),q->partition_epoch(),q->read_only(),{}};
-    for(const auto& f:q->features())request.features.push_back(Decode(f,a));
+    registration->scope = {request.id.run, request.partition_epoch, request.id.learner, shard_};
+    if (!q->layout_token().empty()) {
+      detail::Require(q->layout_token().size() <= 256 && q->features_size() == 0 && a.empty() && !q->register_layout(),
+                      "a lookup layout token cannot carry another layout");
+      auto layout = layouts_.Resolve(registration->scope, q->layout_token());
+      if (!layout) {
+        registration->miss = true;
+        std::promise<Result<LookupReply>> missing; auto future = missing.get_future(); missing.set_value(LookupReply{});
+        return future; // No parameter request, ticket or progress is allocated on a metadata miss.
+      }
+      request.features = *layout;
+    } else {
+      for(const auto& f:q->features())request.features.push_back(Decode(f,a));
+      if (q->register_layout()) registration->layout = std::make_shared<const LookupLayoutCache::Layout>(request.features);
+    }
     return service_.Lookup(std::move(request));
-  },[](LookupReply result,auto* out,auto& a) {
+  },[this,registration](LookupReply result,auto* out,auto& a) {
+    if (registration->miss) { out->set_layout_miss(true); return; }
     out->set_ticket(result.ticket);
     for(const auto& f:result.cpu_contributions)Encode(f,out->add_cpu_contributions(),a);
     for(const auto& work:result.agent_work)Encode(work,out->add_agent_work(),a);
+    if (registration->layout) {
+      try { out->set_layout_token(layouts_.Put(registration->scope, registration->layout)); }
+      catch (const std::exception&) {} // Optional metadata admission cannot invalidate an allocated read ticket.
+    }
   });
 }
 void BrpcServer::Push(google::protobuf::RpcController* c,const wire::PushRequest* q,

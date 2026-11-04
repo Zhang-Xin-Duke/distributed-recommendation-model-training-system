@@ -1,0 +1,160 @@
+{
+  "base_commit": "d51e5cd14a364c1a66655e59946a50c197291bfa",
+  "scope": "Bounded reusable Worker-to-parameter-shard Lookup metadata, asynchronous fallback and CPU model-training ablation",
+  "workload": {
+    "device": "CPU",
+    "workers": 2,
+    "shards": 2,
+    "iterations": 8,
+    "rows": 512,
+    "dimension": 8,
+    "local_samples": 16,
+    "bag_size": 64,
+    "inspected_rows": 503,
+    "state_scope": "all_touched_rows"
+  },
+  "results": {
+    "max_cached_uncached_state_error": 0.0,
+    "max_cached_uncached_loss_error": 0.0,
+    "lookup_request_byte_reduction": 0.861787072243346,
+    "uncached": {
+      "full_requests": 32,
+      "token_requests": 0,
+      "fallback_requests": 0,
+      "request_bytes": 136760,
+      "avoided_request_bytes": 0
+    },
+    "cached": {
+      "full_requests": 4,
+      "token_requests": 28,
+      "fallback_requests": 0,
+      "request_bytes": 18902,
+      "avoided_request_bytes": 117922
+    }
+  },
+  "checks": {
+    "native_suite": {
+      "passed": 37,
+      "failed": 0
+    },
+    "framework_suite": {
+      "passed": 56,
+      "failed": 0
+    },
+    "final_accounting_retests": {
+      "native_rpc": 1,
+      "framework_registry_rpc_and_model": 3,
+      "failed": 0,
+      "reason": "Refined successful-token accounting and generated-token collision handling; rebuilt and reran registry, RPC, model ablation and sanitizers"
+    },
+    "asan_ubsan": {
+      "passed": 1,
+      "failed": 0
+    },
+    "tsan": {
+      "passed": 1,
+      "failed": 0
+    },
+    "python_syntax": "passed",
+    "shell_syntax": "passed"
+  },
+  "rejected_points": [
+    {
+      "rows": 4096,
+      "local_samples": 16,
+      "bag_size": 64,
+      "cache_enabled": false,
+      "observed_max_state_reference_error": 3.509223461151123e-05,
+      "required_tolerance": 3e-06,
+      "outcome": "Uncached run rejected by existing global-batch reference threshold before cache comparison; not counted as a validated point. Final 512-row workload covers every touched row and retains the original threshold."
+    }
+  ],
+  "metric_scope": "Serialized Lookup request protobuf plus attachment sizes per application send; excludes framing, responses, BRPC internal retries, gradients, Agent traffic and Python IPC",
+  "provider_observation": {
+    "recorded_utc": "2026-11-04T19:20:39.953263+00:00",
+    "a6000": "SOLD OUT",
+    "l40": "SOLD OUT",
+    "a100": "one GPU listed; successful payment required",
+    "credit_balance_usd": 9.14,
+    "current_spend_usd_per_hour": 0.0,
+    "running_instances": 0,
+    "created_this_stage": 0
+  },
+  "not_exercised": [
+    "CUDA execution of reusable layouts",
+    "above-single-GPU-memory multi-node training",
+    "new Linux source-build installation on rented nodes",
+    "gradient Key-list metadata reuse",
+    "replica-backed in-flight replay and fenced live failover",
+    "complete original Entropy runtime"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "dcd7662e2112b4c2f36e337cfbfcfc7a9b14abe44a9e924aff7a79d7d2abb6bd",
+    "README.md": "0e00cd8c2f03111be522ffaaae5178553646cb6379aa8d1086caf2d3be71209f",
+    "adapters/entropy/eps_backend.py": "d0c1ee23aceb1c2307284c1ddddffc51dd10fe6e456f3981dba02fc189808afc",
+    "adapters/entropy/eps_backend_worker.py": "07672b33928805dbb04bfcb79c91ee33c16092a00c3b3d23fac9b1900c9f603e",
+    "adapters/entropy/python_bindings.cpp": "cb354c411a18dff91ee8457ce380be8c1427d0f3f5113df70463ad87bf5e632f",
+    "docs/DISTRIBUTED_MODEL_TRAINING.md": "0c5e2dc630b4da5c5a97fe475979bdf76909aaa1e8cbc81b3a268698062c50d1",
+    "docs/REUSABLE_LOOKUP_LAYOUTS.md": "ba2aa0303d45fbf83a4f66661a8a8cdfc3e6f323883d1a6db614fcc651f23679",
+    "docs/TRAINING_EXECUTION.md": "47f33fc2cfd22f65e5cb91a7fe466717c5a7e91d9916a6494ace7d072fb076c8",
+    "docs/plans/2026-11-04-distributed-training-design.md": "e1051864c5030bb3a027461a1c869ddc3ce4a4d9973e9fc526d899105bb17f83",
+    "docs/plans/2026-11-04-reusable-lookup-layouts.md": "7b341f8ff15bb0d77cb69f3389efacf2e5fce5a653870544f75ac9e88ebe61d4",
+    "examples/tensorflow_training_worker.py": "112e4c478a54bb1e853195a6ae0a8144afc4b77b2075ea75d997a396a6ae1021",
+    "include/eps/brpc_client.hpp": "b819516455a438bfc05f765f0306be54c513e5a71c81d30db614c2e43e8e0222",
+    "include/eps/lookup_layout_cache.hpp": "47f821eeeaf9cdb4896e400b68be542e5b8760af6082de88022758f0455fae55",
+    "proto/embedding_service.proto": "d69ca235235e07ddef3f11c2c256210602e9f1652c257bfcef9ca4495d6a8a32",
+    "scripts/install_training_runtime.sh": "8beb665f13ceadb3e748564ce2245eb953655a0170c52d6a841590626278270f",
+    "src/access/lookup_layout_cache.cpp": "94b669945c4a321e6f942c530bd53fad36399e2ccda4e487ab280da53f0ca56c",
+    "src/server/main.cpp": "23766143df887d9363d241566474910df2f1e022caef1f53ed8f5c36c81f1e76",
+    "src/transport/brpc_client.cpp": "e2bce53eff6a8bf7e865e9f8ec97d51478c00e4fd909941d0ec0b295dc4aad11",
+    "src/transport/brpc_server.cpp": "6f3687df1c98d94762561ec0034db3a7bfbaa4890872605ebbeab2c8090911a2",
+    "src/transport/brpc_server.hpp": "339c7465bc1130d5a6a6e3e7218db585bafa34a2dc45ec8d1317289bcc00b847",
+    "tests/lookup_layout_cache_tests.cpp": "675ef3b73444ff49a3834091d3daf0ce6429e7ca1ff88774f71ebea514548171",
+    "tests/lookup_layout_rpc_tests.cpp": "fe5a27c1a454587854e58f53a18543b65049ff11ae890cdbe3517a17b62e1afc",
+    "tests/tensorflow_lookup_layouts.py": "832a42eee680c0eab7c61b6f33fc1e4310c2d982bf2e5fb6725f4abd8763719b",
+    "tests/tensorflow_synchronous_training.py": "f157a8f834c1d8f71ead44b18d5a9e2710f7e658009134db970af60706e4d6f4"
+  },
+  "binary_sha256": {
+    "eps_server": "03256c0df8679c0dfb806d854da958663d607539c9c8fed8fd8a75f8a943ca8c",
+    "eps_training_control": "af04481e2c0f17bf7df62a1d0f25f6c25042e4c68eb7362f7b6830250ed0c6f7",
+    "eps_training_prepare": "8eabecad89ec524d9b8ef0364829337aa60687df6b354e0cef8ca109a35cf318",
+    "eps_training_coordinator": "e1380c30d3b1838513496c35fb9983c4b0d0d30d92ed6f31def138da8ad0eea8"
+  },
+  "python_module_sha256": {
+    "_eps_native.cpython-311-darwin.so": "a47599fff69b9fc80d4679436c3af4d5b67007a422ea858102eb371dd56f6a81"
+  },
+  "artifacts": {
+    "asan-ubsan.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/asan-ubsan.log",
+      "sha256": "0808a730283c2270dbef7014946be9f3504af2302fef393c412c65ada0c822d6"
+    },
+    "framework-final-targeted.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/framework-final-targeted.log",
+      "sha256": "d6b8fbc954e33b3dd62a54634bd6ef264af78a03dc9847f30848cc56cbd92c80"
+    },
+    "framework-suite.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/framework-suite.log",
+      "sha256": "5442aac684107dfc18f6ce6681a3654d0de7f9341eb8efa42c080ff3ff7cf081"
+    },
+    "model-ablation.json.gz": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/model-ablation.json.gz",
+      "sha256": "69be1d2eb91d96bee3d6beb2a4a8cb56a6bf3298f2b50ab1c01c9facfdfbccf0"
+    },
+    "native-suite.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/native-suite.log",
+      "sha256": "3526510dcb89fe7824e571f45256137f7393415286ce90010aa0d48ffcedf0a1"
+    },
+    "registry-final.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/registry-final.log",
+      "sha256": "35932533bcc94cb869ea22f61e9590adabf4d0b340fc48ae6c1a5887f40471a8"
+    },
+    "rpc-final.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/rpc-final.log",
+      "sha256": "150441875613eec2087d95d15ce039b7d465c1d505f95d0f52268510245fd0ec"
+    },
+    "tsan.log": {
+      "path": "docs/validation/2026-11-04-reusable-lookup-layouts/tsan.log",
+      "sha256": "47f9f05bc99017e0c45c48e04f4e17ad66bac899e1b29c6030f37b15e3d2bae7"
+    }
+  }
+}

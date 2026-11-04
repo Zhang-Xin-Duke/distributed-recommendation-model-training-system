@@ -4,11 +4,17 @@
 #include <string>
 #include "eps/parameter_service.hpp"
 #include "eps/runtime.hpp"
+#include "eps/lookup_layout_cache.hpp"
 
 namespace eps {
+struct LookupTransportStats {
+  std::uint64_t full_requests = 0, token_requests = 0, fallback_requests = 0,
+    request_bytes = 0, avoided_request_bytes = 0;
+  LookupLayoutCacheStats cache;
+};
 class BrpcParameterService final : public ParameterService {
  public:
-  explicit BrpcParameterService(std::string endpoint, int timeout_ms = 5000);
+  explicit BrpcParameterService(std::string endpoint, int timeout_ms = 5000, LookupLayoutCacheOptions = {});
   ~BrpcParameterService() override;
   std::future<Result<Ack>> CreateTable(TableDefinition) override;
   std::future<Result<LookupReply>> Lookup(LookupRequest) override;
@@ -24,6 +30,10 @@ class BrpcParameterService final : public ParameterService {
   std::future<Result<std::vector<LocatedRow>>> MoveRows(MoveRowsRequest);
   std::future<Result<RuntimeStats>> Stats();
   std::future<Result<RestoredSnapshot>> RestoredFrom();
+  // Configure before training; values/tickets are never cached. Disabled by default.
+  void SetLookupLayoutCache(bool enabled);
+  LookupTransportStats LookupTransport() const;
+  std::future<Result<LookupLayoutCacheStats>> LookupLayoutStats();
  private:
   struct Impl;
   std::shared_ptr<Impl> impl_;

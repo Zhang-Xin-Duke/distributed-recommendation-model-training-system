@@ -2,15 +2,18 @@
 
 #include "embedding_service.pb.h"
 #include "eps/runtime.hpp"
+#include "eps/lookup_layout_cache.hpp"
 
 namespace eps::transport {
 class BrpcServer final : public v1::EmbeddingService {
  public:
-  BrpcServer(CpuParameterService& service, ShardId shard) : service_(service), shard_(shard) {}
+  BrpcServer(CpuParameterService& service, ShardId shard, LookupLayoutCacheOptions options = {})
+      : service_(service), shard_(shard), layouts_(options) {}
 #define EPS_RPC(Name, Request, Response) \
   void Name(google::protobuf::RpcController*, const v1::Request*, v1::Response*, google::protobuf::Closure*) override;
   EPS_RPC(CreateTable, CreateTableRequest, Ack)
   EPS_RPC(Stats, StatsRequest, StatsReply)
+  EPS_RPC(LookupLayoutStats, StatsRequest, LookupLayoutStatsReply)
   EPS_RPC(RestoredFrom, StatsRequest, RestoredSnapshotReply)
   EPS_RPC(Lookup, LookupRequest, LookupReply)
   EPS_RPC(Push, PushRequest, Ack)
@@ -26,5 +29,6 @@ class BrpcServer final : public v1::EmbeddingService {
  private:
   CpuParameterService& service_;
   ShardId shard_;
+  LookupLayoutCache layouts_;
 };
 }  // namespace eps::transport

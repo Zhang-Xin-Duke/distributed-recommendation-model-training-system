@@ -100,6 +100,10 @@ class Backend:
 
     def stats(self):
         return self._call("stats")
+    def lookup_layout_cache(self, enabled=True):
+        return self._call("lookup_layout_cache", bool(enabled))
+    def lookup_transport_stats(self):
+        return self._call("lookup_transport_stats")
     def restored_from(self):
         return self._call("restored_from")
 

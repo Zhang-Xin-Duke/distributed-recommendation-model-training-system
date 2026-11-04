@@ -99,6 +99,12 @@ and abort operations. A restored coordinator starts paused with its saved
 completed counts. Its progress-only checkpoint does not by itself restore
 parameter files or input cursors.
 
+[Reusable Lookup metadata](REUSABLE_LOOKUP_LAYOUTS.md) lets workers register
+exact sparse ID/CSR layouts and reuse scoped tokens across reads. It reduces
+repeated Worker-to-shard metadata transfer while retaining current parameter
+reads, fresh tickets and existing update semantics. Registry eviction or
+restart triggers one full-layout retry with the same request identity.
+
 The [joint checkpoint controller](JOINT_TRAINING_CHECKPOINT.md) couples those
 clocks with complete parameter/Adam snapshots, gradient collector rounds,
 model configuration and actual worker input positions. `save-job` publishes

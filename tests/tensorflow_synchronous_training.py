@@ -27,6 +27,7 @@ def main():
     p.add_argument("--samples-per-worker", type=int, default=0)
     p.add_argument("--bag-size", type=int, default=16)
     p.add_argument("--out", type=pathlib.Path)
+    p.add_argument("--disable-lookup-cache", action="store_true")
     a = p.parse_args()
     build = a.build.resolve()
     source = pathlib.Path(__file__).resolve().parents[1]
@@ -135,6 +136,7 @@ def main():
                         f"worker-{worker}", {**settings, "table": table, "worker": worker,
                             "dimension": a.dimension, "hidden": a.hidden, "iterations": a.iterations,
                             "samples": examples, "agents": agents, "record_gradients": True,
+                            "reuse_lookup_layouts": not a.disable_lookup_cache,
                             "device": "/GPU:0" if gpu and not reference else "/CPU:0"}, worker_env))
                 workers = []
                 for child in children:
@@ -192,6 +194,7 @@ def main():
               "model": "trainable_embedding_and_tanh_mlp", "model_reference_max_absolute_error": maximum,
               "first_global_gradient_max_absolute_error": gradient_error,
               "initial_weighted_loss": initial, "final_weighted_loss": final, "reports": reports}
+    result["reuse_lookup_layouts"] = not a.disable_lookup_cache
     result["touched_rows"] = len(all_keys)
     result["inspected_rows"] = len(keys)
     result["reference_state_scope"] = "all_touched_rows" if len(keys) == len(all_keys) else "sampled_touched_rows"

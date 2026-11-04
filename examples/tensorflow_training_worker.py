@@ -106,6 +106,7 @@ def main():
     backend = Backend(config["shards"], config["run"], config["worker"], config.get("epoch", 1))
     losses, observed_devices, first_gradients, times = [], {}, None, []
     try:
+        backend.lookup_layout_cache(config.get("reuse_lookup_layouts", True))
         backend.create_table(json.dumps(config["table"]))
         if config.get("agents"):
             backend.cache_endpoints([(a["id"], a["endpoint"]) for a in config["agents"]], True)
@@ -152,6 +153,7 @@ def main():
                           "losses": losses, "step_seconds": times, "devices": observed_devices,
                           "first_row_gradients": first_gradients,
                           "tensorflow_device_memory": memory,
+                          "lookup_transport": backend.lookup_transport_stats(),
                           "parameter_stats": backend.stats()}, sort_keys=True))
     except Exception as error:
         try:

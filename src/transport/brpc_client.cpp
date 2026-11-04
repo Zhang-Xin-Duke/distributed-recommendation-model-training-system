@@ -1,6 +1,7 @@
 #include "eps/brpc_client.hpp"
 
 #include <functional>
+#include <atomic>
 #include <brpc/channel.h>
 #include <brpc/controller.h>
 #include "transport/rpc_call.hpp"
@@ -11,18 +12,92 @@ namespace wire = ::eps::v1;
 struct BrpcParameterService::Impl {
   brpc::Channel channel;
   int timeout_ms;
-  explicit Impl(const std::string& endpoint, int timeout) : timeout_ms(timeout) {
+  LookupLayoutCache layouts;
+  std::atomic<bool> cache_enabled{false};
+  std::atomic<std::uint64_t> full_requests{0}, token_requests{0}, fallback_requests{0}, request_bytes{0}, avoided_request_bytes{0};
+  explicit Impl(const std::string& endpoint, int timeout, LookupLayoutCacheOptions cache) : timeout_ms(timeout), layouts(cache) {
     brpc::ChannelOptions options; options.protocol="baidu_std";
     options.timeout_ms=timeout; options.max_retry=2;
     detail::Require(channel.Init(endpoint.c_str(),&options)==0,"cannot initialize BRPC channel");
   }
+  struct LookupCall;
 };
 using transport::Call;
 using transport::AckDecoder;
 
-BrpcParameterService::BrpcParameterService(std::string endpoint,int timeout)
-    :impl_(std::make_shared<Impl>(endpoint,timeout)) {}
+BrpcParameterService::BrpcParameterService(std::string endpoint,int timeout,LookupLayoutCacheOptions cache)
+    :impl_(std::make_shared<Impl>(endpoint,timeout,cache)) {}
 BrpcParameterService::~BrpcParameterService()=default;
+void BrpcParameterService::SetLookupLayoutCache(bool enabled) {
+  impl_->cache_enabled = enabled; if (!enabled) impl_->layouts.Clear();
+}
+LookupTransportStats BrpcParameterService::LookupTransport() const {
+  return {impl_->full_requests.load(), impl_->token_requests.load(), impl_->fallback_requests.load(),
+    impl_->request_bytes.load(), impl_->avoided_request_bytes.load(), impl_->layouts.Stats()};
+}
+std::future<Result<LookupLayoutCacheStats>> BrpcParameterService::LookupLayoutStats() {
+  return Call<wire::StatsRequest,wire::LookupLayoutStatsReply,LookupLayoutCacheStats>(impl_,
+    &wire::EmbeddingService_Stub::LookupLayoutStats, [](auto&,auto&){}, [](const auto& q,const auto&) {
+      return LookupLayoutCacheStats{q.entries(),q.bytes(),q.hits(),q.misses(),q.registrations(),q.evictions(),q.expirations(),q.rejected()};
+    });
+}
+struct BrpcParameterService::Impl::LookupCall final : google::protobuf::Closure {
+  std::shared_ptr<Impl> owner;
+  LookupLayoutScope scope;
+  std::shared_ptr<const LookupLayoutCache::Layout> layout;
+  wire::LookupRequest full, request;
+  wire::LookupReply response;
+  butil::IOBuf full_attachment;
+  brpc::Controller controller;
+  std::promise<Result<LookupReply>> promise;
+  std::string token;
+  bool use_cache = false, fallback = false;
+  std::uint64_t token_saved_bytes = 0;
+  std::chrono::steady_clock::time_point deadline;
+  void Send() {
+    try {
+      controller.Reset(); response.Clear(); request.Clear(); token_saved_bytes = 0;
+      const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(deadline - std::chrono::steady_clock::now()).count();
+      detail::Require(remaining > 0, "lookup completion deadline exhausted", Error::Code::unavailable);
+      controller.set_timeout_ms(static_cast<int>(remaining));
+      if (!token.empty()) {
+        *request.mutable_identity() = full.identity(); request.set_partition_epoch(full.partition_epoch());
+        request.set_read_only(full.read_only()); request.set_layout_token(token); ++owner->token_requests;
+        const auto original = full.ByteSizeLong() + full_attachment.size();
+        if (original > request.ByteSizeLong()) token_saved_bytes = original - request.ByteSizeLong();
+      } else {
+        request = full; controller.request_attachment().append(full_attachment); ++owner->full_requests;
+      }
+      owner->request_bytes += request.ByteSizeLong() + controller.request_attachment().size();
+      wire::EmbeddingService_Stub stub(&owner->channel); stub.Lookup(&controller, &request, &response, this);
+    } catch (const detail::Failure& e) { std::unique_ptr<LookupCall> self(this); promise.set_value(e.error()); }
+      catch (const std::exception& e) { std::unique_ptr<LookupCall> self(this); promise.set_value(Error{Error::Code::run_failed,e.what()}); }
+  }
+  void Run() override {
+    if (!controller.Failed() && !t::GetError(response.status()) && response.layout_miss() && !token.empty() && !fallback) {
+      if (!response.ticket().empty() || response.cpu_contributions_size() || response.agent_work_size()) {
+        std::unique_ptr<LookupCall> self(this); promise.set_value(Error{Error::Code::run_failed,"layout miss allocated parameter work"}); return;
+      }
+      owner->layouts.Erase(token); token.clear(); fallback = true; ++owner->fallback_requests; Send(); return;
+    }
+    std::unique_ptr<LookupCall> self(this);
+    try {
+      if (controller.Failed()) { promise.set_value(Error{Error::Code::unavailable,controller.ErrorText()}); return; }
+      if (auto error = t::GetError(response.status())) { promise.set_value(*error); return; }
+      detail::Require(!response.layout_miss() && !response.ticket().empty(), "invalid successful lookup response");
+      LookupReply out; out.ticket = response.ticket();
+      const auto& a = controller.response_attachment();
+      for (const auto& f : response.cpu_contributions()) out.cpu_contributions.push_back(t::Decode(f,a));
+      for (const auto& work : response.agent_work()) out.agent_work.push_back(t::Decode(work,a));
+      owner->avoided_request_bytes += token_saved_bytes;
+      if (use_cache && owner->cache_enabled && !response.layout_token().empty()) {
+        try { owner->layouts.Put(scope,layout,response.layout_token()); } catch (const std::exception&) {}
+      }
+      promise.set_value(std::move(out));
+    } catch (const detail::Failure& e) { promise.set_value(e.error()); }
+      catch (const std::exception& e) { promise.set_value(Error{Error::Code::run_failed,e.what()}); }
+  }
+};
 std::future<Result<RestoredSnapshot>> BrpcParameterService::RestoredFrom() {
   return Call<wire::StatsRequest,wire::RestoredSnapshotReply,RestoredSnapshot>(impl_,
     &wire::EmbeddingService_Stub::RestoredFrom,[](auto&,auto&){},[](const auto& reply,const auto&){
@@ -92,16 +167,19 @@ std::future<Result<Ack>> BrpcParameterService::CreateTable(TableDefinition d) {
     [d](auto& q,auto&) {t::Encode(d,q.mutable_table());},AckDecoder);
 }
 std::future<Result<LookupReply>> BrpcParameterService::Lookup(LookupRequest r) {
-  return Call<wire::LookupRequest,wire::LookupReply,LookupReply>(impl_,&wire::EmbeddingService_Stub::Lookup,
-    [r=std::move(r)](auto& q,auto& a) {
-      t::Encode(r.id,q.mutable_identity());q.set_partition_epoch(r.partition_epoch);q.set_read_only(r.read_only);
-      for(const auto& f:r.features)t::Encode(f,q.add_features(),a);
-    },[](const auto& q,const auto& a) {
-      LookupReply out;out.ticket=q.ticket();
-      for(const auto& f:q.cpu_contributions())out.cpu_contributions.push_back(t::Decode(f,a));
-      for(const auto& work:q.agent_work())out.agent_work.push_back(t::Decode(work,a));
-      return out;
-    });
+  auto state = std::make_unique<Impl::LookupCall>(); auto future = state->promise.get_future();
+  try {
+    state->owner = impl_; state->use_cache = impl_->cache_enabled;
+    state->deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(impl_->timeout_ms);
+    state->scope = {r.id.run, r.partition_epoch, r.id.learner, 0}; // Each connection has one home shard.
+    state->layout = std::make_shared<const LookupLayoutCache::Layout>(std::move(r.features));
+    t::Encode(r.id,state->full.mutable_identity()); state->full.set_partition_epoch(r.partition_epoch);
+    state->full.set_read_only(r.read_only); state->full.set_register_layout(state->use_cache);
+    for (const auto& f : *state->layout) t::Encode(f,state->full.add_features(),state->full_attachment);
+    if (state->use_cache) state->token = impl_->layouts.Find(state->scope,*state->layout);
+  } catch (const detail::Failure& e) { state->promise.set_value(e.error()); return future; }
+    catch (const std::exception& e) { state->promise.set_value(Error{Error::Code::run_failed,e.what()}); return future; }
+  state.release()->Send(); return future;
 }
 std::future<Result<Ack>> BrpcParameterService::Push(PushRequest r) {
   return Call<wire::PushRequest,wire::Ack,Ack>(impl_,&wire::EmbeddingService_Stub::Push,

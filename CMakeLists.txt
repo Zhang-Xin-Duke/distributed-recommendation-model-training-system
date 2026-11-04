@@ -17,6 +17,7 @@ add_library(eps_core
   src/access/batch_access.cpp
   src/access/prepared_lookup.cpp
   src/access/prepare_queue.cpp
+  src/access/lookup_layout_cache.cpp
   src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
   src/training/training_progress.cpp
@@ -218,6 +219,11 @@ if(EPS_BUILD_BRPC)
         $<TARGET_FILE:eps_training_worker> $<TARGET_FILE:eps_training_control>)
     set_tests_properties(synchronous_training_processes PROPERTIES TIMEOUT 120)
     add_executable(eps_synchronous_rpc_tests tests/synchronous_rpc_tests.cpp)
+    add_executable(eps_lookup_layout_rpc_tests tests/lookup_layout_rpc_tests.cpp)
+    target_link_libraries(eps_lookup_layout_rpc_tests PRIVATE eps_brpc)
+    target_include_directories(eps_lookup_layout_rpc_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    add_test(NAME reusable_lookup_layout_rpc COMMAND eps_lookup_layout_rpc_tests)
+    set_tests_properties(reusable_lookup_layout_rpc PROPERTIES TIMEOUT 45)
     target_link_libraries(eps_synchronous_rpc_tests PRIVATE eps_brpc)
     target_include_directories(eps_synchronous_rpc_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     add_test(NAME synchronous_gradient_rpc COMMAND eps_synchronous_rpc_tests)
@@ -344,6 +350,11 @@ if(EPS_BUILD_BRPC)
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-joint-checkpoint.json")
         set_tests_properties(tensorflow_joint_training_checkpoint PROPERTIES TIMEOUT 240
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_reusable_lookup_layouts
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_lookup_layouts.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-lookup-layouts.json")
+        set_tests_properties(tensorflow_reusable_lookup_layouts PROPERTIES TIMEOUT 360
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME distributed_model_orchestration
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/distributed_model_orchestration.py"
             "${CMAKE_CURRENT_BINARY_DIR}")
@@ -443,6 +454,9 @@ if(EPS_BUILD_TESTS)
   add_test(NAME training_progress_consistency COMMAND eps_training_progress_tests)
   set_tests_properties(training_progress_consistency PROPERTIES TIMEOUT 30)
   add_executable(eps_synchronous_gradients_tests tests/synchronous_gradients_tests.cpp)
+  add_executable(eps_lookup_layout_cache_tests tests/lookup_layout_cache_tests.cpp)
+  target_link_libraries(eps_lookup_layout_cache_tests PRIVATE eps_core)
+  add_test(NAME reusable_lookup_layout_cache COMMAND eps_lookup_layout_cache_tests)
   target_link_libraries(eps_synchronous_gradients_tests PRIVATE eps_core)
   add_test(NAME synchronous_gradient_rounds COMMAND eps_synchronous_gradients_tests)
   set_tests_properties(synchronous_gradient_rounds PROPERTIES TIMEOUT 30)

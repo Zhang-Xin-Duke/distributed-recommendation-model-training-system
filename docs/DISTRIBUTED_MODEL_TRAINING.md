@@ -79,6 +79,12 @@ Keep the fleet JSON outside version control. Each node provides SSH `host`,
 Supply two or more owned nodes. `install_training_runtime.sh` installs a
 checksum-verified compatible Linux runtime bundle and TensorFlow dependencies;
 `gpu_validate.sh` builds from source when a matching bundle is unavailable.
+Use `DPS_BUILD_FROM_SOURCE=1 DPS_WORK_ROOT=/home/ubuntu/ps-capacity bash
+scripts/install_training_runtime.sh` for a current CUDA/TensorFlow build;
+the node's `bin_dir` and `module_dir` are then `build-cuda` and
+`build-cuda/python` below that work root. The pre-existing cached Linux bundle
+predates joint restart and reusable Lookup metadata, so new deployments need
+this source build or a regenerated matching bundle.
 The bundle's Python/platform/dependency compatibility is checked at import/link
 time. Source and binary hashes belong to the experiment record.
 

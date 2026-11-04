@@ -145,7 +145,7 @@ the synchronous mode, including verified GPU forward/backward and CUDA owner
 updates on an A6000. Its first global gradient and complete touched state match
 a single-worker reference within the recorded tolerances. Extend this path
 across GPU instances and execute the beyond-single-GPU capacity acceptance.
-Reusable key-list handles, durable
+Gradient-submission Key metadata reuse, durable
 round/range progress, replicated failover, original-framework execution and
 common-quality measurements remain in the full implementation scope.
 
@@ -165,3 +165,13 @@ maximum absolute differences are zero. Injected partial exports do not publish
 a manifest. The record is `../validation/2026-11-04-joint-training-checkpoint.json`.
 This completes coordinated round-boundary restart; replica-backed in-flight
 replay and fenced live replacement remain required work.
+
+Worker-to-shard Lookup layouts now support reusable, scoped tokens with bounded
+LRU/idle-TTL registries and same-request full-layout fallback. The two-worker,
+two-shard CPU training ablation retains the original global-batch reference and
+compares every touched row's parameters/moments, loss and clocks. Across eight
+rounds, 32 Lookups become four full requests plus 28 token requests; serialized
+Lookup request bytes decrease about 86%, with zero cached/uncached state or
+loss difference across 503 touched rows. This measurement excludes gradient,
+Agent and response traffic. The record is
+`../validation/2026-11-04-reusable-lookup-layouts.json`.

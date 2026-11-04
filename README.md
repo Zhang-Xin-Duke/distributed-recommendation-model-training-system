@@ -40,6 +40,11 @@ path. CPU and A6000 GPU runs compare aggregated gradients, complete touched
 weights/Adam state, task progress and loss against a single-worker reference.
 The GPU execution currently uses host staging at the RPC boundary.
 
+[Reusable Lookup layouts](docs/REUSABLE_LOOKUP_LAYOUTS.md) register repeated ID
+lists and CSR layouts once per shard, then send scoped tokens for fresh reads.
+Bounded LRU/TTL registries and same-request fallback preserve parameter and
+ticket semantics through metadata eviction or registry restart.
+
 [Joint training checkpoints](docs/JOINT_TRAINING_CHECKPOINT.md) restore parameters,
 Adam state, gradient rounds, completed worker clocks and the next input batch
 together. New processes start paused, rehydrate existing rows on their owners

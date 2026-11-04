@@ -1,0 +1,11 @@
+Test project <project>/build/tensorflow
+    Start  4: reusable_lookup_layout_rpc
+1/3 Test  #4: reusable_lookup_layout_rpc ...........   Passed    0.68 sec
+    Start 27: tensorflow_reusable_lookup_layouts
+2/3 Test #27: tensorflow_reusable_lookup_layouts ...   Passed   21.71 sec
+    Start 48: reusable_lookup_layout_cache
+3/3 Test #48: reusable_lookup_layout_cache .........   Passed    0.10 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =  22.49 sec
