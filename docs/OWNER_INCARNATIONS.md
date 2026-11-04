@@ -63,10 +63,10 @@ execution of this new identity option remains part of GPU recovery validation.
 The manager must stop former owners before replacement and distribute the fresh
 owner identities to every caller. Run namespaces provide replay isolation;
 network authentication and revoking another live endpoint are deployment
-responsibilities. Complete GPU recovery also requires loading replica-backed
-weights and Adam moments into fresh owners, reconciling any partial round and
-resuming the model. The recovery command retains its GPU-job rejection until
-that complete path is implemented and verified.
+responsibilities. [Replica-backed owner recovery](REPLICA_OWNER_RECOVERY.md)
+loads weights and Adam moments into fresh owners, reconciles partial rounds and
+resumes the model. Its complete process path passes with Host owners; CUDA
+execution remains in the GPU validation plan.
 
 [Validation record](validation/2026-11-04-owner-incarnations.json) retains the
 source hashes, model state, RPC results and suite logs for this implementation.

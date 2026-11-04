@@ -6,6 +6,9 @@
 #include "eps/brpc_client.hpp"
 #include "eps/brpc_cache_backend.hpp"
 #include "eps/brpc_synchronous_gradients.hpp"
+#include "eps/brpc_replica.hpp"
+#include "replication/configuration.hpp"
+#include "replication/owner_identity.hpp"
 
 using namespace eps;
 namespace {
@@ -33,6 +36,9 @@ int main(int argc, char** argv) {
     if (!batch) throw std::runtime_error("invalid preparation batch size");
     const bool resident = j.value("resident", true);
     const bool restoring = j.value("restore_existing", false);
+    const bool replica_restore = j.contains("replica_primary");
+    if(replica_restore && (!restoring || !resident || !j.contains("only_shard")))
+      throw std::runtime_error("replica owner preparation requires restoring one resident shard");
     if (!j.value("workers", 2u) || j.value("workers", 2u) > 1022)
       throw std::runtime_error("preparation reserves learner 1022; use at most 1022 training workers");
     if (j.contains("only_shard") && j.at("only_shard").get<std::size_t>() >= addresses.size())
@@ -43,13 +49,42 @@ int main(int argc, char** argv) {
     for (std::size_t home = 0; home < addresses.size(); ++home) {
       if (j.contains("only_shard") && j.at("only_shard").get<std::size_t>() != home) continue;
       BrpcParameterService shard(addresses[home], 30000);
+      std::unique_ptr<BrpcReplicaLog> replica;
+      ReplicaHead replica_head;
       if (restoring) {
         const auto source = Take(shard.RestoredFrom());
-        if (!source.loaded || !source.pristine || source.run != run || source.shard != home ||
+        if (!source.loaded || (!replica_restore && !source.pristine) || source.run != run || source.shard != home ||
             source.shard_count != addresses.size() || source.partition_epoch != epoch)
           throw std::runtime_error("rehydration requires a pristine restored parameter shard");
         BrpcSynchronousGradients group(addresses[home], run, epoch);
         const auto checkpoint = Take(group.Checkpoint()); // Requires paused, empty and matching optimizer clocks.
+        if(replica_restore) {
+          const auto& cfg=j.at("replica_primary");
+          const auto& role=cfg.at("synchronous_training").at("replica");
+          const ReplicaLease lease{role.at("term"),role.at("primary")};
+          const auto& agents=cfg.at("agents");
+          if(source.source_run!=run || cfg.at("run_id")!=run || cfg.at("partition").at("shard_id")!=home ||
+             cfg.at("partition").at("shard_count")!=addresses.size() || cfg.at("partition").at("epoch")!=epoch ||
+             !role.value("recover",false) || !role.value("start_paused",false) || lease.term<2 ||
+             !cfg.at("cache").value("enabled",false) || cfg.at("cache").value("admission",std::string("manual"))!="manual" ||
+             agents.size()!=1 || agents.at(0)!=j.at("agents").at(home) ||
+             agents.at(0).at("owner_run")!=replication::OwnerRun(run,epoch,home,lease) ||
+             cfg.at("tables").size()!=1 || cfg.at("tables").at(0).at("id")!=table ||
+             cfg.at("tables").at(0).at("dimension")!=dim ||
+             cfg.at("replica_table_rows").at(std::to_string(table))!=rows)
+            throw std::runtime_error("replica owner preparation identity or cardinality differs");
+          replica=std::make_unique<BrpcReplicaLog>(role.at("endpoint"),replication::Configuration(cfg));
+          replica_head=Take(replica->Head());
+          if(!replica_head.baseline || replica_head.lease!=lease || checkpoint.next_round!=replica_head.next_round ||
+             replica_head.base_round!=cfg.value("replica_base_round",std::uint64_t(0)))
+            throw std::runtime_error("replica owner preparation term or optimizer frontier differs");
+          const auto expected=(rows+addresses.size()-1-home)/addresses.size();
+          const auto stats=Take(shard.Stats());
+          if(stats.rows!=expected || stats.live_tickets)
+            throw std::runtime_error("replica owner preparation lacks complete unpinned rows");
+          BrpcCacheBackend owner(agents.at(0).at("endpoint"),agents.at(0).at("owner_run"),home,agents.at(0).at("id"));
+          Take(owner.FreeSlots(table)); // Validate the live owner's new namespace before migrating.
+        }
         if (!std::any_of(checkpoint.tables.begin(), checkpoint.tables.end(), [&](const auto& t) {
               return t.table == table && t.dimension == dim;
             })) throw std::runtime_error("rehydration table dimension differs from restored schema");
@@ -96,6 +131,15 @@ int main(int argc, char** argv) {
       nlohmann::json record = {{"shard", home}, {"initialized_rows", initialized},
         {"resident_rows", stats.cached_rows}, {"cpu_state_bytes", stats.state_bytes},
         {"logical_resident_state_bytes", resident ? initialized*dim*12 : 0}};
+      if(replica) {
+        const auto head=Take(replica->Head());
+        BrpcSynchronousGradients group(addresses[home],run,epoch);
+        const auto boundary=Take(group.Checkpoint());
+        if(head.lease!=replica_head.lease || head.next_round!=replica_head.next_round || boundary.next_round!=head.next_round)
+          throw std::runtime_error("replica frontier changed while rehydrating owner");
+        record["replica"]={{"term",head.lease.term},{"primary",head.lease.primary},{"next_round",head.next_round},
+          {"owner_run",j.at("agents").at(home).at("owner_run")}};
+      }
       if (resident) {
         const auto& a = j.at("agents").at(home);
         BrpcCacheBackend agent(a.at("endpoint"), a.value("owner_run",run), home, a.at("id"));

@@ -1,0 +1,15 @@
+{
+  "failures": [
+    {
+      "error": "usage error: GPU configuration a6000 x1 is currently unavailable",
+      "gpu": "a6000",
+      "index": 0
+    },
+    {
+      "error": "usage error: GPU configuration l40 x1 is currently unavailable",
+      "gpu": "l40",
+      "index": 0
+    }
+  ],
+  "nodes": []
+}

@@ -47,8 +47,10 @@ worker processes computing sparse gradients against network parameter shards.
 Replica-before-ack and explicit primary replacement now execute for synchronous
 rounds with retained worker gradients and CPU-owned state. Durable worker logs
 now support CPU job restart after worker/coordinator loss and abandoned read
-tickets. Partial Pull/Release RPC failures, live GPU-owner fencing and a measured
-common-quality comparison across training consistency policies remain open.
+tickets. Term-bound owner replacement and replica-backed rehydration now pass
+the full Host-backed training fault cases. CUDA owner recovery execution,
+partial Pull/Release RPC failures and a measured common-quality comparison
+across training consistency policies remain open.
 Full original Entropy execution also remains open.
 
 ## Training-task progress controller

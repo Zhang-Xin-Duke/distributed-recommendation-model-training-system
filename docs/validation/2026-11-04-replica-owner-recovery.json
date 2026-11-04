@@ -1,0 +1,246 @@
+{
+  "base_commit": "a3480ce07bdff155686343626484f14544ea1f1a",
+  "recorded_at_utc": "2026-11-04T21:46:14.927692+00:00",
+  "scope": "Replica-backed full parameter-owner rehydration, original-gradient reconciliation and model continuation after process loss",
+  "environment": {
+    "python": "3.11.14",
+    "tensorflow": "2.20.0",
+    "numpy": "2.4.6",
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "checks": {
+    "native": {
+      "passed": 39,
+      "failed": 0
+    },
+    "framework": {
+      "passed": 63,
+      "failed": 0
+    }
+  },
+  "workload": {
+    "device": "CPU",
+    "parameter_backend": "host",
+    "workers": 2,
+    "shards": 2,
+    "rows": 64,
+    "dimension": 8,
+    "rounds": 8,
+    "fault_round": 3,
+    "parameter_owners": 2,
+    "physical_gpus": 0
+  },
+  "results": {
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "comparison_tolerance": 0.0,
+    "cleanup_verified": true
+  },
+  "cases": [
+    {
+      "mode": "baseline",
+      "completed": [
+        8,
+        8
+      ],
+      "resident_rows": 64,
+      "compared_rows": 64
+    },
+    {
+      "mode": "after_pull",
+      "completed": [
+        8,
+        8
+      ],
+      "resident_rows": 64,
+      "compared_rows": 64,
+      "next_round": 3,
+      "replayed_rounds": [],
+      "replaced_owner_processes": 2,
+      "idempotent_reconcile": true,
+      "partial_owner_preparation": {
+        "dimension": 8,
+        "logical_parameter_optimizer_bytes": 6144,
+        "resident": true,
+        "restore_existing": true,
+        "rows": 64,
+        "seconds": 0.00479,
+        "shards": [
+          {
+            "cpu_state_bytes": 106496,
+            "initialized_rows": 32,
+            "logical_resident_state_bytes": 3072,
+            "remaining_slots": 7,
+            "replica": {
+              "next_round": 3,
+              "owner_run": "eps-owner-6900a09352478596766f5aa621198c5655f18f91fac1642fec78976fa89acb36",
+              "primary": "replacement-0",
+              "term": 2
+            },
+            "resident_rows": 32,
+            "shard": 0
+          }
+        ]
+      },
+      "negative_cases": [
+        "changed_input",
+        "end_before_durable_round",
+        "unreconciled_gpu_owner",
+        "live_worker_journal_lock",
+        "ordinary_snapshot_mode_rejects_replica_images",
+        "wrong_replica_owner_term",
+        "changed_full_table_cardinality"
+      ]
+    },
+    {
+      "mode": "partial_round",
+      "completed": [
+        8,
+        8
+      ],
+      "resident_rows": 64,
+      "compared_rows": 64,
+      "next_round": 4,
+      "replayed_rounds": [
+        3
+      ],
+      "replaced_owner_processes": 2,
+      "idempotent_reconcile": true,
+      "partial_owner_preparation": {
+        "dimension": 8,
+        "logical_parameter_optimizer_bytes": 6144,
+        "resident": true,
+        "restore_existing": true,
+        "rows": 64,
+        "seconds": 0.004917625,
+        "shards": [
+          {
+            "cpu_state_bytes": 106496,
+            "initialized_rows": 32,
+            "logical_resident_state_bytes": 3072,
+            "remaining_slots": 7,
+            "replica": {
+              "next_round": 4,
+              "owner_run": "eps-owner-db8200f7cd187ec86d25a73539eced444280446bca673e1c1995dc83ab9c4df7",
+              "primary": "replacement-0",
+              "term": 2
+            },
+            "resident_rows": 32,
+            "shard": 0
+          }
+        ]
+      },
+      "negative_cases": [
+        "changed_input",
+        "end_before_durable_round",
+        "unreconciled_gpu_owner",
+        "live_worker_journal_lock",
+        "missing_partially_committed_gradient",
+        "ordinary_snapshot_mode_rejects_replica_images",
+        "wrong_replica_owner_term",
+        "changed_full_table_cardinality"
+      ]
+    },
+    {
+      "mode": "after_update",
+      "completed": [
+        8,
+        8
+      ],
+      "resident_rows": 64,
+      "compared_rows": 64,
+      "next_round": 4,
+      "replayed_rounds": [],
+      "replaced_owner_processes": 2,
+      "idempotent_reconcile": true,
+      "partial_owner_preparation": {
+        "dimension": 8,
+        "logical_parameter_optimizer_bytes": 6144,
+        "resident": true,
+        "restore_existing": true,
+        "rows": 64,
+        "seconds": 0.005410416,
+        "shards": [
+          {
+            "cpu_state_bytes": 106496,
+            "initialized_rows": 32,
+            "logical_resident_state_bytes": 3072,
+            "remaining_slots": 7,
+            "replica": {
+              "next_round": 4,
+              "owner_run": "eps-owner-39b0ef95e854f4464878d14534a139af2d9cfaf1fa4201852669f73a47d33d56",
+              "primary": "replacement-0",
+              "term": 2
+            },
+            "resident_rows": 32,
+            "shard": 0
+          }
+        ]
+      },
+      "negative_cases": [
+        "changed_input",
+        "end_before_durable_round",
+        "unreconciled_gpu_owner",
+        "live_worker_journal_lock",
+        "ordinary_snapshot_mode_rejects_replica_images",
+        "wrong_replica_owner_term",
+        "changed_full_table_cardinality"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "4343edb7a3bc5dcad28a3a76355cd7fde44095c79e2eb6d9cd00ce53565ca7b7",
+    "scripts/recover_training.py": "2eed23037c1a5c1c0b89117ec719887b3e9cc8cbb43676b0f707dcaad311874b",
+    "src/training/control_main.cpp": "4bfa594047484d5705c13e7d5133a9bee9b12a41a03767c40fe50fd711a7e4fc",
+    "src/training/prepare_main.cpp": "7604fd5f4370d62391f4b4610ce5cc39e8ef3f8a65f6bd665cfec00d7a3316da",
+    "tests/tensorflow_worker_recovery.py": "70043e2d9df68c11c21e0bc950f2c96485a0cac9a6216296416fd293b3b27901",
+    "adapters/entropy/training_recovery.py": "ee6542feeafe20b3f98ca870a596f4ca8c44fd66c1f94344ec027461a4395f6d",
+    "src/replication/owner_identity.hpp": "4a2e901ac9e2b2a3cc054f4cd366e61349efc48fa2e222232c3ad0dd676e7ea2"
+  },
+  "binary_sha256": {
+    "eps_server": "d949edf9fbafc5de4eca31075d33df105a83200b0b9c1664df5cdea3ff304e2e",
+    "eps_cache_agent": "06e464d3b3562442d784b2fd2a8ccae487f9efec9cd99549e67fc70ae2ca272d",
+    "eps_training_prepare": "bd75ccc27140bfaf79c13537f3381a5116876b621b76598ba7d14aed4b513dee",
+    "eps_training_control": "55b60e040198041160ed70b11b2d74aac401e5cc1a2149929f1cd185170635ac",
+    "eps_replica": "8dfb24402ac67cb3f93a0296a12630d54167ee96374a550f90a33a15603ed211",
+    "eps_replica_control": "a67d0cb43d0447de83129b6a9302daabf2df12d89a4dd2dc6d7a030f62d276ee",
+    "eps_training_coordinator": "d745cbd2d6a64bbb4e06aac9f51562ca86193b9e501c0f8200a351326e6cee10"
+  },
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-replica-owner-recovery/native.log",
+      "sha256": "51118ab26f0fa799f54786cdf4f37ff734e41840558b4f46631509b9d4e2e3e5",
+      "bytes": 5102
+    },
+    {
+      "path": "docs/validation/2026-11-04-replica-owner-recovery/framework.log",
+      "sha256": "cddaa174e7ff20d5e2a067c1dcc66ba3e3700a28eedc01ddd5bf3b1a4bc7f79e",
+      "bytes": 8372
+    },
+    {
+      "path": "docs/validation/2026-11-04-replica-owner-recovery/host-model-recovery.json.gz",
+      "sha256": "b861039aa0fba62dde96e5871133c3e17aacb897ec56d640d135cd4237965c3b",
+      "bytes": 49766
+    },
+    {
+      "path": "docs/validation/2026-11-04-replica-owner-recovery/gpu-availability.json",
+      "sha256": "33cd79453a567c59bc3c00953b65d8e4c7bfd4de5ea5eea98f68278a84edb419",
+      "bytes": 304
+    },
+    {
+      "path": "docs/validation/2026-11-04-replica-owner-recovery/gpu-allocation-cleanup.json",
+      "sha256": "7ccdbc122bbce3b137164f71129115d8c123bb99a3311a018b5c3746a0776ce1",
+      "bytes": 177
+    }
+  ],
+  "gpu_execution": "Not executed: A6000 and L40 allocation requests both rejected for unavailable inventory",
+  "remaining": [
+    "CUDA execution of this full owner recovery path",
+    "Distinct-GPU resident training state exceeding the largest physical single GPU",
+    "Full original Entropy build/load/training/control",
+    "Cross-node automatic supervision and journal retrieval",
+    "Partial Pull/Release RPC failure recovery",
+    "Gradient Key metadata reuse, bounded log compaction and same-quality policy comparisons"
+  ]
+}

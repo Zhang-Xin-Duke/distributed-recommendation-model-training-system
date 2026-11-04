@@ -18,6 +18,7 @@ import uuid
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'adapters/entropy'))
 from training_journal import WorkerJournal, identity, canonical, sync_directory
+from training_recovery import recovery_owners
 
 
 def recover(job, build, apply=False):
@@ -41,23 +42,24 @@ def recover(job, build, apply=False):
             raise ValueError('recovery model or journal base rounds differ')
         for home, shard in enumerate(shards):
             cfg = shard['config']
-            if cfg.get('cache',{}).get('enabled',False):
-                raise ValueError('GPU parameter-owner recovery requires fencing and rehydration before job recovery')
             if cfg['run_id'] != run or cfg['partition'] != dict(shard_id=home, shard_count=len(shards), epoch=epoch):
                 raise ValueError('recovery shard identity differs')
             if cfg['synchronous_training']['workers'] != len(workers) or any(w['table'] != cfg['tables'][0] for w in workers) or len(cfg['tables']) != 1:
                 raise ValueError('recovery model/table group differs')
         if len({s['config']['synchronous_training'].get('reduction','sample_mean') for s in shards}) != 1:
             raise ValueError('recovery gradient reductions differ')
+        owners = recovery_owners(job)
         counter = 0
 
-        def command(binary, cfg, action):
+        def command(binary, cfg, action=None, timeout=15):
             nonlocal counter
             counter += 1
             path = pathlib.Path(tmp) / f'{counter}.json'
             path.write_text(json.dumps(cfg))
-            r = subprocess.run([str(build / binary), '--config', str(path), '--action', action],
-                               capture_output=True, text=True, timeout=15)
+            argv = [str(build / binary), '--config', str(path)]
+            if action is not None:
+                argv += ['--action', action]
+            r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
             if r.returncode:
                 raise RuntimeError(r.stderr.strip()[-2000:])
             return json.loads(r.stdout)
@@ -93,6 +95,7 @@ def recover(job, build, apply=False):
                            consistency='sequential', max_delay=0, replica_next_round=target)
         settings = dict(run=run, epoch=epoch, coordinator=job['coordinator_endpoint'], shards=endpoints, keys=[], synchronous=True)
         replayed = []
+        rehydration = []
         if apply:
             state = command('eps_training_control', settings, 'inspect')
             if not state['paused'] or state['failed'] or state['completed'] != [target] * len(workers) or state['active'] or state['waiting']:
@@ -101,6 +104,19 @@ def recover(job, build, apply=False):
                 group = stats['synchronous']
                 if stats['live_tickets'] or group['applying'] or group['received_workers'] or group['failed'] or group['next_round'] != before[h]['next_round']:
                     raise ValueError('replacement parameter shards are not quiescent at replica frontiers')
+            if any(owners):
+                command('eps_training_control', settings, 'pause-shards')
+                for home, agent in enumerate(owners):
+                    if agent is None:
+                        continue
+                    cfg = shards[home]['config']
+                    table = cfg['tables'][0]
+                    prepared = command('eps_training_prepare', dict(run=run, epoch=epoch, shards=endpoints,
+                        workers=len(workers), only_shard=home, table_id=table['id'], dimension=table['dimension'],
+                        rows=cfg['replica_table_rows'][str(table['id'])], agents=owners, restore_existing=True,
+                        replica_primary=cfg), timeout=1800)
+                    rehydration.append(prepared)
+                command('eps_training_control', settings, 'resume-shards')
             if target != low:
                 from eps_backend import Backend
 
@@ -122,6 +138,12 @@ def recover(job, build, apply=False):
             state = command('eps_training_control', settings, 'inspect')
             if any(s['live_tickets'] or s['synchronous']['next_round'] != target or s['synchronous']['failed'] for s in state['shard_stats']):
                 raise RuntimeError('recovery parameter state did not drain')
+            for home, agent in enumerate(owners):
+                if agent is not None:
+                    rows = shards[home]['config']['replica_table_rows'][str(shards[home]['config']['tables'][0]['id'])]
+                    expected = (rows + len(shards) - 1 - home) // len(shards)
+                    if state['shard_stats'][home]['rows'] != expected or state['shard_stats'][home]['cached_rows'] != expected:
+                        raise RuntimeError('recovery parameter owner lacks complete resident state')
         else:
             final = before
         sequences = [0] * len(workers)
@@ -140,6 +162,8 @@ def recover(job, build, apply=False):
             item = dict(cfg, start_iteration=target, iterations=job['end_round'] - target,
                         read_sequence=sequences[w], coordinator=job['coordinator_endpoint'])
             item.pop('test_pause', None)
+            if any(owners):
+                item['agents'] = [a for a in owners if a is not None]
             if item['iterations'] < 0:
                 raise ValueError('recovery round exceeds requested training end')
             item['input_state'] = dict(kind='cyclic-json-batches-v1', dataset_json=journal.identity['dataset_json'],
@@ -150,6 +174,7 @@ def recover(job, build, apply=False):
                     complete=target==job['end_round'],
                     replay_required=target != low, replayed_rounds=replayed, ready=apply,
                     replica_heads=final, coordinator=coordinator, workers=resumed,
+                    parameter_owners=[a for a in owners if a is not None], owner_rehydration=rehydration,
                     source_config_sha256=hashlib.sha256(canonical(job)).hexdigest())
 
 
@@ -160,6 +185,8 @@ def main():
     p.add_argument('--action', choices=['plan', 'reconcile'], required=True)
     p.add_argument('--out', type=pathlib.Path, required=True)
     a = p.parse_args()
+    if a.out.exists() or not a.out.parent.is_dir():
+        raise ValueError('recovery output must be a new file in an existing directory')
     result = recover(json.loads(a.config.read_text()), a.build.resolve(), a.action == 'reconcile')
     payload = json.dumps(result, indent=2).encode() + b'\n'
     pending = a.out.parent / ('.recovery-' + uuid.uuid4().hex)

@@ -25,6 +25,15 @@ int main(int argc, char** argv) {
     if (action == "save-job" || action == "restore-config" || action == "resume-job") {
       std::cout << training::JobCheckpoint(j, action).dump() << '\n'; return 0;
     }
+    if(action=="pause-shards" || action=="resume-shards") {
+      const auto addresses=j.at("shards").get<std::vector<std::string>>();
+      if(addresses.empty() || addresses.size()>1024)throw std::runtime_error("invalid shard group");
+      for(const auto& address:addresses) {
+        BrpcSynchronousGradients group(address,j.at("run"),j.value("epoch",std::uint64_t(1)));
+        if(action=="pause-shards")Take(group.Pause());else Take(group.Resume());
+      }
+      std::cout<<nlohmann::json{{"ok",true},{"shards",addresses.size()}}.dump()<<'\n';return 0;
+    }
     BrpcTrainingProgress c(j.at("coordinator"), j.at("run"), j.value("epoch", std::uint64_t(1)), 5000);
     nlohmann::json result;
     if (action == "stats" || action == "inspect") {
@@ -52,7 +61,7 @@ int main(int argc, char** argv) {
               {"second_moment", row.second_moment}, {"row_updates", row.row_updates}});
           const auto stats = Take(shard.Stats());
           result["shard_stats"].push_back({{"live_tickets", stats.live_tickets},
-            {"updates", stats.updates}, {"rows", stats.rows}});
+            {"updates", stats.updates}, {"rows", stats.rows}, {"cached_rows",stats.cached_rows}});
           if (j.value("synchronous", false)) {
             BrpcSynchronousGradients group(addresses[home], j.at("run"), j.value("epoch", std::uint64_t(1)));
             const auto rounds = Take(group.Stats());

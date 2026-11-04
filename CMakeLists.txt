@@ -221,7 +221,8 @@ if(EPS_BUILD_BRPC)
   target_include_directories(eps_replica_control PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(eps_training_control PRIVATE eps_brpc nlohmann_json::nlohmann_json OpenSSL::Crypto)
   add_executable(eps_training_prepare src/training/prepare_main.cpp)
-  target_link_libraries(eps_training_prepare PRIVATE eps_brpc nlohmann_json::nlohmann_json)
+  target_link_libraries(eps_training_prepare PRIVATE eps_brpc nlohmann_json::nlohmann_json OpenSSL::Crypto)
+  target_include_directories(eps_training_prepare PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_executable(eps_capacity_probe tests/capacity_probe.cpp)
   target_link_libraries(eps_capacity_probe PRIVATE eps_brpc nlohmann_json::nlohmann_json)
   add_executable(eps_cache_policy_probe tests/cache_policy_probe.cpp)
@@ -419,6 +420,11 @@ if(EPS_BUILD_BRPC)
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-worker-recovery.json")
         set_tests_properties(tensorflow_worker_recovery PROPERTIES TIMEOUT 300
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_replica_owner_recovery_host
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --owners host --out "${CMAKE_CURRENT_BINARY_DIR}/tf-owner-recovery-host.json")
+        set_tests_properties(tensorflow_replica_owner_recovery_host PROPERTIES TIMEOUT 300
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         set_tests_properties(durable_worker_gradients PROPERTIES TIMEOUT 30)
         set_tests_properties(distributed_model_orchestration PROPERTIES TIMEOUT 120)
         if(EPS_BUILD_CUDA)
@@ -426,6 +432,11 @@ if(EPS_BUILD_BRPC)
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_synchronous_training.py"
               --build "${CMAKE_CURRENT_BINARY_DIR}" --devices 0 --out "${CMAKE_CURRENT_BINARY_DIR}/tf-synchronous-cuda.json")
           set_tests_properties(tensorflow_synchronous_model_cuda PROPERTIES TIMEOUT 240
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+          add_test(NAME tensorflow_replica_owner_recovery_cuda
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
+              --build "${CMAKE_CURRENT_BINARY_DIR}" --owners cuda --out "${CMAKE_CURRENT_BINARY_DIR}/tf-owner-recovery-cuda.json")
+          set_tests_properties(tensorflow_replica_owner_recovery_cuda PROPERTIES TIMEOUT 360
             ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         endif()
         add_test(NAME tensorflow_graph_cache_external_shards
