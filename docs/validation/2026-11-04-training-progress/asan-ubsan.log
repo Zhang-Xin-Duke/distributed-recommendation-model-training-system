@@ -1,0 +1,26 @@
+UpdateCTestConfiguration  from :/Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/asan/DartConfiguration.tcl
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/asan
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 12
+    Start 12: training_progress_consistency
+
+12: Test command: /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/asan/eps_training_progress_tests
+12: Working Directory: /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/asan
+12: Test timeout computed to be: 30
+12: controlled_training policy=0 workers=4 shards=2 updates=160 initial_loss=0.693147 final_loss=0.278057
+12: controlled_training policy=2 workers=4 shards=2 updates=160 initial_loss=0.693147 final_loss=0.277841
+12: controlled_training policy=1 workers=4 shards=2 updates=160 initial_loss=0.693147 final_loss=0.277836
+12: PASS training task consistency: sequential/eventual/bounded-delay, slide-18 boundaries, duplicate completion, pause/restore, abort, and 8-thread progress across all policies
+1/1 Test #12: training_progress_consistency ....   Passed    0.40 sec
+
+The following tests passed:
+	training_progress_consistency
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.40 sec

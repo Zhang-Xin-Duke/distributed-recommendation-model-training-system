@@ -1,5 +1,25 @@
 # Validation record
 
+## Training-task consistency core — November 4, 2026
+
+The fixed-worker-group progress controller implements the lecture's sequential,
+eventual and bounded-delay task dependency rules. Native, ASan/UBSan and TSan
+configurations pass the targeted C++ check. Cases include the exact slide-18
+boundary, duplicate completion, pause/drain, fresh-run restore, malformed clock
+snapshots, terminal failure and eight concurrent workers under each policy.
+
+Each configuration also executes three controlled sparse-logistic training
+cases: four worker threads, two in-process parameter-service actors and 160
+worker updates per policy. Actual gradients use pulled parameter features;
+clocks advance after Push acknowledgements. Loss decreases from approximately
+0.693 to 0.278; touched-row update counts, finite Adam state and drained tickets
+are checked. These are correctness probes with per-worker optimizer updates.
+They provide no multi-process/GPU, gradient-aggregation, replica failover or
+common-quality performance result.
+
+[Training execution contracts](TRAINING_EXECUTION.md) ·
+[Source hashes, records and sanitizer logs](validation/2026-11-04-training-progress.json)
+
 ## Original native build preflight — November 1, 2026
 
 The separate Bazel workspace repository supplies the previously missing build

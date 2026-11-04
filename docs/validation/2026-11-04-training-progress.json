@@ -1,0 +1,153 @@
+{
+  "base_commit": "b9b9fcad2df78c2f722ed171e61176c85c2da90e",
+  "platform": "macOS arm64",
+  "reference": {
+    "file": "16-parameter-server.pdf",
+    "sha256": "a51ce65c8d03c75154494ba3490927fb907bc6a1e357c84a09df676007d6d9a8",
+    "pages": [
+      11,
+      12,
+      15,
+      16,
+      17,
+      18,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ]
+  },
+  "scope": "C++ fixed-worker-group progress core and in-process sparse-training correctness; no progress RPC service, cross-process/GPU training, or replica failover tested",
+  "source_sha256": {
+    "CMakeLists.txt": "c2d85fd62d17b0eb6de4e0287ddf1583bfeabbe21757ebe24be4602518eb18ae",
+    "include/eps/training_progress.hpp": "364680c61c7753874095052a75969c6b368017ebe1ae71463b68a5009415718f",
+    "src/training/training_progress.cpp": "cfdf137d6cd043386cf3b08b9e02f70d8b35ee6e68369c7c1e9fea31e21c60f2",
+    "tests/training_progress_tests.cpp": "dcbb1c8a5d2c75cd69999b198f9a0519a3512904b11540073d372e702ab4079e"
+  },
+  "checks": [
+    "slide-18 bounded-delay boundary",
+    "zero-delay/sequential equivalence",
+    "eventual policy permits unbounded worker lead",
+    "duplicate admission and completion",
+    "run/epoch/task validation",
+    "pause and in-flight drain",
+    "fresh-run progress restore",
+    "invalid clock checkpoint rejection",
+    "terminal abort and destruction release waiters",
+    "8 workers x 80 tasks for each policy",
+    "four worker threads execute actual sparse logistic gradients against two parameter-service actors"
+  ],
+  "stages": [
+    {
+      "configuration": "native",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "binary_sha256": "5cdf86f4ee1eeff1fbf4c6b0de00c897923243313b8b1c5cfc1dbe5cc84772c4",
+      "controlled_training": [
+        {
+          "policy": "sequential",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277793
+        },
+        {
+          "policy": "bounded_delay",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277835
+        },
+        {
+          "policy": "eventual",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277842
+        }
+      ]
+    },
+    {
+      "configuration": "asan-ubsan",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "binary_sha256": "a371f4d52b82a3cff9b6353230929ad8493cda54761415ccee8e262d2ee83500",
+      "controlled_training": [
+        {
+          "policy": "sequential",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.278057
+        },
+        {
+          "policy": "bounded_delay",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277841
+        },
+        {
+          "policy": "eventual",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277836
+        }
+      ]
+    },
+    {
+      "configuration": "tsan",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "binary_sha256": "9002646851b4ecfc6e027af18381a082e9b0ead05be2750fdbb4eecc2be49847",
+      "controlled_training": [
+        {
+          "policy": "sequential",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277848
+        },
+        {
+          "policy": "bounded_delay",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277835
+        },
+        {
+          "policy": "eventual",
+          "workers": 4,
+          "parameter_service_actors": 2,
+          "worker_updates": 160,
+          "initial_loss": 0.693147,
+          "final_loss": 0.277838
+        }
+      ]
+    }
+  ],
+  "multi_process_training_verified": false,
+  "gpu_training_verified": false,
+  "replication_before_ack_verified": false,
+  "full_original_entropy_verified": false,
+  "additional_gpu_rentals": 0
+}

@@ -19,6 +19,7 @@ add_library(eps_core
   src/access/prepare_queue.cpp
   src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
+  src/training/training_progress.cpp
   src/client/distributed_client.cpp
   src/client/cache_resolver.cpp
   src/cache/access_cost_model.cpp
@@ -383,6 +384,10 @@ if(EPS_BUILD_TESTS)
   target_link_libraries(eps_periodic_checkpoint_tests PRIVATE eps_core)
   add_test(NAME periodic_checkpoint_lifecycle COMMAND eps_periodic_checkpoint_tests)
   set_tests_properties(periodic_checkpoint_lifecycle PROPERTIES TIMEOUT 30)
+  add_executable(eps_training_progress_tests tests/training_progress_tests.cpp)
+  target_link_libraries(eps_training_progress_tests PRIVATE eps_core)
+  add_test(NAME training_progress_consistency COMMAND eps_training_progress_tests)
+  set_tests_properties(training_progress_consistency PROPERTIES TIMEOUT 30)
   add_executable(eps_weight_bounds_tests tests/weight_bounds_tests.cpp)
   add_executable(eps_restore_provenance_tests tests/restore_provenance_tests.cpp)
   target_link_libraries(eps_restore_provenance_tests PRIVATE eps_core)

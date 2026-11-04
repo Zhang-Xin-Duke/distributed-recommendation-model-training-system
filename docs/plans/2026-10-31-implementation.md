@@ -14,6 +14,12 @@ in the GPU agent. Initial row layout is FP32 weights and unshared LazyAdam momen
 Implementation started on 2026-10-31. Local and rented-GPU verification are
 authorized. GPU checks run within the existing USD 20 rental budget.
 
+The November 4 [distributed-training design](2026-11-04-distributed-training-design.md)
+sets the current implementation priority: training-task dependencies, update
+semantics, logical progress, replication/recovery and common-quality evaluation.
+The task-progress core is verified; its network integration and the remaining
+training mechanisms are open. Full original Entropy integration is retained.
+
 | Phase | Current evidence |
 |---|---|
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |

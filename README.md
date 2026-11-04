@@ -7,6 +7,13 @@ for updates. Distributed Parameter Server partitions those parameters across
 server shards and manages batched access and optimizer state. GPU workers cache
 complete parameter rows and execute resident pooling and sparse updates.
 
+[Distributed training execution](docs/TRAINING_EXECUTION.md) is the central
+implementation track: worker task dependencies, gradient/update semantics,
+logical progress, replication and recovery, evaluated at a common quality
+target. The task-progress core now implements sequential, eventual and
+bounded-delay admission; multi-process training and replica-backed failover
+remain in the implementation plan.
+
 The first implementation targets sparse access to embedding tables: each batch
 touches only a small fraction of a large table. This pattern appears in
 recommendation, advertising, knowledge graphs, graph learning and word-embedding

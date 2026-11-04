@@ -1,0 +1,119 @@
+# Distributed training execution
+
+The project is a distributed parameter server for training one model across
+multiple workers. The user's Lecture 16, `16-parameter-server.pdf`, is the
+reference for the training mechanisms and evaluation priorities. Existing
+Entropy integration remains a requirement; replacing its private Redis client
+is an integration task alongside this training work.
+
+## Roles and requirements
+
+- Workers own partitioned examples and run model forward/backward (slides 4,
+  8, 11-12). Parameter shards own the shared parameters and optimizer updates.
+- Sparse Push/Pull route each request to its parameter owners (slides 9-14).
+  Preserve sparse layouts, binary values, update scaling and aggregation rules.
+  Repeated key-list caching (slide 23) reuses key metadata across requests and
+  must preserve run/ownership epochs and bounded cache lifetimes.
+- Training-task consistency selects sequential, eventual or bounded-delay
+  dependencies (slides 15-18). Asynchronous RPC completion alone does not
+  establish a training-consistency policy.
+- Logical task progress and range clocks identify completed updates, including
+  retries and recovery (slides 21-22). Transport sequence deduplication and
+  checkpoint restart have their existing, narrower contracts.
+- Replication precedes successful update acknowledgement; a server manager
+  fences ownership changes and restores values and clocks (slides 24-26).
+  Checkpoint restore and live replica failover have separate execution evidence.
+- Compare time to a common loss/quality target, worker waiting, communication,
+  staleness and recovery (slides 20 and 27-30). GPU cache/update throughput
+  remains a supporting measurement. The paper's dataset/machine counts are
+  examples, not implementation acceptance requirements.
+
+## Existing components and missing execution mechanisms
+
+The current service implements shard routing, sparse feature pooling and
+unpooling, LazyAdam state, live-run request deduplication, CPU/GPU ownership,
+bounded requests and coordinated checkpoint/restore. Native TensorFlow graphs
+execute real model gradients. Source-method checks and peer checkpoint checks
+have explicit original-native environment substitutions.
+
+There is currently no training-task clock policy, replica-before-ack protocol,
+live shard/worker failover or measured common-quality comparison across training
+consistency policies. Full original Entropy execution also remains open.
+
+## Training-task progress controller
+
+Use a dedicated controller with a fixed worker group and a fresh run identity.
+Workers obtain a permit before starting iteration `t` and report completion only
+after all parameter updates required by that task are acknowledged. Each worker
+has at most one active or waiting iteration; completed counts are contiguous.
+The controller never waits synchronously for another worker inside an RPC
+completion thread. A blocked admission is represented by a shared future, with
+one bounded pending request per worker.
+
+For a completed count `c[w]`, worker `w` has finished iterations `[0,c[w])`.
+The global completion floor is `min(c)`:
+
+- Sequential: admit `t` when `min(c) >= t`.
+- Eventual: impose no finite inter-worker delay bound.
+- Bounded delay `tau`: admit `t` when `t <= tau` or
+  `min(c) >= t - tau`.
+
+This is exactly slide 18's rule: all iterations `j < t - tau` must finish.
+In particular, with `tau=1`, iteration 1 can start while iteration 0 is
+unfinished, and iteration 2 must wait for iteration 0. Permit metadata records
+the observed floor at admission; it is a task-progress observation, not a
+parameter version or an atomic cross-shard model snapshot.
+
+A server-side controller provides one dependency rule across processes. A
+client-only barrier is convenient for strict synchronization, but does not
+provide a shared bounded-delay clock or recoverable progress. Framework
+collectives remain useful for dense gradient synchronization and are separate
+from this controller's task-admission responsibility.
+
+Repeated admission for the same in-flight task shares its result. Duplicate
+completion cannot advance progress twice. Run/epoch mismatches reject. Pause
+rejects new work, releases waiting callers with an explicit error, and lets
+already-admitted tasks finish. A progress checkpoint is exportable only after
+pause/drain. Restore requires a fresh run and preserves the configured policy,
+worker group and clocks; it remains paused until the job controller verifies
+the matching parameter/input checkpoint. Abort wakes blocked callers and is
+terminal. Worker replacement and replica-backed task replay are subsequent
+protocol work, not guarantees of the initial fixed-group controller.
+
+## Implementation and verification sequence
+
+1. Implement and verify the C++ task-progress controller: slide-18 boundaries,
+   duplicate/malformed tasks, pause/drain, fresh-run restore, abort and concurrent
+   workers. This establishes the control component; network integration remains.
+2. Expose progress RPCs, connect real worker processes to the controller and
+   existing parameter shards, and execute a real sparse training workload.
+   Define gradient aggregation/normalization and optimizer-step semantics
+   explicitly. A synchronization barrier alone does not implement averaging
+   multiple workers' gradients into one optimizer update. Add repeated key-list
+   handles separately from the existing single-consumption preparation tokens.
+3. Implement persistent per-range update progress, duplicate-safe retries across
+   ownership changes, replication-before-ack and fenced primary promotion.
+   Inject lost acknowledgements and process failures during training.
+4. Replace the missing Redis SDK with an operational public Redis backend,
+   preserving the caller's command, batching, ordering, TTL and error contracts;
+   build and run the complete original Entropy training/control path.
+5. Run common-quality comparisons for sequential/eventual/bounded delay, with
+   controlled stragglers and failures. Retain parameter-state checks, rejected
+   points, worker idle time, bytes transferred and recovery time.
+
+Policy comparisons keep the update algorithm, gradient normalization and
+optimizer-step unit fixed. Round-averaged synchronous SGD is a separate
+aggregation mode from one-update-per-worker training; changing that mode must
+not be attributed solely to a change in the delay policy.
+
+The eventual end-to-end acceptance requires the complete training path and its
+failure behavior; component tests do not substitute for that acceptance.
+
+## Current execution record
+
+Step 1's C++ core is implemented. Native, ASan/UBSan and TSan checks pass,
+including eight-thread progress and four-worker/two-actor sparse logistic-loss
+updates through the existing parameter API. The source-hashed record is
+`../validation/2026-11-04-training-progress.json`. Network controller integration,
+aggregation, replication/failover, original-framework execution and common-quality
+measurements remain in the steps above. No GPU rental was used for this stage.
