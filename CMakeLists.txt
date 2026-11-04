@@ -191,6 +191,9 @@ if(EPS_BUILD_BRPC)
     if(EPS_BUILD_TESTS)
       add_test(NAME native_runtime_c_abi COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_c_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime>)
       set_tests_properties(native_runtime_c_abi PROPERTIES TIMEOUT 45)
+      add_test(NAME native_runtime_owner_incarnation COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_c_processes.py"
+        $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> $<TARGET_FILE:eps_cache_agent>)
+      set_tests_properties(native_runtime_owner_incarnation PROPERTIES TIMEOUT 45)
     endif()
   endif()
   if(EPS_BUILD_PYTHON)
@@ -384,6 +387,12 @@ if(EPS_BUILD_BRPC)
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_synchronous_training.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-synchronous-cpu.json")
         set_tests_properties(tensorflow_synchronous_model_cpu PROPERTIES TIMEOUT 180
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_owner_incarnation
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_synchronous_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --owner-incarnation replacement-2
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-owner-incarnation.json")
+        set_tests_properties(tensorflow_owner_incarnation PROPERTIES TIMEOUT 180
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_joint_training_checkpoint
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"

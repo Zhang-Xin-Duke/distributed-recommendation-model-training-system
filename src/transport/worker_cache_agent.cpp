@@ -6,7 +6,7 @@
 namespace eps {
 struct WorkerCacheAgent::Impl {
   Impl(WorkerCacheOptions options,std::shared_ptr<CacheBackend> backend)
-      :run(std::move(options.run)),runtime(run,std::move(backend),options.replay_bytes),
+      :run(std::move(options.run)),runtime(run,std::move(backend),options.replay_bytes,std::move(options.training_run)),
        service(runtime,options.admission){
     detail::Require(server.AddService(&service,brpc::SERVER_DOESNT_OWN_SERVICE)==0,
       "cannot register worker cache Agent");

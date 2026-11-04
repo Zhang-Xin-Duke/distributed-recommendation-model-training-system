@@ -148,9 +148,16 @@ class Backend {
     std::vector<std::string> files;
     for(auto& m:metadata)files.insert(files.end(),m.state_files.begin(),m.state_files.end());return files;
   }
-  void Cache(std::vector<std::pair<AgentId,std::string>> endpoints,bool coalesce) {
+  void Cache(py::sequence endpoints,bool coalesce) {
     std::map<AgentId,std::shared_ptr<CacheBackend>> agents;
-    for(auto& [id,endpoint]:endpoints)agents[id]=std::make_shared<BrpcCacheBackend>(endpoint,run_,0,id);
+    for(auto endpoint:endpoints) {
+      auto fields=py::cast<py::sequence>(endpoint);
+      if(fields.size()!=2 && fields.size()!=3)throw std::invalid_argument("cache endpoint requires (id, endpoint[, owner_run])");
+      const auto id=py::cast<AgentId>(fields[0]);
+      const auto scope=fields.size()==3?py::cast<std::string>(fields[2]):run_;
+      if(scope.empty() || agents.contains(id))throw std::invalid_argument("empty owner run or repeated cache agent");
+      agents[id]=std::make_shared<BrpcCacheBackend>(py::cast<std::string>(fields[1]),scope,0,id);
+    }
     adapter_->SetCacheResolver(MakeCacheResolver(std::move(agents)),coalesce);
   }
   py::list RestoredFrom() {
@@ -295,6 +302,7 @@ class Backend {
 };
 }
 PYBIND11_MODULE(_eps_native,m) {
+  m.attr("owner_incarnations")=true;
   py::class_<Backend>(m,"Backend")
     .def(py::init<std::vector<std::string>,std::string,std::uint32_t,std::uint64_t,std::size_t,const py::dict&>(),
       py::arg("endpoints"),py::arg("run"),py::arg("learner")=0,py::arg("epoch")=1,py::arg("max_live")=128,py::arg("preparation")=py::dict())

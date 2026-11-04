@@ -7,8 +7,8 @@
 
 namespace eps {
 struct AgentRuntime::Impl {
-  Impl(std::string r,std::shared_ptr<CacheBackend> b,std::uint64_t limit)
-    :run(std::move(r)),backend(std::move(b)),replay_limit(limit){
+  Impl(std::string r,std::shared_ptr<CacheBackend> b,std::uint64_t limit,std::string model)
+    :run(std::move(r)),training_run(model.empty()?run:std::move(model)),backend(std::move(b)),replay_limit(limit){
     detail::Require(!run.empty() && bool(backend),"invalid agent runtime");
   }
   struct Record {
@@ -39,14 +39,14 @@ struct AgentRuntime::Impl {
       return *retained;
     });
   }
-  std::string run;std::shared_ptr<CacheBackend> backend;
+  std::string run,training_run;std::shared_ptr<CacheBackend> backend;
   std::uint64_t replay_limit,replay_bytes=0;
   std::map<ShardId,Record> streams;
   std::map<TableId,TableDefinition> tables;
   detail::OrderedExecutor executor;
 };
-AgentRuntime::AgentRuntime(std::string run,std::shared_ptr<CacheBackend> backend,std::uint64_t bytes)
-  :impl_(std::make_unique<Impl>(std::move(run),std::move(backend),bytes)){}
+AgentRuntime::AgentRuntime(std::string run,std::shared_ptr<CacheBackend> backend,std::uint64_t bytes,std::string training_run)
+  :impl_(std::make_unique<Impl>(std::move(run),std::move(backend),bytes,std::move(training_run))){}
 AgentRuntime::~AgentRuntime(){impl_->executor.Shutdown();}
 std::future<Result<Ack>> AgentRuntime::Define(AgentCommand id,TableDefinition table){
   return impl_->Command<Ack>(std::move(id),"define",[]{return 0ULL;},[this,table]{
@@ -80,9 +80,9 @@ std::future<Result<std::vector<DeviceTensorBlock>>> AgentRuntime::GatherDevice(s
   });
 }
 std::future<Result<Ack>> AgentRuntime::Apply(AgentCommand id,UpdateContext context,RowGradients g){
-  auto home=id.shard;auto run=id.run;
-  return impl_->Command<Ack>(std::move(id),"apply",[]{return 0ULL;},[this,home,run=std::move(run),context,g=std::move(g)]() mutable {
-    detail::Require(context.shard==home && context.original_request.run==run,"agent update context ownership mismatch");
+  auto home=id.shard;
+  return impl_->Command<Ack>(std::move(id),"apply",[]{return 0ULL;},[this,home,context,g=std::move(g)]() mutable {
+    detail::Require(context.shard==home && context.original_request.run==impl_->training_run,"agent update context ownership mismatch");
     return detail::Await(impl_->backend->ApplyHost(context,std::move(g)));
   });
 }
@@ -97,7 +97,7 @@ std::future<Result<std::vector<RowState>>> AgentRuntime::ReadBack(AgentCommand i
 }
 std::future<Result<Ack>> AgentRuntime::ApplyCompact(AgentCommand id,UpdateContext context,CompactGradients p){
   return impl_->Command<Ack>(id,"apply_compact",[]{return 0ULL;},[this,id,context,p=std::move(p)]()mutable{
-    detail::Require(context.original_request.run==id.run && context.shard==id.shard,"compact update control owner mismatch");
+    detail::Require(context.original_request.run==impl_->training_run && context.shard==id.shard,"compact update control owner mismatch");
     return detail::Await(impl_->backend->ApplyCompact(context,std::move(p)));
   });
 }

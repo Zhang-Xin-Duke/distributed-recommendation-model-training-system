@@ -24,20 +24,31 @@ Command=c.CFUNCTYPE(c.c_int,c.c_void_p,c.c_char_p,c.c_char_p,c.POINTER(Text),c.P
 class Api(c.Structure):_fields_=[('abi_version',c.c_uint32),('struct_bytes',c.c_uint32),('create',Create),('destroy',Destroy),('pull',Pull),('prepare',Prepare),('pull_prepared',Prepared),('push',Push),('command',Command)]
 
 def main():
-    server,runtime=sys.argv[1:];library=c.CDLL(str(pathlib.Path(runtime).resolve()))
+    server,runtime=sys.argv[1:3];agent=sys.argv[3] if len(sys.argv)==4 else None
+    library=c.CDLL(str(pathlib.Path(runtime).resolve()))
     library.eps_runtime_api_v1.restype=c.POINTER(Api);api=library.eps_runtime_api_v1().contents
     assert api.abi_version==1 and api.struct_bytes==c.sizeof(Api)
     processes=[];logs=[];pointer=c.c_void_p();status=Status();batch=Batch();prepared=Batch()
     with tempfile.TemporaryDirectory(prefix='eps-c-abi-') as temporary:
         root=pathlib.Path(temporary)
         try:
+            owners=[]
+            if agent:
+                log=open(root/'owner.log','w+');logs.append(log)
+                child=subprocess.Popen([agent,'--run','c-api-owner-2','--training-run','c-api','--listen','127.0.0.1:0'],
+                    stdout=subprocess.PIPE,stderr=log,text=True);processes.append(child)
+                owners=[dict(id=0,endpoint=ready(child),owner_run='c-api-owner-2')]
             endpoints=[]
             for shard in range(2):
                 settings=dict(schema_version=1,run_id='c-api',listen='127.0.0.1:0',partition=dict(shard_id=shard,shard_count=2,epoch=1),tables=[],cache=dict(enabled=False),snapshot_directory=str(root/'snapshots'))
+                if owners:
+                    settings.update(agents=owners,cache=dict(enabled=True,admission='frequency',policy_agents=[0],
+                        decision_window_requests=1,max_tracked_rows=32,minimum_accesses=1,reserve_slots=0))
                 config=root/f'shard-{shard}.json';config.write_text(json.dumps(settings));log=open(root/f'shard-{shard}.log','w+');logs.append(log)
                 p=subprocess.Popen([server,'--config',str(config)],stdout=subprocess.PIPE,stderr=log,text=True);processes.append(p);endpoints.append(ready(p))
             table=dict(id=1,dimension=3,dtype='float32',optimizer=dict(kind='sparse_lazy_adam',learning_rate=.01,beta1=.9,beta2=.999,epsilon=1e-8,initial_beta1_power=.9,initial_beta2_power=.999),initialization=dict(min=.25,max=.25,seed=42))
-            config=dict(endpoints=endpoints,run='c-api',tables=[table]);assert api.create(json.dumps(config).encode(),c.byref(pointer),c.byref(status))==0,status.message
+            config=dict(endpoints=endpoints,run='c-api',tables=[table],agents=owners)
+            assert api.create(json.dumps(config).encode(),c.byref(pointer),c.byref(status))==0,status.message
             def command(method,args=None,expected=0):
                 text=Text();code=api.command(pointer,method.encode(),json.dumps(args or {}).encode(),c.byref(text),c.byref(status))
                 try:
@@ -54,6 +65,7 @@ def main():
             gradient=(c.c_float*6)(*[.1]*6);buffers=(Buffer*1)(Buffer(7,2,3,c.cast(gradient,c.c_void_p),-1,None,Release(),Wait()))
             assert api.push(pointer,batch.handle,buffers,1,None,c.byref(status))==0,status.message
             assert api.push(pointer,batch.handle,buffers,1,None,c.byref(status))==0,status.message
+            if owners:assert sum(s['cached_rows'] for s in command('stats'))==2,'C ABI scope check did not use resident rows'
             token=c.c_uint64();assert api.prepare(pointer,features,1,c.byref(token),c.byref(status))==0,status.message
             assert api.pull_prepared(pointer,token.value,1,0,c.byref(prepared),c.byref(status))==0,status.message
             command('release',{'handle':prepared.handle});prepared.release(prepared.owner);prepared.owner=None
@@ -92,7 +104,8 @@ def main():
             command('close');api.destroy(pointer);pointer=c.c_void_p()
             batch.release(batch.owner);batch.owner=None
             print(json.dumps(dict(test='native_runtime_c_abi',abi_version=1,shards=2,prepared_input=True,duplicate_push=True,buffer_outlives_runtime=True,
-                checkpoint_chunk_checksum=True,restore_metadata=True,prediction_auto_release=True,prepared_mode_at_consumption=True,live_mode_change_rejected=True)))
+                checkpoint_chunk_checksum=True,restore_metadata=True,prediction_auto_release=True,prepared_mode_at_consumption=True,live_mode_change_rejected=True,
+                independent_owner_incarnation=bool(owners))))
         finally:
             if pointer.value:api.destroy(pointer)
             for b in [prepared,batch]:

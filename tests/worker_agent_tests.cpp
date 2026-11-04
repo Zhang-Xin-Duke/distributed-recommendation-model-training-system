@@ -68,7 +68,8 @@ int main(){try{
   ErrorIs(worker.GatherHost(work,layouts),Error::Code::unavailable);
   ErrorIs(worker.GatherDevice(work,layouts),Error::Code::unavailable);worker.Stop();
   backend.reset();Check(lifetime.expired(),"stopped worker retained backend");
-  WorkerCacheAgent rebound({"new-run",endpoint},std::make_shared<HostCacheBackend>(0,1024));
+  WorkerCacheOptions rebound_options{"new-run",endpoint};rebound_options.training_run="worker-test";
+  WorkerCacheAgent rebound(rebound_options,std::make_shared<HostCacheBackend>(0,1024));
   BrpcCacheBackend new_remote(endpoint,"new-run",0,0,5000);
   // BRPC shares endpoint sockets across channels. Wait for the old connection's
   // health check to reconnect to the rebound listener before mutating state.
@@ -78,7 +79,31 @@ int main(){try{
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
   Take(new_remote.Define({1,2,1,1,{0.01f,0.9f,0.999f,1e-8f,0.9f,0.999f},0,0,42}));
-  ErrorIs(remote.FreeSlots(1),Error::Code::invalid_argument);rebound.Stop();
-  std::cout<<"{\"test\":\"in_process_worker_lifecycle\",\"shared_local_rpc_admission\":true,\"drained_on_stop\":true,\"backend_released\":true,\"endpoint_reused\":true}\n";
+  ErrorIs(remote.FreeSlots(1),Error::Code::invalid_argument);
+  // Old readers and control writers cannot access an owner restarted at the
+  // same endpoint, even when row/slot/generation numbers are reused.
+  ErrorIs(remote.GatherHost(work,layouts),Error::Code::invalid_argument);
+  const auto plan=MigrationPlan{"replacement-load",0,{{{1,1},0,Placement::loading,0,1,0}},Placement::gpu,24};
+  ErrorIs(remote.Load(plan,{{{1,1},{9,9},{0,0},{0,0},0}}),Error::Code::invalid_argument);
+  auto replacement=Take(new_remote.Load(plan,{{{1,1},{0.75f,0.5f},{0,0},{0,0},0}}));
+  work[0].rows=replacement;
+  Check(Take(new_remote.GatherHost(work,layouts))[0].values[0]==0.75f,"replacement owner contents differ");
+  UpdateContext context{{"worker-test",0,0,Phase::push},0,1,0,0.01f,0.9f,0.999f};
+  auto wrong=context;wrong.original_request.run="new-run";
+  ErrorIs(new_remote.ApplyHost(wrong,{{{1,1}},{1,1}}),Error::Code::invalid_argument);
+  Take(new_remote.ApplyHost(context,{{{1,1}},{1,1}}));
+  context.original_request.sequence=1;context.optimizer_sequence=1;context.beta1_power*=.9f;context.beta2_power*=.999f;
+  CompactGradients compact{{{1,1}},2,{0.5f,0.25f},{0,2},{0,0},{1,1}};
+  wrong=context;wrong.original_request.run="another-training-job";
+  ErrorIs(new_remote.ApplyCompact(wrong,compact),Error::Code::invalid_argument);
+  Take(new_remote.ApplyCompact(context,compact));
+  auto state=Take(new_remote.ReadBack({"replacement-read",0,replacement,Placement::cpu,24}));
+  Check(state[0].row_updates==2 && state[0].weights[0]<.75f,"stable-run optimizer updates did not apply");
+  ErrorIs(remote.ApplyHost(context,{{{1,1}},{1,1}}),Error::Code::invalid_argument);
+  ErrorIs(remote.ApplyCompact(context,compact),Error::Code::invalid_argument);
+  Check(Take(new_remote.ReadBack({"replacement-read-again",0,replacement,Placement::cpu,24}))[0].row_updates==2,
+    "rejected owner commands mutated optimizer state");
+  rebound.Stop();
+  std::cout<<"{\"test\":\"in_process_worker_lifecycle\",\"shared_local_rpc_admission\":true,\"drained_on_stop\":true,\"backend_released\":true,\"endpoint_reused\":true,\"owner_incarnation_fenced\":true,\"stable_training_identity\":true}\n";
   return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL worker Agent: "<<e.what()<<'\n';return 1;}}

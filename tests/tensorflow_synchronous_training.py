@@ -28,6 +28,7 @@ def main():
     p.add_argument("--bag-size", type=int, default=16)
     p.add_argument("--out", type=pathlib.Path)
     p.add_argument("--disable-lookup-cache", action="store_true")
+    p.add_argument("--owner-incarnation", default="", help="Owner identity suffix independent of the stable training run")
     a = p.parse_args()
     build = a.build.resolve()
     source = pathlib.Path(__file__).resolve().parents[1]
@@ -91,13 +92,14 @@ def main():
                 if not reference:
                     for home in range(owners):
                         slots = (a.rows + owners - 1) // owners
-                        cmd = [build / "eps_cache_agent", "--run", run, "--listen", "127.0.0.1:0",
+                        owner_run=run+f"-owner-{home}-"+a.owner_incarnation if a.owner_incarnation else run
+                        cmd = [build / "eps_cache_agent", "--run", owner_run, "--training-run", run, "--listen", "127.0.0.1:0",
                                "--agent", str(home), "--backend", "cuda" if gpu else "host",
                                "--rows-per-table", str(slots), "--state-bytes",
                                str(slots * (a.dimension * 12 + 8) + 4096)]
                         if gpu:
                             cmd += ["--device", str(devices[home])]
-                        agents.append({"id": home, "endpoint": ready(launch(cmd, f"agent-{home}"))})
+                        agents.append({"id": home, "endpoint": ready(launch(cmd, f"agent-{home}")), "owner_run":owner_run})
                 endpoints = []
                 for home in range(1 if reference else owners):
                     config = {"schema_version": 1, "run_id": run, "listen": "127.0.0.1:0",
@@ -195,6 +197,7 @@ def main():
               "first_global_gradient_max_absolute_error": gradient_error,
               "initial_weighted_loss": initial, "final_weighted_loss": final, "reports": reports}
     result["reuse_lookup_layouts"] = not a.disable_lookup_cache
+    result["owner_incarnation"] = a.owner_incarnation
     result["touched_rows"] = len(all_keys)
     result["inspected_rows"] = len(keys)
     result["reference_state_scope"] = "all_touched_rows" if len(keys) == len(all_keys) else "sampled_touched_rows"

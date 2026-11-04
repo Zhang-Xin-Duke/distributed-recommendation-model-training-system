@@ -1,0 +1,19 @@
+Test project <home>/Desktop/秋招/project/SparseEmbeddingRuntime/build/tensorflow
+    Start  7: in_process_worker_lifecycle
+1/7 Test  #7: in_process_worker_lifecycle ..............   Passed    0.55 sec
+    Start 18: entropy_table_hook_configuration
+2/7 Test #18: entropy_table_hook_configuration .........   Passed    0.17 sec
+    Start 26: tensorflow_synchronous_model_cpu
+3/7 Test #26: tensorflow_synchronous_model_cpu .........   Passed   11.21 sec
+    Start 27: tensorflow_owner_incarnation
+4/7 Test #27: tensorflow_owner_incarnation .............   Passed    7.97 sec
+    Start 28: tensorflow_joint_training_checkpoint
+5/7 Test #28: tensorflow_joint_training_checkpoint .....   Passed   21.06 sec
+    Start 30: tensorflow_replicated_primary_recovery
+6/7 Test #30: tensorflow_replicated_primary_recovery ...   Passed   22.51 sec
+    Start 33: tensorflow_worker_recovery
+7/7 Test #33: tensorflow_worker_recovery ...............   Passed   48.87 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) = 112.35 sec

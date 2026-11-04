@@ -1,0 +1,83 @@
+Test project <home>/Desktop/秋招/project/SparseEmbeddingRuntime/build/native
+      Start  1: public_redis_sdk
+ 1/39 Test  #1: public_redis_sdk ............................   Passed    3.25 sec
+      Start  2: training_progress_rpc
+ 2/39 Test  #2: training_progress_rpc .......................   Passed    0.38 sec
+      Start  3: distributed_training_processes
+ 3/39 Test  #3: distributed_training_processes ..............   Passed    5.55 sec
+      Start  4: synchronous_training_processes
+ 4/39 Test  #4: synchronous_training_processes ..............   Passed    3.04 sec
+      Start  5: reusable_lookup_layout_rpc
+ 5/39 Test  #5: reusable_lookup_layout_rpc ..................   Passed    0.68 sec
+      Start  6: synchronous_gradient_rpc
+ 6/39 Test  #6: synchronous_gradient_rpc ....................   Passed    0.42 sec
+      Start  7: in_process_worker_lifecycle
+ 7/39 Test  #7: in_process_worker_lifecycle .................   Passed    0.41 sec
+      Start  8: agent_rpc_admission_queue
+ 8/39 Test  #8: agent_rpc_admission_queue ...................   Passed    0.36 sec
+      Start  9: shard_observation_rpc
+ 9/39 Test  #9: shard_observation_rpc .......................   Passed    0.27 sec
+      Start 10: agent_admission_cli
+10/39 Test #10: agent_admission_cli .........................   Passed    0.59 sec
+      Start 11: automatic_cache_external_shards
+11/39 Test #11: automatic_cache_external_shards .............   Passed    1.88 sec
+      Start 12: cache_policy_fixed_trace_smoke
+12/39 Test #12: cache_policy_fixed_trace_smoke ..............   Passed   10.93 sec
+      Start 13: automatic_cache_coalesced_external_shards
+13/39 Test #13: automatic_cache_coalesced_external_shards ...   Passed    1.71 sec
+      Start 14: rpc_cache_backpressure
+14/39 Test #14: rpc_cache_backpressure ......................   Passed    0.60 sec
+      Start 15: capacity_failed_point_diagnostics
+15/39 Test #15: capacity_failed_point_diagnostics ...........   Passed    1.69 sec
+      Start 16: two_process_rpc_and_restore
+16/39 Test #16: two_process_rpc_and_restore .................   Passed    1.24 sec
+      Start 17: cache_agent_process_lifecycle
+17/39 Test #17: cache_agent_process_lifecycle ...............   Passed    1.40 sec
+      Start 18: distributed_device_pull_protocol
+18/39 Test #18: distributed_device_pull_protocol ............   Passed    0.21 sec
+      Start 19: agent_admission_lifecycle
+19/39 Test #19: agent_admission_lifecycle ...................   Passed    0.18 sec
+      Start 20: core_correctness
+20/39 Test #20: core_correctness ............................   Passed    0.15 sec
+      Start 21: cost_and_migration_policies
+21/39 Test #21: cost_and_migration_policies .................   Passed    0.09 sec
+      Start 22: cache_ownership_and_updates
+22/39 Test #22: cache_ownership_and_updates .................   Passed    0.23 sec
+      Start 23: automatic_cache_policy_lifecycle
+23/39 Test #23: automatic_cache_policy_lifecycle ............   Passed    0.16 sec
+      Start 24: agent_control_replay
+24/39 Test #24: agent_control_replay ........................   Passed    0.09 sec
+      Start 25: embedding_adapter_lifecycle
+25/39 Test #25: embedding_adapter_lifecycle .................   Passed    0.14 sec
+      Start 26: service_phase_timing
+26/39 Test #26: service_phase_timing ........................   Passed    0.15 sec
+      Start 27: bounded_asynchronous_preparation
+27/39 Test #27: bounded_asynchronous_preparation ............   Passed    0.16 sec
+      Start 28: periodic_checkpoint_lifecycle
+28/39 Test #28: periodic_checkpoint_lifecycle ...............   Passed    0.18 sec
+      Start 29: training_progress_consistency
+29/39 Test #29: training_progress_consistency ...............   Passed    0.24 sec
+      Start 30: durable_replica_log
+30/39 Test #30: durable_replica_log .........................   Passed    0.12 sec
+      Start 31: reusable_lookup_layout_cache
+31/39 Test #31: reusable_lookup_layout_cache ................   Passed    0.10 sec
+      Start 32: synchronous_gradient_rounds
+32/39 Test #32: synchronous_gradient_rounds .................   Passed    0.18 sec
+      Start 33: restored_snapshot_provenance
+33/39 Test #33: restored_snapshot_provenance ................   Passed    0.14 sec
+      Start 34: bounded_sparse_optimizer
+34/39 Test #34: bounded_sparse_optimizer ....................   Passed    0.17 sec
+      Start 35: resumable_actor_dependencies
+35/39 Test #35: resumable_actor_dependencies ................   Passed    0.26 sec
+      Start 36: resumable_shard_operations
+36/39 Test #36: resumable_shard_operations ..................   Passed    0.25 sec
+      Start 37: concurrent_multi_agent_updates
+37/39 Test #37: concurrent_multi_agent_updates ..............   Passed    0.13 sec
+      Start 38: coalesced_cross_shard_gathers
+38/39 Test #38: coalesced_cross_shard_gathers ...............   Passed    0.17 sec
+      Start 39: compact_feature_gradient_semantics
+39/39 Test #39: compact_feature_gradient_semantics ..........   Passed    0.10 sec
+
+100% tests passed, 0 tests failed out of 39
+
+Total Test time (real) =  38.05 sec

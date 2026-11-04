@@ -87,7 +87,7 @@ struct Runtime {
     for(const auto& endpoint:config.at("endpoints")){auto connection=std::make_shared<BrpcParameterService>(endpoint.get<std::string>());connections.push_back(connection);shards.push_back(connection);}
     adapter=std::make_unique<entropy::TableAdapter>(entropy::AdapterOptions{run,config.value("learner",0U),epoch,config.value("max_live",128U),4096},shards);
     std::map<AgentId,std::shared_ptr<CacheBackend>> remote;
-    if(config.contains("agents"))for(const auto& a:config.at("agents")){AgentId id=a.at("id");detail::Require(!remote.contains(id),"duplicate native Agent");remote[id]=std::make_shared<BrpcCacheBackend>(a.at("endpoint").get<std::string>(),run,0,id);}
+    if(config.contains("agents"))for(const auto& a:config.at("agents")){AgentId id=a.at("id");detail::Require(!remote.contains(id),"duplicate native Agent");remote[id]=std::make_shared<BrpcCacheBackend>(a.at("endpoint").get<std::string>(),a.value("owner_run",run),0,id);}
 #ifdef EPS_HAS_CUDA
     if(config.contains("cuda")){
       const auto& c=config.at("cuda");const AgentId agent=c.value("agent",0U);device=c.value("device",0);

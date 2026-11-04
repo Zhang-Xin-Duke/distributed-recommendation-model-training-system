@@ -1,0 +1,138 @@
+{
+  "recorded_at_utc": "2026-11-04T21:34:30.070461+00:00",
+  "base_commit": "eb2dcfbe17b5fe4e8988a855605b1960e6aa3e8a",
+  "scope": "Independent owner replay namespaces with stable training identities; Host-backed model, C ABI and real RPC listener replacement",
+  "platform": "macOS arm64; two Host parameter owners; no CUDA owner execution in this stage",
+  "checks": {
+    "native-suite": {
+      "passed": 39,
+      "failed": 0
+    },
+    "framework-suite": {
+      "passed": 62,
+      "failed": 0
+    },
+    "targeted-model-recovery": {
+      "passed": 7,
+      "failed": 0
+    },
+    "native-c-abi": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "7beba84b7b9b004db14413acae0df0e6cfba51ca4f8ddc228e91e06c575fbb55",
+    "adapters/entropy/entropy_install.py": "b4d1376cf0d00414d76a6ca23cf8efe1c1ffb03c369c243f990b5a03f0975092",
+    "adapters/entropy/python_bindings.cpp": "c8da72d138bd0ccf708ed560bbcf31e895c07e35dbacf1c87cea4cc0acb91cf2",
+    "adapters/entropy/runtime_c.cpp": "1054ff4841b951cd7f95b505e4c3b2345bb5501289975332604c6ee56d4ab55b",
+    "examples/tensorflow_training_worker.py": "8d88d93008e354bb64c6b5f5a4fc70108b1c1b7c947f258136f498e48e852a2b",
+    "include/eps/agent_runtime.hpp": "400645c7305b154542bb52f3d6b0225bbc2d6e1e49d4fac2d27358f981d911be",
+    "include/eps/worker_cache_agent.hpp": "dc6c8123089a9087094a216962493101933017e9fd2cada58c4983bdf504afeb",
+    "scripts/install_training_runtime.sh": "f685f551ed831288726500ead0640997e7d4ebdaada22fb0b51f23a9d48625a8",
+    "src/cache/agent_runtime.cpp": "ae4b1159d478ffca3fb80d1ee2a2bfa4e09cb748e387cd5d786bdeaacdab951d",
+    "src/server/agent_main.cpp": "f54bb65bd3c0cd7a16675366fcc670173a0d6c6fec79c406f0802bccbffccd02",
+    "src/server/main.cpp": "33886ec05acc993d0118f8287cb8752dfe02f8a4db91bafeeca41d7956b2e2a6",
+    "src/training/prepare_main.cpp": "08218734d1fa5393a73880fadf2fdea5b908e18411f542a2607bcb0611e3accc",
+    "src/transport/worker_cache_agent.cpp": "3470f8727202e87626951d8532dc86c9a632198a398c41bd4bbad45686ea1a56",
+    "tests/entropy_install_tests.py": "41c665e4afedbe2c68debe2625c6b9feee56cf9c499181cf84b82aeca57d5ca3",
+    "tests/runtime_c_processes.py": "a5c661b14262d5bd05e08dd3758ac1e83adf8be02c306b8a5f235fed52d38769",
+    "tests/tensorflow_synchronous_training.py": "07d4b4c4e28dbb3aa35e7f885f2cd21e7651fae1c7bee578241c5c978037568e",
+    "tests/worker_agent_tests.cpp": "58a7f6859775d4c458c892409e48813517f7973665c6123d64572e875cfcc5ab"
+  },
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-owner-incarnations/native-suite.log",
+      "sha256": "0bb1eb0332d88b503f49c56b8f967942cd8063da45f73483f11bb682686159a1",
+      "bytes": 5102
+    },
+    {
+      "path": "docs/validation/2026-11-04-owner-incarnations/framework-suite.log",
+      "sha256": "7432479e1aaed1a35765c187a729ae14cd357ee1a5767fc7ada033cd73448ccb",
+      "bytes": 8233
+    },
+    {
+      "path": "docs/validation/2026-11-04-owner-incarnations/targeted-model-recovery.log",
+      "sha256": "348e174095d5b82a845702436075205957a05ae94c89871dad3043e6bf00347a",
+      "bytes": 1034
+    },
+    {
+      "path": "docs/validation/2026-11-04-owner-incarnations/native-c-abi.log",
+      "sha256": "d332e7d2b449418b06bf661502044af9fbd64861757d7cadc75bd40d5fbb4b65",
+      "bytes": 508
+    },
+    {
+      "path": "docs/validation/2026-11-04-owner-incarnations/model.json.gz",
+      "sha256": "cb2a8feceb274462281930ac6b104644979f4a47d873ab2e4320a338047911ec",
+      "bytes": 9366
+    },
+    {
+      "path": "docs/validation/2026-11-04-owner-incarnations/c-abi-and-rpc-results.json",
+      "sha256": "35d4028267e974854d6d9d882165ec2d691ad5dd52480b91fe727b258e16091d",
+      "bytes": 1071
+    }
+  ],
+  "model": {
+    "test": "tensorflow_synchronous_model_training",
+    "gpu": false,
+    "rows": 64,
+    "dimension": 8,
+    "hidden": 4,
+    "iterations": 8,
+    "model": "trainable_embedding_and_tanh_mlp",
+    "model_reference_max_absolute_error": 2.9802322387695312e-08,
+    "first_global_gradient_max_absolute_error": 4.967053740534411e-09,
+    "initial_weighted_loss": 0.6933857997258503,
+    "final_weighted_loss": 0.6032822330792745,
+    "reuse_lookup_layouts": true,
+    "owner_incarnation": "replacement-2",
+    "touched_rows": 10,
+    "inspected_rows": 10,
+    "reference_state_scope": "all_touched_rows"
+  },
+  "rpc_lifecycle": {
+    "test": "in_process_worker_lifecycle",
+    "shared_local_rpc_admission": true,
+    "drained_on_stop": true,
+    "backend_released": true,
+    "endpoint_reused": true,
+    "owner_incarnation_fenced": true,
+    "stable_training_identity": true
+  },
+  "native_runtime": {
+    "test": "native_runtime_c_abi",
+    "abi_version": 1,
+    "shards": 2,
+    "prepared_input": true,
+    "duplicate_push": true,
+    "buffer_outlives_runtime": true,
+    "checkpoint_chunk_checksum": true,
+    "restore_metadata": true,
+    "prediction_auto_release": true,
+    "prepared_mode_at_consumption": true,
+    "live_mode_change_rejected": true,
+    "independent_owner_incarnation": true
+  },
+  "compatibility": {
+    "omitted_owner_run": "uses stable training run",
+    "legacy_endpoint_pairs": "accepted alongside (id, endpoint, owner_run)",
+    "installer_capability_check": "requires _eps_native.owner_incarnations"
+  },
+  "gpu_availability": {
+    "index": 0,
+    "error": "usage error: GPU configuration l40 x1 is currently unavailable",
+    "epoch": 1793827664.050231
+  },
+  "gpu_allocation_cleanup": {
+    "owned_instances_remaining": 0,
+    "all_account_instances_remaining": 0,
+    "verified_epoch": 1793827664.9958642
+  },
+  "remaining": [
+    "Rehydrate fresh GPU owners from replica-restored state and verify resumed training",
+    "Beyond-one-physical-GPU capacity training",
+    "Full original Entropy execution",
+    "Cross-node automatic recovery supervision"
+  ],
+  "complete_gpu_owner_recovery": false
+}

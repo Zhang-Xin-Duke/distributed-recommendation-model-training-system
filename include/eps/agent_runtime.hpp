@@ -9,7 +9,7 @@ namespace eps {
 class AgentRuntime {
  public:
   AgentRuntime(std::string run,std::shared_ptr<CacheBackend> backend,
-               std::uint64_t replay_bytes=64ULL<<20);
+               std::uint64_t replay_bytes=64ULL<<20,std::string training_run={});
   ~AgentRuntime();
   std::future<Result<Ack>> Define(AgentCommand,TableDefinition);
   std::future<Result<std::uint64_t>> FreeSlots(std::string run,TableId);

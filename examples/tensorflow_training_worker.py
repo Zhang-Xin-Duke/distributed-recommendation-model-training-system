@@ -124,7 +124,7 @@ def main():
         backend.lookup_layout_cache(config.get("reuse_lookup_layouts", True))
         backend.create_table(json.dumps(config["table"]))
         if config.get("agents"):
-            backend.cache_endpoints([(a["id"], a["endpoint"]) for a in config["agents"]], True)
+            backend.cache_endpoints([(a["id"], a["endpoint"], a.get("owner_run",config["run"])) for a in config["agents"]], True)
         backend.configure_training(config["coordinator"],config.get("gradient_retry_ms",0))
         if 'read_sequence' in config:
             backend.restore_read_frontier(config['read_sequence'])

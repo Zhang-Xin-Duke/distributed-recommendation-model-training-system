@@ -126,7 +126,7 @@ int main(int argc,char** argv) {
     if(caching)for(const auto& agent:j.at("agents")){
       const AgentId id=agent.at("id");
       Value(service.AttachAgent(id,std::make_shared<BrpcCacheBackend>(
-        agent.at("endpoint"),options.run_id,options.shard_id,id)));
+        agent.at("endpoint"),agent.value("owner_run",options.run_id),options.shard_id,id)));
     }
     if(policy!="cpu_only"){
       const auto& access=j.at("access");

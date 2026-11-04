@@ -73,6 +73,12 @@ task clocks and input positions. CPU model checks restart actual process groups
 after an abandoned read, a partial commit and a lost task completion, preserving
 all parameters, Adam state and per-round loss.
 
+[Owner incarnations](docs/OWNER_INCARNATIONS.md) separate the stable training run
+from a replacement parameter owner's identity. Old reads and control commands
+reject at the replacement endpoint while optimizer updates retain their original
+model identity. RPC, Host-model and C ABI checks cover the new namespace; complete
+GPU rehydration and resumed replica-backed training remain in progress.
+
 [Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
 owner and model worker on each node, initializes local backing/resident rows,
 samples resources and verifies round completion and process cleanup. Its local

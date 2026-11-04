@@ -1,0 +1,39 @@
+[
+  {
+    "abi_version": 1,
+    "buffer_outlives_runtime": true,
+    "checkpoint_chunk_checksum": true,
+    "duplicate_push": true,
+    "independent_owner_incarnation": false,
+    "live_mode_change_rejected": true,
+    "prediction_auto_release": true,
+    "prepared_input": true,
+    "prepared_mode_at_consumption": true,
+    "restore_metadata": true,
+    "shards": 2,
+    "test": "native_runtime_c_abi"
+  },
+  {
+    "abi_version": 1,
+    "buffer_outlives_runtime": true,
+    "checkpoint_chunk_checksum": true,
+    "duplicate_push": true,
+    "independent_owner_incarnation": true,
+    "live_mode_change_rejected": true,
+    "prediction_auto_release": true,
+    "prepared_input": true,
+    "prepared_mode_at_consumption": true,
+    "restore_metadata": true,
+    "shards": 2,
+    "test": "native_runtime_c_abi"
+  },
+  {
+    "backend_released": true,
+    "drained_on_stop": true,
+    "endpoint_reused": true,
+    "owner_incarnation_fenced": true,
+    "shared_local_rpc_admission": true,
+    "stable_training_identity": true,
+    "test": "in_process_worker_lifecycle"
+  }
+]

@@ -84,12 +84,14 @@ class JobConfiguration:
         self.cache_agents=[]
         seen=set()
         for agent in values.get('cache_agents',[]):
-            if not isinstance(agent,dict) or set(agent)!={'id','endpoint'}:
+            if not isinstance(agent,dict) or set(agent)-{'id','endpoint','owner_run'} or not {'id','endpoint'}<=set(agent):
                 raise ValueError('invalid cache agent')
             identifier=_integer(agent['id'],'cache agent ID',0,2**32-1)
             if identifier in seen or not isinstance(agent['endpoint'],str) or not agent['endpoint']:
                 raise ValueError('duplicate cache agent or empty endpoint')
-            seen.add(identifier);self.cache_agents.append((identifier,agent['endpoint']))
+            scope=agent.get('owner_run',self.run)
+            if not isinstance(scope,str) or not scope:raise ValueError('cache owner run must be nonempty')
+            seen.add(identifier);self.cache_agents.append((identifier,agent['endpoint'],scope))
         self.coalesce=values.get('coalesce_gather',False)
         if type(self.coalesce) is not bool:
             raise ValueError('coalesce_gather must be boolean')
@@ -242,7 +244,7 @@ class Installation:
         values=dict(run=self.config.run,endpoints=self.config.endpoints,learner=identifier,
             epoch=self.config.epoch,max_live=self.config.max_live,tables=[],release_read_only=True,
             coalesce_gather=self.config.coalesce,
-            agents=[dict(id=i,endpoint=e) for i,e in self.config.cache_agents])
+            agents=[dict(id=i,endpoint=e,owner_run=r) for i,e,r in self.config.cache_agents])
         if 'cuda' in self.config.native:
             values['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)
         return values

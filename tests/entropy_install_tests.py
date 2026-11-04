@@ -52,6 +52,17 @@ class Configuration(unittest.TestCase):
             with self.subTest(options=options),self.assertRaises(ValueError):
                 JobConfiguration(dict(configuration(),**options))
 
+    def test_cache_owner_incarnation_preserves_training_run(self):
+        c=configuration();c['cache_agents']=[dict(id=2,endpoint='127.0.0.1:9300',owner_run='owner-term-2')]
+        value=JobConfiguration(c)
+        self.assertEqual(value.run,'job')
+        self.assertEqual(value.cache_agents,[(2,'127.0.0.1:9300','owner-term-2')])
+        c['cache_agents'][0].pop('owner_run')
+        self.assertEqual(JobConfiguration(c).cache_agents,[(2,'127.0.0.1:9300','job')])
+        for scope in ['',None,5]:
+            c['cache_agents'][0]['owner_run']=scope
+            with self.subTest(scope=scope),self.assertRaises(ValueError):JobConfiguration(c)
+
     def test_preserves_class_identity_and_restores_methods(self):
         class SparseTable:
             def __init__(self, name='native'):self._name=name

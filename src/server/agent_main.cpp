@@ -10,12 +10,13 @@
 
 int main(int argc,char** argv){
   try{
-    std::string run,listen="127.0.0.1:9200",backend="host";
+    std::string run,training_run,listen="127.0.0.1:9200",backend="host";
     std::uint64_t bytes=64ULL<<20,rows=4096;std::uint32_t agent=0;int device=0;
     eps::AgentAdmissionOptions admission;
     for(int i=1;i<argc;++i){
       std::string arg=argv[i];if(i+1>=argc)throw std::runtime_error("missing option value");
       if(arg=="--run")run=argv[++i];else if(arg=="--listen")listen=argv[++i];
+      else if(arg=="--training-run")training_run=argv[++i];
       else if(arg=="--agent")agent=std::stoul(argv[++i]);
       else if(arg=="--state-bytes")bytes=std::stoull(argv[++i]);
       else if(arg=="--rows-per-table")rows=std::stoull(argv[++i]);
@@ -36,7 +37,8 @@ int main(int argc,char** argv){
 #endif
     else throw std::runtime_error("requested backend is not available in this build");
     std::cerr<<"CACHE_BACKEND="<<backend<<'\n';
-    eps::WorkerCacheAgent worker({run,listen,admission},std::move(cache));
+    eps::WorkerCacheOptions options{run,listen,admission};options.training_run=training_run;
+    eps::WorkerCacheAgent worker(std::move(options),std::move(cache));
     std::cout<<"READY "<<worker.endpoint()<<std::endl;
     while(!brpc::IsAskedToQuit())std::this_thread::sleep_for(std::chrono::milliseconds(100));
     worker.Stop();return 0;

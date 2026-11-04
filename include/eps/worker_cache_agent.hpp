@@ -9,6 +9,9 @@ struct WorkerCacheOptions {
   std::string listen="127.0.0.1:0";
   AgentAdmissionOptions admission;
   std::uint64_t replay_bytes=64ULL<<20;
+  // Stable model identity; run identifies this particular owner incarnation.
+  // Empty preserves the existing shared run identity.
+  std::string training_run;
 };
 
 // Owned by the training process. PS control RPCs and native feature reads use

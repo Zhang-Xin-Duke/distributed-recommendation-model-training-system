@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
         {"logical_resident_state_bytes", resident ? initialized*dim*12 : 0}};
       if (resident) {
         const auto& a = j.at("agents").at(home);
-        BrpcCacheBackend agent(a.at("endpoint"), run, home, a.at("id"));
+        BrpcCacheBackend agent(a.at("endpoint"), a.value("owner_run",run), home, a.at("id"));
         record["remaining_slots"] = Take(agent.FreeSlots(table));
       }
       result["shards"].push_back(std::move(record));
