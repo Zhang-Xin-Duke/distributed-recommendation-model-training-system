@@ -165,6 +165,9 @@ struct PushRequest {
 struct ReleaseRequest {
   RequestId id;
   std::string ticket;
+  // Retire a failed read by identity, including a Lookup that has not arrived.
+  bool cancel_unseen = false;
+  std::uint64_t partition_epoch = 0;
 };
 
 struct RowState {

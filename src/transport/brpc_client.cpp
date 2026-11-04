@@ -190,7 +190,8 @@ std::future<Result<Ack>> BrpcParameterService::Push(PushRequest r) {
 }
 std::future<Result<Ack>> BrpcParameterService::Release(ReleaseRequest r) {
   return Call<wire::ReleaseRequest,wire::Ack,Ack>(impl_,&wire::EmbeddingService_Stub::Release,
-    [r=std::move(r)](auto& q,auto&) {t::Encode(r.id,q.mutable_identity());q.set_ticket(r.ticket);},AckDecoder);
+    [r=std::move(r)](auto& q,auto&) {t::Encode(r.id,q.mutable_identity());q.set_ticket(r.ticket);
+      q.set_cancel_unseen(r.cancel_unseen);q.set_partition_epoch(r.partition_epoch);},AckDecoder);
 }
 std::future<Result<std::vector<RowState>>> BrpcParameterService::ReadState(std::vector<LocatedRow> rows) {
   return Call<wire::ReadStateRequest,wire::ReadStateReply,std::vector<RowState>>(impl_,&wire::EmbeddingService_Stub::ReadState,

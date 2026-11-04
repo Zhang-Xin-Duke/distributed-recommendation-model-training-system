@@ -147,8 +147,9 @@ ctest --test-dir build/tensorflow --output-on-failure \
 The original check uses CPU parameter ownership and retained local/shared
 journal storage. [Replica-backed owner recovery](REPLICA_OWNER_RECOVERY.md)
 extends the tool to term-bound replacement owners, complete row/Adam rehydration
-and resumed training; its two-owner Host process check passes. CUDA execution
-awaits rental inventory. Multi-node journal retrieval,
+and resumed training; both Host and L40 CUDA process checks pass, including
+complete 64-row state and loss comparisons after three process-failure cases.
+The CUDA check uses two owner processes on one physical GPU. Multi-node journal retrieval,
 node/storage loss, automatic process supervision and stochastic reader/RNG
 integration require their own execution. The beyond-single-GPU capacity workload
 and complete original Entropy integration remain part of project acceptance.

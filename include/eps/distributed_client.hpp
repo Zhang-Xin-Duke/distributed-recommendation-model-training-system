@@ -41,6 +41,7 @@ class DistributedClient {
       bool read_only,PreparedLookup prepared,std::vector<SequenceProjection> projections={});
   Result<Ack> Push(const DistributedBatch& batch, std::vector<TensorBlock> gradients);
   Result<Ack> Release(const DistributedBatch& batch);
+  bool Healthy() const;
   // Receives shard-local work/layouts by default. With coalesce=true it receives
   // all shards' work remapped to ORIGINAL layouts and occurrence positions.
   // Returns unnormalized sums or sequence contributions in the supplied layout. It must finish all submitted reads before returning
@@ -59,7 +60,8 @@ class DistributedClient {
   std::unordered_map<TableId, TableDefinition> tables_;
   // One client may be used by multiple graph threads. The transport calls are
   // asynchronous across shards; this lock protects its metadata and failure state.
-  std::mutex mutex_;
+  mutable std::mutex mutex_;
+  Result<Ack> ReleaseAll(const RequestId&,std::uint64_t,const std::vector<DistributedBatch::Part>&,bool);
   bool failed_ = false;
   bool coalesce_cache_ = false;
   CacheResolver resolver_;

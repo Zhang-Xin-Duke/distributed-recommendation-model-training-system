@@ -105,10 +105,13 @@ python tests/tensorflow_worker_recovery.py --build build/tensorflow --owners hos
 python tests/tensorflow_worker_recovery.py --build build-cuda --owners cuda --devices 0
 ```
 
-CUDA mode additionally checks GPU model tensor placement and records physical
-GPU identities. Its execution awaits available rental inventory; the Host
-verification establishes the process/protocol path. Beyond-single-GPU capacity
-and complete original Entropy execution remain in overall project acceptance.
+CUDA mode also passes on an L40: two parameter-owner processes share one physical
+GPU, restore all 64 rows and complete all three process-failure cases. Full
+weights, Adam state, counters and per-round losses match uninterrupted CUDA
+training exactly. It checks GPU model tensor placement and records physical
+GPU identity. [CUDA execution record](validation/2026-11-04-read-lifecycle-recovery.json)
+retains that follow-up run. Complete original Entropy execution remains in
+overall project acceptance.
 
 [Validation record](validation/2026-11-04-replica-owner-recovery.json) includes the
 full model trajectories, role/owner preparation records, source/binary hashes

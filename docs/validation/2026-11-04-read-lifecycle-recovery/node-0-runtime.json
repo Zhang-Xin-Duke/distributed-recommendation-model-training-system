@@ -1,0 +1,107 @@
+{
+  "validation_scopes": {
+    "install.log": {
+      "passed": [
+        "training_progress_rpc",
+        "distributed_training_processes",
+        "synchronous_training_processes",
+        "reusable_lookup_layout_rpc",
+        "synchronous_gradient_rpc",
+        "in_process_worker_lifecycle",
+        "distributed_device_pull_cuda",
+        "native_worker_cuda_stream",
+        "agent_rpc_admission_queue",
+        "shard_observation_rpc",
+        "agent_admission_cli",
+        "automatic_cache_external_shards",
+        "cache_policy_fixed_trace_smoke",
+        "automatic_cache_coalesced_external_shards",
+        "rpc_cache_backpressure",
+        "capacity_failed_point_diagnostics",
+        "two_process_rpc_and_restore",
+        "cache_agent_process_lifecycle",
+        "entropy_table_hook_configuration",
+        "checkpoint_filesystem_contract",
+        "committed_checkpoint_staging",
+        "tensorflow_graph_external_shards",
+        "tensorflow_synchronous_model_cpu",
+        "tensorflow_owner_incarnation",
+        "tensorflow_joint_training_checkpoint",
+        "tensorflow_reusable_lookup_layouts",
+        "tensorflow_replicated_primary_recovery",
+        "distributed_model_orchestration",
+        "durable_worker_gradients",
+        "tensorflow_worker_recovery",
+        "tensorflow_read_failures",
+        "tensorflow_replica_owner_recovery_host",
+        "tensorflow_synchronous_model_cuda",
+        "tensorflow_replica_owner_recovery_cuda",
+        "tensorflow_graph_cache_external_shards",
+        "tensorflow_graph_automatic_cache",
+        "tensorflow_graph_automatic_coalesced_cache",
+        "tensorflow_graph_prepared_external_shards",
+        "tensorflow_graph_prepared_automatic_cache",
+        "tensorflow_graph_coalesced_cache",
+        "tensorflow_graph_periodic_checkpoint",
+        "distributed_device_pull_protocol",
+        "agent_admission_lifecycle",
+        "core_correctness",
+        "cost_and_migration_policies",
+        "cache_ownership_and_updates",
+        "automatic_cache_policy_lifecycle",
+        "agent_control_replay",
+        "embedding_adapter_lifecycle",
+        "read_lifecycle_cleanup",
+        "service_phase_timing",
+        "bounded_asynchronous_preparation",
+        "periodic_checkpoint_lifecycle",
+        "training_progress_consistency",
+        "durable_replica_log",
+        "reusable_lookup_layout_cache",
+        "synchronous_gradient_rounds",
+        "restored_snapshot_provenance",
+        "bounded_sparse_optimizer",
+        "resumable_actor_dependencies",
+        "resumable_shard_operations",
+        "concurrent_multi_agent_updates",
+        "coalesced_cross_shard_gathers",
+        "compact_feature_gradient_semantics",
+        "resumable_cuda_shard_operations",
+        "cuda_state_and_device_results",
+        "cuda_concurrent_checked_reads"
+      ],
+      "skipped": [
+        "entropy_original_table_external_shards",
+        "entropy_original_table_cache",
+        "entropy_original_restore_trajectory",
+        "entropy_peer_checkpoint_control"
+      ]
+    },
+    "gpu-read-extra.log": {
+      "passed": [
+        "tensorflow_read_failures_cuda"
+      ],
+      "skipped": []
+    },
+    "gpu-final.log": {
+      "passed": [
+        "tensorflow_replica_owner_recovery_cuda",
+        "read_lifecycle_cleanup",
+        "bounded_asynchronous_preparation"
+      ],
+      "skipped": []
+    }
+  },
+  "archives": {
+    "runtime": {
+      "path": "/home/ubuntu/ps-read-cleanup/runtime-current.tar.gz",
+      "bytes": 32132005,
+      "sha256": "25dcb71a39fa77913f104c017d71a99a170f168b9f86d51efca6b2d9ef283e3e"
+    },
+    "validation": {
+      "path": "/home/ubuntu/ps-read-cleanup/validation-current.tar.gz",
+      "bytes": 1180416,
+      "sha256": "535fc1f33bb202e30d5dbd841b66bf95c52fee80941df77b032533c024e5a483"
+    }
+  }
+}

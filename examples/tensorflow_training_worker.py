@@ -106,6 +106,9 @@ def main():
     backend = Backend(config["shards"], config["run"], config["worker"], config.get("epoch", 1))
     losses, observed_devices, first_gradients, times = [], {}, None, []
     journal, replayed = None, []
+    read_retries=0
+    read_retry_ms=int(config.get('read_retry_ms',2000))
+    if not 0<=read_retry_ms<=10000:raise ValueError('read retry budget must be between 0 and 10000 milliseconds')
     def test_gate(stage, iteration):
         gate=config.get("test_pause",{})
         if gate.get("stage")==stage and gate.get("iteration")==iteration:
@@ -142,7 +145,17 @@ def main():
                 value=saved['loss'];tables=saved['tables'];replayed.append(iteration)
                 unique_keys,values=tables[0]['keys'],tables[0]['values']
             else:
-                handle, arrays = backend.pull(features, True)
+                retry_deadline=None
+                while True:
+                    try:
+                        handle, arrays = backend.pull(features, True)
+                        break
+                    except RuntimeError:
+                        if retry_deadline is None:retry_deadline=time.monotonic()+read_retry_ms/1000
+                        if not read_retry_ms or not backend.read_lifecycle_healthy() or time.monotonic()>=retry_deadline:
+                            raise
+                        read_retries+=1
+                        time.sleep(.01)
                 test_gate('after_pull',iteration)
                 backend.release(handle)
                 with tf.device(device):
@@ -184,6 +197,7 @@ def main():
                           "tensorflow_device_memory": memory,
                           "lookup_transport": backend.lookup_transport_stats(),
                           "gradient_retry_count": backend.training_retry_count(),
+                          "read_retry_count": read_retries,
                           "replayed_iterations": replayed,
                           "parameter_stats": backend.stats()}, sort_keys=True))
     except Exception as error:

@@ -61,6 +61,7 @@ class TableAdapter {
   Result<Ack> Push(std::uint64_t handle, std::vector<TensorBlock> gradients);
   Result<Ack> Release(std::uint64_t handle);
   Result<Ack> Join();
+  bool ReadLifecycleHealthy() const;
   Result<std::uint64_t> CompletedReadFrontier() const;
   Result<Ack> RestoreReadFrontier(std::uint64_t next);
   // Called after the framework closes input and completes every Pull lifecycle.

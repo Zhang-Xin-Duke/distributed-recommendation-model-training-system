@@ -1,0 +1,6 @@
+{
+  "adapters/entropy/table_adapter.cpp": "5b693171571461c8e094405de4b949d4098c938d730b887b850c34f62f9a0005",
+  "tests/read_cleanup_tests.cpp": "876230c080d51930e99058a8c162dfefb275a92080625c056e642ecb16618551",
+  "tests/tensorflow_read_failures.py": "c0171c196acf0f8c71d6d84238d0b065309e8e24560f950c377e9b0562ebae8d",
+  "CMakeLists.txt": "86b33268d6a3e95f71f829ba9278fbc528170dc5fad3600231b06ec91135b036"
+}

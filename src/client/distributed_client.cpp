@@ -82,17 +82,11 @@ Result<DistributedBatch> DistributedClient::LookupImpl(RequestId id,std::uint64_
   };
   auto cleanup=[&] {
     collect(futures.size());
-    // Resolve/gather completions have finished before we can reach cleanup.
-    // Unknown tickets after transport failure remain the run controller's job.
-    std::vector<std::future<Result<Ack>>> releases;
-    for(std::size_t i=0;i<out.shards_.size();++i)if(!out.shards_[i].ticket.empty()) {
-      try {
-        auto release_id=id;release_id.phase=Phase::release;
-        releases.push_back(shards_[i]->Release({release_id,out.shards_[i].ticket}));
-      }catch(const std::exception&) {}
-    }
-    for(auto& release:releases)try{(void)release.get();}catch(const std::exception&){}
-    if(sent)failed_=true;
+    // Resolve/gather completions have drained. Cancel every identity, including
+    // unseen Lookups and successful replies that were lost in transport.
+    if(sent)try {
+      if(std::holds_alternative<Error>(ReleaseAll(id,epoch,out.shards_,true)))failed_=true;
+    }catch(...){failed_=true;}
   };
   try {
     detail::Require(!failed_,"client run has failed",Error::Code::run_failed);
@@ -282,12 +276,40 @@ Result<Ack> DistributedClient::Release(const DistributedBatch& batch) {
   std::lock_guard lock(mutex_);
   try {
     detail::Require(batch.shards_.size()==shards_.size(),"batch/client topology mismatch");
-    auto id=batch.original_.id;id.phase=Phase::release;
-    std::vector<std::future<Result<Ack>>> futures;futures.reserve(shards_.size());
-    for(std::size_t i=0;i<shards_.size();++i)futures.push_back(shards_[i]->Release({id,batch.shards_[i].ticket}));
-    for(auto& f:futures)Take(f);
-    return Ack{};
+    auto result=ReleaseAll(batch.original_.id,batch.original_.partition_epoch,batch.shards_,false);
+    if(std::holds_alternative<Error>(result))failed_=true;
+    return result;
   }catch(const detail::Failure& e){failed_=true;return e.error();}
+   catch(const std::exception& e){failed_=true;return Error{Error::Code::unavailable,e.what()};}
+}
+Result<Ack> DistributedClient::ReleaseAll(const RequestId& original,std::uint64_t epoch,
+    const std::vector<DistributedBatch::Part>& parts,bool cancel) {
+  auto id=original;id.phase=Phase::release;
+  std::vector<bool> acknowledged(shards_.size(),false);
+  Error last{Error::Code::unavailable,"read lifecycle cleanup was not acknowledged"};
+  for(unsigned attempt=0;attempt<3;++attempt) {
+    bool terminal=false;
+    std::vector<std::pair<std::size_t,std::future<Result<Ack>>>> pending;
+    pending.reserve(shards_.size());
+    for(std::size_t i=0;i<shards_.size();++i)if(!acknowledged[i]) {
+      try {pending.emplace_back(i,shards_[i]->Release({id,parts[i].ticket,cancel,epoch}));}
+      catch(const std::exception& e){last={Error::Code::unavailable,e.what()};}
+    }
+    for(auto& [home,future]:pending) {
+      try {
+        auto result=future.get();
+        if(auto* error=std::get_if<Error>(&result)) {
+          last=*error;terminal|=error->code!=Error::Code::unavailable;
+        }else acknowledged[home]=true;
+      }catch(const std::exception& e){last={Error::Code::unavailable,e.what()};}
+    }
+    if(std::all_of(acknowledged.begin(),acknowledged.end(),[](bool v){return v;}))return Ack{};
+    if(terminal)break;
+  }
+  return last;
+}
+bool DistributedClient::Healthy() const {
+  std::lock_guard lock(mutex_);return !failed_;
 }
 void DistributedClient::SetCacheResolver(CacheResolver resolver,bool coalesce){
   std::lock_guard lock(mutex_);resolver_=std::move(resolver);coalesce_cache_=coalesce;

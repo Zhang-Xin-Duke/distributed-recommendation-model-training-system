@@ -212,8 +212,10 @@ This execution covers CPU ownership and failures after gradients are retained.
 process loss, abandoned completed-Pull tickets and partially committed rounds.
 [Replica-backed owner recovery](REPLICA_OWNER_RECOVERY.md) adds term-bound
 owner replacement, full state rehydration and continued model training; its
-two-owner Host process check passes. CUDA execution, partial Pull/Release RPC
-failures and automatic endpoint discovery require further execution.
+Host and L40 CUDA process checks pass with complete state/loss comparisons.
+[Read-lifecycle recovery](READ_LIFECYCLE_RECOVERY.md) additionally handles partial
+Pull/Release RPC failures and delayed Lookups in real CPU/CUDA model runs.
+Automatic endpoint discovery and cross-node recovery require further execution.
 The beyond-single-GPU capacity experiment
 and complete original Entropy integration remain in the overarching project
 scope. Runtime power-loss behavior relies on the implemented fsync/publication

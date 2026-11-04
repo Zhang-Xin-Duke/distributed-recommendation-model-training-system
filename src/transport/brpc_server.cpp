@@ -137,7 +137,7 @@ void BrpcServer::Push(google::protobuf::RpcController* c,const wire::PushRequest
 void BrpcServer::Release(google::protobuf::RpcController* c,const wire::ReleaseRequest* q,
                        wire::Ack* r,google::protobuf::Closure* done) {
   Dispatch<Ack>(c,q,r,done,[&](const auto&) {
-    return service_.Release({Decode(q->identity()),q->ticket()});
+    return service_.Release({Decode(q->identity()),q->ticket(),q->cancel_unseen(),q->partition_epoch()});
   },AckEncode);
 }
 void BrpcServer::ReadState(google::protobuf::RpcController* c,const wire::ReadStateRequest* q,

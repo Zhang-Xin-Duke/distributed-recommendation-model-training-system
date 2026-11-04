@@ -122,6 +122,7 @@ class Backend {
   }
   void Release(std::uint64_t h) {py::gil_scoped_release release;Take(adapter_->Release(h));}
   void Join() {py::gil_scoped_release release;Take(adapter_->Join());}
+  bool ReadHealthy() {py::gil_scoped_release release;return adapter_->ReadLifecycleHealthy();}
   void Resume(std::string id) {py::gil_scoped_release release;Take(adapter_->Resume(std::move(id)));}
   py::tuple ReadCheckpoint(std::string id,std::uint32_t shard,std::uint64_t offset,
       std::uint32_t max_bytes,std::uint64_t checksum,py::bytes previous_tail) {
@@ -303,6 +304,7 @@ class Backend {
 }
 PYBIND11_MODULE(_eps_native,m) {
   m.attr("owner_incarnations")=true;
+  m.attr("read_lifecycle_cleanup")=true;
   py::class_<Backend>(m,"Backend")
     .def(py::init<std::vector<std::string>,std::string,std::uint32_t,std::uint64_t,std::size_t,const py::dict&>(),
       py::arg("endpoints"),py::arg("run"),py::arg("learner")=0,py::arg("epoch")=1,py::arg("max_live")=128,py::arg("preparation")=py::dict())
@@ -311,6 +313,7 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("pull_prepared",&Backend::PullPrepared,py::arg("token"),py::arg("read_only")=false)
     .def("cancel_prepared",&Backend::CancelPrepared).def("preparation_stats",&Backend::PreparationStats)
     .def("push",&Backend::Push).def("release",&Backend::Release).def("join",&Backend::Join)
+    .def("read_lifecycle_healthy",&Backend::ReadHealthy)
     .def("restored_from",&Backend::RestoredFrom)
     .def("save",&Backend::Save).def("stats",&Backend::Stats)
     .def("lookup_layout_cache",&Backend::LookupCache).def("lookup_transport_stats",&Backend::LookupTransport)

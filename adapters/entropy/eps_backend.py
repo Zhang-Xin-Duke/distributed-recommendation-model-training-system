@@ -88,6 +88,9 @@ class Backend:
     def join(self):
         return self._call("join")
 
+    def read_lifecycle_healthy(self):
+        return self._call("read_lifecycle_healthy")
+
     def save(self, snapshot_id):
         return self._call("save", snapshot_id)
     def resume(self, snapshot_id):

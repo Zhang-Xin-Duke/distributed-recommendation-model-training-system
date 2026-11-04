@@ -48,9 +48,11 @@ Replica-before-ack and explicit primary replacement now execute for synchronous
 rounds with retained worker gradients and CPU-owned state. Durable worker logs
 now support CPU job restart after worker/coordinator loss and abandoned read
 tickets. Term-bound owner replacement and replica-backed rehydration now pass
-the full Host-backed training fault cases. CUDA owner recovery execution,
-partial Pull/Release RPC failures and a measured common-quality comparison
-across training consistency policies remain open.
+the full Host-backed training fault cases. L40 CUDA recovery now restores all
+64 rows and matches uninterrupted parameters/loss after three process failures.
+Identity-based read cancellation and bounded Release retries pass real CPU/CUDA
+model faults, including late Lookups and lost successful replies. A measured
+common-quality comparison across training consistency policies remains open.
 Full original Entropy execution also remains open.
 
 ## Training-task progress controller
@@ -195,9 +197,12 @@ Native 38/38 and framework 58/58 tests pass, with ASan/UBSan and TSan checks of
 the durable log. The record is
 `../validation/2026-11-04-replicated-training.json`.
 
-The next failure work retains the same training framework and extends recovery
-across partial Pull/Release RPC failures and competing GPU owners. Automatic
-discovery/supervision, multi-node journal retrieval, bounded log compaction,
+Partial Pull/Release recovery now retains the same input/iteration after all
+shards acknowledge cancellation, fences late Lookups, and rejects further reads
+when cleanup remains uncertain. CPU and L40 CUDA model runs match uninterrupted
+state/loss exactly; preparation failures retain input-cursor recovery semantics.
+The record is `../validation/2026-11-04-read-lifecycle-recovery.json`. Competing
+GPU owners, automatic discovery/supervision, multi-node journal retrieval, bounded log compaction,
 gradient-Key metadata reuse, same-quality policy measurements, GPU capacity
 execution and complete original Entropy integration remain in the full scope.
 

@@ -1,0 +1,9 @@
+Test project /Users/xinzhang/Desktop/秋招/project/SparseEmbeddingRuntime/build/native-runtime
+    Start 2: native_runtime_c_abi
+1/2 Test #2: native_runtime_c_abi ...............   Passed    0.52 sec
+    Start 3: native_runtime_owner_incarnation
+2/2 Test #3: native_runtime_owner_incarnation ...   Passed    0.58 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   1.11 sec

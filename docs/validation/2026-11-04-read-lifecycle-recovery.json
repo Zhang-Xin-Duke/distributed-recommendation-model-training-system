@@ -1,0 +1,311 @@
+{
+  "base_commit": "f7fe8a1eb63a9ed2074110fcd91ba0903bc2809c",
+  "recorded_at_utc": "2026-11-04T22:29:46.218732+00:00",
+  "scope": "Cross-shard read cancellation, bounded Release retries, same-input model retry and CUDA replica-backed owner recovery",
+  "local_checks": {
+    "native": {
+      "passed": 40,
+      "failed": 0
+    },
+    "framework": {
+      "passed": 65,
+      "failed": 0
+    },
+    "asan": {
+      "passed": 4,
+      "failed": 0
+    },
+    "tsan": {
+      "passed": 4,
+      "failed": 0
+    },
+    "cabi": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "model_reports": {
+    "tf-read-failures": {
+      "test": "tensorflow_read_failures",
+      "device": "CPU",
+      "workers": 2,
+      "shards": 2,
+      "rounds": 8,
+      "max_state_absolute_error": 0.0,
+      "max_loss_absolute_error": 0.0,
+      "cleanup_verified": true,
+      "physical_gpus": 0,
+      "compared_rows": 10,
+      "cases": [
+        {
+          "mode": "baseline",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "lookup_before",
+          "read_retry_counts": [
+            1,
+            0
+          ]
+        },
+        {
+          "mode": "lookup_lost_reply",
+          "read_retry_counts": [
+            1,
+            0
+          ]
+        },
+        {
+          "mode": "release_before",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "release_lost_reply",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "late_lookup",
+          "read_retry_counts": [
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    "tf-read-failures-cuda": {
+      "test": "tensorflow_read_failures",
+      "device": "CUDA",
+      "workers": 2,
+      "shards": 2,
+      "rounds": 8,
+      "max_state_absolute_error": 0.0,
+      "max_loss_absolute_error": 0.0,
+      "cleanup_verified": true,
+      "physical_gpus": 1,
+      "compared_rows": 64,
+      "cases": [
+        {
+          "mode": "baseline",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "lookup_before",
+          "read_retry_counts": [
+            1,
+            0
+          ]
+        },
+        {
+          "mode": "lookup_lost_reply",
+          "read_retry_counts": [
+            1,
+            0
+          ]
+        },
+        {
+          "mode": "release_before",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "release_lost_reply",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "late_lookup",
+          "read_retry_counts": [
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    "tf-owner-recovery-cuda": {
+      "test": "tensorflow_worker_recovery",
+      "device": "CUDA",
+      "workers": 2,
+      "shards": 2,
+      "rounds": 8,
+      "max_state_absolute_error": 0.0,
+      "max_loss_absolute_error": 0.0,
+      "cleanup_verified": true,
+      "physical_gpus": 1,
+      "compared_rows": 64,
+      "cases": [
+        {
+          "mode": "baseline",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "after_pull",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "partial_round",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "mode": "after_update",
+          "read_retry_counts": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "source_sha256": {
+    "tests/read_cleanup_tests.cpp": "876230c080d51930e99058a8c162dfefb275a92080625c056e642ecb16618551",
+    "tests/read_fault_proxy.cpp": "e17c364f869bcc6f52eb6bd55a7718c372acecc8b30df667fecf3f5212033add",
+    "tests/tensorflow_read_failures.py": "c0171c196acf0f8c71d6d84238d0b065309e8e24560f950c377e9b0562ebae8d",
+    "CMakeLists.txt": "86b33268d6a3e95f71f829ba9278fbc528170dc5fad3600231b06ec91135b036",
+    "adapters/entropy/eps_backend.py": "7ca862c43dd1bad9e592c82ff77db3fcd89167698f2021e6f1faa55be3bf580b",
+    "adapters/entropy/eps_backend_worker.py": "a2c16bde8f028bdeb04933aff229d46167c51861fdec1b9ff17916f8b1488eb9",
+    "adapters/entropy/python_bindings.cpp": "16bea3b45e3abf4423d4bdb92c1b38c1839a09837b7af8b00622b6c90c78bae6",
+    "adapters/entropy/table_adapter.cpp": "5b693171571461c8e094405de4b949d4098c938d730b887b850c34f62f9a0005",
+    "examples/tensorflow_training_worker.py": "b0ed236b1e026ae104ef6b9da86095c92ba6346b2b6da0d2c4d5202b4cee797f",
+    "include/eps/distributed_client.hpp": "b608680085c95c200a559dfd49948428a91090895c721daf9a05977b0278d4e1",
+    "include/eps/entropy_adapter.hpp": "70efaf2ab1eb1dbbd24c2b8a8920577b8d948cd7968d81e9566991e8196718bb",
+    "include/eps/types.hpp": "8f65bbbf1769125814af779a78627ec82f908b7195dcc480f9b113ed26a633ef",
+    "proto/embedding_service.proto": "556ba0ddd54f859c3279e4778cdda40dab7a492363d0a5a36377dd4597dc5a81",
+    "scripts/install_training_runtime.sh": "a23f2ea46475b3d68eae0433f7bb2910939662d76ab2ab246df50610e0c6cc7d",
+    "src/client/distributed_client.cpp": "b6316362939ca55fb6c1c67606b1839941891a802224a3ef0110b519db96ab6c",
+    "src/server/service.cpp": "ddbd41cdb6f1598c1175bdae878becf448a2520d8a321aeb8c0c66679a47d304",
+    "src/transport/brpc_client.cpp": "b9473318147f9fa702d9bf8e83377a1aa3083fe8d93a910b3024b161318fc535",
+    "src/transport/brpc_server.cpp": "9f24c4554d5390dfeef951b4dcdd398d623391b268bdec50fb6e3ea346ce94fc"
+  },
+  "gpu_validation_scope": "L40 initial 67 pass/4 original-source fixtures skipped; CUDA read-fault follow-up 1 pass; final rebuilt adapter owner-recovery/cleanup/preparation 3 pass. A6000 architecture-specific checks 4 pass. These are separate executions, not one full final 72-test run.",
+  "gpu_owner_recovery_scope": "Two CUDA parameter-owner processes on one physical L40; 64 initialized model rows. Cross-node capacity is recorded separately.",
+  "retry_contract": "Retry temporarily unavailable reads only after all shard cancellation acknowledgements. Fresh read sequence, same input/iteration. Prepared failures cancel queued inputs and require input-cursor recovery. Unconfirmed cleanup closes read admission.",
+  "remaining_scope": [
+    "Full original Entropy native training/control execution",
+    "Cross-node replica/worker failure recovery and journal retrieval",
+    "Automatic endpoint supervision",
+    "Bounded log compaction",
+    "Gradient Key metadata reuse",
+    "Same-quality training-policy comparison"
+  ],
+  "artifacts": [
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/asan.log",
+      "sha256": "0f6e1d196bb50878beccab3b3d4d10df307c46cc49a678f3f47c3ba6b5295abb",
+      "bytes": 625
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/cabi.log",
+      "sha256": "39ee0d5ecac3bc4f10b6a9a1f6b135404371006cc0edc46948a04956f7fa7cfd",
+      "bytes": 399
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/framework.log",
+      "sha256": "ba234e89741fb01625bcde8b99f25e5927e43625dadbc7a92d43cd6a026dd6cb",
+      "bytes": 8629
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/latest-overlays.json",
+      "sha256": "db26437ace235e145eaf8dc54a55bff928fb5cbf15e40a4afdaf0e7b5e78e32d",
+      "bytes": 408
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/native.log",
+      "sha256": "30098cd1474d8669156a4eb7c58a0808f710662e5b70b38aa7d9c1f6dbe027ae",
+      "bytes": 5233
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-0-environment.json",
+      "sha256": "7d41d6415ce6eda0db35c8a0b6a18298bd9f31c8f41b9ab9ca62ebd64dd6f80c",
+      "bytes": 28487
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-0-gpu-final.log",
+      "sha256": "b6bf667ee019f54ce84de14b0b0f3a9b70a79d4d573e5f1c94f6e6d665e41d44",
+      "bytes": 585
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-0-gpu-read-extra.log",
+      "sha256": "b86b10b44fe4f95ce742235650f89a0c0a206459face3e74fadd6e5c537b7279",
+      "bytes": 5986
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-0-install.log",
+      "sha256": "27c07ee5f4a7510f9d2ffe62cbff1e120a76a6b0749614f99790683a88459039",
+      "bytes": 516223
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-0-runtime.json",
+      "sha256": "d06027cb6889147d59540803a0bd270a921a6a08c2c7b2c5a5a76e9c34e4e4fb",
+      "bytes": 3804
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-1-environment.json",
+      "sha256": "e2144bebc98b30e75bbd02f4842089009d35b31991313bd3c3d0d530b32108e0",
+      "bytes": 25389
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-1-install.log",
+      "sha256": "678d43253b8cc61f7cae3e539b867c421e52b7463bb040cac7ff9e0661fe4969",
+      "bytes": 507201
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/node-1-runtime.json",
+      "sha256": "ce0c5d5637e209850b3b8f98732f75b79368d5790d8da7445e43b615d1550500",
+      "bytes": 699
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/source-node1.json",
+      "sha256": "6ce18fa141548d7fde6c1b5798a3e43868fa9f952ec65589bfa7f228bac46656",
+      "bytes": 23565
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/source.json",
+      "sha256": "039c56ccc2b96a1b61f9b423ad88dff8b859fb3589b1e14047320a3a35ecd6da",
+      "bytes": 23775
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/tf-owner-recovery-cuda.json.gz",
+      "sha256": "7551bc7eb3014588c71a004cdb6a4b8ddd5b9d635c52c4be40979f3689b21b82",
+      "bytes": 42648
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/tf-read-failures-cuda.json.gz",
+      "sha256": "68da090afef7cc50ea4f4405a886b3b3e8f793e1e00084905d168086cb31efc3",
+      "bytes": 13006
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/tf-read-failures.json.gz",
+      "sha256": "ba7112f62b7f5bd8b71e43fde84505c8dfe9421bf4cd049d638d8b2d07265b90",
+      "bytes": 6765
+    },
+    {
+      "path": "docs/validation/2026-11-04-read-lifecycle-recovery/tsan.log",
+      "sha256": "c1f58a9e4a888be91166a8444a481b4687de4e52e1ced208d4b700a176118ac9",
+      "bytes": 625
+    }
+  ]
+}

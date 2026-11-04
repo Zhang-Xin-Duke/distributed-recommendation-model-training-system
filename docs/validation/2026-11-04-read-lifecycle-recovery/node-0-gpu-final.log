@@ -1,0 +1,12 @@
+Internal ctest changing into directory: /home/ubuntu/ps-read-cleanup/build-cuda
+Test project /home/ubuntu/ps-read-cleanup/build-cuda
+    Start 39: tensorflow_replica_owner_recovery_cuda
+1/3 Test #39: tensorflow_replica_owner_recovery_cuda ...   Passed   74.89 sec
+    Start 55: read_lifecycle_cleanup
+2/3 Test #55: read_lifecycle_cleanup ...................   Passed    0.03 sec
+    Start 57: bounded_asynchronous_preparation
+3/3 Test #57: bounded_asynchronous_preparation .........   Passed    0.03 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =  74.96 sec

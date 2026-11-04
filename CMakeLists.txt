@@ -220,6 +220,10 @@ if(EPS_BUILD_BRPC)
   target_link_libraries(eps_replica_control PRIVATE eps_brpc nlohmann_json::nlohmann_json)
   target_include_directories(eps_replica_control PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   target_link_libraries(eps_training_control PRIVATE eps_brpc nlohmann_json::nlohmann_json OpenSSL::Crypto)
+  if(EPS_BUILD_TESTS)
+    add_executable(eps_read_fault_proxy tests/read_fault_proxy.cpp)
+    target_link_libraries(eps_read_fault_proxy PRIVATE eps_brpc nlohmann_json::nlohmann_json)
+  endif()
   add_executable(eps_training_prepare src/training/prepare_main.cpp)
   target_link_libraries(eps_training_prepare PRIVATE eps_brpc nlohmann_json::nlohmann_json OpenSSL::Crypto)
   target_include_directories(eps_training_prepare PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -420,6 +424,11 @@ if(EPS_BUILD_BRPC)
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-worker-recovery.json")
         set_tests_properties(tensorflow_worker_recovery PROPERTIES TIMEOUT 300
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_read_failures
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_read_failures.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-read-failures.json")
+        set_tests_properties(tensorflow_read_failures PROPERTIES TIMEOUT 240
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_replica_owner_recovery_host
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_worker_recovery.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --owners host --out "${CMAKE_CURRENT_BINARY_DIR}/tf-owner-recovery-host.json")
@@ -428,6 +437,11 @@ if(EPS_BUILD_BRPC)
         set_tests_properties(durable_worker_gradients PROPERTIES TIMEOUT 30)
         set_tests_properties(distributed_model_orchestration PROPERTIES TIMEOUT 120)
         if(EPS_BUILD_CUDA)
+          add_test(NAME tensorflow_read_failures_cuda
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_read_failures.py"
+              --build "${CMAKE_CURRENT_BINARY_DIR}" --cuda --out "${CMAKE_CURRENT_BINARY_DIR}/tf-read-failures-cuda.json")
+          set_tests_properties(tensorflow_read_failures_cuda PROPERTIES TIMEOUT 300
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           add_test(NAME tensorflow_synchronous_model_cuda
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_synchronous_training.py"
               --build "${CMAKE_CURRENT_BINARY_DIR}" --devices 0 --out "${CMAKE_CURRENT_BINARY_DIR}/tf-synchronous-cuda.json")
@@ -511,6 +525,10 @@ if(EPS_BUILD_TESTS)
   add_executable(eps_adapter_tests tests/adapter_tests.cpp)
   target_link_libraries(eps_adapter_tests PRIVATE eps_core)
   add_test(NAME embedding_adapter_lifecycle COMMAND eps_adapter_tests)
+  add_executable(eps_read_cleanup_tests tests/read_cleanup_tests.cpp)
+  target_link_libraries(eps_read_cleanup_tests PRIVATE eps_core)
+  add_test(NAME read_lifecycle_cleanup COMMAND eps_read_cleanup_tests)
+  set_tests_properties(read_lifecycle_cleanup PROPERTIES TIMEOUT 60)
   add_executable(eps_phase_tests tests/phase_timing_tests.cpp)
   target_link_libraries(eps_phase_tests PRIVATE eps_core)
   add_test(NAME service_phase_timing COMMAND eps_phase_tests)

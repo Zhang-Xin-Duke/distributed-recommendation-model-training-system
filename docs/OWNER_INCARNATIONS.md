@@ -57,16 +57,19 @@ two workers and eight synchronous rounds. Full touched parameter/moment state
 and the first aggregated gradient are compared against the single-worker global
 batch. The C ABI check uses a separately identified Host owner, moves rows into
 it, reads through the native resolver, updates, saves and checks buffer lifetime.
-These checks establish identity/routing semantics with Host storage. CUDA owner
-execution of this new identity option remains part of GPU recovery validation.
+These checks establish identity/routing semantics with Host storage. Follow-up
+L40 CUDA owner recovery checks exercise the same identities during full-state
+rehydration and resumed GPU model training.
 
 The manager must stop former owners before replacement and distribute the fresh
 owner identities to every caller. Run namespaces provide replay isolation;
 network authentication and revoking another live endpoint are deployment
 responsibilities. [Replica-backed owner recovery](REPLICA_OWNER_RECOVERY.md)
 loads weights and Adam moments into fresh owners, reconciles partial rounds and
-resumes the model. Its complete process path passes with Host owners; CUDA
-execution remains in the GPU validation plan.
+resumes the model. Its complete process path passes with Host owners and with
+two CUDA owners on one physical L40. The latter restores and compares all
+64 model rows after each fault, with zero state/loss difference.
+[CUDA follow-up record](validation/2026-11-04-read-lifecycle-recovery.json).
 
 [Validation record](validation/2026-11-04-owner-incarnations.json) retains the
 source hashes, model state, RPC results and suite logs for this implementation.

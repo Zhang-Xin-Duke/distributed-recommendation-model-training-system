@@ -332,6 +332,28 @@ class CpuParameterService::Impl {
 
   detail::ActorTask<Ack> Release(ReleaseRequest request) {
     Identity(request.id, Phase::release);
+    if(request.cancel_unseen) {
+      Require(!options_.exclusive_update_learner || request.id.learner!=*options_.exclusive_update_learner,
+        "read cancellation cannot retire the optimizer actor");
+      Require(request.partition_epoch==options_.partition_epoch,"read cancellation partition epoch differs",Error::Code::stale_generation);
+      const auto name=TicketName(request.id);
+      Require(request.ticket.empty() || request.ticket==name,"read cancellation ticket identity differs");
+      detail::RequestTracker::State state;
+      try {state=tracker_.Reserve(request.id);}
+      catch(const detail::Failure& e) {
+        if(e.error().code==Error::Code::retired_request){++stats_.duplicate_requests;co_return Ack{};}
+        throw;
+      }
+      if(state==detail::RequestTracker::State::completed) {
+        Require(tracker_.CompletedAs(request.id)==Phase::release,"read cancellation cannot undo an applied update");
+        ++stats_.duplicate_requests;co_return Ack{};
+      }
+      auto it=tickets_.find(name);
+      Require(it!=tickets_.end() || state==detail::RequestTracker::State::fresh,"pending read cancellation lacks its ticket");
+      tracker_.Complete(request.id);
+      if(it!=tickets_.end()){ticket_payload_bytes_-=it->second.payload_bytes;tickets_.erase(it);}
+      co_await MaybeMaintainCache();co_return Ack{};
+    }
     if (tracker_.CompletedAs(request.id)) {
       ++stats_.duplicate_requests; co_return Ack{};
     }

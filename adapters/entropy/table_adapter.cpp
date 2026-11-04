@@ -45,7 +45,7 @@ struct TableAdapter::Impl {
     detail::Require(live.size()<options.max_live_batches,"adapter live-batch limit reached",Error::Code::capacity_exceeded);
   }
   template<bool Device=false>
-  std::conditional_t<Device,DevicePullResult,PullResult> Dispatch(detail::PreparedAdapterInput prepared,bool read_only) {
+  std::conditional_t<Device,DevicePullResult,PullResult> Dispatch(detail::PreparedAdapterInput prepared,bool read_only,bool allow_retry=true) {
     detail::Require(next!=UINT64_MAX,"adapter request sequence exhausted",Error::Code::capacity_exceeded);
     const auto handle=next;
     Batch batch;batch.read_only=read_only;batch.positions=std::move(prepared.positions);
@@ -82,8 +82,13 @@ struct TableAdapter::Impl {
     }catch(...) {
       // Output reconstruction/allocation can fail after successful RPCs. Release
       // those known tickets before destroying the batch and closing admission.
-      if(looked_up)try{(void)client.Release(entry->second.batch);}catch(...){}
-      closed=true;preparation.Close();live.erase(handle);completed.erase(handle);throw;
+      bool retryable=false;
+      try{throw;}catch(const detail::Failure& e){retryable=allow_retry && !looked_up &&
+        e.error().code==Error::Code::unavailable && preparation.Empty();}catch(...){}
+      bool released=true;
+      if(looked_up)try{released=std::holds_alternative<Ack>(client.Release(entry->second.batch));}catch(...){released=false;}
+      if(!retryable || !released || !client.Healthy()){closed=true;preparation.Close();}
+      live.erase(handle);completed.erase(handle);throw;
     }
   }
   AdapterOptions options;
@@ -142,14 +147,14 @@ Result<PullResult> TableAdapter::PullPrepared(std::uint64_t token,bool read_only
   std::lock_guard lock(impl_->mutex);
   try {
     impl_->Ready();
-    return impl_->Dispatch(Take(impl_->preparation.Take(token)),read_only);
+    return impl_->Dispatch(Take(impl_->preparation.Take(token)),read_only,false);
   }catch(const detail::Failure& e){return e.error();}
   catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"prepared Pull allocation failed"};}
   catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
 }
 Result<DevicePullResult> TableAdapter::PullPreparedDevice(std::uint64_t token,bool read_only){
   std::lock_guard lock(impl_->mutex);
-  try{impl_->Ready();return impl_->Dispatch<true>(Take(impl_->preparation.Take(token)),read_only);}
+  try{impl_->Ready();return impl_->Dispatch<true>(Take(impl_->preparation.Take(token)),read_only,false);}
   catch(const detail::Failure& e){return e.error();}
   catch(const std::bad_alloc&){return Error{Error::Code::capacity_exceeded,"prepared device Pull allocation failed"};}
   catch(const std::exception& e){impl_->closed=true;impl_->preparation.Close();return Error{Error::Code::run_failed,e.what()};}
@@ -203,12 +208,16 @@ Result<Ack> TableAdapter::Release(std::uint64_t handle) {
 }
 Result<Ack> TableAdapter::Join() {
   std::lock_guard lock(impl_->mutex);
+  if(!impl_->client.Healthy())return Error{Error::Code::run_failed,"read or update cleanup is uncertain; recover the job before Join"};
   if(!impl_->live.empty())return Error{Error::Code::unavailable,"complete Push/Release before Join"};
   return Ack{};
 }
+bool TableAdapter::ReadLifecycleHealthy() const {
+  std::lock_guard lock(impl_->mutex);return !impl_->closed && impl_->client.Healthy();
+}
 Result<std::uint64_t> TableAdapter::CompletedReadFrontier() const {
   std::lock_guard lock(impl_->mutex);
-  if(impl_->closed || !impl_->live.empty())return Error{Error::Code::unavailable,"finish all read lifecycles before certifying progress"};
+  if(impl_->closed || !impl_->client.Healthy() || !impl_->live.empty())return Error{Error::Code::unavailable,"finish all read lifecycles before certifying progress"};
   return impl_->next;
 }
 Result<Ack> TableAdapter::RestoreReadFrontier(std::uint64_t next) {

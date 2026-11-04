@@ -251,6 +251,8 @@ message PushRequest {
 message ReleaseRequest {
   RequestIdentity identity = 1;
   string ticket = 2;
+  bool cancel_unseen = 3;
+  uint64 partition_epoch = 4;
 }
 
 message RowState {

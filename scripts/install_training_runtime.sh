@@ -43,6 +43,7 @@ assert hasattr(_eps_native.Backend,'lookup_transport_stats')
 assert hasattr(_eps_native.Backend,'training_retry_count'), 'Runtime bundle predates replicated training retries'
 assert hasattr(_eps_native.Backend,'restore_read_frontier'), 'Runtime bundle predates durable worker recovery'
 assert getattr(_eps_native,'owner_incarnations',False), 'Runtime bundle predates independent owner identities; rebuild from current source'
+assert getattr(_eps_native,'read_lifecycle_cleanup',False), 'Runtime bundle predates identity-based read cleanup; rebuild from current source'
 binary=root/'portable-runtime/bin'
 for p in binary.iterdir():
     text=subprocess.check_output(['ldd',str(p)],text=True)

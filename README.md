@@ -65,8 +65,11 @@ before acknowledging a synchronous round. A replacement primary restores that
 state under a new durable term; workers retain and retry their original gradients.
 Two CPU model-training fault cases cover a lost commit acknowledgement and an
 unpublished update, with zero final state/loss difference from uninterrupted
-training. Partial Pull/Release RPC failures and CUDA owner-recovery validation
-remain in the execution plan.
+training. [Read-lifecycle recovery](docs/READ_LIFECYCLE_RECOVERY.md) closes uncertain
+cross-shard Pulls by request identity, fences late reads and retries partial
+Release acknowledgements before admitting another model read. Failed cleanup
+requires job recovery; partially applied gradient updates keep their existing
+failure contract.
 
 [Worker/coordinator recovery](docs/WORKER_RECOVERY.md) journals original gradients
 before submission, rolls a partially committed round forward and reconstructs
@@ -79,8 +82,9 @@ from a replacement parameter owner's identity. Old reads and control commands
 reject at the replacement endpoint while optimizer updates retain their original
 model identity. [Replica-backed owner recovery](docs/REPLICA_OWNER_RECOVERY.md)
 reloads complete row/Adam state into replacement owners before rolling partial
-rounds forward. The two-owner Host training check replaces all roles and matches
-uninterrupted parameters and loss exactly; CUDA execution awaits rental inventory.
+rounds forward. Host and L40 CUDA training checks replace all roles and match uninterrupted
+parameters and loss exactly. The CUDA recovery check uses two owner processes
+on one physical GPU; cross-node capacity is recorded separately.
 
 [Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
 owner and model worker on each node, initializes local backing/resident rows,

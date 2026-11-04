@@ -1,0 +1,25 @@
+{
+  "validation_scopes": {
+    "install.log": {
+      "passed": [
+        "distributed_device_pull_cuda",
+        "tensorflow_synchronous_model_cuda",
+        "cuda_state_and_device_results",
+        "cuda_concurrent_checked_reads"
+      ],
+      "skipped": []
+    }
+  },
+  "archives": {
+    "runtime": {
+      "path": "/home/ubuntu/ps-read-cleanup/runtime-current.tar.gz",
+      "bytes": 32131654,
+      "sha256": "acca53e040a9ef9f568bafc9340c2d5ae59eb0c9af68405e826064391a761550"
+    },
+    "validation": {
+      "path": "/home/ubuntu/ps-read-cleanup/validation-current.tar.gz",
+      "bytes": 100616,
+      "sha256": "9967a9a68096905ddab3d5f113039ad388ae4e9e09828ecf415df25ed15b5348"
+    }
+  }
+}

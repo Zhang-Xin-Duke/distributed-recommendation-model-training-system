@@ -17,7 +17,7 @@ def main():
     allowed = {"create_table", "pull", "push", "release", "join", "save", "resume", "read_checkpoint", "restored_from", "cache_endpoints", "stats", "prepare", "pull_prepared", "cancel_prepared", "preparation_stats",
                "configure_training", "begin_training", "complete_training", "submit_synchronous", "abort_training",
                "lookup_layout_cache", "lookup_transport_stats", "training_retry_count",
-               "completed_read_frontier", "restore_read_frontier"}
+               "completed_read_frontier", "restore_read_frontier", "read_lifecycle_healthy"}
     try:
         while True:
             method, args = pickle.loads(connection.recv_bytes(LIMIT))
