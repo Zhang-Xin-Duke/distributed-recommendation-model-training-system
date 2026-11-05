@@ -1,0 +1,61 @@
+{
+  "recorded_at_utc": "2026-11-05T01:09:54.315694+00:00",
+  "base_commit": "ab65e84078b31d7cfd620f2a64b2d0bbe9843040",
+  "scope": "Original protocol generation and import checks on Linux CPython3.10; full framework execution remains pending",
+  "protocol_generation": {
+    "source_sha256": {
+      "entropy/proto/cluster_config.proto": "f0178788b6865b617db22b11112080c8759b586eb1ce2283cacb5e24af097e3e",
+      "entropy/proto/controller.proto": "563e80c901d9a13c24bb273e4ef335e44444df4a30ae23b17d2b57a4cd69341b",
+      "entropy/proto/entropy_instance.proto": "1adbf8d8aea14b5c5154c68e823905bdf6388cb666e60fada100fec0b26d8151",
+      "entropy/proto/entropy_instance_list.proto": "88cc7c48c31a27f68d238f2385609153ccf9be27561fd38c5a00ef336d4df2e7",
+      "entropy/proto/fea_spec.proto": "c2f235d3534772dff19ebe7652155557a1eedea6249ab8c77a744fcfc26d112b",
+      "entropy/proto/learner.proto": "c0f5a8e24a069c051b450f829544dceea108225a052ed9a534939dc2bd43803a",
+      "entropy/proto/list_instance.proto": "cec1d160ca162003cf78e3168111684e4eb8ca6d68df6c9146e215a768cee1a9",
+      "entropy/proto/pegasus_instance.proto": "eb721bcc3c587b6d934c411e601f8df3a643eb98191ed13e775580f03edb4fc4",
+      "entropy/proto/plasma_instance.proto": "068bb9f42308b7ee83a09e9930d723accbc99fcfa59ad68dc8e734d0afa39b7b",
+      "entropy/proto/rdma_perf_test.proto": "ac70bce4d977f1434b42ff23d35557ef961cbafcef1e4fd71c8225ae00f1d0b4",
+      "entropy/proto/server.proto": "2c96ac8399f5cc4367b8a7c291aa88e4359673ac654396c93b274178f57a26ba",
+      "entropy/proto/trinity.proto": "732aabbe4875b3cf3bf6d49a44a6de30426a83c2567c9a6a2bc85b2b75daf1d6",
+      "entropy/proto/trinity_common.proto": "93b99828222b76086f2f595abd1c99f777bde87fe375aeb289f35a5421773f2b",
+      "repositories/api/protos/galaxy/kfc_data/embedding_schema.proto": "dba31c6e3477de3f48cd8b8301025cccb921d3122d7b3ebd0e94ad813134b4d1"
+    },
+    "generated_sha256": {
+      "galaxy/kfc_data/embedding_schema_pb2.py": "67693dbac9f0c7a43a4dce439ee3dd61ee33ad2bdb6a9abc77b7dd7cc2d12fde",
+      "galaxy/kfc_data/embedding_schema_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/cluster_config_pb2.py": "07cb93ead5588fff247aeae13830387e6ee22d930fa5e232bb6573877b924e81",
+      "proto/cluster_config_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/controller_pb2.py": "781d744ceeaa9776d1232bce38f07d73add979384bce105b6c25d3d5734511f7",
+      "proto/controller_pb2_grpc.py": "6adbefc327743f3d8c409ce8cb48510b97857a05e8cbeb58a5b7f45c711f225e",
+      "proto/entropy_instance_list_pb2.py": "8932c8088395332210ff3a6eb3ff4913bd6f03d686f083d8b793b283bb062301",
+      "proto/entropy_instance_list_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/entropy_instance_pb2.py": "08749d14e4f9cd6e66fa29bd97d9a8d6517e28cd60e3282e5cf55ae0883db526",
+      "proto/entropy_instance_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/fea_spec_pb2.py": "fc4ccf99d01cff23449f19b43bcfc6e43d87fab03260eeda3a42033c39f4fa81",
+      "proto/fea_spec_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/learner_pb2.py": "f192f243cd3f0e6f1b76a5ce86f47da255a823c94a8e794d4b40f36082090ec3",
+      "proto/learner_pb2_grpc.py": "c36a4ff5dca39c6fb2afb11ed792e96b0c079e528ab140ccaa736caca828f2a5",
+      "proto/list_instance_pb2.py": "35843ecc390622f31673947de0596404251916a68f14ef90de764f1302face75",
+      "proto/list_instance_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/pegasus_instance_pb2.py": "7de57a9a69b0836a2f889b79fd23c03a8a6b31041685224c4d7c00b1891efd58",
+      "proto/pegasus_instance_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/plasma_instance_pb2.py": "f3e1f37a06274d6178290f788b322233f45fc84938387c5bd8c547bc700e7e32",
+      "proto/plasma_instance_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/rdma_perf_test_pb2.py": "759f65a952c3b810a55e26688c0a66901df698ae828aa12bb69dbed8f2acf323",
+      "proto/rdma_perf_test_pb2_grpc.py": "9da1d3502e96ba98072a614f3edeb8e5398bb7e09d2e3982d36dc69055c9792c",
+      "proto/server_pb2.py": "6df97d0b577d073929f55fb037f0bee5f1f0e80205fdb441d72d98d088a9c456",
+      "proto/server_pb2_grpc.py": "613feb31f05b11f6bb238e0320bb0079b728793f8d99091d82e8af3c6f37b777",
+      "proto/trinity_common_pb2.py": "882b6238cf6beb132ae5194c9b6eaf1a2c6ef79d7267a15711f899db65406c61",
+      "proto/trinity_common_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09",
+      "proto/trinity_pb2.py": "0e30a5c0fbc25193c1de00ca36d4bac0806061eeb0a8f2d6d31bc7dc0ef6d0a0",
+      "proto/trinity_pb2_grpc.py": "d686e804f171693117b7d030ec4023f205c70c234c8590f6557aa8702f65fe09"
+    },
+    "verified": {
+      "cluster_roundtrip": true,
+      "sparse_table_protocol": true,
+      "learner_and_controller_stubs": true,
+      "embedding_schema": true
+    },
+    "original_framework_imported": false
+  },
+  "script_sha256": "4b037dce8f4698bb51400b3165151dda950a756a5c785fbd503df4a345332f0c"
+}

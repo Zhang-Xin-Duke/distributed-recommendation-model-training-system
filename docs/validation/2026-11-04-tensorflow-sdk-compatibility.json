@@ -1,0 +1,59 @@
+{
+  "recorded_at_utc": "2026-11-05T01:14:33.468759+00:00",
+  "base_commit": "ab65e84078b31d7cfd620f2a64b2d0bbe9843040",
+  "scope": "EPS TensorFlow module compilation, linking and registration against original2.12.1 SDK; no original framework training claim",
+  "source_sha256": "34cbb7f76cd1b38ad7654a47aba4e3ffe6f41dc11d9e465537214c05d313db0e",
+  "linux_sdk_compile": {
+    "exit_code": 0,
+    "command": [
+      "g++",
+      "-std=c++17",
+      "-D_GLIBCXX_USE_CXX11_ABI=1",
+      "-fPIC",
+      "-O2",
+      "-c",
+      "/home/ubuntu/entropy-native/eps-tensorflow-ops.cc",
+      "-I/home/ubuntu/entropy-native/eps-include",
+      "-I/home/ubuntu/entropy-native/native/repositories/tensorflow__2.12.1-nvidia/include",
+      "-I/home/ubuntu/entropy-native/native/repositories/tensorflow__2.12.1-nvidia/include/external/eigen_archive",
+      "-I/home/ubuntu/entropy-native/native/repositories/abseil-cpp__20230802",
+      "-I/home/ubuntu/entropy-native/native/repositories/protobuf__3.21.9",
+      "-I/home/ubuntu/entropy-native/native/repositories/eigen3__3460f3558e7b/include",
+      "-o",
+      "/home/ubuntu/entropy-native/eps-tensorflow-ops.o"
+    ]
+  },
+  "linux_sdk_probe": {
+    "tensorflow": "2.12.1",
+    "device_types": [
+      "CPU",
+      "GPU"
+    ],
+    "gpu_matmul": [
+      7.0,
+      10.0,
+      15.0,
+      22.0
+    ],
+    "core_operation_count": 1731,
+    "op_library_loaded": "/home/ubuntu/entropy-native/eps-tensorflow-ops.so",
+    "registered_operation_count": 7,
+    "registered_operations": [
+      "EpsRuntime",
+      "EpsPull",
+      "EpsPrepare",
+      "EpsPullPrepared",
+      "EpsPush",
+      "EpsCommand",
+      "EpsIdCommand"
+    ],
+    "full_framework_training_verified": false
+  },
+  "linux_module_sha256": "a6d729287a265b9b607e41e30a4ed606fee2b6f8b1a97ffc8c9a969ad4da1860",
+  "macos_tensorflow_220": {
+    "compiled": true,
+    "loaded": true,
+    "unsupported_runtime_guard": true
+  },
+  "original_reader_training_control_verified": false
+}

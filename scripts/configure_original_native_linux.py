@@ -133,19 +133,21 @@ def configure(workspace, cuda, gcc, clang=None):
     redis_text = redis_build.read_text()
     marker = '    name = "redis",\n'
     definition = '    defines = ["AI_BUILD_WITH_BAZEL=1"],\n'
-    if marker + definition not in redis_text:
-        if redis_text.count(marker) != 1:
-            raise ValueError("cannot identify the common Redis public-header target")
-        # redis.h exposes its hiredis dependency. Its Bazel include spelling must
-        # also reach consumers through CcInfo, not just Redis implementation files.
-        redis_build.write_text(redis_text.replace(marker, marker + definition, 1))
+    # The original __identity_ai configuration sets this define for all target
+    # and host compilations. It selects both Redis includes and Peta's glog
+    # implementation. A Redis-only define misses independent Peta consumers.
+    if marker + definition in redis_text:
+        redis_build.write_text(redis_text.replace(marker + definition, marker, 1))
     result = dict(cuda_version=cuda_version, toolkit_nvcc_version=command(str(cuda / "bin/nvcc"), "--version").stdout,
                   gcc=command(gcc, "--version").stdout.splitlines()[0],
                   clang=command(clang, "--version").stdout.splitlines()[0] if clang else None,
                   configured_toolkit=str(cuda), rdma_imports=len(imports),
                   cuda_option_translation=cuda_options,
                   qualified_tensorflow_helpers=helpers,
-                  redis_header_define="AI_BUILD_WITH_BAZEL=1",
+                  required_bazel_copts=["-DAI_BUILD_WITH_BAZEL=1"],
+                  required_bazel_host_copts=["-DAI_BUILD_WITH_BAZEL=1"],
+                  required_bazel_cxxopts=["-fsized-deallocation"],
+                  required_bazel_host_cxxopts=["-fsized-deallocation"],
                   required_bazel_defines=["enable_gpu=1"], native_compiled=False)
     (workspace / "linux-configuration.json").write_text(json.dumps(result, indent=2) + "\n")
     return result

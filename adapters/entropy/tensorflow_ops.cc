@@ -5,7 +5,11 @@
 #include "tensorflow/core/framework/shape_inference.h"
 #include "tensorflow/core/framework/allocation_description.pb.h"
 #include "tensorflow/core/framework/cancellation.h"
+#if __has_include("xla/stream_executor/stream.h")
 #include "xla/stream_executor/stream.h"
+#else
+#include "tensorflow/compiler/xla/stream_executor/stream.h"
+#endif
 #include <dlfcn.h>
 #include <condition_variable>
 #include <deque>
@@ -18,9 +22,10 @@
 #include <cstdio>
 using namespace tensorflow;
 namespace {
-struct Failure {absl::Status status;};
+using TfStatus = tensorflow::Status;
+struct Failure {TfStatus status;};
 void Require(bool ok,const char* message){if(!ok)throw Failure{errors::InvalidArgument(message)};}
-void Status(absl::Status status){if(!status.ok())throw Failure{std::move(status)};}
+void Status(TfStatus status){if(!status.ok())throw Failure{std::move(status)};}
 void Native(int result,const EpsStatus& status){if(!result)return;
   switch(status.code){
     case 1:throw Failure{errors::InvalidArgument(status.message)};
@@ -76,12 +81,12 @@ class CreateKernel final:public ResourceOpKernel<RuntimeResource> {
  public:
   explicit CreateKernel(OpKernelConstruction* c):ResourceOpKernel(c){OP_REQUIRES_OK(c,c->GetAttr("configuration",&configuration_));OP_REQUIRES_OK(c,c->GetAttr("library",&library_));OP_REQUIRES_OK(c,c->GetAttr("context_key",&context_key_));}
  private:
-  absl::Status CreateResource(RuntimeResource** r)override{
+  TfStatus CreateResource(RuntimeResource** r)override{
     *r=nullptr;
-    try{*r=new RuntimeResource(Load(library_),configuration_,library_,context_key_);return absl::OkStatus();}
+    try{*r=new RuntimeResource(Load(library_),configuration_,library_,context_key_);return tensorflow::OkStatus();}
     catch(const Failure& e){return e.status;}catch(const std::exception& e){return errors::Internal(e.what());}
   }
-  absl::Status VerifyResource(RuntimeResource* r)override{return r->configuration==configuration_ && r->library==library_ && r->context_key==context_key_?absl::OkStatus():errors::FailedPrecondition("shared EPS resource configuration mismatch");}
+  TfStatus VerifyResource(RuntimeResource* r)override{return r->configuration==configuration_ && r->library==library_ && r->context_key==context_key_?tensorflow::OkStatus():errors::FailedPrecondition("shared EPS resource configuration mismatch");}
 };
 class IoPool {
   std::mutex mutex_;std::condition_variable changed_;std::deque<std::function<void()>> queue_;bool stop_=false;std::vector<std::thread> workers_;
@@ -114,7 +119,10 @@ class AsyncKernel:public AsyncOpKernel {
   }
   virtual void Run(OpKernelContext*,RuntimeResource&)=0;
 };
-void* Stream(OpKernelContext* c){auto* context=c->op_device_context();Require(context && context->stream(),"missing TensorFlow device stream");return context->stream()->platform_specific_handle().stream;}
+template<class T> auto StreamHandle(T* stream,int)->decltype(stream->platform_specific_handle().stream){return stream->platform_specific_handle().stream;}
+// TensorFlow 2.12 exposes the borrowed CUDA stream through StreamInterface.
+template<class T> auto StreamHandle(T* stream,long)->decltype(stream->implementation()->GpuStreamHack()){return stream->implementation()->GpuStreamHack();}
+void* Stream(OpKernelContext* c){auto* context=c->op_device_context();Require(context && context->stream(),"missing TensorFlow device stream");return StreamHandle(context->stream(),0);}
 int Device(OpKernelContext* c){const auto* info=c->device()->tensorflow_accelerator_device_info();Require(info,"missing TensorFlow GPU information");return info->gpu_id;}
 std::uint64_t Scalar(OpKernelContext* c,int input){Require(TensorShapeUtils::IsScalar(c->input(input).shape()),"EPS handle/token must be scalar");return c->input(input).scalar<uint64>()();}
 void OutputId(OpKernelContext* c,std::uint64_t value){Tensor* output=nullptr;Status(c->allocate_output(0,TensorShape({}),&output));output->scalar<uint64>()()=value;}
@@ -210,18 +218,18 @@ class IdCommandKernel final:public AsyncKernel {
   void Run(OpKernelContext* c,RuntimeResource& r)override{auto id=Scalar(c,1);OutputId(c,id);TextOwner ignored;
     Control(r,method_.c_str(),std::string(method_=="release"?"{\"handle\":":"{\"token\":")+std::to_string(id)+"}",&ignored.value);}
 };
-absl::Status Shapes(shape_inference::InferenceContext* c){std::vector<int64_t> dims;TF_RETURN_IF_ERROR(c->GetAttr("dimensions",&dims));int n;TF_RETURN_IF_ERROR(c->GetAttr("N",&n));
-  if(dims.size()!=n)return errors::InvalidArgument("EPS dimension count mismatch");c->set_output(0,c->Scalar());for(int i=0;i<n;++i){if(dims[i]<=0)return errors::InvalidArgument("invalid EPS dimension");c->set_output(i+1,c->Matrix(c->UnknownDim(),dims[i]));}return absl::OkStatus();}
+TfStatus Shapes(shape_inference::InferenceContext* c){std::vector<int64_t> dims;TF_RETURN_IF_ERROR(c->GetAttr("dimensions",&dims));int n;TF_RETURN_IF_ERROR(c->GetAttr("N",&n));
+  if(dims.size()!=n)return errors::InvalidArgument("EPS dimension count mismatch");c->set_output(0,c->Scalar());for(int i=0;i<n;++i){if(dims[i]<=0)return errors::InvalidArgument("invalid EPS dimension");c->set_output(i+1,c->Matrix(c->UnknownDim(),dims[i]));}return tensorflow::OkStatus();}
 }  // namespace
-REGISTER_OP("EpsRuntime").Output("resource: resource").Attr("configuration: string").Attr("library: string").Attr("context_key: string = ''").Attr("container: string = ''").Attr("shared_name: string = ''").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
+REGISTER_OP("EpsRuntime").Output("resource: resource").Attr("configuration: string").Attr("library: string").Attr("context_key: string = ''").Attr("container: string = ''").Attr("shared_name: string = ''").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return tensorflow::OkStatus();});
 #define EPS_SCHEMA .Attr("N: int >= 1").Attr("tables: list(int)").Attr("features: list(int)").Attr("modes: list(int)").Attr("padding: list(bool)").Attr("padding_keys: list(int)").Attr("dimensions: list(int)")
 REGISTER_OP("EpsPull").Input("resource: resource").Input("keys: N * uint64").Input("offsets: N * uint64").Output("handle: uint64").Output("outputs: N * float") EPS_SCHEMA .Attr("read_only: bool = false").SetIsStateful().SetShapeFn(Shapes);
-REGISTER_OP("EpsPrepare").Input("resource: resource").Input("keys: N * uint64").Input("offsets: N * uint64").Output("token: uint64") EPS_SCHEMA .SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
+REGISTER_OP("EpsPrepare").Input("resource: resource").Input("keys: N * uint64").Input("offsets: N * uint64").Output("token: uint64") EPS_SCHEMA .SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return tensorflow::OkStatus();});
 #undef EPS_SCHEMA
 REGISTER_OP("EpsPullPrepared").Input("resource: resource").Input("token: uint64").Output("handle: uint64").Output("outputs: N * float").Attr("N: int >= 1").Attr("dimensions: list(int)").Attr("read_only: bool = false").SetIsStateful().SetShapeFn(Shapes);
-REGISTER_OP("EpsPush").Input("resource: resource").Input("handle: uint64").Input("gradients: N * float").Output("ack: uint64").Attr("N: int >= 1").Attr("features: list(int)").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
-REGISTER_OP("EpsCommand").Input("resource: resource").Input("arguments: string").Output("result: string").Attr("method: string").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
-REGISTER_OP("EpsIdCommand").Input("resource: resource").Input("id: uint64").Output("ack: uint64").Attr("method: string").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return absl::OkStatus();});
+REGISTER_OP("EpsPush").Input("resource: resource").Input("handle: uint64").Input("gradients: N * float").Output("ack: uint64").Attr("N: int >= 1").Attr("features: list(int)").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return tensorflow::OkStatus();});
+REGISTER_OP("EpsCommand").Input("resource: resource").Input("arguments: string").Output("result: string").Attr("method: string").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return tensorflow::OkStatus();});
+REGISTER_OP("EpsIdCommand").Input("resource: resource").Input("id: uint64").Output("ack: uint64").Attr("method: string").SetIsStateful().SetShapeFn([](auto* c){c->set_output(0,c->Scalar());return tensorflow::OkStatus();});
 REGISTER_KERNEL_BUILDER(Name("EpsRuntime").Device(DEVICE_CPU),CreateKernel);
 REGISTER_KERNEL_BUILDER(Name("EpsRuntime").Device(DEVICE_GPU).HostMemory("resource"),CreateKernel);
 REGISTER_KERNEL_BUILDER(Name("EpsPull").Device(DEVICE_CPU),PullKernel<false>);

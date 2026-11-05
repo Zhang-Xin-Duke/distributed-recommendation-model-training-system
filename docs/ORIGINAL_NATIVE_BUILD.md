@@ -137,8 +137,9 @@ and loading before it can supply the original framework's runtime.
 ## Linux toolchain and SDK execution
 
 The Linux build host uses Ubuntu 22.04, eight CPU cores, an RTX A6000 and CUDA
-12.2.140. GCC 11 compiles the host C++ sources; Clang 18 compiles the CUDA
-dependencies that supply Clang/LLVM-specific options. RDMA development libraries,
+12.2.140. Clang 18 compiles both host C++ and CUDA dependencies. The original
+local-call registry uses in-class explicit template specializations accepted by
+Clang, and GPU dependencies supply Clang/LLVM-specific options. RDMA development libraries,
 libunwind, libaio and cuDNN 8 are installed from their package repositories.
 
 Configure a transported private workspace with:
@@ -152,9 +153,11 @@ python scripts/configure_original_native_linux.py \
 The tool records actual compiler include paths, generates CUDA rules against the
 installed toolkit, enumerates real RDMA headers/libraries and initializes the
 Bazel version feature repository. The independent source copies also carry
-bounded build fixes: explicit TensorFlow helper qualification for GCC C++17 and
-a transitive common Redis header define selecting its declared hiredis include
-layout. The original mounted repositories remain unchanged.
+bounded build fixes: explicit TensorFlow helper qualification for GCC C++17.
+The build also preserves the original template's `__identity_ai` compiler
+definition, `AI_BUILD_WITH_BAZEL=1`, for target and host compilation. This selects
+the declared Redis include layout and Peta's glog implementation consistently.
+The original mounted repositories remain unchanged.
 
 The full GPU dependency selection requires `--define=enable_gpu=1` in addition to
 the CUDA toolchain flags:
@@ -162,7 +165,10 @@ the CUDA toolchain flags:
 ```sh
 bazel --output_user_root=/path/to/private-bazel-cache build \
   --enable_bzlmod=false --define=enable_gpu=1 --jobs=6 \
-  --extra_toolchains=//.resources/toolchains/cc:cc-toolchain-k8-gcc,//.resources/toolchains/cuda:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cuda-clang-cuda-toolchain \
+  --copt=-DAI_BUILD_WITH_BAZEL=1 --host_copt=-DAI_BUILD_WITH_BAZEL=1 \
+  --cxxopt=-fsized-deallocation --host_cxxopt=-fsized-deallocation \
+  --extra_toolchains=//.resources/toolchains/cc:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cuda-clang-cuda-toolchain \
+  --//.resources/toolchains/cc:compiler=clang \
   --//.resources/toolchains/cuda:compiler=clang \
   --//.resources/toolchains/cuda:version=. \
   --//.resources/toolchains/cuda:capabilities=sm_86 \
@@ -182,6 +188,41 @@ environment. Full framework training is validated separately after both original
 libraries and their matching Python runtime are ready.
 
 [Linux environment and SDK execution](validation/2026-11-04-original-linux-sdk.json).
+
+## Original Python communication protocols
+
+Generate the framework's actual protocol definitions with a separate Python
+3.10 environment containing `grpcio-tools==1.60.0` and `protobuf==4.25.2`:
+
+```sh
+python scripts/prepare_original_python_protocols.py \
+  --workspace /path/to/original-native-portable \
+  --output /path/to/private-python-generated
+```
+
+This compiles the original cluster, parameter-table, learner and controller
+protocols and the API embedding schema. It verifies serialization and imports of
+the generated learner/controller gRPC stubs, and records source and output
+hashes. Add the generated directory and `entropy/tensorswitch/python` to
+`PYTHONPATH` for the full framework. Generation leaves original source files
+unchanged; full framework import and distributed training are subsequent checks.
+
+[Linux protocol-generation verification](validation/2026-11-04-original-python-protocols.json).
+
+## Parameter-service operation compatibility
+
+The parameter-service TensorFlow module now uses the SDK's `tensorflow::Status`
+type and selects the available StreamExecutor header and CUDA stream accessor.
+This supports both the original 2.12.1 SDK and the existing 2.20 runtime without
+changing parameter access, gradient submission or stream ownership.
+
+On Linux, the module compiles and links against the recovered 2.12.1 SDK. Its
+seven EPS operations register through `TF_LoadLibrary`, and the same process
+executes the GPU MatMul check successfully. The 2.20 macOS module also compiles,
+loads and retains its unsupported-runtime guard. Distributed parameter execution
+with the rebuilt original Python runtime is a subsequent validation step.
+
+[Parameter-service operation compatibility](validation/2026-11-04-tensorflow-sdk-compatibility.json).
 
 [Redis adapter verification and build analysis](validation/2026-11-04-public-redis-sdk.json) ·
 [Earlier build-input inventory](validation/2026-11-01-native-build-preflight.json)
