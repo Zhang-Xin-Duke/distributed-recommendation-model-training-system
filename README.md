@@ -55,6 +55,9 @@ Embedding/MLP update algorithm, recording training loss and straggler waits.
 [Original Runner training progress](docs/ORIGINAL_TRAINING_PROGRESS.md) obtains a
 permit at the first parameter Pull and completes it after the original model
 step and parameter acknowledgements finish; input EOF consumes no task.
+[Original-framework progress checkpoints](docs/ORIGINAL_TRAINING_CHECKPOINTS.md)
+bind those clocks to the saved parameter state and validate paused replacement
+coordinators before original Runner restoration reopens training.
 
 [Reusable Lookup layouts](docs/REUSABLE_LOOKUP_LAYOUTS.md) register repeated ID
 lists and CSR layouts once per shard, then send scoped tokens for fresh reads.

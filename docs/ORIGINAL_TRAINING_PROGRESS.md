@@ -72,9 +72,10 @@ parameter updates; replicated-gradient recovery uses its separate protocol.
 
 Sequential and bounded-delay admission use a fixed Worker group and require
 aligned training-step counts. Eventual admission can run uneven finite input
-partitions. Framework checkpoint integration must also bind these completed
-clocks to the saved model and input position before a restored job resumes;
-that original-framework extension remains in the implementation plan.
+partitions. [Original-framework joint checkpoints](ORIGINAL_TRAINING_CHECKPOINTS.md)
+bind completed clocks to the parameter snapshot and original save boundary,
+validate a paused restored coordinator and reopen training after all peers finish
+framework restoration.
 
 ## Executed checks
 

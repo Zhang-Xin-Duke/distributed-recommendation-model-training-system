@@ -7,7 +7,7 @@ import sys
 import tempfile
 import unittest
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'adapters/entropy'))
-from checkpoint_restore import load_committed,stage_checkpoint,verify_restored,checkpoint_fingerprints
+from checkpoint_restore import load_committed,stage_checkpoint,verify_restored,checkpoint_fingerprints,training_restore_plan
 from checkpoint_store import LocalFileSystem
 
 
@@ -29,6 +29,37 @@ def fixture(root):
 
 
 class Restore(unittest.TestCase):
+    def test_training_progress_is_bound_and_builds_paused_restore_configuration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=pathlib.Path(directory);fixture(root)
+            external=root/'external_parameters';path=external/'training-progress.json'
+            progress=dict(source_run='old-run',epoch=1,consistency=2,max_delay=1,completed=[3,4])
+            raw=(json.dumps(progress,sort_keys=True,indent=2)+'\n').encode();path.write_bytes(raw)
+            with self.assertRaisesRegex(ValueError,'not bound'):load_committed(root)
+            marker=external/'committed.json';commit=json.loads(marker.read_text())
+            commit['training_progress_sha256']=hashlib.sha256(raw).hexdigest();marker.write_text(json.dumps(commit))
+            self.assertEqual(load_committed(root)['training_progress'],progress)
+            plan=training_restore_plan(root,run='new-run',coordinator_listen='127.0.0.1:0',coordinator_endpoint='node:9000')
+            self.assertEqual(plan['coordinator']['restore'],progress)
+            self.assertEqual(plan['coordinator']['consistency'],'bounded_delay')
+            self.assertEqual([w['start_iteration'] for w in plan['workers']],[3,4])
+            path.write_bytes(raw+b' ')
+            with self.assertRaisesRegex(ValueError,'does not match'):load_committed(root)
+            path.unlink()
+            with self.assertRaises(FileNotFoundError):load_committed(root)
+
+    def test_training_progress_identity_policy_and_counts_are_validated(self):
+        for edit in [dict(source_run='different'),dict(epoch=True),dict(consistency=True),dict(consistency=3),
+                     dict(max_delay=1),dict(completed=[]),dict(completed=[True]),dict(completed=[-1]),
+                     dict(completed=[0,3])]:
+            with self.subTest(edit=edit),tempfile.TemporaryDirectory() as directory:
+                root=pathlib.Path(directory);fixture(root);external=root/'external_parameters'
+                progress=dict(source_run='old-run',epoch=1,consistency=0,max_delay=0,completed=[3,3]);progress.update(edit)
+                raw=json.dumps(progress).encode();(external/'training-progress.json').write_bytes(raw)
+                marker=external/'committed.json';commit=json.loads(marker.read_text())
+                commit['training_progress_sha256']=hashlib.sha256(raw).hexdigest();marker.write_text(json.dumps(commit))
+                with self.assertRaises(ValueError):load_committed(root)
+
     def test_streamed_immutable_staging_and_loaded_identity(self):
         with tempfile.TemporaryDirectory() as directory:
             root=pathlib.Path(directory);fixture(root/'checkpoint')

@@ -134,6 +134,13 @@ def main():
                 assert results==[[0,1,2],[0,1,2]],results
                 shard_stats=clients[0].command('stats')
                 assert all(s['updates']==6 and s['live_tickets']==0 for s in shard_stats)
+                clients[0].command('training_checkpoint',error=True)
+                clients[0].command('training_pause')
+                saved_progress=clients[0].command('training_checkpoint')
+                assert saved_progress['source_run']=='native-progress' and saved_progress['completed']==[3,3]
+                assert clients[0].command('training_status')['paused']
+                clients[0].command('training_resume')
+                assert not clients[0].command('training_status')['paused']
             finally:
                 for client in clients:client.close()
         failed=root/'failed';failed.mkdir()
@@ -154,6 +161,7 @@ def main():
         eof_before_pull_consumes_no_task=True,prediction_consumes_no_task=True,
         finish_before_update_rejected=True,model_failure_aborts_group=aborted['failed'],
         progress_worker_ids_independent_of_parameter_learner_ids=True)
+    report['training_checkpoint']=saved_progress
     if args.out:args.out.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report))
 

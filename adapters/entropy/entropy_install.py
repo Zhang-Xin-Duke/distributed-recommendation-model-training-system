@@ -19,6 +19,18 @@ from entropy_configuration import sparse_table_definition
 UINT64_MAX = 2**64 - 1
 
 
+def _publish_json(filesystem,target,value):
+    from checkpoint_store import _publish
+    raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+    digest=hashlib.sha256(raw).hexdigest();pending=target+'.pending-'+uuid.uuid4().hex
+    try:
+        with filesystem.GFile(pending,'wb') as stream:stream.write(raw)
+        _publish(filesystem,pending,target,len(raw),digest)
+    finally:
+        if filesystem.exists(pending):filesystem.remove(pending)
+    return digest
+
+
 def _integer(value, name, minimum, maximum):
     if type(value) is not int or not minimum <= value <= maximum:
         raise ValueError('invalid ' + name)
@@ -278,9 +290,26 @@ class Installation:
         import tensorflow as tf
         from checkpoint_restore import verify_restored
         with self._lock:
+            if self.config.training is not None and not self._backends:
+                _,identifier=self._context();self._backend(identifier)
             backend=next(iter(self._backends.values())) if self._backends else self._control_backend()
-        return verify_restored(backend,os.fspath(path),run=self.config.run,epoch=self.config.epoch,
+            local_backends=list(self._backends.values())
+        descriptor=verify_restored(backend,os.fspath(path),run=self.config.run,epoch=self.config.epoch,
             shard_count=len(self.config.endpoints),filesystem=tf.io.gfile,checkpoint_id=os.fspath(checkpoint_id))
+        progress=descriptor['training_progress']
+        if (progress is None)!=(self.config.training is None):
+            raise ValueError('checkpoint training progress and configured coordinator must match')
+        if progress is not None:
+            for local in local_backends:
+                status=local.training_status();actual=local.checkpoint_training()
+                worker=local.configuration['training']['worker']
+                if (worker>=len(progress['completed']) or not status['paused'] or status['failed']
+                        or status['active'] or status['armed'] or status['coordinator_active'] or status['waiting']
+                        or status['next_iteration']!=progress['completed'][worker]
+                        or actual['source_run']!=self.config.run
+                        or any(actual[k]!=progress[k] for k in ('epoch','consistency','max_delay','completed'))):
+                    raise ValueError('restored coordinator or learner progress differs from checkpoint')
+        return descriptor
 
     @staticmethod
     def _restore_options(reshard,migrate,from_serving,delta,delta_id,delta_ckpt_paths=''):
@@ -516,6 +545,9 @@ class Installation:
                 barrier('DRAINED')
                 if leader:
                     backend=local_backend or next(iter(self._backends.values()),None) or self._control_backend()
+                    if self.config.training is not None:
+                        backend.pause_training()
+                        transaction['progress']=backend.checkpoint_training()
                     transaction['snapshot']='entropy-'+uuid.uuid4().hex
                     backend.save(transaction['snapshot'])
                 barrier('FROZEN')
@@ -527,26 +559,24 @@ class Installation:
                 if leader:
                     transaction['manifest']=backend.export_checkpoint(transaction['snapshot'],
                         posixpath.join(root,'external_parameters'),tf.io.gfile)
+                    if self.config.training is not None:
+                        transaction['progress_sha256']=_publish_json(tf.io.gfile,
+                            posixpath.join(root,'external_parameters','training-progress.json'),transaction['progress'])
                 barrier('EXPORTED')
                 self._local.checkpoint=transaction
                 original_checkpoint(instance,path,checkpoint_id,purge_countdown)
                 barrier('ORIGINAL_COMPLETE')
                 if leader:
                     manifest=transaction['manifest']
-                    raw=(json.dumps(dict(schema_version=1,checkpoint_id=checkpoint_id,
+                    commit=dict(schema_version=1,checkpoint_id=checkpoint_id,
                         run=self.config.run,partition_epoch=self.config.epoch,
                         parameter_manifest_sha256=hashlib.sha256(
-                            (json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()).hexdigest()),
-                        sort_keys=True,indent=2)+'\n').encode()
-                    from checkpoint_store import _publish
+                            (json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()).hexdigest())
+                    if self.config.training is not None:commit['training_progress_sha256']=transaction['progress_sha256']
                     target=posixpath.join(root,'external_parameters','committed.json')
-                    pending=target+'.pending-'+uuid.uuid4().hex
-                    try:
-                        with tf.io.gfile.GFile(pending,'wb') as stream:stream.write(raw)
-                        _publish(tf.io.gfile,pending,target,len(raw),hashlib.sha256(raw).hexdigest())
-                    finally:
-                        if tf.io.gfile.exists(pending):tf.io.gfile.remove(pending)
+                    _publish_json(tf.io.gfile,target,commit)
                     backend.resume(transaction['snapshot'])
+                    if self.config.training is not None:backend.resume_training()
                 # Unregister before the release barrier so a fast learner's
                 # next checkpoint cannot race the previous context's teardown.
                 with self._lock:
@@ -573,8 +603,14 @@ class Installation:
                 if not restore_sparse:raise ValueError('external joint restore requires sparse state verification')
                 self._verify_restore(posixpath.join(os.fspath(path),os.fspath(checkpoint_id)),checkpoint_id)
                 self.train.env.barrier('::EPS_RESTORE_VERIFIED::',cluster='all')
-                return original_restore(instance,model,path,checkpoint_id,restore_sparse,restore_dense,
+                result=original_restore(instance,model,path,checkpoint_id,restore_sparse,restore_dense,
                                         reshard,ckpt_cache_path,from_serving,delta,delta_id,delta_ckpt_paths)
+                if self.config.training is not None:
+                    self.train.env.barrier('::EPS_MODEL_RESTORE_COMPLETE::',cluster='all')
+                    if self.train.env.peer_id()==0 and self.train.MultiThreadingLearner.is_chief('worker'):
+                        next(iter(self._backends.values())).resume_training()
+                    self.train.env.barrier('::EPS_TRAINING_RESTORE_RESUMED::',cluster='all')
+                return result
             self._patch_controller(runner,'restore',restore)
 
     def _table_checkpoint(self,table,table_id,path,checkpoint_id,delta=False):

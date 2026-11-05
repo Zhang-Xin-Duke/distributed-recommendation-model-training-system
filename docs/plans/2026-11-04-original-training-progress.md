@@ -53,5 +53,22 @@ The verified-idle original main/Executor gate now uses the current native
 runtime and a real progress coordinator, asserting its completed-step count
 after execution. Its full-module execution is still pending the live matching
 TensorFlow build and original reader/training gates. Task 3's multi-peer
-execution and progress-bound checkpoint/restore remain open. Evidence:
+execution remains open. Evidence:
 `../validation/2026-11-04-original-runner-training-progress.json`.
+
+Progress-bound original-method checkpoint/restore is now implemented. The chief
+pauses admission, exports the exact completed-count vector, binds it into the
+joint commit and resumes after original saves finish. Fresh coordinators start
+paused with restored clocks; table and Runner hooks reject wrong local clocks
+before dense restoration and reopen admission after global restore barriers.
+Two real native TensorFlow Workers save off the four-batch input-cycle boundary,
+restore `[3, 3]` and continue to `[6, 6]`. All nine learned parameter rows, full
+Adam state and continued losses match uninterrupted execution exactly in CPU and
+one-physical-A6000 GPU model runs. Incorrect starting clocks are rejected, and
+injected original dense-save failure leaves admission paused with no commit.
+Three Linux checks, seven checkpoint-metadata unit cases, nine configuration
+unit cases, two local C ABI checks and four original-source regressions pass.
+Evidence: `../validation/2026-11-05-original-training-checkpoint.json`.
+
+Full original-module/native multi-peer execution remains required; these model
+checks execute preserved methods with explicit framework environment stand-ins.

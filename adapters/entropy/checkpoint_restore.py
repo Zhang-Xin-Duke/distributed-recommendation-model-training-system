@@ -56,7 +56,44 @@ def load_committed(root,*,filesystem=None,checkpoint_id=None):
         digest=item.get('sha256')
         if not isinstance(digest,str) or len(digest)!=64 or any(c not in '0123456789abcdef' for c in digest):
             raise ValueError('invalid checkpoint file digest')
-    return dict(root=root,directory=directory,commit=commit,manifest=manifest)
+    progress=None
+    progress_path=posixpath.join(directory,'training-progress.json')
+    if 'training_progress_sha256' in commit:
+        raw,progress=_read_json(fs,progress_path,65536)
+        if commit['training_progress_sha256']!=hashlib.sha256(raw).hexdigest():
+            raise ValueError('joint commit does not match the training progress')
+        if progress.get('source_run')!=run or _integer(progress.get('epoch'),'training epoch',1)!=epoch:
+            raise ValueError('training progress run or epoch differs from checkpoint')
+        policy=_integer(progress.get('consistency'),'training policy',0,2)
+        delay=_integer(progress.get('max_delay'),'training delay')
+        counts=progress.get('completed')
+        if (not isinstance(counts,list) or not 1<=len(counts)<=1024 or (policy!=2 and delay)):
+            raise ValueError('invalid checkpoint training group')
+        for count in counts:_integer(count,'completed training steps')
+        if policy!=1 and max(counts)-min(counts)>delay+1:
+            raise ValueError('checkpoint training clocks violate the policy')
+    elif fs.exists(progress_path):
+        raise ValueError('training progress is not bound to the joint commit')
+    return dict(root=root,directory=directory,commit=commit,manifest=manifest,training_progress=progress)
+
+
+def training_restore_plan(root,*,run,coordinator_listen,coordinator_endpoint=None,filesystem=None,checkpoint_id=None):
+    """Prepare a paused coordinator and per-Worker native training options."""
+    descriptor=load_committed(root,filesystem=filesystem,checkpoint_id=checkpoint_id)
+    progress=descriptor['training_progress']
+    if progress is None:raise ValueError('checkpoint has no training progress')
+    if not isinstance(run,str) or not run or run==progress['source_run']:
+        raise ValueError('training restore requires a fresh run')
+    endpoint=coordinator_endpoint or coordinator_listen
+    if not isinstance(coordinator_listen,str) or not coordinator_listen or not isinstance(endpoint,str) or not endpoint:
+        raise ValueError('training restore requires coordinator routes')
+    if any(count==2**64-1 for count in progress['completed']):
+        raise ValueError('training iteration is exhausted')
+    return dict(coordinator=dict(schema_version=1,run=run,listen=coordinator_listen,
+        workers=len(progress['completed']),epoch=progress['epoch'],
+        consistency=['sequential','eventual','bounded_delay'][progress['consistency']],
+        max_delay=progress['max_delay'],restore=progress),
+        workers=[dict(coordinator=endpoint,start_iteration=count) for count in progress['completed']])
 
 
 def _header(prefix,footer,total,descriptor,shard):

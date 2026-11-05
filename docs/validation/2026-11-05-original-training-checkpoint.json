@@ -1,0 +1,830 @@
+{
+  "recorded_at_utc": "2026-11-05T05:09:13.532857+00:00",
+  "base_commit": "9e831af1b203846ede1ddb3af77bab5ade71ad29",
+  "scope": "Joint original-Runner save/restore of parameter snapshots and training-task progress, with real native TensorFlow models and two parameter shards",
+  "source_sha256": {
+    "CMakeLists.txt": "72ce8a4d35c1d39aae56da3a97033a7b0ac95e03c1dabbd13e22a5a4cf575d61",
+    "adapters/entropy/runtime_c.cpp": "4792ed7ed69fc4d3c5022fcc880a90aca6b98a0a2351efdedfe4326f76cf46ee",
+    "adapters/entropy/native_session_backend.py": "db43257c863d189dfedced6c4a7180a27a6fe6e58bd727ffa22dc12e5094eb49",
+    "adapters/entropy/entropy_install.py": "41cff252595e57ef22665b75d105ca948b68777ef54f17614fd8048d2f7c0e54",
+    "adapters/entropy/checkpoint_restore.py": "35b798faa5c72ae7100eb025ab4dd2701166e8e6395a63da6e51f480828027b4",
+    "tests/runtime_training_progress.py": "e572fe731a908ade76ac8b7a0a30abfb0df78bdb0fd66593d4edc8270d3b3ef9",
+    "tests/checkpoint_restore_tests.py": "f93c3d054dd9969815fa6d721984a66f074a0ba8fd456274d75c94d2daee99e1",
+    "tests/native_training_checkpoint.py": "9f8453909672b713fd05a0e658ad883922e88806ca5e7252779ca35e620716c5",
+    "tests/entropy_source_contract.py": "6a22dd887d44ae5c2bdc7e2d83ec4b020d915af5112d747cff64b8875661d806"
+  },
+  "environment": {
+    "source_sha256": {
+      "CMakeLists.txt": "72ce8a4d35c1d39aae56da3a97033a7b0ac95e03c1dabbd13e22a5a4cf575d61",
+      "adapters/entropy/runtime_c.cpp": "4792ed7ed69fc4d3c5022fcc880a90aca6b98a0a2351efdedfe4326f76cf46ee",
+      "adapters/entropy/native_session_backend.py": "db43257c863d189dfedced6c4a7180a27a6fe6e58bd727ffa22dc12e5094eb49",
+      "adapters/entropy/entropy_install.py": "41cff252595e57ef22665b75d105ca948b68777ef54f17614fd8048d2f7c0e54",
+      "adapters/entropy/checkpoint_restore.py": "35b798faa5c72ae7100eb025ab4dd2701166e8e6395a63da6e51f480828027b4",
+      "tests/runtime_training_progress.py": "e572fe731a908ade76ac8b7a0a30abfb0df78bdb0fd66593d4edc8270d3b3ef9",
+      "tests/checkpoint_restore_tests.py": "f93c3d054dd9969815fa6d721984a66f074a0ba8fd456274d75c94d2daee99e1",
+      "tests/native_training_checkpoint.py": "9f8453909672b713fd05a0e658ad883922e88806ca5e7252779ca35e620716c5",
+      "tests/entropy_source_contract.py": "6a22dd887d44ae5c2bdc7e2d83ec4b020d915af5112d747cff64b8875661d806"
+    },
+    "binaries": {
+      "libeps_runtime.so": "aae1d59bacc54acfbf2d9ff4bc7976e7735c57686e1945e921157bcc8c0030ef",
+      "eps_tensorflow_ops.so": "49cfc6081ac6a7562dc83e86c1718cf71515fda28ed4c2f2348bc476254150ca"
+    },
+    "tensorflow": "2.20.0",
+    "gpu": "NVIDIA RTX A6000, GPU-d110b742-ff7e-5d44-8338-b15d0f1fa8b3, 49140 MiB, 610.43.02",
+    "bundle": {
+      "file": "/home/ubuntu/entropy-native/native-training-checkpoint-linux.tar.gz",
+      "sha256": "57bbdbbea0e9071063b76717bb6440af5a1db9bffda92e49aa774a7b8fab0b37",
+      "bytes": 4415178,
+      "recorded_epoch": 1793855295.2124772
+    }
+  },
+  "models": {
+    "cpu": {
+      "test": "original_native_training_progress_checkpoint",
+      "device": "cpu",
+      "workers": 2,
+      "shards": 2,
+      "checkpoint_completed": [
+        3,
+        3
+      ],
+      "final_completed": [
+        6,
+        6
+      ],
+      "input_cycle_batches": 4,
+      "checked_rows": 9,
+      "max_state_absolute_error": 0.0,
+      "max_continuation_loss_error": 0.0,
+      "wrong_start_rejected_before_dense_restore": true,
+      "failed_save_keeps_progress_paused": true,
+      "scope": "preserved original Runner/SparseTable/barrier methods with framework environment stand-ins; real native TensorFlow model, parameter shards and task-progress coordinator",
+      "phases": {
+        "baseline": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              6,
+              6
+            ],
+            "completed_tasks": 12,
+            "completion_floor": 6,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 12,
+            "paused": false,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "losses": [
+                0.09765625,
+                0.08982467651367188,
+                0.08193507045507431,
+                0.07429805397987366,
+                0.05977648124098778,
+                0.054879795759916306
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 12,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 12,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:CPU:0",
+              "gpu_memory": null
+            },
+            {
+              "worker": 1,
+              "losses": [
+                0.09044808149337769,
+                0.08365079760551453,
+                0.07615154981613159,
+                0.06879277527332306,
+                0.05339452251791954,
+                0.048719748854637146
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 12,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 12,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:CPU:0",
+              "gpu_memory": null
+            }
+          ],
+          "barrier_rounds": 3
+        },
+        "prefix": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 6,
+            "completion_floor": 3,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "paused": false,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "losses": [
+                0.09765625,
+                0.08982467651367188,
+                0.08193507045507431
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 3,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:CPU:0",
+              "gpu_memory": null
+            },
+            {
+              "worker": 1,
+              "losses": [
+                0.09044808149337769,
+                0.08365079760551453,
+                0.07615154981613159
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 3,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:CPU:0",
+              "gpu_memory": null
+            }
+          ],
+          "barrier_rounds": 13
+        },
+        "resumed": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              6,
+              6
+            ],
+            "completed_tasks": 6,
+            "completion_floor": 6,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "paused": false,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "losses": [
+                0.07429805397987366,
+                0.05977648124098778,
+                0.054879795759916306
+              ],
+              "start_iteration": 3,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:CPU:0",
+              "gpu_memory": null
+            },
+            {
+              "worker": 1,
+              "losses": [
+                0.06879277527332306,
+                0.05339452251791954,
+                0.048719748854637146
+              ],
+              "start_iteration": 3,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:CPU:0",
+              "gpu_memory": null
+            }
+          ],
+          "barrier_rounds": 11
+        },
+        "rejected": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 0,
+            "completion_floor": 3,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 0,
+            "paused": true,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 0,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 0,
+                "next_iteration": 4,
+                "observed_completion_floor": 0,
+                "paused": true,
+                "waiting": 0
+              },
+              "rejected_before_dense_restore": true
+            },
+            {
+              "worker": 1,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 0,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 0,
+                "next_iteration": 4,
+                "observed_completion_floor": 0,
+                "paused": true,
+                "waiting": 0
+              },
+              "rejected_before_dense_restore": true
+            }
+          ],
+          "barrier_rounds": 0
+        },
+        "failed_save": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 6,
+            "completion_floor": 3,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "paused": true,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": true,
+                "waiting": 0
+              },
+              "save_failed": true
+            },
+            {
+              "worker": 1,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": true,
+                "waiting": 0
+              },
+              "save_failed": true
+            }
+          ],
+          "barrier_rounds": 7
+        }
+      }
+    },
+    "cuda": {
+      "test": "original_native_training_progress_checkpoint",
+      "device": "cuda",
+      "workers": 2,
+      "shards": 2,
+      "checkpoint_completed": [
+        3,
+        3
+      ],
+      "final_completed": [
+        6,
+        6
+      ],
+      "input_cycle_batches": 4,
+      "checked_rows": 9,
+      "max_state_absolute_error": 0.0,
+      "max_continuation_loss_error": 0.0,
+      "wrong_start_rejected_before_dense_restore": true,
+      "failed_save_keeps_progress_paused": true,
+      "scope": "preserved original Runner/SparseTable/barrier methods with framework environment stand-ins; real native TensorFlow model, parameter shards and task-progress coordinator",
+      "phases": {
+        "baseline": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              6,
+              6
+            ],
+            "completed_tasks": 12,
+            "completion_floor": 6,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 12,
+            "paused": false,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "losses": [
+                0.09765625,
+                0.08982466161251068,
+                0.08193507045507431,
+                0.07429805397987366,
+                0.05977648124098778,
+                0.054879795759916306
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 12,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 12,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:GPU:0",
+              "gpu_memory": {
+                "current": 4352,
+                "peak": 5632
+              }
+            },
+            {
+              "worker": 1,
+              "losses": [
+                0.09044808149337769,
+                0.08365079760551453,
+                0.07615154981613159,
+                0.06879277527332306,
+                0.05339452251791954,
+                0.048719748854637146
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 12,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 12,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:GPU:0",
+              "gpu_memory": {
+                "current": 4096,
+                "peak": 5376
+              }
+            }
+          ],
+          "barrier_rounds": 3
+        },
+        "prefix": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 6,
+            "completion_floor": 3,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "paused": false,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "losses": [
+                0.09765625,
+                0.08982466161251068,
+                0.08193507045507431
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 3,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:GPU:0",
+              "gpu_memory": {
+                "current": 4352,
+                "peak": 5632
+              }
+            },
+            {
+              "worker": 1,
+              "losses": [
+                0.09044808149337769,
+                0.08365079760551453,
+                0.07615154981613159
+              ],
+              "start_iteration": 0,
+              "final_input_cursor": 3,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:GPU:0",
+              "gpu_memory": {
+                "current": 4096,
+                "peak": 5376
+              }
+            }
+          ],
+          "barrier_rounds": 13
+        },
+        "resumed": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              6,
+              6
+            ],
+            "completed_tasks": 6,
+            "completion_floor": 6,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "paused": false,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "losses": [
+                0.07429805397987366,
+                0.05977648124098778,
+                0.054879795759916306
+              ],
+              "start_iteration": 3,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:GPU:0",
+              "gpu_memory": {
+                "current": 4608,
+                "peak": 5888
+              }
+            },
+            {
+              "worker": 1,
+              "losses": [
+                0.06879277527332306,
+                0.05339452251791954,
+                0.048719748854637146
+              ],
+              "start_iteration": 3,
+              "final_input_cursor": 6,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  6,
+                  6
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 6,
+                "observed_completion_floor": 5,
+                "paused": false,
+                "waiting": 0
+              },
+              "model_device": "/device:GPU:0",
+              "gpu_memory": {
+                "current": 4352,
+                "peak": 5632
+              }
+            }
+          ],
+          "barrier_rounds": 11
+        },
+        "rejected": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 0,
+            "completion_floor": 3,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 0,
+            "paused": true,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 0,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 0,
+                "next_iteration": 4,
+                "observed_completion_floor": 0,
+                "paused": true,
+                "waiting": 0
+              },
+              "rejected_before_dense_restore": true
+            },
+            {
+              "worker": 1,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 0,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 0,
+                "next_iteration": 4,
+                "observed_completion_floor": 0,
+                "paused": true,
+                "waiting": 0
+              },
+              "rejected_before_dense_restore": true
+            }
+          ],
+          "barrier_rounds": 0
+        },
+        "failed_save": {
+          "progress": {
+            "active": 0,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 6,
+            "completion_floor": 3,
+            "duplicate_completions": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "paused": true,
+            "waiting": 0
+          },
+          "workers": [
+            {
+              "worker": 0,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": true,
+                "waiting": 0
+              },
+              "save_failed": true
+            },
+            {
+              "worker": 1,
+              "progress": {
+                "active": false,
+                "armed": false,
+                "completed": [
+                  3,
+                  3
+                ],
+                "completed_tasks": 6,
+                "coordinator_active": 0,
+                "failed": false,
+                "granted_tasks": 6,
+                "next_iteration": 3,
+                "observed_completion_floor": 2,
+                "paused": true,
+                "waiting": 0
+              },
+              "save_failed": true
+            }
+          ],
+          "barrier_rounds": 7
+        }
+      }
+    }
+  },
+  "linux_checks": [
+    {
+      "name": "original_native_training_checkpoint_cpu",
+      "seconds": 61.74
+    },
+    {
+      "name": "original_native_training_checkpoint_cuda",
+      "seconds": 63.78
+    },
+    {
+      "name": "native_runtime_training_progress",
+      "seconds": 0.59
+    }
+  ],
+  "local_checks": {
+    "checkpoint_metadata_unit_cases": 7,
+    "configuration_unit_cases": 9,
+    "native_c_abi_process_checks": 2,
+    "original_source_regressions": 4
+  },
+  "remaining": [
+    "Complete original module/reader/main/Executor and native multi-peer training/control execution",
+    "Physical-node loss with surviving parameter authority and replacement placement/routing",
+    "Cross-node generation retirement and GPU common-quality/scaling characterization"
+  ]
+}

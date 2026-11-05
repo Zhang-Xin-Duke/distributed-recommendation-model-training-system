@@ -224,12 +224,25 @@ int Command(void* p,const char* command,const char* arguments,EpsText* output,Ep
   else if(method=="training_cancel"){
     detail::Require(bool(r.training),"native training is not configured");r.CancelTraining(args.value("reason",std::string("original model step failed")));
   }
+  else if(method=="training_pause"){
+    detail::Require(r.training && !r.training_armed && !r.training_active,"finish the local training step before pausing");
+    Take(r.adapter->Join());Take(r.training->Pause());
+  }
+  else if(method=="training_checkpoint"){
+    detail::Require(bool(r.training),"native training is not configured");const auto saved=Take(r.training->Checkpoint());
+    result={{"source_run",saved.source_run},{"epoch",saved.epoch},{"consistency",static_cast<unsigned>(saved.consistency)},
+      {"max_delay",saved.max_delay},{"completed",saved.completed}};
+  }
+  else if(method=="training_resume"){
+    detail::Require(r.training && !r.training_armed && !r.training_active,"finish the local training step before resuming");
+    Take(r.training->Resume());
+  }
   else if(method=="training_status"){
     detail::Require(bool(r.training),"native training is not configured");const auto stats=Take(r.training->Stats());
     result={{"next_iteration",r.training_iteration},{"armed",r.training_armed},{"active",r.training_active},
       {"observed_completion_floor",r.training_floor},{"completed",stats.completed},{"waiting",stats.waiting},
       {"coordinator_active",stats.active},{"granted_tasks",stats.granted_tasks},{"completed_tasks",stats.completed_tasks},
-      {"failed",stats.failed || r.training_failed}};
+      {"paused",stats.paused},{"failed",stats.failed || r.training_failed}};
   }
   else if(method=="create_table")Take(r.adapter->CreateTable(Table(args,r.connections.size(),r.epoch)));
   else if(method=="release")Take(r.adapter->Release(args.at("handle")));

@@ -186,6 +186,12 @@ if(EPS_BUILD_BRPC)
             --out "${CMAKE_CURRENT_BINARY_DIR}/original-runner-training-progress-cpu.json")
           set_tests_properties(original_runner_native_training_progress_cpu PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
             ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+          add_test(NAME original_native_training_checkpoint_cpu COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_training_checkpoint.py" --build "${CMAKE_CURRENT_BINARY_DIR}"
+            --runtime $<TARGET_FILE:eps_runtime> --operations "${eps_tf_operations}"
+            --out "${CMAKE_CURRENT_BINARY_DIR}/original-native-training-checkpoint-cpu.json")
+          set_tests_properties(original_native_training_checkpoint_cpu PROPERTIES TIMEOUT 420 SKIP_RETURN_CODE 77
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           if(EPS_BUILD_CUDA)
             add_test(NAME native_tensorflow_cuda_graph COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_tensorflow_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" $<TARGET_FILE:eps_snapshot_compare> cuda)
             set_tests_properties(native_tensorflow_cuda_graph PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
@@ -196,6 +202,12 @@ if(EPS_BUILD_BRPC)
               --runtime $<TARGET_FILE:eps_runtime> --operations "${eps_tf_operations}" --model-device cuda
               --out "${CMAKE_CURRENT_BINARY_DIR}/original-runner-training-progress-cuda.json")
             set_tests_properties(original_runner_native_training_progress_cuda PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
+              ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+            add_test(NAME original_native_training_checkpoint_cuda COMMAND "${Python3_EXECUTABLE}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_training_checkpoint.py" --build "${CMAKE_CURRENT_BINARY_DIR}"
+              --runtime $<TARGET_FILE:eps_runtime> --operations "${eps_tf_operations}" --device cuda
+              --out "${CMAKE_CURRENT_BINARY_DIR}/original-native-training-checkpoint-cuda.json")
+            set_tests_properties(original_native_training_checkpoint_cuda PROPERTIES TIMEOUT 420 SKIP_RETURN_CODE 77
               ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           endif()
         endif()
