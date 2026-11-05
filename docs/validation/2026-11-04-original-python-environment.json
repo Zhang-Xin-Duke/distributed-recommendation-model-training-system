@@ -1,0 +1,12 @@
+{
+  "pip_check": "No broken requirements found.",
+  "environment": {
+    "python": "3.10.12",
+    "tensorflow_installed": false
+  },
+  "recorded_at_utc": "2026-11-05T01:21:10.061259+00:00",
+  "scope": "Isolated original-framework Python dependencies; matching TensorFlow wheel is still being built",
+  "requirements_sha256": "4013a6d9a884614dc8def4a696ac3345569a491304f4ba36bbb44fd31a4a3689",
+  "pinned_packages": 54,
+  "original_framework_imported": false
+}

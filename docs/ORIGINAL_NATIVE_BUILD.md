@@ -165,6 +165,7 @@ the CUDA toolchain flags:
 ```sh
 bazel --output_user_root=/path/to/private-bazel-cache build \
   --enable_bzlmod=false --define=enable_gpu=1 --jobs=6 \
+  --//.resources/adapters:rdkafka.active_variant=2 \
   --copt=-DAI_BUILD_WITH_BAZEL=1 --host_copt=-DAI_BUILD_WITH_BAZEL=1 \
   --cxxopt=-fsized-deallocation --host_cxxopt=-fsized-deallocation \
   --extra_toolchains=//.resources/toolchains/cc:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cuda-clang-cuda-toolchain \
@@ -174,6 +175,10 @@ bazel --output_user_root=/path/to/private-bazel-cache build \
   --//.resources/toolchains/cuda:capabilities=sm_86 \
   //entropy:ts_clib.so //entropy:ts_clib_gpu.so
 ```
+
+The Kafka dependency selects the recovered librdkafka 2.4.0 variant. The original
+offset-discovery code uses `DescribeTopics` and `ListConsumerGroupOffsets`, which
+are absent from the repository facade's default 1.9.2 headers.
 
 `scripts/probe_original_tensorflow.py` loads the recovered framework, NCCL and
 TensorFlow C++ shared libraries through their C API. It validates the SDK's
@@ -208,6 +213,27 @@ hashes. Add the generated directory and `entropy/tensorswitch/python` to
 unchanged; full framework import and distributed training are subsequent checks.
 
 [Linux protocol-generation verification](validation/2026-11-04-original-python-protocols.json).
+
+For the complete executor's feature-processing imports, add
+`--feature-protocols`. This also compiles the 197 original Trinity/Tensor
+protocols and creates `snapshot_fdset`, using the original descriptor-generation
+command's source set. All generated feature protocol modules import successfully.
+The private feature-processing source collection contains 132 Python files;
+their transported hashes match the original files. Put their parent directory on
+`PYTHONPATH` and set `TRINITY_GALAXY_SNAPSHOT_PROTO_FDSET` to the generated
+`snapshot_fdset`. PyFE's existing raw-operation selector reuses
+`tensorswitch.ops.oplib` when the framework is loaded.
+
+[Complete feature-input preparation](validation/2026-11-04-original-feature-inputs.json).
+
+The application uses a separate Python 3.10 virtual environment, leaving the
+active TensorFlow source-build environment unchanged. The installed dependency
+set is recorded in `adapters/entropy/requirements-tensorflow212.txt`; it retains
+NumPy 1.24.3, protobuf 4.25.2, Keras 2.12.0 and the original framework's
+TensorFlow IO 0.32.0. Its package dependency check passes. Install the matching
+locally rebuilt TensorFlow wheel in this environment when compilation completes.
+
+[Application dependency preparation](validation/2026-11-04-original-python-environment.json).
 
 ## Parameter-service operation compatibility
 

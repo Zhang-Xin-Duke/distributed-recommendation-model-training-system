@@ -1,0 +1,22 @@
+{
+  "recorded_at_utc": "2026-11-05T01:18:06.671248+00:00",
+  "base_commit": "51e02b46e4e3393aeb44f630a65027953a508094",
+  "scope": "Original feature Python sources and generated protocols prepared on Linux CPython3.10; full framework import remains pending",
+  "protocol_source_files": 211,
+  "generated_modules": 225,
+  "feature_source_files": 132,
+  "feature_source_hashes_match": true,
+  "feature_archive_sha256": "4c966fc556b20e945fe335a28f2aa4546107e9e328a3464538dc9637bde55951",
+  "snapshot_descriptor_sha256": "084f8de3592f95e3bda4f8a2d45c5478da8d7c111f9194a01285487e5e38f7a0",
+  "protocol_checks": {
+    "cluster_roundtrip": true,
+    "sparse_table_protocol": true,
+    "learner_and_controller_stubs": true,
+    "embedding_schema": true,
+    "feature_protocol_imports": true,
+    "snapshot_roundtrip": true,
+    "feature_descriptor_count": 197
+  },
+  "generation_script_sha256": "2b83fc9368a07a22322cabdd5c7230b90ebb3ee3a9c00814874b596878599d6d",
+  "original_framework_imported": false
+}

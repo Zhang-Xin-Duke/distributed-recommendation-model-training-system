@@ -12,7 +12,7 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(workspace, output, python):
+def prepare(workspace, output, python, feature_protocols=False):
     workspace = workspace.resolve(strict=True)
     entropy = workspace / "entropy"
     api = workspace / "repositories/api/protos"
@@ -32,6 +32,21 @@ def prepare(workspace, output, python):
     # installed packages named proto or galaxy.
     for name in ("proto", "galaxy", "galaxy/kfc_data"):
         (output / name / "__init__.py").touch()
+    feature_sources = []
+    if feature_protocols:
+        feature_root = workspace / "repositories/api-trinity"
+        feature_sources = sorted([*feature_root.glob("tensor/**/*.proto"),
+                                  *feature_root.glob("trinity/**/*.proto")])
+        if not feature_sources:
+            raise FileNotFoundError("original feature protocols are missing")
+        subprocess.run([python, "-m", "grpc_tools.protoc", "-I" + str(feature_root),
+                        "--python_out=" + str(output),
+                        "--descriptor_set_out=" + str(output / "snapshot_fdset"),
+                        *map(str, feature_sources)], check=True)
+        for name in ("tensor", "trinity"):
+            for directory in [output / name, *(output / name).rglob("*")]:
+                if directory.is_dir():
+                    (directory / "__init__.py").touch()
     verification = subprocess.run([
         python, "-c", "\n".join([
             "import sys,json",
@@ -47,12 +62,32 @@ def prepare(workspace, output, python):
             "assert schema.BinaryEmbeddingSchema(value_size=64).value_size==64",
             "print(json.dumps(dict(cluster_roundtrip=True,sparse_table_protocol=True,learner_and_controller_stubs=True,embedding_schema=True)))",
         ]), str(output)], check=True, capture_output=True, text=True)
+    verified = json.loads(verification.stdout)
+    if feature_protocols:
+        subprocess.run([python, "-c", "\n".join([
+            "import sys,importlib,pathlib",
+            "sys.path.insert(0,sys.argv[1])",
+            "from google.protobuf import descriptor_pb2",
+            "from trinity import snapshot_pb2,trinity_pb2,raw_feature_pb2,entropy_instance_pb2",
+            "from tensor import tensor_record_pb2",
+            "root=pathlib.Path(sys.argv[1])",
+            "for package in ['trinity','tensor']:",
+            " for path in sorted((root/package).rglob('*_pb2.py')):",
+            "  importlib.import_module('.'.join(path.relative_to(root).with_suffix('').parts))",
+            "assert snapshot_pb2.GalaxySnapshot.FromString(snapshot_pb2.GalaxySnapshot().SerializeToString())==snapshot_pb2.GalaxySnapshot()",
+            "fdset=descriptor_pb2.FileDescriptorSet.FromString((root/'snapshot_fdset').read_bytes())",
+            "assert len(fdset.file)==int(sys.argv[2])",
+        ]), str(output), str(len(feature_sources))], check=True)
+        verified.update(feature_protocol_imports=True,
+                        snapshot_roundtrip=True, feature_descriptor_count=len(feature_sources))
     report = dict(
-        source_sha256={p.relative_to(workspace).as_posix(): digest(p) for p in [*sources, schema]},
+        source_sha256={p.relative_to(workspace).as_posix(): digest(p) for p in [*sources, schema, *feature_sources]},
         generated_sha256={p.relative_to(output).as_posix(): digest(p) for p in sorted(output.rglob("*_pb2*.py"))},
-        verified=json.loads(verification.stdout),
+        verified=verified,
         original_framework_imported=False,
     )
+    if feature_protocols:
+        report["snapshot_descriptor_sha256"] = digest(output / "snapshot_fdset")
     (output / "protocol-generation.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
 
@@ -62,8 +97,9 @@ def main():
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--python", default=sys.executable)
+    parser.add_argument("--feature-protocols", action="store_true")
     args = parser.parse_args()
-    print(json.dumps(prepare(args.workspace, args.output, args.python)))
+    print(json.dumps(prepare(args.workspace, args.output, args.python, args.feature_protocols)))
 
 
 if __name__ == "__main__":

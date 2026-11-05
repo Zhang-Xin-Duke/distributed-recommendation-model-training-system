@@ -148,6 +148,7 @@ def configure(workspace, cuda, gcc, clang=None):
                   required_bazel_host_copts=["-DAI_BUILD_WITH_BAZEL=1"],
                   required_bazel_cxxopts=["-fsized-deallocation"],
                   required_bazel_host_cxxopts=["-fsized-deallocation"],
+                  required_bazel_settings={"//.resources/adapters:rdkafka.active_variant": "2"},
                   required_bazel_defines=["enable_gpu=1"], native_compiled=False)
     (workspace / "linux-configuration.json").write_text(json.dumps(result, indent=2) + "\n")
     return result
