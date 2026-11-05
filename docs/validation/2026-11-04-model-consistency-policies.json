@@ -1,0 +1,1304 @@
+{
+  "recorded_at_utc": "2026-11-05T03:15:59.312221+00:00",
+  "base_commit": "e842703152e4f4de1dbd6d90a902730d6c399f39",
+  "scope": "CPU-host actual Embedding/MLP per-Worker consistency-policy comparison; 2 Workers, 2 BRPC shards and 1 coordinator",
+  "complete": true,
+  "source_sha256": {
+    "examples/tensorflow_training_worker.py": "48213d5972132979082d95a31846ec533923815228bd5f6e0b387949c187a098",
+    "tests/tensorflow_consistency_training.py": "03edc4241db0eb39ffae8d72543b0772e850c45c6fb1363c72761d0dd596c086"
+  },
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "host_logical_cpus": 10,
+  "tensorflow_threads_per_worker": {
+    "inter": 2,
+    "intra": 2
+  },
+  "trial_count": 36,
+  "same_initial_full_state": true,
+  "initial_training_loss": 0.6938789715242899,
+  "model": {
+    "kind": "embedding_tanh_mlp",
+    "dimension": 8,
+    "hidden": 4,
+    "table": {
+      "id": 1,
+      "dimension": 8,
+      "dtype": "float32",
+      "optimizer": {
+        "kind": "sparse_lazy_adam",
+        "learning_rate": 0.02,
+        "beta1": 0.9,
+        "beta2": 0.999,
+        "epsilon": 1e-08,
+        "initial_beta1_power": 0.9,
+        "initial_beta2_power": 0.999
+      },
+      "initialization": {
+        "min": -0.1,
+        "max": 0.1,
+        "seed": 42
+      }
+    },
+    "worker_inputs": [
+      [
+        {
+          "keys": [
+            19,
+            26,
+            29,
+            37,
+            7,
+            20,
+            30,
+            6
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            42,
+            67,
+            62,
+            39,
+            66,
+            48,
+            68,
+            53
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            13,
+            24,
+            24,
+            19,
+            13,
+            26,
+            37,
+            37
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            62,
+            66,
+            58,
+            49,
+            64,
+            51,
+            47,
+            52
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            8,
+            26,
+            37,
+            6,
+            28,
+            37,
+            30,
+            33
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            50,
+            53,
+            38,
+            67,
+            52,
+            57,
+            65,
+            40
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            12,
+            12,
+            27,
+            33,
+            14,
+            6,
+            22,
+            29
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            42,
+            48,
+            43,
+            61,
+            57,
+            64,
+            53,
+            66
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            20,
+            16,
+            12,
+            24,
+            20,
+            30,
+            11,
+            13
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            62,
+            44,
+            54,
+            44,
+            64,
+            50,
+            57,
+            53
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            25,
+            19,
+            26,
+            35,
+            8,
+            11,
+            16,
+            6
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            57,
+            39,
+            69,
+            49,
+            45,
+            63,
+            56,
+            57
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            16,
+            6,
+            14,
+            22,
+            6,
+            9,
+            23,
+            34
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            67,
+            54,
+            68,
+            47,
+            44,
+            66,
+            63,
+            55
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            17,
+            24,
+            32,
+            10,
+            7,
+            24,
+            18,
+            28
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            50,
+            54,
+            67,
+            60,
+            50,
+            52,
+            38,
+            38
+          ],
+          "label": 1.0
+        }
+      ],
+      [
+        {
+          "keys": [
+            26,
+            26,
+            26,
+            7,
+            18,
+            18,
+            12,
+            18
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            59,
+            54,
+            66,
+            47,
+            51,
+            42,
+            68,
+            48
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            28,
+            34,
+            32,
+            11,
+            27,
+            21,
+            31,
+            18
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            42,
+            50,
+            47,
+            53,
+            41,
+            69,
+            38,
+            47
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            7,
+            17,
+            22,
+            26,
+            24,
+            30,
+            6,
+            28
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            49,
+            39,
+            49,
+            39,
+            47,
+            61,
+            54,
+            66
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            9,
+            9,
+            16,
+            21,
+            17,
+            35,
+            9,
+            27
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            63,
+            38,
+            42,
+            52,
+            68,
+            53,
+            56,
+            67
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            8,
+            36,
+            25,
+            29,
+            21,
+            29,
+            34,
+            31
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            68,
+            40,
+            54,
+            51,
+            53,
+            38,
+            41,
+            50
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            9,
+            12,
+            16,
+            13,
+            32,
+            33,
+            9,
+            21
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            38,
+            68,
+            55,
+            44,
+            47,
+            40,
+            50,
+            60
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            35,
+            14,
+            23,
+            35,
+            21,
+            22,
+            18,
+            20
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            44,
+            43,
+            42,
+            68,
+            65,
+            53,
+            54,
+            61
+          ],
+          "label": 1.0
+        },
+        {
+          "keys": [
+            24,
+            31,
+            16,
+            14,
+            14,
+            14,
+            23,
+            16
+          ],
+          "label": 0.0
+        },
+        {
+          "keys": [
+            39,
+            62,
+            45,
+            55,
+            63,
+            54,
+            54,
+            40
+          ],
+          "label": 1.0
+        }
+      ]
+    ]
+  },
+  "raw_record": {
+    "path": "build/tensorflow/tf-policy-endpoints.json",
+    "sha256": "fd1d66fbf4746d3d1aef2492ac1b9dcf3a535440a59afa3019dc624a5f29cfa6",
+    "bytes": 5728056
+  },
+  "excluded_runs": [
+    "tf-policy-endpoints-overlap-excluded.json: initial experiment overlapped regression checks; no points used",
+    "tf-policy-endpoints-process-clock-excluded.json: pre-final timing included process reporting and teardown; no points used"
+  ],
+  "measurement": "quiescent endpoints of independent fresh runs; not exact first crossing",
+  "timing": "Shared host monotonic clock, start gate release to last Worker join after final task completion; model warmup and process reporting/teardown excluded",
+  "summaries": [
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 2,
+      "repetitions": 3,
+      "median_training_loss": 0.6344815000829771,
+      "median_training_seconds": 0.06717879115603864,
+      "training_seconds_range": [
+        0.061948749935254455,
+        0.06764900009147823
+      ],
+      "median_summed_admission_worker_seconds": 0.033510041888803244,
+      "max_admission_lead": 0
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 4,
+      "repetitions": 3,
+      "median_training_loss": 0.4500288230881724,
+      "median_training_seconds": 0.12583270901814103,
+      "training_seconds_range": [
+        0.12227499997243285,
+        0.12971970904618502
+      ],
+      "median_summed_admission_worker_seconds": 0.09297333378344774,
+      "max_admission_lead": 0
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 8,
+      "repetitions": 3,
+      "median_training_loss": 0.2360216325840562,
+      "median_training_seconds": 0.26220091711729765,
+      "training_seconds_range": [
+        0.24506274983286858,
+        0.2622302081435919
+      ],
+      "median_summed_admission_worker_seconds": 0.21732487343251705,
+      "max_admission_lead": 0
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 16,
+      "repetitions": 3,
+      "median_training_loss": 0.08176850053893717,
+      "median_training_seconds": 0.5403469591401517,
+      "training_seconds_range": [
+        0.47348704212345183,
+        0.5468342502135783
+      ],
+      "median_summed_admission_worker_seconds": 0.47452070750296116,
+      "max_admission_lead": 0
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 2,
+      "repetitions": 3,
+      "median_training_loss": 0.6330889320985913,
+      "median_training_seconds": 0.06667008297517896,
+      "training_seconds_range": [
+        0.0585677910130471,
+        0.06693041604012251
+      ],
+      "median_summed_admission_worker_seconds": 0.0014790829736739397,
+      "max_admission_lead": 1
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 4,
+      "repetitions": 3,
+      "median_training_loss": 0.4472330964739249,
+      "median_training_seconds": 0.12429895787499845,
+      "training_seconds_range": [
+        0.11920170811936259,
+        0.13170041609555483
+      ],
+      "median_summed_admission_worker_seconds": 0.028824914945289493,
+      "max_admission_lead": 2
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 8,
+      "repetitions": 3,
+      "median_training_loss": 0.23493328444742528,
+      "median_training_seconds": 0.25764691596850753,
+      "training_seconds_range": [
+        0.24883229099214077,
+        0.26121754199266434
+      ],
+      "median_summed_admission_worker_seconds": 0.15368458069860935,
+      "max_admission_lead": 2
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 16,
+      "repetitions": 3,
+      "median_training_loss": 0.08152966521891837,
+      "median_training_seconds": 0.5364326250273734,
+      "training_seconds_range": [
+        0.48771095811389387,
+        0.5478104997891933
+      ],
+      "median_summed_admission_worker_seconds": 0.4102777084335685,
+      "max_admission_lead": 2
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 2,
+      "repetitions": 3,
+      "median_training_loss": 0.6330889320985913,
+      "median_training_seconds": 0.0659815410617739,
+      "training_seconds_range": [
+        0.05840587499551475,
+        0.06746745784766972
+      ],
+      "median_summed_admission_worker_seconds": 0.0014291659463196993,
+      "max_admission_lead": 1
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 4,
+      "repetitions": 3,
+      "median_training_loss": 0.44630130680122865,
+      "median_training_seconds": 0.12953412509523332,
+      "training_seconds_range": [
+        0.1290542499627918,
+        0.13225904200226068
+      ],
+      "median_summed_admission_worker_seconds": 0.0021079157013446093,
+      "max_admission_lead": 3
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 8,
+      "repetitions": 3,
+      "median_training_loss": 0.2353426595643598,
+      "median_training_seconds": 0.2521989999804646,
+      "training_seconds_range": [
+        0.2424720828421414,
+        0.2612864589318633
+      ],
+      "median_summed_admission_worker_seconds": 0.003239209298044443,
+      "max_admission_lead": 7
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 16,
+      "repetitions": 3,
+      "median_training_loss": 0.08241806348600228,
+      "median_training_seconds": 0.4973672090563923,
+      "training_seconds_range": [
+        0.47117345896549523,
+        0.5154104579705745
+      ],
+      "median_summed_admission_worker_seconds": 0.006590086966753006,
+      "max_admission_lead": 15
+    }
+  ],
+  "target_training_loss": 0.5,
+  "first_tested_endpoints_meeting_target": [
+    {
+      "policy": "bounded_delay",
+      "repeat": 0,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.13170041609555483,
+      "final_training_loss": 0.4472330964739249
+    },
+    {
+      "policy": "eventual",
+      "repeat": 0,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.13225904200226068,
+      "final_training_loss": 0.44630130680122865
+    },
+    {
+      "policy": "sequential",
+      "repeat": 0,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.12583270901814103,
+      "final_training_loss": 0.4500288230881724
+    },
+    {
+      "policy": "eventual",
+      "repeat": 1,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.12953412509523332,
+      "final_training_loss": 0.44630130680122865
+    },
+    {
+      "policy": "sequential",
+      "repeat": 1,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.12227499997243285,
+      "final_training_loss": 0.4500288230881724
+    },
+    {
+      "policy": "bounded_delay",
+      "repeat": 1,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.12429895787499845,
+      "final_training_loss": 0.4472330964739249
+    },
+    {
+      "policy": "sequential",
+      "repeat": 2,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.12971970904618502,
+      "final_training_loss": 0.4500288230881724
+    },
+    {
+      "policy": "bounded_delay",
+      "repeat": 2,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.11920170811936259,
+      "final_training_loss": 0.4472330964739249
+    },
+    {
+      "policy": "eventual",
+      "repeat": 2,
+      "iterations_per_worker": 4,
+      "warmup_excluded_seconds": 0.1290542499627918,
+      "final_training_loss": 0.44630130680122865
+    }
+  ],
+  "trials": [
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 2,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.06764900009147823,
+      "process_exit_seconds": 0.44783237506635487,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6344815000829771,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.03172499989159405,
+      "max_admission_lead": 0,
+      "updates_per_second": 59.128737964951554
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 2,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.06693041604012251,
+      "process_exit_seconds": 0.4432843329850584,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6330889320985913,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0014790829736739397,
+      "max_admission_lead": 1,
+      "updates_per_second": 59.76356097356598
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 2,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.05840587499551475,
+      "process_exit_seconds": 0.4264666670933366,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6330889320985913,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0014291659463196993,
+      "max_admission_lead": 1,
+      "updates_per_second": 68.48626101924127
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 4,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.13170041609555483,
+      "process_exit_seconds": 0.485435290960595,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.4472330964739249,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.030226167291402817,
+      "max_admission_lead": 2,
+      "updates_per_second": 60.7439234982798
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 4,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.13225904200226068,
+      "process_exit_seconds": 0.4652983748819679,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.44630130680122865,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0023350841365754604,
+      "max_admission_lead": 3,
+      "updates_per_second": 60.487357831181455
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 4,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.12583270901814103,
+      "process_exit_seconds": 0.4937860840000212,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.4500288230881724,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.09384633298031986,
+      "max_admission_lead": 0,
+      "updates_per_second": 63.5764743715933
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 8,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.2521989999804646,
+      "process_exit_seconds": 0.5536980000324547,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.2353426595643598,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.003239209298044443,
+      "max_admission_lead": 7,
+      "updates_per_second": 63.44196448534437
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 8,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.24506274983286858,
+      "process_exit_seconds": 0.6116517500486225,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.2360216325840562,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.2095385417342186,
+      "max_admission_lead": 0,
+      "updates_per_second": 65.28940041239197
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 8,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.26121754199266434,
+      "process_exit_seconds": 0.6388735419604927,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.23493328444742528,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.15368458069860935,
+      "max_admission_lead": 2,
+      "updates_per_second": 61.251629113213696
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 16,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.5468342502135783,
+      "process_exit_seconds": 0.9271915832068771,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08176850053893717,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.485425372608006,
+      "max_admission_lead": 0,
+      "updates_per_second": 58.51864616655172
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 16,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.5364326250273734,
+      "process_exit_seconds": 0.9080877921078354,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08152966521891837,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.4102777084335685,
+      "max_admission_lead": 2,
+      "updates_per_second": 59.653344161099604
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 16,
+      "repeat": 0,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.4973672090563923,
+      "process_exit_seconds": 0.8556102500297129,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08241806348600228,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.006590086966753006,
+      "max_admission_lead": 15,
+      "updates_per_second": 64.33878112051369
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 2,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.0585677910130471,
+      "process_exit_seconds": 0.4245866248384118,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6330889320985913,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.001396791310980916,
+      "max_admission_lead": 1,
+      "updates_per_second": 68.29692448378194
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 2,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.0659815410617739,
+      "process_exit_seconds": 0.42073883302509785,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6330889320985913,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0014701662585139275,
+      "max_admission_lead": 1,
+      "updates_per_second": 60.623015704575316
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 2,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.061948749935254455,
+      "process_exit_seconds": 0.43352712504565716,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6344815000829771,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.033510041888803244,
+      "max_admission_lead": 0,
+      "updates_per_second": 64.56950308409108
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 4,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.12953412509523332,
+      "process_exit_seconds": 0.468638916965574,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.44630130680122865,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0021079157013446093,
+      "max_admission_lead": 3,
+      "updates_per_second": 61.75978719212725
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 4,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.12227499997243285,
+      "process_exit_seconds": 0.5037403330206871,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.4500288230881724,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.08779529179446399,
+      "max_admission_lead": 0,
+      "updates_per_second": 65.42629320632686
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 4,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.12429895787499845,
+      "process_exit_seconds": 0.4650124579202384,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.4472330964739249,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.028824914945289493,
+      "max_admission_lead": 2,
+      "updates_per_second": 64.36095794178114
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 8,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.2622302081435919,
+      "process_exit_seconds": 0.6348278750665486,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.2360216325840562,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.21748670772649348,
+      "max_admission_lead": 0,
+      "updates_per_second": 61.015090951072764
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 8,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.24883229099214077,
+      "process_exit_seconds": 0.6146961250342429,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.23493328444742528,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.14885783498175442,
+      "max_admission_lead": 2,
+      "updates_per_second": 64.30033632775319
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 8,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.2612864589318633,
+      "process_exit_seconds": 0.5887571249622852,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.2353426595643598,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.003394705941900611,
+      "max_admission_lead": 7,
+      "updates_per_second": 61.23547337817603
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 16,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.5478104997891933,
+      "process_exit_seconds": 0.9535942499060184,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08152966521891837,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.41836541751399636,
+      "max_admission_lead": 2,
+      "updates_per_second": 58.41436046281358
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 16,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.5154104579705745,
+      "process_exit_seconds": 0.853030625032261,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08241806348600228,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.006704995175823569,
+      "max_admission_lead": 15,
+      "updates_per_second": 62.08643908002915
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 16,
+      "repeat": 1,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.5403469591401517,
+      "process_exit_seconds": 0.9366372500080615,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08176850053893717,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.47452070750296116,
+      "max_admission_lead": 0,
+      "updates_per_second": 59.221208630323844
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 2,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.06746745784766972,
+      "process_exit_seconds": 0.43804787495173514,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6330889320985913,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0013775818515568972,
+      "max_admission_lead": 1,
+      "updates_per_second": 59.28784228140526
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 2,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.06717879115603864,
+      "process_exit_seconds": 0.44575250009074807,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6344815000829771,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.03355695796199143,
+      "max_admission_lead": 0,
+      "updates_per_second": 59.54260163314123
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 2,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.06667008297517896,
+      "process_exit_seconds": 0.44025149988010526,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.6330889320985913,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0015402911230921745,
+      "max_admission_lead": 1,
+      "updates_per_second": 59.99692547989158
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 4,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.12971970904618502,
+      "process_exit_seconds": 0.5148429591208696,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.4500288230881724,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.09297333378344774,
+      "max_admission_lead": 0,
+      "updates_per_second": 61.671430338713634
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 4,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.11920170811936259,
+      "process_exit_seconds": 0.4865208750125021,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.4472330964739249,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.026804584078490734,
+      "max_admission_lead": 2,
+      "updates_per_second": 67.11313223791393
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 4,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.1290542499627918,
+      "process_exit_seconds": 0.4891405839007348,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.44630130680122865,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0019632072653621435,
+      "max_admission_lead": 3,
+      "updates_per_second": 61.989434693599904
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 8,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.25764691596850753,
+      "process_exit_seconds": 0.6016505409497768,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.23493328444742528,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.15376837248913944,
+      "max_admission_lead": 2,
+      "updates_per_second": 62.10049105325095
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 8,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.2424720828421414,
+      "process_exit_seconds": 0.5896391659043729,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.2353426595643598,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.0029539966490119696,
+      "max_admission_lead": 7,
+      "updates_per_second": 65.98697801600778
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 8,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.26220091711729765,
+      "process_exit_seconds": 0.6411394590977579,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.2360216325840562,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.21732487343251705,
+      "max_admission_lead": 0,
+      "updates_per_second": 61.0219070776258
+    },
+    {
+      "policy": "eventual",
+      "iterations_per_worker": 16,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.47117345896549523,
+      "process_exit_seconds": 0.8074936668854207,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08241806348600228,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.005559581331908703,
+      "max_admission_lead": 15,
+      "updates_per_second": 67.91554021370166
+    },
+    {
+      "policy": "sequential",
+      "iterations_per_worker": 16,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.47348704212345183,
+      "process_exit_seconds": 0.8569149170070887,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08176850053893717,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.42624833178706467,
+      "max_admission_lead": 0,
+      "updates_per_second": 67.58368688716232
+    },
+    {
+      "policy": "bounded_delay",
+      "iterations_per_worker": 16,
+      "repeat": 2,
+      "workers": 2,
+      "parameter_shards": 2,
+      "optimizer_step": "one_local_batch_mean_update_per_worker",
+      "warmup_excluded_seconds": 0.48771095811389387,
+      "process_exit_seconds": 0.8583616251125932,
+      "initial_training_loss": 0.6938789715242899,
+      "final_training_loss": 0.08152966521891837,
+      "controlled_slow_worker_delay_ms": 20,
+      "admission_wait_worker_seconds": 0.38085370883345604,
+      "max_admission_lead": 2,
+      "updates_per_second": 65.61263278510778
+    }
+  ],
+  "interpretation": "All policies first meet the 0.5 training-loss target at the tested 4-iteration endpoint. Bounded/eventual admission reduces dependency waiting; observed target-time ranges overlap, so this run establishes no clear end-to-end target-time speedup.",
+  "verification": {
+    "all_dense_row_update_counts_exact": true,
+    "all_touched_rows_finite": true,
+    "all_tickets_drained": true,
+    "all_completed_tasks_exact": true,
+    "configured_admission_bounds_respected": true
+  },
+  "regression": {
+    "passed": 9,
+    "failed": 0,
+    "log": "build/tensorflow/policy-model-regression.log",
+    "sha256": "afeda23712a0d84a9a115c8870af574cddd5dbf749b4d3444fa96ba4a99cf83c",
+    "scope": [
+      "default synchronous TensorFlow model",
+      "new per-Worker policy mode",
+      "joint checkpoint/restore",
+      "replicated primary recovery",
+      "gradient mirror failures",
+      "worker journal handoff",
+      "worker recovery",
+      "read failures",
+      "replica-backed parameter-owner recovery"
+    ]
+  }
+}

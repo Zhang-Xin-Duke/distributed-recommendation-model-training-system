@@ -125,6 +125,11 @@ error it aborts the job so dependency waiters wake. A failure after some shards
 apply an update can leave a partial task; coordinated rollback/replay requires
 the replication, range-progress and ownership-fencing work listed below.
 
+The TensorFlow Embedding/MLP worker also supports this per-Worker update path.
+Its [model policy comparison](MODEL_CONSISTENCY_POLICIES.md) holds the update
+algorithm fixed across all three policies and measures quiescent training loss,
+admission waits and tested endpoints at a common loss target.
+
 ## Executed verification
 
 The C++ checks cover the exact bounded-delay boundary, sequential/zero-delay

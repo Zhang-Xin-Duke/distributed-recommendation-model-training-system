@@ -51,9 +51,12 @@ tickets. Term-bound owner replacement and replica-backed rehydration now pass
 the full Host-backed training fault cases. L40 CUDA recovery now restores all
 64 rows and matches uninterrupted parameters/loss after three process failures.
 Identity-based read cancellation and bounded Release retries pass real CPU/CUDA
-model faults, including late Lookups and lost successful replies. A measured
-common-quality comparison across training consistency policies remains open.
-Full original Entropy execution also remains open.
+model faults, including late Lookups and lost successful replies. The
+[CPU Embedding/MLP policy experiment](../MODEL_CONSISTENCY_POLICIES.md) now compares
+36 fresh training runs with the same per-Worker update algorithm, controlled
+stragglers and a common loss target. GPU policy/scaling comparisons and combined
+communication/failure characterization remain open. Full original Entropy
+execution also remains open.
 
 ## Training-task progress controller
 

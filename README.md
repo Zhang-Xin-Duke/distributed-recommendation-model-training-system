@@ -49,6 +49,10 @@ path. CPU and A6000 GPU runs compare aggregated gradients, complete touched
 weights/Adam state, task progress and loss against a single-worker reference.
 The GPU execution currently uses host staging at the RPC boundary.
 
+[Consistency-policy model experiments](docs/MODEL_CONSISTENCY_POLICIES.md) compare
+sequential, bounded-delay and eventual admission with the same per-Worker
+Embedding/MLP update algorithm, recording training loss and straggler waits.
+
 [Reusable Lookup layouts](docs/REUSABLE_LOOKUP_LAYOUTS.md) register repeated ID
 lists and CSR layouts once per shard, then send scoped tokens for fresh reads.
 Bounded LRU/TTL registries and same-request fallback preserve parameter and

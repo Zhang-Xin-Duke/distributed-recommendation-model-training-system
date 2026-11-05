@@ -1,8 +1,9 @@
-"""Embedding + two-layer MLP training through synchronous parameter shards.
+"""Embedding + two-layer MLP training through distributed parameter shards.
 
 All trainable parameters, including packed MLP weights/biases, live in one
 row-sharded table. Host staging bridges remote parameter RPCs to TensorFlow;
-the configured device executes model forward/backward.
+the configured device executes model forward/backward. Updates use either a
+sample-weighted synchronous round or one local-batch-mean update per Worker.
 """
 import argparse
 import hashlib
@@ -39,6 +40,15 @@ def main():
     dimension = int(config["dimension"])
     hidden = int(config.get("hidden", 8))
     iterations = int(config["iterations"])
+    update_mode = config.get('update_mode', 'synchronous')
+    if update_mode not in ('synchronous', 'per_worker'):
+        raise ValueError('unknown model update mode')
+    synchronous = update_mode == 'synchronous'
+    if not synchronous and (config.get('journal_directory') or config.get('journal_mirror')):
+        raise ValueError('retained-gradient recovery requires synchronous updates')
+    delay_ms, delay_every = int(config.get('delay_ms', 0)), int(config.get('delay_every', 1))
+    if not 0 <= delay_ms <= 60000 or delay_every < 1:
+        raise ValueError('invalid controlled Worker delay')
     if not 1 <= dimension <= 4096 or not 1 <= hidden <= 1024 or not 1 <= iterations <= 1000000:
         raise ValueError("invalid model dimensions or iteration count")
     packed_size = dimension * hidden + hidden + hidden + 1
@@ -107,6 +117,7 @@ def main():
     losses, observed_devices, first_gradients, times = [], {}, None, []
     journal, mirror, replayed = None, None, []
     read_retries=0
+    admission_wait, max_lead = [], 0
     read_retry_ms=int(config.get('read_retry_ms',2000))
     if not 0<=read_retry_ms<=10000:raise ValueError('read retry budget must be between 0 and 10000 milliseconds')
     def test_gate(stage, iteration):
@@ -137,12 +148,34 @@ def main():
         if 'read_sequence' in config:
             backend.restore_read_frontier(config['read_sequence'])
         batch_sizes = []
+        if config.get('start_gate'):
+            gate = pathlib.Path(config['start_gate'])
+            warm = prepared[start_iteration % len(prepared)]
+            token, arrays = backend.pull(warm[1], True)
+            backend.release(token)
+            with tf.device(device):
+                result = forward_backward(tf.convert_to_tensor(arrays[0], dtype=tf.float32),
+                    tf.convert_to_tensor(arrays[1], dtype=tf.float32), warm[4], warm[5])
+            for tensor in result:
+                if not np.isfinite(tensor.numpy()).all():
+                    raise RuntimeError('non-finite model warmup')
+            pathlib.Path(str(gate)+f'.worker-{config["worker"]}.ready').write_text(
+                json.dumps(dict(run=config['run'], worker=config['worker'], warmed_model=True)))
+            deadline = time.monotonic()+60
+            while not gate.exists():
+                if time.monotonic() > deadline:
+                    raise TimeoutError('model start gate was not released')
+                time.sleep(.002)
         for iteration in range(start_iteration, start_iteration + iterations):
             samples, features, unique_keys, inverse, segment_ids, labels = prepared[iteration % len(prepared)]
             started = time.monotonic()
             floor = backend.begin_training(iteration)
+            admission_wait.append(time.monotonic()-started)
             if floor > iteration:
                 raise RuntimeError("training permit floor exceeds current iteration")
+            max_lead = max(max_lead, iteration-floor)
+            if delay_ms and iteration % delay_every == 0:
+                time.sleep(delay_ms/1000)
             saved=journal.get(iteration) if journal else None
             if saved:
                 if saved['sample_count']!=len(samples) or saved['completed_reads']!=backend.completed_read_frontier():
@@ -153,7 +186,7 @@ def main():
                 retry_deadline=None
                 while True:
                     try:
-                        handle, arrays = backend.pull(features, True)
+                        handle, arrays = backend.pull(features, synchronous)
                         break
                     except RuntimeError:
                         if retry_deadline is None:retry_deadline=time.monotonic()+read_retry_ms/1000
@@ -162,7 +195,8 @@ def main():
                         read_retries+=1
                         time.sleep(.01)
                 test_gate('after_pull',iteration)
-                backend.release(handle)
+                if synchronous:
+                    backend.release(handle)
                 with tf.device(device):
                     embedding = tf.convert_to_tensor(arrays[0], dtype=tf.float32)
                     dense = tf.convert_to_tensor(arrays[1], dtype=tf.float32)
@@ -185,18 +219,26 @@ def main():
             test_gate('after_journal',iteration)
             if iteration == start_iteration and config.get("record_gradients", False):
                 first_gradients = {"keys": unique_keys.tolist(), "values": values.tolist()}
-            backend.submit_synchronous(iteration, len(samples),tables)
+            if synchronous:
+                backend.submit_synchronous(iteration, len(samples),tables)
+            else:
+                backend.push(handle, [0, 1], [g_embedding.numpy(), g_dense.numpy()])
             test_gate('after_update',iteration)
             backend.complete_training(iteration)
             batch_sizes.append(len(samples))
             losses.append(value)
             times.append(time.monotonic() - started)
         backend.join()
+        training_finished = time.monotonic()
         memory = tf.config.experimental.get_memory_info(device.lstrip("/")) if gpu else None
         print(json.dumps({"worker": config["worker"], "completed": iterations,
                           "model": "embedding_tanh_mlp", "dimension": dimension, "hidden": hidden,
                           "start_iteration": start_iteration, "input_state": input_state(start_iteration + iterations),
                           "batch_sizes": batch_sizes,
+                          "update_mode": update_mode,
+                          "admission_wait_seconds": admission_wait,
+                          "max_admission_lead": max_lead,
+                          "training_finished_monotonic": training_finished if config.get('start_gate') else None,
                           "local_samples": len(samples), "packed_mlp_rows": dense_rows,
                           "losses": losses, "step_seconds": times, "devices": observed_devices,
                           "first_row_gradients": first_gradients,
