@@ -105,6 +105,12 @@ explicit native-environment/feeder stand-ins and single-participant framework
 barriers. Full native application, original reader and multi-peer framework
 execution retain their own validation requirements.
 
+The subsequent [full native application recovery](ORIGINAL_INPUT_CHECKPOINT.md#full-application-interruption-and-replay)
+executes those boundaries with the rebuilt TensorFlow 2.12.1 runtime, original
+ORC/FileFeeder and two original main/Executor peers. It restores mid-file input,
+complete sparse/dense optimizer state and task clocks before continued GPU
+training, including rollback and replay of post-checkpoint failed work.
+
 At source `ce17f18`, local native/RPC/TensorFlow checks pass 36/36; ASan/UBSan and
 ThreadSanitizer each pass 16/16 core checks. A6000 execution passes 25/25 native
 CPU/CUDA checks, 39/39 full checks and 8/8 forced-CUDA cases. The resumed selected

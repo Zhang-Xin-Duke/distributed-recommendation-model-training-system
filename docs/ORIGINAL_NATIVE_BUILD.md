@@ -6,8 +6,9 @@ dependency graph loads with a public Redis SDK adapter. Both original native
 targets now compile successfully on Linux with CUDA 12.2 and Clang 18. The CPU
 and GPU libraries load into the recovered TensorFlow 2.12.1 SDK and register
 314 and 315 operations, respectively. The original GPU row-segmentation kernel
-passes ordinary and empty-row boundary checks. The matching Python runtime is
-being built from recovered source for full reader, training and control execution.
+passes ordinary and empty-row boundary checks. The matching rebuilt Python
+runtime executes the original reader, training, control services and joint
+checkpoint recovery through the full main/Executor entry point.
 
 [Native build, library loading and GPU execution record](validation/2026-11-04-original-native-build.json).
 
@@ -43,10 +44,10 @@ hashes, bound training progress and native dense optimizer exports. Managed role
 handles and logs remain under the new work directory. An elapsed observation
 window records live state and continues observing the same roles.
 
-The two-peer harness has passed Python/environment preflight and is gated behind
-the matching TensorFlow build, original readers, original training/restore and
-one-peer application acceptance. Full native multi-peer execution and its joint
-restore/failure replay remain pending actual runtime results.
+The two-peer harness completes 128 records and 32 batches with training clocks
+`[16, 16]`. Both input-aware joint save and fresh-process restore pass. The
+post-checkpoint failure run stops the old native job, restores its saved cut and
+replays uncommitted work. See the [full recovery record](ORIGINAL_INPUT_CHECKPOINT.md#full-application-interruption-and-replay).
 
 [Deployed source hashes and preflight/gate record](validation/2026-11-05-original-executor-peers-preflight.json).
 
@@ -406,6 +407,12 @@ The validation retains the original asynchronous input path.
 [Two-peer execution](validation/2026-11-05-original-executor-two-peers.json) ·
 [Two-peer input-aware save](validation/2026-11-05-original-executor-input-two-peers.json).
 
-Fresh-process full-application joint restore and failure replay remain active
-integration gates. Their acceptance includes input coverage and complete
-model/optimizer/progress comparisons.
+Fresh-process full-application joint restore also passes with one and two peers.
+The two-peer failure run rolls back post-checkpoint work, replays eight
+uncommitted sample attempts and finishes 128 committed samples at clocks
+`[16, 16]`, with no omissions or duplicates. Restored sparse/Adam state has
+maximum absolute error zero; native DenseAdam files are byte-identical at the
+saved cut. Single-peer continuation also reproduces the uninterrupted final
+sparse/Adam state, native dense optimizer and all four losses exactly.
+
+See [the full recovery procedure and records](ORIGINAL_INPUT_CHECKPOINT.md#full-application-interruption-and-replay).

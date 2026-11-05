@@ -27,7 +27,9 @@ memory allocation. It can be started, configured and scaled separately from the
 training application. The GPU backend can be linked into a compatible worker;
 the supplied `eps_cache_agent` executable hosts it as a standalone process.
 The portable TensorFlow adapter consumes host-returning RPC contributions.
-Native model/device-tensor interoperability is a further integration step.
+The native TensorFlow path exchanges device tensors with the worker's GPU owner.
+The [original framework integration](ORIGINAL_NATIVE_BUILD.md) also runs the
+complete original application and joint input/model/optimizer recovery.
 
 ```mermaid
 flowchart TB

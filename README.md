@@ -167,8 +167,10 @@ row-segmentation kernel. Original Runner GPU training and fresh-process
 checkpoint continuation reproduce the uninterrupted loss trajectory and sparse
 optimizer state. Full original main/Executor execution also passes with two
 training peers, including an input-aware joint checkpoint at 32 completed
-batches. Fresh-process full-application recovery and failure replay continue
-in the [integration record](docs/ORIGINAL_NATIVE_BUILD.md).
+batches. Fresh-process full-application recovery replays post-checkpoint work
+and completes 128 committed samples without omission or duplication; restored
+sparse/Adam state and native DenseAdam match the saved cut exactly. See the
+[integration record](docs/ORIGINAL_NATIVE_BUILD.md).
 [Peer-coordinated checkpoints](docs/PEER_CHECKPOINTS.md) also support a chief
 without an external learner table; two-process/four-thread checks cover repeated
 commit, admission control and a failed model save.

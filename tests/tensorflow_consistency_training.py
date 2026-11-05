@@ -36,7 +36,7 @@ def model_loss(state, samples, dimension, hidden):
     return loss / len(samples)
 
 
-def trial(build, root, policy, iterations, repeat, workers, delay_ms):
+def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0'):
     dimension, hidden, count = 8, 4, 16
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
     rng = random.Random(20261104)
@@ -51,7 +51,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms):
     source = pathlib.Path(__file__).resolve().parents[1]
     env['PYTHONPATH'] = os.pathsep.join([str(build/'python'), str(source/'adapters/entropy'),
                                         env.get('PYTHONPATH', '')])
-    env.update(CUDA_VISIBLE_DEVICES='', TF_CPP_MIN_LOG_LEVEL='2')
+    env.update(CUDA_VISIBLE_DEVICES='0' if device=='/GPU:0' else '', TF_CPP_MIN_LOG_LEVEL='2')
     table = {'id': 1, 'dimension': dimension, 'dtype': 'float32',
              'optimizer': {'kind': 'sparse_lazy_adam', 'learning_rate': .02,
                            'beta1': .9, 'beta2': .999, 'epsilon': 1e-8,
@@ -95,7 +95,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms):
             f'worker-{w}', {**settings, 'table': table, 'worker': w, 'dimension': dimension,
                 'hidden': hidden, 'iterations': iterations, 'samples': samples[w],
                 'update_mode': 'per_worker', 'start_gate': str(gate),
-                'delay_ms': delay_ms if w == workers-1 else 0, 'device': '/CPU:0'})
+                'delay_ms': delay_ms if w == workers-1 else 0, 'device': device})
                     for w in range(workers)]
         deadline = time.monotonic()+60
         for w, child in enumerate(children):
@@ -134,6 +134,8 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms):
             assert all(math.isfinite(v) for f in ('weights', 'first_moment', 'second_moment') for v in row[f])
         for output in outputs:
             assert output['update_mode'] == 'per_worker' and output['completed'] == iterations
+            if device=='/GPU:0':
+                assert output['devices'] and all('GPU:' in value.upper() for value in output['devices'].values()),output
             if policy != 'eventual':
                 assert output['max_admission_lead'] <= (2 if policy == 'bounded_delay' else 0), output
         loss = model_loss(final, all_samples, dimension, hidden)
@@ -171,12 +173,13 @@ def main():
     p.add_argument('--workers', type=int, default=2)
     p.add_argument('--delay-ms', type=int, default=20)
     p.add_argument('--target-loss', type=float, default=.5)
+    p.add_argument('--device', choices=['/CPU:0','/GPU:0'], default='/CPU:0')
     a = p.parse_args()
     endpoints = sorted(set(map(int, a.iterations.split(','))))
     if (not endpoints or min(endpoints)<1 or max(endpoints)>10000 or not 1<=a.repeats<=20
             or not 2<=a.workers<=8 or not 0<=a.delay_ms<=1000 or not 0<a.target_loss<1):
         p.error('invalid model policy experiment bounds')
-    result = {'test': 'tensorflow_consistency_model_training', 'execution_device': 'CPU',
+    result = {'test': 'tensorflow_consistency_model_training', 'execution_device': 'CUDA' if a.device=='/GPU:0' else 'CPU',
               'complete': False, 'platform': platform.platform(), 'machine': platform.machine(),
               'host_logical_cpus': os.cpu_count(), 'tensorflow_threads_per_worker': {'inter': 2, 'intra': 2},
               'source_sha256': {name: hashlib.sha256((pathlib.Path(__file__).resolve().parents[1]/name).read_bytes()).hexdigest()
@@ -184,6 +187,10 @@ def main():
               'target_training_loss': a.target_loss,
               'measurement': 'quiescent endpoints of independent fresh runs; not exact first crossing',
               'trials': [], 'first_tested_endpoints_meeting_target': []}
+    if a.device=='/GPU:0':
+        result['gpu']=subprocess.run(['nvidia-smi','--id=0',
+            '--query-gpu=name,driver_version,memory.total','--format=csv,noheader'],
+            text=True,capture_output=True,check=True,timeout=15).stdout.strip()
     a.out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='eps-tf-policies-') as tmp:
         for repeat in range(a.repeats):
@@ -192,7 +199,7 @@ def main():
                 shift = (repeat+point) % len(policies)
                 for policy in policies[shift:]+policies[:shift]:
                     record = trial(a.build.resolve(), pathlib.Path(tmp), policy, iterations,
-                                   repeat, a.workers, a.delay_ms)
+                                   repeat, a.workers, a.delay_ms,a.device)
                     result['trials'].append(record)
                     if record['final_training_loss'] <= a.target_loss and not any(
                             r['policy']==policy and r['repeat']==repeat

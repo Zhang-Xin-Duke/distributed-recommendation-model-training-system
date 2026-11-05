@@ -17,15 +17,16 @@ authorized. GPU checks run within the existing USD 20 rental budget.
 The November 4 [distributed-training design](2026-11-04-distributed-training-design.md)
 sets the current implementation priority: training-task dependencies, update
 semantics, logical progress, replication/recovery and common-quality evaluation.
-The task-progress core is verified; its network integration and the remaining
-training mechanisms are open. Full original Entropy integration is retained.
+Task-progress RPCs, sparse/dense model execution, recovery and full original
+Entropy integration now execute. Remaining overall acceptance focuses on
+cross-host generation retirement and common-workload multi-GPU scaling.
 
 | Phase | Current evidence |
 |---|---|
 | 1. CPU parameter service | Implemented; two independent BRPC shard processes exercised by a client |
 | 2. Sparse updates and saving | Implemented; repeated requests, bounds and exact restore trajectory checked |
-| 3. Framework integration | C++ Pull/Push/Join adapter, portable TensorFlow bridge, optimizer mapping, original table/Runner hooks, periodic export/resume and committed restore staging implemented; original-method checks restart two PS processes and compare complete selected Adam state; native TensorFlow CPU/CUDA operations execute model forward/backward, prepared Pull, acknowledged Push and checkpoint continuation against independent PS processes; native table installation and shared learner contexts are implemented; complete original-application/reader execution and multi-peer framework barriers remain pending |
-| 4. GPU cache agent | Standalone CUDA resident gather/Adam, full-state transfer, fencing and restore verified; native worker owner, shared local/RPC admission, model-stream device contributions and native TensorFlow device tensors verified on A6000; original-worker installation remains pending |
+| 3. Framework integration | Native TensorFlow CPU/CUDA model operations, selected original table hooks, shared learner contexts and complete original main/Executor execution pass. Two original peers train 128 records/32 batches and jointly restore inputs, sparse/dense optimizers and task clocks after abrupt failure. Single-peer final state and losses match uninterrupted training exactly. |
+| 4. GPU cache agent | Standalone resident gather/Adam, full-state transfer, fencing, restore and original-worker native owner installation pass; model-stream device contributions and TensorFlow device tensors execute on A6000. |
 | 5. Independent policies | CPU pooling/unique-vector GPU paths, route selection, destination projection and selectable gather coalescing execute; automatic frequency/reuse-cost admission/replacement, bounded statistics and migration budgets connected; bounded asynchronous input preparation and resumable shard operations implemented; dependencies, barrier upgrades, original optimizer order and real CUDA lifecycle checked; Agent-wide count/byte admission and real 128/192-Learner CUDA backpressure now verified |
 
 See `../VALIDATION.md` for the executed checks and `../RUNNING.md` for commands.
@@ -35,7 +36,8 @@ explicit ticket-budget rejection, drain and responsive statistics at 1,022
 Learners. [Native table installation](../NATIVE_TABLE_INSTALLATION.md) now connects
 the original table/Runner boundary to native CPU/CUDA operators with shared
 learner contexts and pre-entry GPU owner startup. Complete original application,
-native reader and original C++ multi-peer runtime execution remain open.
+native reader and original C++ multi-peer runtime execution now pass with the
+matching rebuilt TensorFlow 2.12.1 environment.
 [Peer checkpoint checks](../PEER_CHECKPOINTS.md) now execute preserved Python
 barriers across two processes/four learner threads with a test network
 rendezvous; repeated commits and dense-save failure preserve admission state.
@@ -298,3 +300,29 @@ native framework execution remain requirements of the full goal.
 
 [Implementation](../NATIVE_TABLE_INSTALLATION.md) ·
 [Validation](../validation/2026-11-01-native-table-installation.json)
+
+## Full native application and GPU model policies — November 5
+
+The original main/Executor runs with two original native peers on one physical
+A6000. It completes 128 records and 32 acknowledged GPU-model batches at clocks
+`[16, 16]`, including native dense optimization and external sparse updates.
+The input-aware joint commit binds serialized pipeline buffers, ORC positions,
+source assignment plans, optimizer state and task clocks.
+
+Mid-file abrupt exit and fresh-process restore pass. Post-checkpoint failed work
+is discarded and eight sample attempts are replayed without omitting or
+duplicating the 128 committed sample marks. Restored sparse/Adam state has zero
+error and native DenseAdam files are byte-identical. A one-peer continuation
+also matches uninterrupted final optimizer state and all four losses exactly.
+
+Thirty-six fresh GPU Embedding/MLP trials verify all three consistency policies,
+identical complete initial state, actual GPU tensor/gradient placement and
+their admission-lead constraints. All policies reach the target training loss
+in every repetition; target-time ranges overlap.
+
+[Original application and recovery](../ORIGINAL_INPUT_CHECKPOINT.md) ·
+[GPU policy measurements](../MODEL_CONSISTENCY_POLICIES.md#gpu-model-execution).
+
+Cross-host generation retirement and same-workload physical multi-GPU scaling
+remain in overall acceptance. Earlier physical two-GPU capacity and node-loss
+records retain their separate measured scopes.

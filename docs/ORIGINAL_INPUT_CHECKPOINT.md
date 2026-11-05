@@ -91,6 +91,59 @@ clocks, changed manifests and changed payloads; chunked staging covers a
 
 The complete input-aware main/Executor save passes with two original training
 peers at completed clocks `[16, 16]` (128 records, 32 batches on one physical
-GPU). Fresh-process restore and failure-replay execution remain the next gate. Custom global shuffle and label-partition
+GPU). Fresh-process mid-file restore and post-checkpoint failure replay also
+pass through the original application entry point. Custom global shuffle and label-partition
 buffers require their own serialization before this mode accepts those input
 configurations.
+
+## Full-application interruption and replay
+
+The recovery fixture runs the original `main.py`, Executor, reader, decoder,
+graph builder, GPU forward/backward and native dense optimizer. A validation
+entry hooks the existing checkpoint boundary and records sample marks; the
+original training loop continues to execute every model batch.
+
+```sh
+python scripts/validate_original_executor_recovery.py \
+  --native-root /path/to/matching-native-environment \
+  --build /path/to/eps-build \
+  --op-library /path/to/eps-tensorflow-ops.so \
+  --peers 2 --uncommitted-replay \
+  --work /private/new-recovery-run \
+  --out /private/new-recovery-result.json
+```
+
+Both peers commit after two batches each. The fault run executes another batch
+before losing a peer. Because the original dense parameter service lives in
+those peers, the manager aborts old task admission and stops all old peer
+processes. It creates fresh parameter shards, GPU owners and a paused
+coordinator using the committed clocks, restores the original model and input,
+and resumes training.
+
+Before continuing, the restored job makes another original Runner checkpoint.
+Both sparse partitions' complete weights, Adam moments, beta powers and update
+counters match the saved cut with maximum absolute error zero. Native
+DenseAdam checkpoint files are byte-identical. The two-peer run replays eight
+uncommitted sample attempts and finishes all 128 committed sample marks with
+no omissions or duplicates, at clocks `[16, 16]`. The validation distinguishes
+discarded attempts from the final committed input trajectory.
+
+An additional synchronized-Pull case delays one peer before task completion.
+At failure, the old coordinator observes clocks `[3, 2]` and one admitted
+unfinished task. The manager aborts that old run and stops its native peers;
+the fresh run restores committed clocks `[2, 2]` and finishes at `[16, 16]`
+with zero active/waiting tasks, unchanged saved optimizer state, and complete
+sample coverage. Select `--uncommitted-replay --inflight-delay-ms 1500` to run
+this case.
+
+The one-peer continuation additionally matches an uninterrupted reference:
+all four losses have absolute difference zero, both complete sparse/Adam
+partitions have maximum error zero, and the final native dense optimizer files
+are byte-identical. Pass both `--reference-checkpoint` and `--reference-report`
+to request this comparison with a matching uninterrupted run.
+
+[Two-peer fresh restore](validation/2026-11-05-original-executor-recovery-two-peer.json) ·
+[Uninterrupted equivalence](validation/2026-11-05-original-executor-recovery-reference.json) ·
+[Post-checkpoint failure replay](validation/2026-11-05-original-executor-uncommitted-replay.json).
+
+[In-flight native peer failure](validation/2026-11-05-original-executor-inflight-replay.json).

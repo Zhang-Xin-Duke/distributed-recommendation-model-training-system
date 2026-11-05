@@ -1,0 +1,99 @@
+{
+  "cut_completed": [
+    2
+  ],
+  "duplicate_samples": 0,
+  "full_framework_recovery_verified": true,
+  "missing_samples": 0,
+  "native_dense_optimizer_sha256": {
+    "dense_table": "afe51b42cafbfb81213d640eedf37dc07aa8b4e4aa7473a98bed135098686a18"
+  },
+  "original_peers": 1,
+  "parameter_comparisons": [
+    {
+      "checked_rows": 4,
+      "max_state_absolute_error": 0
+    },
+    {
+      "checked_rows": 4,
+      "max_state_absolute_error": 0
+    }
+  ],
+  "physical_gpus": 1,
+  "sample_count": 16,
+  "scope": "original main/Executor processes, mid-file abrupt exit, fresh shards/owners/coordinator, restored input and continued GPU training",
+  "stage": "original_executor_recovery_passed",
+  "phases": {
+    "cut": {
+      "stage": "passed",
+      "restored": false,
+      "progress": {
+        "active": 0,
+        "completed": [
+          2
+        ],
+        "completed_tasks": 2,
+        "completion_floor": 2,
+        "duplicate_completions": 0,
+        "failed": false,
+        "granted_tasks": 2,
+        "paused": false,
+        "waiting": 0
+      },
+      "losses": [
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6947745084762573
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6921517848968506
+        }
+      ],
+      "cleanup_verified": true
+    },
+    "restored": {
+      "stage": "passed",
+      "restored": true,
+      "progress": {
+        "active": 0,
+        "completed": [
+          4
+        ],
+        "completed_tasks": 2,
+        "completion_floor": 4,
+        "duplicate_completions": 0,
+        "failed": false,
+        "granted_tasks": 2,
+        "paused": false,
+        "waiting": 0
+      },
+      "losses": [
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6941704154014587
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6923781633377075
+        }
+      ],
+      "cleanup_verified": true
+    }
+  },
+  "schema": "eps.original-executor-recovery.v1",
+  "date": "2026-11-05",
+  "gpu_model": "RTX A6000"
+}

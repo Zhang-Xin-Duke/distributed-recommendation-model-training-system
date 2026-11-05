@@ -1,0 +1,298 @@
+{
+  "cut_completed": [
+    2,
+    2
+  ],
+  "duplicate_samples": 0,
+  "full_framework_recovery_verified": true,
+  "missing_samples": 0,
+  "native_dense_optimizer_sha256": {
+    "dense_table": "a79de7163a40c6ad00185eb26822a246477b42d32c7438d8ed233e4f60ddd35e"
+  },
+  "original_peers": 2,
+  "parameter_comparisons": [
+    {
+      "checked_rows": 4,
+      "max_state_absolute_error": 0
+    },
+    {
+      "checked_rows": 4,
+      "max_state_absolute_error": 0
+    }
+  ],
+  "physical_gpus": 1,
+  "sample_count": 128,
+  "scope": "original main/Executor processes, mid-file abrupt exit, fresh shards/owners/coordinator, restored input and continued GPU training",
+  "stage": "original_executor_recovery_passed",
+  "phases": {
+    "cut": {
+      "stage": "passed",
+      "restored": false,
+      "progress": {
+        "active": 0,
+        "completed": [
+          2,
+          2
+        ],
+        "completed_tasks": 4,
+        "completion_floor": 2,
+        "duplicate_completions": 0,
+        "failed": false,
+        "granted_tasks": 4,
+        "paused": false,
+        "waiting": 0
+      },
+      "losses": [
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6947745084762573
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6947745084762573
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6926368474960327
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6928191781044006
+        }
+      ],
+      "cleanup_verified": true
+    },
+    "restored": {
+      "stage": "passed",
+      "restored": true,
+      "progress": {
+        "active": 0,
+        "completed": [
+          16,
+          16
+        ],
+        "completed_tasks": 28,
+        "completion_floor": 16,
+        "duplicate_completions": 0,
+        "failed": false,
+        "granted_tasks": 28,
+        "paused": false,
+        "waiting": 0
+      },
+      "losses": [
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6933950185775757
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6933950185775757
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6932080388069153
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.693286120891571
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6930242776870728
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6930566430091858
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6934212446212769
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.69346684217453
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6929142475128174
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6929299235343933
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6934072971343994
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935045719146729
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6927973031997681
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6928413510322571
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6934903860092163
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935861110687256
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6927915811538696
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6928350329399109
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935369968414307
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935930848121643
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.692743182182312
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6927854418754578
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935136318206787
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935772895812988
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6927428841590881
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.692806601524353
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6935481429100037
+        },
+        {
+          "labels": {
+            "loss_name": "loss",
+            "recurrent_name": "unknown"
+          },
+          "value": 0.6936091184616089
+        }
+      ],
+      "cleanup_verified": true
+    }
+  },
+  "schema": "eps.original-executor-recovery.v1",
+  "date": "2026-11-05",
+  "gpu_model": "RTX A6000"
+}

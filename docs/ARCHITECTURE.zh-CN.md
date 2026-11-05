@@ -152,7 +152,8 @@ CPU 与所有 GPU 部分使用该次请求的同一份优化器上下文，不�
 C++20 服务核心，BRPC/Protobuf 通信，分块连续参数存储，CUDA 完成显存侧操作。
 便携 TensorFlow 适配层通过本地客户端子进程隔离二进制依赖，接管 Embedding 的 Pull/Push/Join。
 Linux TensorFlow 2.20 已验证原生 CPU/GPU 张量接入和自动求导；
-原 Entropy 应用、原始读取器与多节点任务屏障的完整接入仍需单独验证。
+匹配的 TensorFlow 2.12.1 环境也已运行完整 Entropy main/Executor、原始读取器和跨进程屏障；
+单张 A6000 上两个独立训练进程完成 128 条样本、32 批训练，并通过输入、参数、优化器和进度的联合恢复及故障重放。
 
 已增加按表名选择后端的原接口接入：保留 `SparseTable` 类和 `InputBuilder` 梯度分发，
 由外部服务处理选中表的读取与更新。原 Runner 保存入口先暂停参数更新，执行原目录准备，

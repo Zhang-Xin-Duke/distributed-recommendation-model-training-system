@@ -121,3 +121,39 @@ The registered correctness check runs one eight-iteration trial for each policy:
 ctest --test-dir build/tensorflow --output-on-failure \
   -R '^tensorflow_consistency_model_cpu$'
 ```
+
+
+## GPU model execution
+
+The RTX A6000 run repeats the same model, initialization, inputs, optimizer and
+20 ms slow-Worker delay with forward/backward on GPU. Two independent TensorFlow
+Workers share one physical card; two CPU parameter shards serve their rows with
+cache disabled. Every accepted trial verifies GPU placement of parameter
+inputs, loss and gradients. This measures model-training admission/convergence;
+the multi-GPU capacity experiment uses separate GPU parameter-owner placement.
+
+All 36 fresh runs pass: three policies, four iteration endpoints and three
+repetitions, with identical complete initial parameter/optimizer state. Each
+policy reaches target training loss `0.5` in all three repetitions:
+
+| Policy | First passing endpoints, iterations/Worker | Median training time to first passing endpoint | Range, three repetitions |
+| --- | --- | ---: | ---: |
+| Sequential | 4/4/8 | 187.4 ms | 158.9–320.7 ms |
+| Bounded delay, 2 | 4/4/4 | 163.8 ms | 163.3–165.9 ms |
+| Eventual | 4/4/4 | 159.0 ms | 158.0–173.7 ms |
+
+Timing excludes process startup and model warmup. Endpoints are tested in fresh
+runs, so the table reports the first passing tested endpoint. At 16 iterations,
+maximum admitted leads are `0`, `2` and `9`; the configured clock constraints
+hold while eventual admission removes the slowest-Worker dependency. The
+policies' target-time ranges overlap, establishing no repeatable target-time
+speedup in this controlled workload.
+
+```sh
+python tests/tensorflow_consistency_training.py --build build-cuda \
+  --device /GPU:0 --iterations 2,4,8,16 --repeats 3 \
+  --target-loss 0.5 --out gpu-policy-endpoints.json
+```
+
+[Trial summaries, placement checks and source hashes](validation/2026-11-05-gpu-model-consistency-policies.json) ·
+[Complete trial records with parameter/optimizer state](../benchmarks/results/2026-11-05-gpu-model-consistency.json.gz).

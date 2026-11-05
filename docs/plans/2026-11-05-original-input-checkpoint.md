@@ -24,7 +24,8 @@ Native stages 1–3 have executed, including direct FileFeeder recovery at eight
 positions and six-stream parallel interleave recovery. The registry also keeps
 completed reader histories after leaf destruction; a larger-buffer case
 restored all remaining records after all six leaves were released. Stages 4–5
-continue with Python input-shot state and the full training joint commit.
+now also execute Python input-shot restoration and the full training joint
+commit through original main/Executor processes, as recorded below.
 
 ## Original prepared batch and partition notifications
 
@@ -67,7 +68,10 @@ and Python shot position before the final global barrier releases training
 progress. An unsuccessful stage retains frozen parameter/progress admission.
 
 Test native prepared-batch/notification recovery at the start, mid-stream and
-EOF, including held fresh initialization. Then execute the complete original
-multi-peer model with the opt-in path, joint save and fresh-process continuation;
-compare consumed sample identities, complete parameter/optimizer state and
-training clocks against uninterrupted training.
+EOF, including held fresh initialization. The complete original multi-peer
+application now passes the opt-in save, mid-file joint checkpoint, abrupt exit
+and fresh-process continuation. Two peers finish 128 committed sample marks at
+clocks `[16, 16]`; eight uncommitted attempts are replayed. Restored complete
+sparse/Adam state has error zero and native DenseAdam files are byte-identical.
+The one-peer continuation also matches uninterrupted final state and every loss
+exactly. Execution records are linked from `docs/ORIGINAL_INPUT_CHECKPOINT.md`.
