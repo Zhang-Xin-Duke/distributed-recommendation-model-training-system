@@ -11,6 +11,45 @@ being built from recovered source for full reader, training and control executio
 
 [Native build, library loading and GPU execution record](validation/2026-11-04-original-native-build.json).
 
+## Full application peer validation
+
+[`validate_original_executor.py`](../scripts/validate_original_executor.py) runs
+one or two unchanged original `main.py`/Executor processes against two external
+sparse parameter shards. The original native cluster, dense parameter service,
+DenseAdam, ORC FileFeeder, cross-peer barriers and Controller/Learner services
+remain active. The project's [user model](../examples/entropy_executor_model.py)
+uses Embedding lookup and GPU MLP forward/backward through that application.
+
+```sh
+python scripts/validate_original_executor.py \
+  --native-root /path/to/matching-original-environment \
+  --build /path/to/compiled-parameter-runtime \
+  --op-library /path/to/matching-tensorflow-operations.so \
+  --peers 2 --work /path/to/new-two-peer-run \
+  --out /path/to/original-executor-result.json
+```
+
+The native root supplies `native/entropy`, the matching `original-python`
+environment, generated protocols/feature modules and the prepared Hadoop client.
+The launcher reexecutes the manager with that interpreter and library search
+path. Private source and native artifacts remain outside this repository.
+
+Each peer receives distinct native, Learner-service and parameter-owner routes.
+Original InputGlobbing expands real ORC files; the original FileFeeder distributes
+them. Validation records the actual per-peer task clocks, requires both peers
+to train, and checks total input batches against acknowledged tasks and sparse
+updates. It also verifies control pings, GPU graph placement, joint checkpoint
+hashes, bound training progress and native dense optimizer exports. Managed role
+handles and logs remain under the new work directory. An elapsed observation
+window records live state and continues observing the same roles.
+
+The two-peer harness has passed Python/environment preflight and is gated behind
+the matching TensorFlow build, original readers, original training/restore and
+one-peer application acceptance. Full native multi-peer execution and its joint
+restore/failure replay remain pending actual runtime results.
+
+[Deployed source hashes and preflight/gate record](validation/2026-11-05-original-executor-peers-preflight.json).
+
 ```mermaid
 flowchart LR
   E[Original ts_clib.so] --> C[costa_op]

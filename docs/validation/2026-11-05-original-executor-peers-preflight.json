@@ -1,0 +1,64 @@
+{
+  "recorded_at_utc": "2026-11-05T06:07:49.981127+00:00",
+  "base_commit": "b0c867e74f47a894d4f04a0e308313d6907c87e4",
+  "source_sha256": {
+    "scripts/validate_original_executor.py": "747fc34d542da551f570dbf30d403970fc5f974df26873e627db43f1ecd5baea",
+    "examples/entropy_executor_model.py": "b6fcb46d9d7107e21750d2f0dfcea9f2795386eef96062f5f1d9fd2ae1a93cb6"
+  },
+  "stage": "native_environment_preflight_passed_execution_gated",
+  "native_execution_verified": false,
+  "preflight": {
+    "local_python": "3.11.14",
+    "linux_matching_interpreter": "3.10",
+    "syntax_compilation_exit_code": 0,
+    "command_help_exit_code": 0,
+    "remote_source_matches": true,
+    "native_runtime_and_operation_library_present": true,
+    "original_table_installation_and_session_backend_match": true,
+    "linux_syntax_reverified_epoch": 1793859207.224043
+  },
+  "gate": {
+    "pid": 167049,
+    "observed_epoch": 1793858869.9394236,
+    "state": "S",
+    "stage": "waiting_for_original_one_peer",
+    "requires": [
+      "matching TensorFlow wheel and original reader verification",
+      "original model training/checkpoint/restore",
+      "original one-peer main/Executor application"
+    ]
+  },
+  "planned_execution": {
+    "original_peers": 2,
+    "external_parameter_shards": 2,
+    "physical_gpus": 1,
+    "native_components": [
+      "main.py",
+      "Executor",
+      "native cluster/dense PS",
+      "DenseAdam",
+      "InputGlobbing/FileFeeder",
+      "ORC decoder",
+      "cross-peer barriers",
+      "Controller/Learner gRPC"
+    ],
+    "independent_components": [
+      "selected sparse parameter tables",
+      "C ABI GPU parameter owners",
+      "task progress",
+      "joint checkpoint hooks"
+    ]
+  },
+  "remaining": [
+    "Execute original full-module multi-peer model training and validate native runtime results",
+    "Fresh-process joint restore and checkpoint-based failure/replay",
+    "Cross-node generation retirement",
+    "GPU common-quality/scaling"
+  ],
+  "input_recovery_source_finding": {
+    "orc_file_index_saved": true,
+    "orc_row_offset_serialization_commented_out": true,
+    "icb_auxiliary_metadata_is_orc_cursor": false,
+    "requires_joint_orc_replay_position": true
+  }
+}
