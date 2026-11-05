@@ -52,6 +52,8 @@ void Lifecycle() {
     Reject([&]{log.Write(second,false,2,4097,0,std::string(8,'x'));});
   }
   {ReplicaLog log(options);Check(log.Head().next_round==2 && log.Head().lease.term==2,"durable head lost on reopen");}
+  {std::ofstream marker(root/"retired.json");marker<<"{}";}
+  Reject([&]{ReplicaLog retired(options);});std::filesystem::remove(root/"retired.json");
   auto mismatch=options;mismatch.binding="another-model";Reject([&]{ReplicaLog different(mismatch);});
   {
     std::fstream file(root/"round-0.epsr",std::ios::in|std::ios::out|std::ios::binary);file.seekp(30);file.put('!');

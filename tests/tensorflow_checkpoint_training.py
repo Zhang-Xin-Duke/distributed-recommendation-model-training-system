@@ -23,7 +23,9 @@ def main():
     parser.add_argument("--out", type=pathlib.Path)
     parser.add_argument("--replicated-rollover", action="store_true",
                         help="Start new replica and Worker journal baselines at the saved round")
+    parser.add_argument('--retire-old',action='store_true')
     a = parser.parse_args()
+    if a.retire_old and not a.replicated_rollover:parser.error('retirement requires replicated rollover')
     build = a.build.resolve()
     source = pathlib.Path(__file__).resolve().parents[1]
     env = dict(os.environ, CUDA_VISIBLE_DEVICES="", TF_CPP_MIN_LOG_LEVEL="2")
@@ -34,6 +36,8 @@ def main():
         from training_journal import WorkerJournal, identity
         from rotate_training_checkpoint import prepare as prepare_rollover, verify as verify_rollover
         import rotate_training_checkpoint as rollover_api
+        import retire_training_generation as retirement_api
+        from role_node import birth
     dimension, hidden, rounds, split = 8, 4, 8, 4
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
     table = dict(id=1, dimension=dimension, dtype="float32",
@@ -81,6 +85,8 @@ def main():
             replica_configs, replica_heads_before, worker_configs = [], [], []
             base_round = split if templates else 0
             primary_configs, rollover_plan, rollover_ready = [], None, None
+            mirror_configs,role_handles=[],[]
+            retirement=None
 
             def command(name, arguments):
                 log = open(root / f"{run}-{name}.log", "w+")
@@ -88,6 +94,14 @@ def main():
                 child = subprocess.Popen(list(map(str, arguments)), env=env,
                                          stdout=subprocess.PIPE, stderr=log, text=True)
                 children.append(child)
+                if a.replicated_rollover:
+                    started=birth(child.pid)
+                    record=dict(pid=child.pid,birth=started,host=socket.gethostname())
+                    if started is None:
+                        status=child.poll()
+                        if status is None:raise RuntimeError('source process birth could not be verified')
+                        record['terminal_exit_code']=status
+                    role_handles.append(record)
                 return child
 
             def launch(name, binary, config, extra=()):
@@ -107,6 +121,7 @@ def main():
                 return json.loads(result.stdout)
 
             def launch_mirror(config, worker):
+                mirror_configs.append(copy.deepcopy(config))
                 path=root/f'{run}-worker-mirror-{worker}.json'
                 path.write_text(json.dumps(config))
                 return ready(command(f'worker-mirror-{worker}',[sys.executable,
@@ -128,6 +143,8 @@ def main():
                         return '127.0.0.1:'+str(channel.getsockname()[1])
                     job=dict(manifest=str(manifest),run=run,end_round=rounds,
                         workers=source_phase['worker_configs'],shards=source_phase['primary_configs'],
+                        source_replicas=source_phase['replica_configs'],source_mirrors=source_phase['mirror_configs'],
+                        source_role_handles=source_phase['role_handles'],
                         coordinator_endpoint=reserve(),routes=[dict(primary_endpoint=reserve(),
                             replica_endpoint=reserve(),agents=[agents[home]]) for home in range(2)],
                         worker_routes=[dict(journal_mirror=dict(endpoint=reserve(),generation=1,
@@ -166,7 +183,7 @@ def main():
                         else:raise AssertionError('changed source input accepted for rollover')
                         # Only the new generation's staged files may be needed
                         # from this point; the former checkpoint route disappears.
-                        manifest.parent.rename(root/'detached-source-checkpoint')
+                        if not a.retire_old:manifest.parent.rename(root/'detached-source-checkpoint')
                         assert prepare_rollover(job,build,root/'replacement-generation')==rollover_plan
                     finally:
                         for channel in sockets:channel.close()
@@ -239,6 +256,59 @@ def main():
                         rollover_ready=verify_rollover(rollover_plan,build)
                         assert verify_rollover(rollover_plan,build)==rollover_ready
                         assert control(settings,'stats')['paused']
+                        if a.retire_old:
+                            unrelated=pathlib.Path(job['source_replicas'][0]['replica_directory'])/'round-notes.txt'
+                            unrelated.write_text('retain unrelated source notes')
+                            try:retirement_api.require_stopped([dict(pid=os.getpid(),birth=birth(os.getpid()),host=socket.gethostname())])
+                            except ValueError:
+                                failures.append(dict(action='retirement-live-role',reason='live supervised process rejects retirement'))
+                            else:raise AssertionError('live source role accepted as stopped')
+                            # A live unknown journal holder still prevents GC,
+                            # even with terminal supervised source-role handles.
+                            old=job['workers'][0]
+                            with WorkerJournal(old['journal_directory'],identity(old)):
+                                try:retirement_api.retire(rollover_plan,build)
+                                except BlockingIOError:
+                                    failures.append(dict(action='retirement-live-journal',reason='exclusive source journal lock is required'))
+                                else:raise AssertionError('live source storage was retired')
+                            with WorkerJournal(old['journal_directory'],identity(old)) as journal:
+                                saved=journal.get(split-1)
+                                journal.put(split,saved['sample_count'],saved['completed_reads']+1,
+                                            saved['loss'],saved['tables'])
+                            try:retirement_api.retire(rollover_plan,build)
+                            except ValueError as error:
+                                assert 'frontier' in str(error)
+                                failures.append(dict(action='retirement-future-gradient',reason=str(error)))
+                            else:raise AssertionError('gradient beyond checkpoint frontier was retired')
+                            (pathlib.Path(old['journal_directory'])/f'round-{split}.epsw').unlink()
+                            real_unlink=retirement_api.unlink_payload
+                            count=0
+                            def interrupted_unlink(path):
+                                nonlocal count
+                                count+=1
+                                if count==2:raise OSError('injected interrupted payload retirement')
+                                real_unlink(path)
+                            with patch.object(retirement_api,'unlink_payload',interrupted_unlink):
+                                try:retirement_api.retire(rollover_plan,build)
+                                except OSError as error:
+                                    assert 'injected interrupted' in str(error)
+                                    failures.append(dict(action='retirement-interrupted-unlink',reason=str(error)))
+                                else:raise AssertionError('retirement interruption was not injected')
+                            retirement=retirement_api.retire(rollover_plan,build)
+                            assert retirement_api.retire(rollover_plan,build)==retirement
+                            assert unrelated.read_text()=='retain unrelated source notes'
+                            assert not pathlib.Path(job['manifest']).exists()
+                            for old in job['workers']:
+                                assert not list(pathlib.Path(old['journal_directory']).glob('round-*.epsw'))
+                                try:WorkerJournal(old['journal_directory'],identity(old))
+                                except ValueError as error:assert 'retired' in str(error)
+                                else:raise AssertionError('retired source Worker journal reopened')
+                            for old in job['source_replicas']:
+                                try:replica_control(old,'offline-head')
+                                except RuntimeError as error:assert 'retired' in str(error)
+                                else:raise AssertionError('retired replica reopened')
+                                assert not list(pathlib.Path(old['replica_directory']).glob('round-*.epsr'))
+                                assert not (pathlib.Path(old['replica_directory'])/'baseline.eps').exists()
                     control(dict(settings, manifest=str(manifest)), "resume-job")
                 workers = []
                 for worker in range(2):
@@ -295,9 +365,11 @@ def main():
                     result['rollover']=dict(base_round=base_round, replica_heads_before=replica_heads_before,
                                             replica_heads_after=heads, worker_journals=journals,
                                             readiness=rollover_ready,
+                                            retirement=retirement,
                                             source_checkpoint_detached=bool(rollover_plan),
                                             streamed_snapshot_fallback_tested=bool(rollover_plan))
-                    result.update(worker_configs=worker_configs,primary_configs=primary_configs)
+                    result.update(worker_configs=worker_configs,primary_configs=primary_configs,
+                                  mirror_configs=mirror_configs,replica_configs=replica_configs,role_handles=role_handles)
                     if rollover_plan:
                         try:verify_rollover(rollover_plan,build)
                         except ValueError as error:
@@ -375,7 +447,7 @@ def main():
         for w in resumed["workers"]:
             assert w["input_state"] == baseline["workers"][w["worker"]]["input_state"]
             assert w["input_state"]["next_iteration"] == rounds and w["input_state"]["next_batch"] == rounds % 3
-        result = dict(test="replicated_checkpoint_rollover" if a.replicated_rollover else "joint_training_checkpoint_restart", device="CPU", shards=2, workers=2,
+        result = dict(test="replicated_checkpoint_retirement" if a.retire_old else "replicated_checkpoint_rollover" if a.replicated_rollover else "joint_training_checkpoint_restart", device="CPU", shards=2, workers=2,
                       iterations=rounds, checkpoint_round=split, input_cycle_batches=3,
                       max_state_absolute_error=maximum, max_continuation_loss_error=loss_error,
                       compared_rows=len(expected), negative_cases=failures,

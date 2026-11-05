@@ -82,6 +82,7 @@ struct ReplicaLog::Impl {
     directory_lock=std::make_unique<File>(options.directory/"lock",O_RDWR|O_CREAT|O_CLOEXEC);
     Require(::flock(directory_lock->fd,LOCK_EX|LOCK_NB)==0,
       "replica directory is already in use",Error::Code::unavailable);
+    Require(!fs::exists(options.directory/"retired.json"),"replica generation is retired");
     std::string config="EPS-REPLICA-1";U(config,options.run.size());config+=options.run;
     U(config,options.shard);U(config,options.shards);U(config,options.epoch);U(config,options.base_round);config+=options.binding;
     const auto metadata=options.directory/"configuration";

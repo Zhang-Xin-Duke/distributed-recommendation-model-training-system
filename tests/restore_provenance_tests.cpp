@@ -1,4 +1,5 @@
 #include "eps/runtime.hpp"
+#include "store/snapshot.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -23,6 +24,10 @@ void Lifecycle(){
    identity.bytes==std::filesystem::file_size(file) && identity.shard==0 && identity.shard_count==1 && identity.partition_epoch==1,"loaded provenance invalid");
  std::ifstream stream(file,std::ios::binary);stream.seekg(-8,std::ios::end);std::uint64_t checksum=0;for(unsigned i=0;i<8;++i)checksum|=std::uint64_t(static_cast<unsigned char>(stream.get()))<<(8*i);
  Check(identity.checksum==checksum,"provenance is not the validated snapshot checksum");
+ const auto inspected=detail::InspectSnapshot(file);
+ Check(inspected.run=="source" && inspected.shard==0 && inspected.shards==1 && inspected.epoch==1 &&
+   inspected.bytes==identity.bytes && inspected.checksum==checksum && inspected.optimizer_contexts.size()==1 &&
+   inspected.optimizer_contexts[0].optimizer_sequence==1,"streamed snapshot inspection lost identity/clock/checksum");
  Take(loaded.CreateTable(table));Check(Take(loaded.RestoredFrom()).pristine,"duplicate definition dirtied restored state");
  Reject(loaded.Restore(file));
  auto read=Take(loaded.Lookup({{"restarted",0,0,Phase::lookup},1,true,{{1,0,Pooling::sum,{1},{0,1},{1}}}}));
@@ -32,10 +37,13 @@ void Lifecycle(){
  Check(!Take(schema.RestoredFrom()).pristine,"new table did not invalidate restored schema");
  auto corrupt=temp.path/"corrupt";std::filesystem::copy_file(file,corrupt);{std::fstream s(corrupt,std::ios::in|std::ios::out|std::ios::binary);s.seekg(-1,std::ios::end);auto byte=s.get();s.seekp(-1,std::ios::end);s.put(char(byte^1));}
  o.run_id="failed";CpuParameterService failed(o);Reject(failed.Restore(corrupt));Check(!Take(failed.RestoredFrom()).loaded,"failed load published provenance");
+ bool rejected=false;try{detail::InspectSnapshot(corrupt);}catch(const std::exception&){rejected=true;}
+ Check(rejected,"snapshot inspection accepted corrupt payload");
  Take(failed.Restore(file));Check(Take(failed.RestoredFrom()).pristine,"failed attempt poisoned fresh restore");
  o.run_id="empty-source";CpuParameterService empty(o);auto empty_file=Take(empty.DrainAndFlush("empty")).state_files.at(0);
  o.run_id="empty-restored";CpuParameterService empty_loaded(o);Take(empty_loaded.Restore(empty_file));
  Check(Take(empty_loaded.RestoredFrom()).loaded,"empty snapshot lost provenance");Reject(empty_loaded.Restore(empty_file));
+ Check(detail::InspectSnapshot(empty_file).optimizer_contexts.empty(),"empty snapshot inspection gained a table");
 }
 }
 int main(){try{Lifecycle();std::cout<<"PASS validated restore provenance, pristine admission boundary and failed-load publication\n";}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

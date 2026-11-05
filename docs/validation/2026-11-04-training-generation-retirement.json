@@ -1,0 +1,212 @@
+{
+  "recorded_at_utc": "2026-11-05T04:15:22.678142+00:00",
+  "base_commit": "a740ed2fd6b8001728b2e3cc7c121fb48f5c0a2b",
+  "scope": "Host-local retirement of stopped replicated training generation payloads behind a verified replacement; model continuation and native CPU/CUDA regressions",
+  "source_sha256": {
+    "CMakeLists.txt": "44afca882ca86811936306f7225106c8cbd7a7dd1759472e4e6d14c0675810f3",
+    "adapters/entropy/training_journal.py": "0bd98a15df9e4528a201aa82c86691d968dd42ba4e67759a2a9b5d42d45b573d",
+    "scripts/rotate_training_checkpoint.py": "706ae73f9855e545a7b1d6cc067b8deeec3cefb0601b1af935a14871764b8fc4",
+    "src/replication/control_main.cpp": "14dad2f14229e67de8d2c5210cd2918c97871d38d20aab13fb50a60d59b7b57c",
+    "src/replication/log.cpp": "7fb4b3b66f85675d1db6ea4e61efff3ad58def364ceaacedcded0ee5f3b9a7f7",
+    "src/store/snapshot.cpp": "586a90bd4c6839a47c1e74428f0ea3f3e8c1cc8a4797fc0c235da964a4eafdd2",
+    "src/store/snapshot.hpp": "17fbd6225d967ef4a2350e91d798517a0309b456dcb3bce076bd008cfb9b1f07",
+    "src/transport/replicated_rounds.cpp": "32fb20798c7c6df1809314eba6751994a7301d4a784b371f3b52d01975b4fac3",
+    "src/transport/replicated_rounds.hpp": "2351e0c6ec5a4bf0dedf6d5a9b9ffe3c61ea6dd9f07a8969fbfa8ad76f868800",
+    "tests/replica_log_tests.cpp": "bf5403a0bd6af7f812fb72176d28d9d2212d43c137b4f5b17d498a50588fa45b",
+    "tests/restore_provenance_tests.cpp": "daf8d0c5d60af3640eea2298cb6168d608aef4e6b1dbc075a83afb0846e3c7a8",
+    "tests/tensorflow_checkpoint_training.py": "1bfc18a85c9b467f2d7cda00d06f5cd574225784fa13035a6dea4759516c13b7",
+    "tests/worker_journal_tests.py": "953c16c940b236700684e454346cc777801442cc5871ce1807c0a97c9ba6731a",
+    "scripts/retire_training_generation.py": "cc46a9690058c2ec2a1221af2df9bf626b34b1c60fa28cb307d9a118ad542742"
+  },
+  "model": {
+    "kind": "embedding_tanh_mlp",
+    "rows": 32,
+    "workers": 2,
+    "parameter_shards": 2,
+    "parameter_replicas": 2,
+    "gradient_mirrors": 2,
+    "checkpoint_round": 4,
+    "end_round": 8
+  },
+  "max_state_absolute_error": 0.0,
+  "max_continuation_loss_error": 0.0,
+  "retirement": {
+    "kind": "eps-retirement-complete-v1",
+    "source_run": "before-restart",
+    "new_run": "after-restart",
+    "boundary": 4,
+    "certificate_sha256": "89be587c9e4a1248fb93e9c9b96653deae76d809d1229a9a7ee2b3f071974308",
+    "unlinked_paths": 44,
+    "unlinked_path_bytes": 47794,
+    "note": "Path bytes include hard-link aliases; this is not a filesystem-block reclamation measurement"
+  },
+  "ready": {
+    "kind": "eps-rollover-ready-v1",
+    "run": "after-restart",
+    "boundary": 4,
+    "plan_sha256": "3530e6a2508625fae2bea6061837ec1afad3ed9e60192c9bec99d22e9c9dec6a",
+    "replica_heads": [
+      {
+        "base_round": 4,
+        "baseline": true,
+        "baseline_bytes": 1965,
+        "bytes": 1965,
+        "next_round": 4,
+        "primary": "after-restart-primary-0",
+        "term": 1
+      },
+      {
+        "base_round": 4,
+        "baseline": true,
+        "baseline_bytes": 1965,
+        "bytes": 1965,
+        "next_round": 4,
+        "primary": "after-restart-primary-1",
+        "term": 1
+      }
+    ],
+    "worker_journals": [
+      {
+        "worker": 0,
+        "identity_sha256": "33f7f68c0924070d0f0e31d9001d3a29946fa2b17f31389be8107e01e15de43a",
+        "base_round": 4
+      },
+      {
+        "worker": 1,
+        "identity_sha256": "5cdc33fc30c9e83d84a824b045540a144ca2f9e54c0d8c6d1ab750b0da5911e9",
+        "base_round": 4
+      }
+    ],
+    "gradient_replicas": [
+      {
+        "worker": 0,
+        "status": {
+          "generation": 1,
+          "next_round": 4,
+          "records": 0
+        }
+      },
+      {
+        "worker": 1,
+        "status": {
+          "generation": 1,
+          "next_round": 4,
+          "records": 0
+        }
+      }
+    ],
+    "training": {
+      "next_round": 4,
+      "ok": true,
+      "paused": true
+    }
+  },
+  "negative_cases": [
+    {
+      "action": "retirement-live-role",
+      "reason": "live supervised process rejects retirement"
+    },
+    {
+      "action": "retirement-live-journal",
+      "reason": "exclusive source journal lock is required"
+    },
+    {
+      "action": "retirement-future-gradient",
+      "reason": "source Worker journal differs from the checkpoint frontier"
+    },
+    {
+      "action": "retirement-interrupted-unlink",
+      "reason": "injected interrupted payload retirement"
+    }
+  ],
+  "verification": {
+    "old_payloads_unlinked": true,
+    "retired_worker_and_replica_reopen_rejected": true,
+    "unrelated_source_notes_preserved": true,
+    "replacement_model_continuation_exact": true,
+    "streamed_snapshot_metadata_and_checksum": true
+  },
+  "regressions": [
+    {
+      "log": "build/tensorflow/retirement-full-regression.log",
+      "passed": 80,
+      "failed": 0,
+      "sha256": "71dc0816e3fc10650fc2d4edb3d1b25c4e00533c211d8315168af3850921eb16"
+    },
+    {
+      "log": "build/tensorflow/retirement-final-filter.log",
+      "passed": 1,
+      "failed": 0,
+      "sha256": "7b186e44186fcadfee74031b94ea94db32293d7a429d4ef5067b4381626139aa"
+    },
+    {
+      "log": "build/asan/retirement-tests.log",
+      "passed": 2,
+      "failed": 0,
+      "sha256": "002f3704192df2fbf202e3348d9dacc8a8f0e50be5934555f80264608575ce3f"
+    },
+    {
+      "log": "build/tsan/retirement-tests.log",
+      "passed": 2,
+      "failed": 0,
+      "sha256": "25fcbc29fa7729e1044ad700074bb3984e5779a9a74dc0a0d66a5f3a6cae3de3"
+    }
+  ],
+  "raw_model_record": {
+    "path": "build/tensorflow/tf-checkpoint-retirement.json",
+    "sha256": "a93c4ca2d843b000ff5c05554650e9296d67e7a2786f471f1ec93a5958adeaaf"
+  },
+  "linux_cuda": {
+    "observed_epoch": 1793851814.2282248,
+    "pid": 113247,
+    "state": "missing",
+    "result": {
+      "exit_code": 0,
+      "error": null
+    },
+    "tail": "arget eps_lookup_layout_rpc_tests\n[ 93%] Built target eps_core\n[100%] Building CXX object CMakeFiles/eps_lookup_layout_cache_tests.dir/tests/lookup_layout_cache_tests.cpp.o\n[100%] Linking CXX executable eps_lookup_layout_cache_tests\n[100%] Built target eps_lookup_layout_cache_tests\n[ 93%] Built target eps_core\n[ 93%] Building CXX object CMakeFiles/eps_replica_log_tests.dir/tests/replica_log_tests.cpp.o\n[100%] Linking CXX executable eps_replica_log_tests\n[100%] Built target eps_replica_log_tests\n[ 87%] Built target eps_core\n[ 93%] Building CXX object CMakeFiles/eps_restore_provenance_tests.dir/tests/restore_provenance_tests.cpp.o\n[100%] Linking CXX executable eps_restore_provenance_tests\n[100%] Built target eps_restore_provenance_tests\nInternal ctest changing into directory: /home/ubuntu/entropy-native/eps-retirement/build\nTest project /home/ubuntu/entropy-native/eps-retirement/build\n    Start  1: native_runtime_c_abi\n1/9 Test  #1: native_runtime_c_abi ...............   Passed    0.21 sec\n    Start  2: native_runtime_owner_incarnation\n2/9 Test  #2: native_runtime_owner_incarnation ...   Passed    0.30 sec\n    Start  6: reusable_lookup_layout_rpc\n3/9 Test  #6: reusable_lookup_layout_rpc .........   Passed    0.47 sec\n    Start  8: reusable_gradient_layout_rpc\n4/9 Test  #8: reusable_gradient_layout_rpc .......   Passed    0.52 sec\n    Start 36: durable_replica_log\n5/9 Test #36: durable_replica_log ................   Passed    0.03 sec\n    Start 37: reusable_lookup_layout_cache\n6/9 Test #37: reusable_lookup_layout_cache .......   Passed    0.03 sec\n    Start 38: reusable_gradient_layout_cache\n7/9 Test #38: reusable_gradient_layout_cache .....   Passed    0.02 sec\n    Start 40: restored_snapshot_provenance\n8/9 Test #40: restored_snapshot_provenance .......   Passed    0.03 sec\n    Start 48: cuda_state_and_device_results\n9/9 Test #48: cuda_state_and_device_results ......   Passed    4.39 sec\n\n100% tests passed, 0 tests failed out of 9\n\nTotal Test time (real) =   6.00 sec\n"
+  },
+  "remaining": [
+    "Retire previous generations staged initial baselines during repeated rotations",
+    "Repeat rollover and a subsequent replica/Worker failure",
+    "Cross-node retirement orchestration",
+    "Complete original Entropy training/control integration"
+  ],
+  "linux_cuda_artifact": {
+    "recorded_epoch": 1793852124.9530401,
+    "platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "source_sha256": {
+      "CMakeLists.txt": "44afca882ca86811936306f7225106c8cbd7a7dd1759472e4e6d14c0675810f3",
+      "src/store/snapshot.hpp": "17fbd6225d967ef4a2350e91d798517a0309b456dcb3bce076bd008cfb9b1f07",
+      "src/store/snapshot.cpp": "586a90bd4c6839a47c1e74428f0ea3f3e8c1cc8a4797fc0c235da964a4eafdd2",
+      "src/replication/log.cpp": "7fb4b3b66f85675d1db6ea4e61efff3ad58def364ceaacedcded0ee5f3b9a7f7",
+      "src/replication/control_main.cpp": "14dad2f14229e67de8d2c5210cd2918c97871d38d20aab13fb50a60d59b7b57c",
+      "src/transport/replicated_rounds.hpp": "2351e0c6ec5a4bf0dedf6d5a9b9ffe3c61ea6dd9f07a8969fbfa8ad76f868800",
+      "src/transport/replicated_rounds.cpp": "32fb20798c7c6df1809314eba6751994a7301d4a784b371f3b52d01975b4fac3",
+      "tests/replica_log_tests.cpp": "bf5403a0bd6af7f812fb72176d28d9d2212d43c137b4f5b17d498a50588fa45b",
+      "tests/restore_provenance_tests.cpp": "daf8d0c5d60af3640eea2298cb6168d608aef4e6b1dbc075a83afb0846e3c7a8",
+      "adapters/entropy/training_journal.py": "0bd98a15df9e4528a201aa82c86691d968dd42ba4e67759a2a9b5d42d45b573d",
+      "tests/worker_journal_tests.py": "953c16c940b236700684e454346cc777801442cc5871ce1807c0a97c9ba6731a",
+      "tests/tensorflow_checkpoint_training.py": "1bfc18a85c9b467f2d7cda00d06f5cd574225784fa13035a6dea4759516c13b7",
+      "scripts/rotate_training_checkpoint.py": "706ae73f9855e545a7b1d6cc067b8deeec3cefb0601b1af935a14871764b8fc4",
+      "scripts/retire_training_generation.py": "cc46a9690058c2ec2a1221af2df9bf626b34b1c60fa28cb307d9a118ad542742"
+    },
+    "binary_sha256": {
+      "libeps_runtime.so": "268622c89a6723a32afd1a2ca28c4363d8ae242846a607880430cad96f280f00",
+      "eps_server": "24c39f8704e36bec7c8f554dbd9ddfcfe8d3bf094815feabccc84d518e6d3b25",
+      "eps_replica": "2198b0405aeb35ac1b4b8f3cce82a8313f04f1fff76ae734aa5d80bc0b5bed8e",
+      "eps_replica_control": "f87f8716abeab2c4b408b2815354448111120341c621f86b9ed5bdce57e2d81d",
+      "eps_training_control": "7a9b72864d4a6dba736e4986d2f36593832a1698881379d2dd42788fc6c546ec",
+      "eps_cache_agent": "5aa20da0f70f3610bb5c2e7554caea4350a44ed14b02a376962a26e5a2d5c825",
+      "eps_snapshot_compare": "fac160c0943d554472acdecd7bea01ef3f01bb21d41202a6bda64a9b45754604",
+      "eps_cuda_tests": "34c810252e0f3bf2ddc76f492070ea04afc63802ece8c7511429c57ad309e646"
+    },
+    "gpu": "GPU-d110b742-ff7e-5d44-8338-b15d0f1fa8b3, NVIDIA RTX A6000, 49140 MiB",
+    "scope": "Isolated CUDA12.2 sm86 runtime;9 CPU/CUDA regressions plus final exact-payload-filter control rebuild",
+    "validation_log_sha256": "b09f07677c21f87317dfe5b3a1284b7c75e0d7c5692061dd1ede2d1d91f6018a",
+    "archive_sha256": "ba7e431ce518c98bbeb5662e57725b7c8009b657be8f42c560e1c102a6f048e6",
+    "archive_bytes": 36506553
+  },
+  "regression_sequence": "Full80-check regression and sanitizer checks passed; a subsequent stricter filename filter was followed by the focused retirement/model regression and a Linux control rebuild. Core runtime sources remained unchanged by that filter."
+}

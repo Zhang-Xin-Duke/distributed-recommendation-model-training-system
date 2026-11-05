@@ -47,6 +47,8 @@ def main():
                 try:journal.put(n,1,n+1,.5,tables)
                 except ValueError:break
             else:raise AssertionError('disk budget did not bound records')
+        (root/'budget'/'retired.json').write_text('{}')
+        reject(lambda:WorkerJournal(root/'budget',binding,4096,4096))
     print('PASS durable worker gradients: exact bits/IDs, immutable retries, locks, identity, progress, corruption and budgets')
 
 

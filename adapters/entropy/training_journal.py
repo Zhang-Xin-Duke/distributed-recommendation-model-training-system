@@ -43,6 +43,8 @@ class WorkerJournal:
         self.lock = open(self.root / 'lock', 'a+b')
         try:
             fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if (self.root / 'retired.json').exists():
+                raise ValueError('worker journal generation is retired')
             if (self.root / 'handoff.epsh').exists() and not allow_sealed:
                 raise ValueError('worker journal sealed for node handoff; resume from its destination')
             self.record_bytes, self.disk_bytes = record_bytes, disk_bytes

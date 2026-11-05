@@ -7,6 +7,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <limits>
+#include <set>
 #include <system_error>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -98,6 +99,13 @@ class Binary {
     U64(d.initialization_seed, write);
   }
   std::uint64_t hash() const { return hash_; }
+  void Skip(std::uint64_t bytes) {
+    std::array<unsigned char,65536> buffer;
+    while(bytes) {
+      const auto count=std::min<std::uint64_t>(bytes,buffer.size());
+      Bytes(buffer.data(),count,false);bytes-=count;
+    }
+  }
   std::uint64_t position() const { return position_; }
   void Flush() {
     std::size_t pos = 0;
@@ -183,6 +191,33 @@ void WriteSnapshot(const std::filesystem::path& path, const std::string& run,
     Require(directory.fd >= 0, "cannot open snapshot directory", Error::Code::unavailable);
     Sync(directory.fd);
   } catch (...) { ::unlink(pending.c_str()); throw; }
+}
+
+SnapshotInspection InspectSnapshot(const std::filesystem::path& path) {
+  File file{::open(path.c_str(),O_RDONLY)};
+  Require(file.fd>=0,"cannot open snapshot inspection",Error::Code::unavailable);
+  struct stat info{};
+  Require(::fstat(file.fd,&info)==0 && S_ISREG(info.st_mode) && info.st_size>=8,"invalid snapshot inspection file");
+  Binary b(file.fd);std::uint64_t magic=0,shard=0,count=0,epoch=0,tables=0;
+  b.U64(magic,false);Require(magic==kMagic || magic==kMagicV2,"unsupported snapshot format");
+  std::string run;b.String(run,false);b.U64(shard,false);b.U64(count,false);b.U64(epoch,false);b.U64(tables,false);
+  Require(!run.empty() && count && count<=1024 && shard<count && epoch && tables<=1024,"invalid snapshot inspection identity");
+  SnapshotInspection result{run,ShardId(shard),std::uint32_t(count),epoch,std::uint64_t(info.st_size),0,{}};
+  std::set<TableId> seen;
+  for(std::uint64_t i=0;i<tables;++i) {
+    TableDefinition d{};b.Definition(d,false,magic==kMagicV2);
+    Require(d.dimension && d.shard_count==count && d.partition_epoch==epoch && seen.insert(d.id).second,"invalid inspected table schema");
+    std::uint64_t sequence=0,rows=0;float beta1=0,beta2=0;
+    b.U64(sequence,false);b.Float(beta1,false);b.Float(beta2,false);b.U64(rows,false);
+    Require(beta1>=0 && beta1<1 && beta2>=0 && beta2<1,"invalid inspected optimizer state");
+    const auto row_bytes=std::uint64_t(d.dimension)*12+16;
+    Require(b.position()+8<=result.bytes && rows<=(result.bytes-b.position()-8)/row_bytes,"truncated inspected row payload");
+    b.Skip(rows*row_bytes);
+    result.optimizer_contexts.push_back({{run,0,0,Phase::maintenance},ShardId(shard),d.id,sequence,d.optimizer.learning_rate,beta1,beta2});
+  }
+  const auto checksum=b.hash();b.U64(result.checksum,false,false);
+  Require(checksum==result.checksum && b.AtEnd(),"snapshot inspection checksum/trailing data mismatch");
+  return result;
 }
 
 std::unique_ptr<ShardStore> ReadSnapshot(const std::filesystem::path& path,

@@ -429,6 +429,12 @@ if(EPS_BUILD_BRPC)
             --out "${CMAKE_CURRENT_BINARY_DIR}/tf-replicated-rollover.json")
         set_tests_properties(tensorflow_replicated_checkpoint_rollover PROPERTIES TIMEOUT 240
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_checkpoint_retirement
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover --retire-old
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-checkpoint-retirement.json")
+        set_tests_properties(tensorflow_checkpoint_retirement PROPERTIES TIMEOUT 240
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_reusable_lookup_layouts
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_lookup_layouts.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-lookup-layouts.json")
@@ -630,6 +636,7 @@ if(EPS_BUILD_TESTS)
   add_executable(eps_weight_bounds_tests tests/weight_bounds_tests.cpp)
   add_executable(eps_restore_provenance_tests tests/restore_provenance_tests.cpp)
   target_link_libraries(eps_restore_provenance_tests PRIVATE eps_core)
+  target_include_directories(eps_restore_provenance_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   add_test(NAME restored_snapshot_provenance COMMAND eps_restore_provenance_tests)
   add_executable(eps_snapshot_compare tests/snapshot_compare.cpp)
   target_link_libraries(eps_snapshot_compare PRIVATE eps_core)

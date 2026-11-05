@@ -244,13 +244,16 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build',required=True,type=pathlib.Path)
     parser.add_argument('--config',required=True,type=pathlib.Path)
-    parser.add_argument('--action',required=True,choices=['prepare','verify'])
+    parser.add_argument('--action',required=True,choices=['prepare','verify','retire'])
     parser.add_argument('--destination',type=pathlib.Path)
     args=parser.parse_args();cfg=json.loads(args.config.read_text())
     if args.action=='prepare':
         if args.destination is None:parser.error('prepare requires --destination')
         result=prepare(cfg,args.build.resolve(),args.destination)
-    else:result=verify(cfg,args.build.resolve())
+    elif args.action=='verify':result=verify(cfg,args.build.resolve())
+    else:
+        from retire_training_generation import retire
+        result=retire(cfg,args.build.resolve())
     print(json.dumps(result,sort_keys=True))
 
 

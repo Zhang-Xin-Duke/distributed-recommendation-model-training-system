@@ -1,16 +1,33 @@
 #include "transport/replicated_rounds.hpp"
 #include "common/error.hpp"
 #include <algorithm>
+#include <fcntl.h>
+#include <sys/file.h>
+#include <unistd.h>
 namespace eps::transport {
+struct JournalParentGuard {
+  int fd=-1;
+  ~JournalParentGuard(){if(fd>=0)::close(fd);}
+};
 namespace {
 template<class T>T Take(std::future<Result<T>> f){auto r=f.get();if(auto* e=std::get_if<Error>(&r))throw detail::Failure(*e);return std::get<T>(std::move(r));}
 ReplicaLogOptions Local(ReplicaLogOptions options,const ReplicaLease& lease) {
   detail::Require(lease.term && !lease.primary.empty() && !options.directory.empty(),"replication requires a granted term and local directory");
+  detail::Require(!std::filesystem::exists(options.directory/"retired.json"),"primary journal generation is retired");
   options.directory/= "term-"+std::to_string(lease.term);return options;
+}
+std::shared_ptr<JournalParentGuard> Guard(const ReplicaLogOptions& options) {
+  detail::Require(!options.directory.empty(),"primary journal directory is required");
+  std::filesystem::create_directories(options.directory);
+  auto result=std::make_shared<JournalParentGuard>();
+  result->fd=::open((options.directory/"lock").c_str(),O_RDWR|O_CREAT|O_CLOEXEC,0600);
+  detail::Require(result->fd>=0 && ::flock(result->fd,LOCK_SH|LOCK_NB)==0,"primary journal parent is exclusively locked");
+  detail::Require(!std::filesystem::exists(options.directory/"retired.json"),"primary journal generation is retired");
+  return result;
 }
 }
 ReplicatedRoundWriter::ReplicatedRoundWriter(std::string endpoint,ReplicaLogOptions options,ReplicaLease lease)
-    :options_(std::move(options)),lease_(std::move(lease)),replica_(std::move(endpoint),options_),local_(Local(options_,lease_)) {
+    :options_(std::move(options)),lease_(std::move(lease)),parent_guard_(Guard(options_)),replica_(std::move(endpoint),options_),local_(Local(options_,lease_)) {
   local_lease_=local_.Fence(0,lease_.primary);
 }
 ReplicaHead ReplicatedRoundWriter::Start(CpuParameterService& parameters,bool recover,bool leave_paused) {

@@ -2,6 +2,7 @@
 #include "eps/brpc_replica.hpp"
 #include "eps/runtime.hpp"
 namespace eps::transport {
+struct JournalParentGuard;
 class ReplicatedRoundWriter {
  public:
   ReplicatedRoundWriter(std::string endpoint,ReplicaLogOptions options,ReplicaLease lease);
@@ -11,6 +12,7 @@ class ReplicatedRoundWriter {
  private:
   ReplicaLogOptions options_;
   ReplicaLease lease_,local_lease_;
+  std::shared_ptr<JournalParentGuard> parent_guard_;
   BrpcReplicaLog replica_;
   ReplicaLog local_;
 };

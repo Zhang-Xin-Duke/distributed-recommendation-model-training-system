@@ -68,6 +68,8 @@ and reopen training after all shard identities and clocks match.
 [Checkpoint generation rollover](docs/TRAINING_LOG_ROLLOVER.md) starts new replica
 and Worker-journal baselines at that checkpoint round, verifies their durable
 state with admission paused, and continues from the saved model/input position.
+Its retirement operation checks stopped-role identities and exclusive storage
+locks before removing certified old payloads; durable markers reject stale restarts.
 
 [Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
 parameters, Adam state and request progress on an independent disk-backed replica

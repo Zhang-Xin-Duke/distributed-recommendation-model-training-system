@@ -37,7 +37,8 @@
 
 **Files:**
 - Extend: `scripts/rotate_training_checkpoint.py`
-- Extend: `tests/training_checkpoint_rollover.py`
+- Extend: `tests/tensorflow_checkpoint_training.py`
+- Create: `scripts/retire_training_generation.py`
 - Create: `docs/TRAINING_LOG_ROLLOVER.md`
 
 1. Require confirmed old-role shutdown and exclusive journal/log locks before retirement.
@@ -57,4 +58,11 @@ compile on the owned A6000 node and complete four-Worker/two-shard native
 training under all three consistency policies. Source-hashed evidence is
 `../validation/2026-11-04-training-checkpoint-rollover.json`.
 
-Task 3 remains open; current prepare/verify operations retain old payloads.
+Task 3's host-local retirement operation is implemented: supervised process
+identity checks, exclusive storage locks, streamed snapshot inspection, durable
+retirement tombstones, exact payload unlinking and interrupted-deletion retry.
+The model check still matches all 32 rows and continued losses exactly.
+Repeated rollover followed by another failure and cross-node retirement
+orchestration remain open.
+Repeated rotations must also retire the preceding generation's staged initial
+baseline and preserve completed-retirement receipt retries after later cleanup.
