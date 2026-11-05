@@ -1,0 +1,468 @@
+{
+  "schema": "eps.original-native-input-checkpoint.v1",
+  "date": "2026-11-05",
+  "native_build_exit_code": 0,
+  "native_libraries": {
+    "ts_clib.so": {
+      "bytes": 989616384,
+      "sha256": "539c32294473be80abe15dc2d1b7c2d7ba4ef08aa44d6067652a6221c5f425a9"
+    },
+    "ts_clib_gpu.so": {
+      "bytes": 996185016,
+      "sha256": "78f4ffc6ee0bc38915a5312ca65c913c5e24dd91485ef9be4829e20d4c60aeb2"
+    }
+  },
+  "native_overlay": {
+    "kind": "eps-original-input-overlay-v1",
+    "original_sha256": {
+      "BUILD": "55964f26eec14982e22e4a19a704b5f7e01ca4565cde87d0d10781f856411ac3",
+      "tensorswitch/file_feeder.h": "f79115d5704da3e77d0180a642e5714e17ab84a38a6ec15bbba47ab8f48a6804",
+      "tensorswitch/file_feeder.cpp": "0307f86b33ff35e5624277299d0b0b117976130ac4f5d8fa741791dfea873c27",
+      "tensorswitch/orc_dataset.cc": "fcf7afe91221339d0a7f42cddaf68ee2b001449e06a0681e15ac793c310987e6",
+      "tensorswitch/ps_service/BUILD": "370f8e065f303ef5b8f2e7e65c4b281bdbd08dad43f1aa6415a7d2b17255e08d",
+      "tensorswitch/ps_service/ps_service_impl.cc": "c383582e95bb01398dca90c27711bdf3ba52b6701e7bcd38b9496089d4225d57"
+    },
+    "generated_sha256": {
+      "BUILD": "05b3dcaf7b8deae5e2bc814ef1022b514bb71ac372bce2d184bf6e48e4dce9b0",
+      "tensorswitch/file_feeder.h": "e12fcb6943aab26a5990cf3373975a9f0099843f7f1049ea782ad20111da77b6",
+      "tensorswitch/file_feeder.cpp": "731cbd2c3aa7429b255352d12a4d8450656015d1bb31daa2fa1c39b2f0a3d947",
+      "tensorswitch/orc_dataset.cc": "a24e3c2f7dde0dacf9aa330b033bf1c03011655da31b15e07311d5dde252a3be",
+      "tensorswitch/ps_service/BUILD": "db884206932473cd698c94bab089e81c3934cdddee5353060287674033cb25fb",
+      "tensorswitch/ps_service/ps_service_impl.cc": "3598d84626e6c4d16553a33f92b19db95cac0b697310cac28c5da08947c11909",
+      "tensorswitch/eps_input_checkpoint.h": "57444d9032a95edda5e38a9a1099589b9da4f15db163fb108252c5b12832dd36"
+    },
+    "complete": true,
+    "accepted_sha256": {
+      "BUILD": [
+        "05b3dcaf7b8deae5e2bc814ef1022b514bb71ac372bce2d184bf6e48e4dce9b0",
+        "55964f26eec14982e22e4a19a704b5f7e01ca4565cde87d0d10781f856411ac3"
+      ],
+      "tensorswitch/file_feeder.h": [
+        "e12fcb6943aab26a5990cf3373975a9f0099843f7f1049ea782ad20111da77b6",
+        "f79115d5704da3e77d0180a642e5714e17ab84a38a6ec15bbba47ab8f48a6804"
+      ],
+      "tensorswitch/file_feeder.cpp": [
+        "0307f86b33ff35e5624277299d0b0b117976130ac4f5d8fa741791dfea873c27",
+        "731cbd2c3aa7429b255352d12a4d8450656015d1bb31daa2fa1c39b2f0a3d947"
+      ],
+      "tensorswitch/orc_dataset.cc": [
+        "a24e3c2f7dde0dacf9aa330b033bf1c03011655da31b15e07311d5dde252a3be",
+        "fcf7afe91221339d0a7f42cddaf68ee2b001449e06a0681e15ac793c310987e6"
+      ],
+      "tensorswitch/ps_service/BUILD": [
+        "370f8e065f303ef5b8f2e7e65c4b281bdbd08dad43f1aa6415a7d2b17255e08d",
+        "db884206932473cd698c94bab089e81c3934cdddee5353060287674033cb25fb"
+      ],
+      "tensorswitch/ps_service/ps_service_impl.cc": [
+        "3598d84626e6c4d16553a33f92b19db95cac0b697310cac28c5da08947c11909",
+        "c383582e95bb01398dca90c27711bdf3ba52b6701e7bcd38b9496089d4225d57"
+      ],
+      "tensorswitch/eps_input_checkpoint.h": [
+        "57444d9032a95edda5e38a9a1099589b9da4f15db163fb108252c5b12832dd36"
+      ]
+    }
+  },
+  "test_source_sha256": {
+    "eps-source/tests/original_orc_checkpoint_sdk.py": "83d37fb78892f633eeb531667f7b209cacbf7778fa93501affd5ddf9f8f73c64",
+    "eps-retirement/build/eps_input_checkpoint_tool": "806e0c04b4c672339d6dcb5aee04c004e514d7ba833c15d606f7180733a1f939"
+  },
+  "validation": {
+    "orc-cursor-sdk-result": {
+      "test": "original_orc_iterator_checkpoint",
+      "fresh_process_restore": true,
+      "prefetch_rows": 2,
+      "original_orc_kernel": true,
+      "python_tensorflow_package_used": false,
+      "rows": 21,
+      "duplicate_filename_occurrences": true,
+      "cases": [
+        {
+          "saved_after_rows": 0,
+          "restored_rows": 21,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 1,
+          "restored_rows": 20,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 5,
+          "restored_rows": 16,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 6,
+          "restored_rows": 15,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 7,
+          "restored_rows": 14,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 13,
+          "restored_rows": 8,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 20,
+          "restored_rows": 1,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 21,
+          "restored_rows": 0,
+          "exact_sequence": true
+        }
+      ],
+      "checkpoint_files": [
+        {
+          "file": "checkpoint-21.data-00000-of-00001",
+          "bytes": 604
+        },
+        {
+          "file": "checkpoint-0.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-13.data-00000-of-00001",
+          "bytes": 1004
+        },
+        {
+          "file": "checkpoint-1.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-20.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-7.data-00000-of-00001",
+          "bytes": 1002
+        },
+        {
+          "file": "checkpoint-0.data-00000-of-00001",
+          "bytes": 591
+        },
+        {
+          "file": "checkpoint-21.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-5.data-00000-of-00001",
+          "bytes": 1001
+        },
+        {
+          "file": "checkpoint-20.data-00000-of-00001",
+          "bytes": 795
+        },
+        {
+          "file": "checkpoint-5.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-13.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-1.data-00000-of-00001",
+          "bytes": 1001
+        },
+        {
+          "file": "checkpoint-6.data-00000-of-00001",
+          "bytes": 1002
+        },
+        {
+          "file": "checkpoint-6.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-7.index",
+          "bytes": 135
+        }
+      ],
+      "scope": "original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate"
+    },
+    "orc-capture-sdk-result": {
+      "test": "original_orc_iterator_checkpoint",
+      "fresh_process_restore": true,
+      "prefetch_rows": 2,
+      "original_orc_kernel": true,
+      "python_tensorflow_package_used": false,
+      "rows": 21,
+      "duplicate_filename_occurrences": true,
+      "cases": [
+        {
+          "saved_after_rows": 5,
+          "restored_rows": 16,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 21,
+          "restored_rows": 0,
+          "exact_sequence": true
+        }
+      ],
+      "checkpoint_files": [
+        {
+          "file": "checkpoint-21.data-00000-of-00001",
+          "bytes": 611
+        },
+        {
+          "file": "checkpoint-5.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-5.capture.bin",
+          "bytes": 309
+        },
+        {
+          "file": "checkpoint-21.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-5.data-00000-of-00001",
+          "bytes": 1008
+        },
+        {
+          "file": "checkpoint-21.capture.bin",
+          "bytes": 249
+        }
+      ],
+      "scope": "original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate"
+    },
+    "orc-filefeeder-sdk-result": {
+      "test": "original_orc_iterator_checkpoint",
+      "fresh_process_restore": true,
+      "prefetch_rows": 2,
+      "original_orc_kernel": true,
+      "python_tensorflow_package_used": false,
+      "rows": 21,
+      "duplicate_filename_occurrences": true,
+      "original_filefeeder_rpc": true,
+      "cases": [
+        {
+          "saved_after_rows": 5,
+          "restored_rows": 16,
+          "exact_sequence": true
+        }
+      ],
+      "checkpoint_files": [
+        {
+          "file": "checkpoint-5.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-5.source-restore.bin",
+          "bytes": 271
+        },
+        {
+          "file": "checkpoint-5.capture.bin",
+          "bytes": 298
+        },
+        {
+          "file": "checkpoint-5.source.bin",
+          "bytes": 263
+        },
+        {
+          "file": "checkpoint-5.data-00000-of-00001",
+          "bytes": 1040
+        }
+      ],
+      "scope": "original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate"
+    },
+    "orc-filefeeder-boundaries-result": {
+      "test": "original_orc_iterator_checkpoint",
+      "fresh_process_restore": true,
+      "prefetch_rows": 2,
+      "original_orc_kernel": true,
+      "python_tensorflow_package_used": false,
+      "rows": 21,
+      "duplicate_filename_occurrences": true,
+      "original_filefeeder_rpc": true,
+      "cases": [
+        {
+          "saved_after_rows": 0,
+          "restored_rows": 21,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 1,
+          "restored_rows": 20,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 6,
+          "restored_rows": 15,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 7,
+          "restored_rows": 14,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 13,
+          "restored_rows": 8,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 20,
+          "restored_rows": 1,
+          "exact_sequence": true
+        },
+        {
+          "saved_after_rows": 21,
+          "restored_rows": 0,
+          "exact_sequence": true
+        }
+      ],
+      "checkpoint_files": [
+        {
+          "file": "checkpoint-1.source-restore.bin",
+          "bytes": 292
+        },
+        {
+          "file": "checkpoint-0.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-7.source.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-20.source-restore.bin",
+          "bytes": 308
+        },
+        {
+          "file": "checkpoint-0.source.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-13.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-6.source-restore.bin",
+          "bytes": 300
+        },
+        {
+          "file": "checkpoint-1.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-20.data-00000-of-00001",
+          "bytes": 803
+        },
+        {
+          "file": "checkpoint-21.source.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-7.capture.bin",
+          "bytes": 313
+        },
+        {
+          "file": "checkpoint-1.capture.bin",
+          "bytes": 305
+        },
+        {
+          "file": "checkpoint-20.capture.bin",
+          "bytes": 251
+        },
+        {
+          "file": "checkpoint-0.data-00000-of-00001",
+          "bytes": 591
+        },
+        {
+          "file": "checkpoint-7.data-00000-of-00001",
+          "bytes": 1051
+        },
+        {
+          "file": "checkpoint-13.source.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-21.capture.bin",
+          "bytes": 251
+        },
+        {
+          "file": "checkpoint-21.data-00000-of-00001",
+          "bytes": 612
+        },
+        {
+          "file": "checkpoint-21.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-0.capture.bin",
+          "bytes": 225
+        },
+        {
+          "file": "checkpoint-13.data-00000-of-00001",
+          "bytes": 1056
+        },
+        {
+          "file": "checkpoint-13.capture.bin",
+          "bytes": 321
+        },
+        {
+          "file": "checkpoint-20.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-6.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-7.source-restore.bin",
+          "bytes": 300
+        },
+        {
+          "file": "checkpoint-1.source.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-6.data-00000-of-00001",
+          "bytes": 1051
+        },
+        {
+          "file": "checkpoint-20.source.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-1.data-00000-of-00001",
+          "bytes": 1047
+        },
+        {
+          "file": "checkpoint-7.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-6.capture.bin",
+          "bytes": 313
+        },
+        {
+          "file": "checkpoint-0.source-restore.bin",
+          "bytes": 284
+        },
+        {
+          "file": "checkpoint-13.source-restore.bin",
+          "bytes": 308
+        },
+        {
+          "file": "checkpoint-21.source-restore.bin",
+          "bytes": 308
+        },
+        {
+          "file": "checkpoint-6.source.bin",
+          "bytes": 284
+        }
+      ],
+      "scope": "original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate"
+    }
+  },
+  "full_original_parallel_pipeline_restore_verified": false
+}

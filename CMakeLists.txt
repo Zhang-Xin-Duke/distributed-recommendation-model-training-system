@@ -11,6 +11,11 @@ target_include_directories(eps_contracts INTERFACE
 target_compile_features(eps_contracts INTERFACE cxx_std_20)
 
 find_package(Threads REQUIRED)
+add_executable(eps_input_checkpoint_tool src/input/checkpoint_main.cpp)
+target_include_directories(eps_input_checkpoint_tool PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_features(eps_input_checkpoint_tool PRIVATE cxx_std_17)
+target_link_libraries(eps_input_checkpoint_tool PRIVATE Threads::Threads)
+target_compile_options(eps_input_checkpoint_tool PRIVATE -Wall -Wextra -Wpedantic)
 add_library(eps_core
   src/store/shard_store.cpp
   src/store/snapshot.cpp
@@ -383,6 +388,9 @@ if(EPS_BUILD_BRPC)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/backend_subprocess_paths.py"
           "${CMAKE_CURRENT_BINARY_DIR}")
       set_tests_properties(backend_subprocess_paths PROPERTIES TIMEOUT 60)
+      add_test(NAME original_native_input_overlay
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/original_input_overlay.py")
+      set_tests_properties(original_native_input_overlay PROPERTIES TIMEOUT 30 SKIP_RETURN_CODE 77)
       add_test(NAME entropy_table_hook_configuration
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_install_tests.py")
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('prometheus_client')"
@@ -618,6 +626,13 @@ if(EPS_BUILD_BRPC)
 endif()
 if(EPS_BUILD_TESTS)
   enable_testing()
+  add_executable(eps_input_checkpoint_checks tests/input_checkpoint_checks.cpp)
+  target_include_directories(eps_input_checkpoint_checks PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  target_compile_features(eps_input_checkpoint_checks PRIVATE cxx_std_17)
+  target_link_libraries(eps_input_checkpoint_checks PRIVATE Threads::Threads)
+  target_compile_options(eps_input_checkpoint_checks PRIVATE -Wall -Wextra -Wpedantic)
+  add_test(NAME native_input_checkpoint_cut
+    COMMAND eps_input_checkpoint_checks "${CMAKE_CURRENT_BINARY_DIR}/input-capture-staging.bin")
   find_package(Python3 QUIET COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
     add_test(NAME original_native_source_bundle
