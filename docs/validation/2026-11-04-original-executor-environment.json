@@ -1,0 +1,70 @@
+{
+  "recorded_at_utc": "2026-11-05T02:59:49.626653+00:00",
+  "base_commit": "6daf3f941e0d260a694a3de2c98cc59f383247bf",
+  "hadoop": {
+    "hadoop_version": "3.3.6",
+    "java": "/usr/lib/jvm/java-11-openjdk-amd64/bin/java",
+    "java_version": "openjdk version \"11.0.32.1\" 2026-08-18",
+    "executable": "/home/ubuntu/entropy-native/hadoop-client/bin/hadoop",
+    "artifacts": [
+      {
+        "name": "hadoop-client-api-3.3.6.jar",
+        "url": "https://repo.maven.apache.org/maven2/org/apache/hadoop/hadoop-client-api/3.3.6/hadoop-client-api-3.3.6.jar",
+        "bytes": 19763916,
+        "sha1": "12ac6f103a0ff29fce17a078c7c64d25320b6165",
+        "sha256": "f3d2347a6e1c6885d5bcfd4f60c3ac3810ec11068fc161e04329baabf412d963"
+      },
+      {
+        "name": "hadoop-client-runtime-3.3.6.jar",
+        "url": "https://repo.maven.apache.org/maven2/org/apache/hadoop/hadoop-client-runtime/3.3.6/hadoop-client-runtime-3.3.6.jar",
+        "bytes": 30083899,
+        "sha1": "81065531e63fccbe85fb04a3274709593fb00d3c",
+        "sha256": "15f01bc804294df06d2effc87de363a83cf589f50558bdbf48f72541ad8de854"
+      },
+      {
+        "name": "slf4j-api-1.7.36.jar",
+        "url": "https://repo.maven.apache.org/maven2/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar",
+        "bytes": 41125,
+        "sha1": "6c62681a2f655b49963a5983b8b0950a6120ae14",
+        "sha256": "d3ef575e3e4979678dc01bf1dcce51021493b4d11fb7f1be8ad982877c16a1c0"
+      },
+      {
+        "name": "slf4j-simple-1.7.36.jar",
+        "url": "https://repo.maven.apache.org/maven2/org/slf4j/slf4j-simple/1.7.36/slf4j-simple-1.7.36.jar",
+        "bytes": 15333,
+        "sha1": "a41f9cfe6faafb2eb83a1c7dd2d0dfd844e2a936",
+        "sha256": "2f39bed943d624dfa8f4102d0571283a10870b6aa36f197a8a506f147010c10f"
+      },
+      {
+        "name": "commons-logging-1.1.3.jar",
+        "url": "https://repo.maven.apache.org/maven2/commons-logging/commons-logging/1.1.3/commons-logging-1.1.3.jar",
+        "bytes": 62050,
+        "sha1": "f6f66e966c70a83ffbdb6f17a0919eaf7c8aca7f",
+        "sha256": "70903f6fc82e9908c8da9f20443f61d90f0870a312642991fe8462a0b9391784"
+      }
+    ],
+    "checks": [
+      "real FsShell ls metadata",
+      "binary cat",
+      "local copy",
+      "existence",
+      "remove"
+    ],
+    "listing": "-rw-rw-r--   1 ubuntu ubuntu         38 2026-11-05 02:52 /home/ubuntu/entropy-native/hadoop-client/probe/sample.bin",
+    "distributed_hdfs_verified": false
+  },
+  "monitor_endpoint_checks": {
+    "real_prometheus_posts": 3,
+    "anonymous": true,
+    "constructors_restored": true,
+    "launcher_regression_passed": true
+  },
+  "original_executor_execution_verified": false,
+  "original_training_restore_verified": false,
+  "source_sha256": {
+    "scripts/prepare_original_hadoop_client.py": "69e09f8ef4c9a10768c9e9e984cd8eb579b3cebd8cd17caabdffdb817a8fdaed",
+    "adapters/entropy/metrics_endpoint.py": "3c947e22ece9e89cd28f4d99d8ff1411036ebed9cfa854d4a64d2b1c3a1360fc",
+    "adapters/entropy/entropy_launch.py": "18eb0a4846a0d44bbe330837e65b3a5a8e4ba0bce694fbf6ecf249bb08fe0e25",
+    "tests/entropy_metrics_endpoint.py": "bbd7df3b5f84e9f736754940ebcdecd7a696cb2846a32996261b8551b6e02b86"
+  }
+}

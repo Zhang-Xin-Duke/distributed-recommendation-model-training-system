@@ -353,6 +353,14 @@ if(EPS_BUILD_BRPC)
     if(EPS_BUILD_PYTHON)
       add_test(NAME entropy_table_hook_configuration
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_install_tests.py")
+      execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('prometheus_client')"
+        RESULT_VARIABLE eps_prometheus_available OUTPUT_QUIET ERROR_QUIET)
+      if(eps_prometheus_available EQUAL 0)
+        add_test(NAME entropy_monitor_endpoint
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_metrics_endpoint.py")
+        set_tests_properties(entropy_monitor_endpoint PROPERTIES TIMEOUT 15
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+      endif()
       add_test(NAME checkpoint_filesystem_contract
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/checkpoint_store_tests.py")
       add_test(NAME committed_checkpoint_staging

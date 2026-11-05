@@ -4,6 +4,7 @@ import importlib
 import json
 import runpy
 import sys
+from contextlib import nullcontext
 
 from entropy_install import JobConfiguration,install
 
@@ -12,6 +13,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--parameter-config',required=True)
     parser.add_argument('--train-module',default='tensorswitch.train')
+    parser.add_argument('--metrics-gateway',help='Use an anonymous Prometheus gateway for original monitors')
     entry=parser.add_mutually_exclusive_group(required=True)
     entry.add_argument('--entry-module')
     entry.add_argument('--entry-script')
@@ -20,11 +22,15 @@ def main():
     with open(args.parameter_config,encoding='utf-8') as stream:
         configuration=JobConfiguration(json.load(stream))
     train=importlib.import_module(args.train_module)
+    metrics=nullcontext()
+    if args.metrics_gateway:
+        from metrics_endpoint import metrics_gateway
+        metrics=metrics_gateway(importlib.import_module('tensorswitch.monitor'),args.metrics_gateway)
     arguments=args.arguments[1:] if args.arguments[:1]==['--'] else args.arguments
     previous=sys.argv
     sys.argv=[args.entry_module or args.entry_script,*arguments]
     try:
-        with install(train,configuration):
+        with install(train,configuration),metrics:
             if args.entry_module:
                 runpy.run_module(args.entry_module,run_name='__main__',alter_sys=True)
             else:

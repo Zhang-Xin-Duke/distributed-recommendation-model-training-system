@@ -244,6 +244,49 @@ their transported hashes match the original files. Put their parent directory on
 
 [Complete feature-input preparation](validation/2026-11-04-original-feature-inputs.json).
 
+## Executor filesystem and monitoring environment
+
+The original file feeder calls `hadoop fs` for input metadata, and the training
+checkpoint path uses it to copy dense NumPy exports. Prepare the real Apache
+Hadoop 3.3.6 client classes with an installed Java runtime:
+
+```sh
+python scripts/prepare_original_hadoop_client.py --directory /path/to/hadoop-client
+export PATH="/path/to/hadoop-client/bin:$PATH"
+```
+
+The package contains the pinned Hadoop client API/runtime and logging JARs from
+Maven Central. The launcher invokes the original `FsShell` and `VersionInfo`
+classes, with `core-site.xml` selecting the local filesystem. It verifies Maven
+checksums and records SHA-256 hashes. Linux execution passes real file listing,
+binary reads, copies, existence checks and removal. This supplies Hadoop's
+[local filesystem shell](https://hadoop.apache.org/docs/r3.3.6/hadoop-project-dist/hadoop-common/FileSystemShell.html)
+for the original reader and export path.
+
+The original monitor classes use fixed deployment addresses. The adapter's
+optional `--metrics-gateway` argument configures new monitor instances for an
+anonymous Prometheus gateway while preserving their metric collection and
+actual HTTP pushes:
+
+```sh
+python -m entropy_launch --parameter-config /path/to/parameter-job.json \
+  --metrics-gateway http://127.0.0.1:9091 \
+  --entry-script /path/to/original/main.py -- <original job arguments>
+```
+
+The override restores class constructors on exit and leaves original source
+files unchanged. A local HTTP receiver verifies all three monitor types send
+real metric payloads without authentication. The original job's existing
+`blackhole_url` option independently configures model-state reporting.
+
+The prepared Executor job uses the original `main.py`, graph builder, file
+feeder, Learner/Controller startup, SparseTable/InputBuilder, DenseAdam and
+dataset-end checkpoint. It waits for the matching Python runtime and original
+reader/training-restore checks before execution. The original Executor training
+result is recorded after this job completes.
+
+[Filesystem and monitor checks](validation/2026-11-04-original-executor-environment.json).
+
 The application uses a separate Python 3.10 virtual environment, leaving the
 active TensorFlow source-build environment unchanged. The installed dependency
 set is recorded in `adapters/entropy/requirements-tensorflow212.txt`; it retains
