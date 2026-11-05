@@ -1,5 +1,26 @@
 # Validation record
 
+## Provider-node loss during GPU training — November 5, 2026
+
+Two model Workers initially train on distinct L40 and RTX A6000 instances. The
+owned L40 is deleted at parameter frontiers `[4, 3]`, with provider inventory
+confirming terminal loss. Surviving parameter replicas and original-gradient
+mirrors allow replacement CUDA owners and primaries to recover on the A6000.
+Original round-three gradients reconcile the lagging shard before admission
+resumes. Both logical Workers finish eight rounds; all 64 parameter rows, update
+counts, Adam moments and loss histories match uninterrupted two-GPU training
+with zero absolute error. The failed pre-admission recovery cohort is retired
+and reentered as generation two, term three. All 33 registered role groups are
+drained, and the failure instance is absent from provider inventory.
+
+Local checks cover three original fault positions, manager reentry after
+staging, replacement-cohort death and completed-job reentry. Native-client IPC
+also passes a real two-shard Pull/Push/Join check with `PYTHONPATH` removed and
+module discovery supplied only through the parent interpreter's `sys.path`.
+
+[Recovery sequence and deployment contract](PHYSICAL_NODE_RECOVERY.md) ·
+[Hardware, source hashes and canonical comparison](validation/2026-11-05-provider-node-loss-recovery.json)
+
 ## Distributed node orchestration — November 4, 2026
 
 The per-node job lifecycle now starts independent parameter shards, owners and

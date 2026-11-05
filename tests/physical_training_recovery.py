@@ -54,7 +54,7 @@ def main():
     reports=[]
     with tempfile.TemporaryDirectory(prefix='eps-physical-loss-') as temporary,TCPRoutes() as routes:
         root=pathlib.Path(temporary)
-        for mode in ['baseline','after_pull','partial_round','after_update']:
+        for mode in ['baseline','after_pull','partial_round','after_update','recovery_restart']:
             case=root/mode;case.mkdir();fleet=fleet_for(build,case,routes);run='physical-'+mode
             output=case/'manager';output.mkdir();loss=[];interrupted=[]
             with PhysicalRoles(fleet['nodes'],run,fleet,output) as client:
@@ -76,19 +76,28 @@ def main():
                 loss.append(receipt);return receipt
             class ManagerStopped(Exception):pass
             def checkpoint(name):
+                if mode=='recovery_restart' and name=='journals_staged':
+                    with PhysicalRoles(fleet['nodes'],run,fleet,output) as stopping:
+                        for kind in ['owner','primary','replica','journal-mirror']:
+                            for h in range(2):
+                                index=(h+1)%2 if kind in ['replica','journal-mirror'] else h
+                                assert stopping.stop(index,f'{kind}-{h}-g1')['owned_processes_gone']
+                        assert stopping.stop(0,'coordinator-g1')['owned_processes_gone']
+                    interrupted.append(True);raise ManagerStopped()
                 if mode=='after_update' and name=='journals_staged':
                     interrupted.append(True);raise ManagerStopped()
+            fault='after_update' if mode=='recovery_restart' else mode
             try:
-                result=execute(fleet,run,output,None if mode=='baseline' else mode,
+                result=execute(fleet,run,output,None if mode=='baseline' else fault,
                                on_checkpoint=checkpoint,on_fault=destroy_node if mode!='baseline' else None)
             except ManagerStopped:
                 assert not pathlib.Path(fleet['physical_nodes'][0]['root']).exists()
-                result=execute(fleet,run,output,mode)
+                result=execute(fleet,run,output,fault)
             except BaseException:
                 # Temporary test storage must not vanish beneath live roles.
                 with PhysicalRoles(fleet['nodes'],run,fleet,output) as cleanup:
                     if loss:cleanup.record_loss(loss[0])
-                    for generation in [1,0]:
+                    for generation in [2,1,0]:
                         for kind in ['worker','primary','owner','replica','journal-mirror']:
                             for home in range(2):
                                 result=cleanup.stop(home,f'{kind}-{home}-g{generation}')
@@ -102,7 +111,12 @@ def main():
                 assert all(r['from_gradient_replica'] for r in result['steps']['journals_fetched'])
                 assert all(r['next_round']==8 for r in result['model']['gradient_replicas'])
                 assert any(r.get('terminal_node') for r in result['cleanup'])
-                replay=execute(fleet,run,output,mode)
+                if mode=='recovery_restart':
+                    assert result['generation']==2
+                    saved=json.loads((output/'state.json').read_text())
+                    assert len(saved['previous_recovery_attempts'])==1
+                    assert saved['previous_recovery_attempts'][0]['generation']==1
+                replay=execute(fleet,run,output,fault)
                 assert replay['model']==result['model']
                 assert not pathlib.Path(fleet['physical_nodes'][0]['root']).exists()
             assert all(r['owned_processes_gone'] for r in result['cleanup'])

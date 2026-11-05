@@ -379,6 +379,10 @@ if(EPS_BUILD_BRPC)
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_rpc_checks> $<TARGET_FILE:eps_cache_agent>)
     set_tests_properties(cache_agent_process_lifecycle PROPERTIES TIMEOUT 90)
     if(EPS_BUILD_PYTHON)
+      add_test(NAME backend_subprocess_paths
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/backend_subprocess_paths.py"
+          "${CMAKE_CURRENT_BINARY_DIR}")
+      set_tests_properties(backend_subprocess_paths PROPERTIES TIMEOUT 60)
       add_test(NAME entropy_table_hook_configuration
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_install_tests.py")
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('prometheus_client')"

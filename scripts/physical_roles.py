@@ -13,9 +13,10 @@ def placement(fleet,role,index):
     match=re.fullmatch(r'(owner|primary|worker|replica|journal-mirror)-(\d+)-g(\d+)',role)
     if match:
         kind,home,generation=match.groups()
-        return fleet['role_placement'][generation][kind][int(home)]
+        selected=generation if generation in fleet['role_placement'] else '1'
+        return fleet['role_placement'][selected][kind][int(home)]
     match=re.fullmatch(r'coordinator-g(\d+)',role)
-    if match:return fleet['role_placement'][match[1]]['coordinator']
+    if match:return fleet['role_placement'][match[1] if match[1] in fleet['role_placement'] else '1']['coordinator']
     return index
 
 

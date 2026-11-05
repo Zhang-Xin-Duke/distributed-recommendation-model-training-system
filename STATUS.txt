@@ -1,50 +1,34 @@
 Distributed Parameter Server
-Stage: CPU/CUDA service, portable TensorFlow integration and capacity evaluation
-Date: 2026-10-31
+Stage: distributed training, replicated recovery and original-framework integration
+Date: 2026-11-05
 
 Implemented:
-- Chunked sharded parameter state and deterministic initialization.
-- Deduplicated sum/mean/sequence lookup and original-request gradient reduction.
-- Sparse LazyAdam, bounded lifecycle retry history and explicit release/drain.
-- Checksummed, durable snapshots and optimizer-exact restore.
-- BRPC server/client, typed attachment codec and cross-shard client reconstruction.
-- Cost/hysteresis route planner and automatic frequency/reuse-cost cache controller.
-- Bounded decayed request history, minimum residence, pinned-row exclusion and hot-set replacement.
-- Shared window byte/batch budgets and atomic destination-side slot reserves.
-- Policy configuration, RPC metrics and CPU fallback after rejected admissions.
-- Worker cache control replay, acknowledged full-state migration and generations.
-- CUDA pooling, sparse LazyAdam, batched transfers and owned device results.
-- CPU pooling / unique-vector transfer paths with pluggable route selection.
-- C++ embedding adapter and portable TensorFlow Pull/Push/Join bridge.
-- Compact pooled-gradient transfers with ordered GPU reduction and size-based fallback.
-- Concurrent independent GPU-owner update dispatch.
-- Destination-projected cache gathers; default per-shard overlap and optional cross-shard coalescing.
-- Known-ticket cleanup after failed lookup/reconstruction and collected read completions.
-- Real-process/fleet capacity probes with latency and sequencer queue metrics.
+- Sharded CPU/CUDA embedding parameters and Sparse LazyAdam optimizer state.
+- Batched sparse reads, gradients, cache admission/migration and reusable layouts.
+- Independent model Workers, task-progress coordination and synchronous gradient rounds.
+- Replicated parameter updates, original-gradient mirrors and durable-term fencing.
+- Joint parameter/optimizer/input-progress checkpoints and generation rollover.
+- Managed role placement, terminal-node receipts and replacement routing.
+- Pre-admission recovery-cohort retirement and durable manager reentry.
+- TensorFlow portable/native table adapters and original Runner progress/checkpoint hooks.
 
-Validation: current macOS native/RPC/TensorFlow checks 20/20; core ASan/UBSan
-9/9. Automatic cache modes pass native/TensorFlow and two-shard external
-reference checks. Current Ubuntu CPU/CUDA checks pass 17/17, and explicitly
-CUDA-backed automatic/restore process checks pass 3/3. Prior GPU revisions passed Ubuntu CPU
-11/11 and initial A6000 CPU/CUDA 13/13; both gather policies passed real-process
-CUDA migration and optimizer-exact restore at those source revisions.
-Three distinct A6000 devices passed CUDA state/device-result checks.
-Completed 253 new capacity trials and 153,703 updates, with zero reported errors;
-460 capacity trials are retained including the initial deployment. Sweeps cover
-1/2/3 GPUs, up to 128 Learners, 2/4/8/16 shards and million-row 512D state.
-Best tested sustained three-GPU point: 4 shards, 8 Learners, 122.95 updates/s,
-104.93 ms median trial P99; 10,841 updates across three 30-second trials.
-Additional shards or concurrency expose coordination/communication limits.
-See docs/BENCHMARKS.md and docs/VALIDATION.md.
-The earlier three-worker fleet and this round's single A6000 were deleted;
-account inventory verified zero instances.
-Fixed policy traces: two profiles, 36 independent runs (including calibration),
-84 phase records and 6,528 updates, with full feature/state replay checks.
-Main runs check 70,638 rows (moderate) and 189,261 rows (bulk), with zero maximum
-final-state absolute error; policy-failure events remain in the raw records.
-See docs/CACHE_POLICY_RESULTS.md.
+Executed evidence:
+- Two physical GPUs hold 60 GiB of resident parameter/optimizer state and train
+  eight rounds; the canonical capacity record identifies the tested revision.
+- Actual provider deletion of the owned L40 at shard frontiers [4, 3], followed
+  by retained-gradient reconciliation and eight-round continuation on an A6000.
+  All 64 model/Adam rows, update counts and loss histories exactly match the
+  uninterrupted two-GPU baseline. All test role groups are drained.
+- Local node/storage loss and replacement-cohort restart checks pass, including
+  journal staging, completed-job reentry and rejection of unconfirmed node loss.
+- Original native CPU/CUDA libraries build and load; native SDK/GPU probes pass.
+  The matching original TensorFlow Python build and gated full reader/training/
+  main/Executor acceptance remain in progress on the existing owned A6000.
 
-Remaining: asynchronous preparation/overlap; integrated automatic-policy
-multi-GPU evaluation; original Entropy
-application/native device integration; and
-end-to-end model performance/quality evaluation.
+Remaining acceptance:
+- Complete original Entropy native multi-peer training/control/progress/replay.
+- Cross-node retirement behind verified replacement-generation receipts.
+- GPU common-quality consistency-policy and scaling characterization.
+
+Current evidence and source hashes: docs/VALIDATION.md.
+Original-framework execution gates: docs/ORIGINAL_NATIVE_BUILD.md.

@@ -28,7 +28,17 @@ identical to uninterrupted training. Completed-job reentry never recreates the
 lost storage. The original three managed-role/recovery regressions also pass.
 Evidence: `../validation/2026-11-05-physical-node-scope-recovery.json`.
 
-The physical trial will reuse the current owned GPU node as the survivor and
-add one GPU node for the failure target. This provides two distinct physical
-GPUs before deletion while keeping allocation and preparation costs bounded.
-Actual provider deletion, GPU continuation and scoped cleanup remain pending.
+Steps 4--5 pass with an owned L40 failure target and the existing A6000 survivor.
+Provider deletion occurs at shard frontiers `[4, 3]`. Original-gradient replay
+reconciles round three, and both replacement Workers finish eight rounds with
+all 64 model/Adam rows and both complete loss histories identical to the two-GPU
+baseline. A manager interpreter/module-path failure also exercises retirement
+of a pre-admission recovery cohort and generation-two/term-three reentry.
+All 33 registered role groups are drained, and provider inventory confirms the
+failure instance is absent. No additional instance is needed for reentry.
+Evidence: `../validation/2026-11-05-provider-node-loss-recovery.json`.
+
+The original Entropy native full-module reader/training/Executor/multi-peer
+acceptance remains separate and continues on the existing A6000. Cross-node
+generation retirement and common-quality GPU/scaling characterization retain
+their existing requirements.

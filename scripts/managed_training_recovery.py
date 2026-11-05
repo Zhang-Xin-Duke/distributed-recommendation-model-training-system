@@ -7,6 +7,7 @@ All credentials remain in the private fleet file.
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 import pathlib
@@ -39,12 +40,15 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
     if not re.fullmatch(r'[a-z0-9_-]{1,64}',run):raise ValueError('invalid managed training run identity')
     out=pathlib.Path(out).resolve();out.mkdir(parents=True,exist_ok=True)
     sys.path.insert(0,manager['module_dir'])
+    if importlib.util.find_spec('_eps_native') is None:
+        raise ValueError('manager Python cannot load its native module; use the interpreter matching manager.module_dir')
     state_path=out/'state.json'
     identity=dict(run=run,fault=fault,fleet_sha256=hashlib.sha256(canonical(fleet)).hexdigest())
     if state_path.exists():
         saved=json.loads(state_path.read_text())
         if saved['identity']!=identity:raise ValueError('managed recovery configuration changed')
     else:saved=dict(identity=identity,steps={});write(state_path,saved)
+    recovery_generation=saved.get('recovery_generation',1)
     def step(name,action):
         if name not in saved['steps']:
             saved['steps'][name]=action();write(state_path,saved)
@@ -112,10 +116,13 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
     def grant(home,generation):
         cfg=manager_cfg(home,generation);cfg['replica_endpoint']=manager['replicas'][home]
         head=command('eps_replica_control',cfg,'head');primary=f'primary-{home}-g{generation}'
-        if head['term']==generation+1 and head['primary']==primary:return head
-        if head['term']!=generation:raise ValueError('replica term cannot be adopted by this generation')
-        cfg.update(expected_term=generation,primary=primary)
-        return command('eps_replica_control',cfg,'fence')
+        if head['term']>generation+1 or (head['term']==generation+1 and head['primary']!=primary):
+            raise ValueError('replica term cannot be adopted by this generation')
+        while head['term']<generation+1:
+            cfg.update(expected_term=head['term'],primary=primary)
+            command('eps_replica_control',cfg,'fence')
+            head=command('eps_replica_control',cfg,'head')
+        return head
     workers=[]
     for w,n in enumerate(nodes):
         cfg=dict(run=run,epoch=1,shards=n['shards'],coordinator=n['coordinator'],worker=w,dimension=dimension,hidden=hidden,iterations=rounds,batches=batches[w],table=table,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(n['agents'])],device='/GPU:0' if n.get('gpu') else '/CPU:0',journal_directory=str(path(w,f'worker-{w}-g0')/'journal'),journal_workers=count)
@@ -138,11 +145,12 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
             return result
         hardware=step('hardware',inspect_hardware)
         # Register deterministic names even when a saved phase skips its action.
-        for generation in [0,1]:
+        def register(generation):
             for h in range(count):
                 for kind,index in [('owner',h),('primary',h),('worker',h),('replica',(h+1)%count)]:roles.roles[f'{kind}-{h}-g{generation}']=index
                 if mirror_enabled:roles.roles[f'journal-mirror-{h}-g{generation}']=(h+1)%count
             roles.roles[f'coordinator-g{generation}']=0
+        for generation in range(recovery_generation+1):register(generation)
         terminal=False
         try:
             def initial():
@@ -209,6 +217,31 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
                     settings.update(coordinator=manager['coordinator'],shards=manager['shards'])
                     step('replacement_placement',lambda:dict(roles=fleet['role_placement']['1'],
                         terminal_nodes=list(roles.lost.values())))
+                if 'admission_resumed' not in saved['steps']:
+                    # Before admission no replacement Worker can have produced
+                    # additional gradients. Retained original journals therefore
+                    # still cover every possibly committed recovery round.
+                    prior=[]
+                    for kind in ['owner','primary','replica',*(['journal-mirror'] if mirror_enabled else [])]:
+                        for h in range(count):
+                            index=(h+1)%count if kind in ['replica','journal-mirror'] else h
+                            name=f'{kind}-{h}-g{recovery_generation}'
+                            prior.append((index,name,roles.status(index,name)))
+                    name=f'coordinator-g{recovery_generation}'
+                    prior.append((0,name,roles.status(0,name)))
+                    if any(state['state']=='exited' for _,_,state in prior):
+                        stopped=[]
+                        for index,name,_ in prior:
+                            result=roles.stop(index,name)
+                            if not result['owned_processes_gone']:raise RuntimeError('prior recovery role remains live')
+                            stopped.append(dict(role=name,**result))
+                        reset=['replacement_roles','recovery_plan','replacement_coordinator','reconciled',
+                               'journals_staged','replacement_gradient_replicas']
+                        retired={k:saved['steps'].pop(k) for k in reset if k in saved['steps']}
+                        saved.setdefault('previous_recovery_attempts',[]).append(dict(generation=recovery_generation,
+                            stopped_roles=stopped,phases=retired))
+                        recovery_generation+=1;saved['recovery_generation']=recovery_generation
+                        write(state_path,saved);register(recovery_generation)
                 def fetch():
                     result=[]
                     for w,cfg in enumerate(workers):
@@ -221,36 +254,39 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
                     return result
                 fetched=step('journals_fetched',fetch)
                 def replacements():
-                    for h in range(count):role_replica(roles,h,1);grant(h,1);role_owner(roles,h,1)
-                    for h in range(count):roles.ensure(h,f'primary-{h}-g1',[binary(h,'eps_server')],primary_cfg(h,1));roles.ready(h,f'primary-{h}-g1')
+                    for h in range(count):role_replica(roles,h,recovery_generation);grant(h,recovery_generation);role_owner(roles,h,recovery_generation)
+                    for h in range(count):
+                        name=f'primary-{h}-g{recovery_generation}'
+                        roles.ensure(h,name,[binary(h,'eps_server')],primary_cfg(h,recovery_generation));roles.ready(h,name)
                     return dict(ready=True)
                 step('replacement_roles',replacements)
-                job=dict(run=run,epoch=1,end_round=rounds,coordinator_endpoint=manager['coordinator'],workers=[x['config'] for x in fetched],shards=[dict(endpoint=manager['shards'][h],config=manager_cfg(h,1)) for h in range(count)])
+                job=dict(run=run,epoch=1,end_round=rounds,coordinator_endpoint=manager['coordinator'],workers=[x['config'] for x in fetched],shards=[dict(endpoint=manager['shards'][h],config=manager_cfg(h,recovery_generation)) for h in range(count)])
                 planned=step('recovery_plan',lambda:recover(job,pathlib.Path(manager['bin_dir'])))
                 def coordinator():
-                    roles.ensure(0,'coordinator-g1',[binary(0,'eps_training_coordinator')],dict(planned['coordinator'],listen=nodes[0]['coordinator_listen']));roles.ready(0,'coordinator-g1');return dict(ready=True)
+                    name=f'coordinator-g{recovery_generation}'
+                    roles.ensure(0,name,[binary(0,'eps_training_coordinator')],dict(planned['coordinator'],listen=nodes[0]['coordinator_listen']));roles.ready(0,name);return dict(ready=True)
                 step('replacement_coordinator',coordinator)
                 reconciled=step('reconciled',lambda:recover(job,pathlib.Path(manager['bin_dir']),True))
                 def stage():
                     staged=[]
                     for w,cfg in enumerate(reconciled['workers']):
-                        result=transfer(cfg,manager_node,nodes[w],str(path(w,f'worker-{w}-g1')/'journal'),'stage-'+run)
-                        result['config'].update(shards=nodes[w]['shards'],coordinator=nodes[w]['coordinator'],agents=[dict(a,owner_run=owner_run(run,1,h,2,f'primary-{h}-g1')) for h,a in enumerate(nodes[w]['agents'])]);staged.append(result)
+                        result=transfer(cfg,manager_node,nodes[w],str(path(w,f'worker-{w}-g{recovery_generation}')/'journal'),'stage-'+run)
+                        result['config'].update(shards=nodes[w]['shards'],coordinator=nodes[w]['coordinator'],agents=[dict(a,owner_run=owner_run(run,1,h,recovery_generation+1,f'primary-{h}-g{recovery_generation}')) for h,a in enumerate(nodes[w]['agents'])]);staged.append(result)
                         if mirror_enabled:
                             host=(w+1)%count
-                            target=storage_node(fleet,nodes,f'journal-mirror-{w}-g1',host)
-                            result['gradient_replica_seed']=transfer(cfg,manager_node,target,str(path(host,f'journal-mirror-{w}-g1')/'store'),'stage-'+run)
-                            result['config']['journal_mirror']=dict(endpoint=nodes[w]['journal_mirrors'][w],generation=2,writer=f'worker-{w}-g1')
+                            target=storage_node(fleet,nodes,f'journal-mirror-{w}-g{recovery_generation}',host)
+                            result['gradient_replica_seed']=transfer(cfg,manager_node,target,str(path(host,f'journal-mirror-{w}-g{recovery_generation}')/'store'),'stage-'+run)
+                            result['config']['journal_mirror']=dict(endpoint=nodes[w]['journal_mirrors'][w],generation=recovery_generation+1,writer=f'worker-{w}-g{recovery_generation}')
                     return staged
                 staged=step('journals_staged',stage)
-                if mirror_enabled:step('replacement_gradient_replicas',lambda:[mirror_role(roles,w,1) for w in range(count)])
+                if mirror_enabled:step('replacement_gradient_replicas',lambda:[mirror_role(roles,w,recovery_generation) for w in range(count)])
                 def resume():
                     state=command('eps_training_control',dict(settings,keys=[]),'inspect')
                     if state['paused']:command('eps_training_control',settings,'resume')
                     return dict(resumed=True)
                 step('admission_resumed',resume)
-                active_workers=[x['config'] for x in staged];generation=1
-                step('replacement_workers',lambda:start_workers(active_workers,1))
+                active_workers=[x['config'] for x in staged];generation=recovery_generation
+                step('replacement_workers',lambda:start_workers(active_workers,recovery_generation))
             def finish():
                 outputs=[json.loads(roles.wait(w,f'worker-{w}-g{generation}')) for w in range(count)]
                 final=command('eps_training_control',settings,'inspect')

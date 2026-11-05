@@ -1,5 +1,8 @@
 """Version-isolated native client used by TensorFlow host callbacks."""
 import multiprocessing
+import importlib.util
+import os
+import pathlib
 import pickle
 import subprocess
 import sys
@@ -27,9 +30,15 @@ def _cleanup(process, connection):
 
 class Backend:
     def __init__(self, endpoints, run, learner=0, epoch=1, max_live=128, preparation=None):
+        environment=dict(os.environ)
+        native=importlib.util.find_spec('_eps_native')
+        if native is not None and native.origin:
+            directory=str(pathlib.Path(native.origin).parent)
+            environment['PYTHONPATH']=os.pathsep.join([directory,environment.get('PYTHONPATH','')])
         parent, child = multiprocessing.Pipe(duplex=True)
-        self._process = subprocess.Popen([sys.executable, "-m", "eps_backend_worker", str(child.fileno())],
-                                         pass_fds=(child.fileno(),))
+        worker=str(pathlib.Path(__file__).resolve().with_name('eps_backend_worker.py'))
+        self._process = subprocess.Popen([sys.executable, worker, str(child.fileno())],
+                                         pass_fds=(child.fileno(),),env=environment)
         child.close()
         self._connection = parent
         self._mutex = threading.Lock()

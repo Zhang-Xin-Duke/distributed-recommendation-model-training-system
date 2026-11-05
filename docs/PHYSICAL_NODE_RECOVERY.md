@@ -80,6 +80,53 @@ Replacement placement must have enough memory for the recovered state. Placement
 can co-locate logical roles when the working set fits; it does not add GPU
 capacity automatically.
 
+### Interrupted recovery before admission
+
+The manager records each recovery phase before advancing. If a replacement
+role has exited before admission resumes, it stops the remaining roles in that
+attempt, records the retired phases and creates a fresh generation on the
+replacement hosts. Parameter replicas keep their storage and advance their
+fencing terms; immutable source gradient journals keep the same handoff identity
+when copied into the new generation. This also covers a manager failure after
+journal staging. A live or unresolved role is observed in place.
+
+This restart path ends when admission resumes: replacement Workers can then
+produce new gradients, so further recovery must retain that generation's
+journals. The manager does not reuse the original pre-admission journals after
+that boundary.
+
+Native-client IPC children use the parent's interpreter, an absolute Worker
+script path and the discovered native-module directory. A manager whose Python
+cannot discover its configured native module fails before starting roles.
+
+## Executed provider-node loss
+
+The physical trial starts two TensorFlow model Workers and CUDA parameter owners
+on distinct **NVIDIA L40 and RTX A6000** instances. The deployment observer deletes
+the owned L40 while shard frontiers are **`[4, 3]`**, then confirms its UUID is absent
+from provider inventory. Both parameter replicas and original-gradient mirrors
+remain on the A6000.
+
+Recovery fences the old primaries, rehydrates the replacement CUDA owners and
+replays original round-three gradients to bring the lagging shard to round four.
+Both logical Workers then continue on the A6000 and finish **eight rounds each**.
+All **64 rows**, row update counts, Adam first/second moments and both complete
+loss histories match uninterrupted two-GPU training with **zero absolute error**.
+
+The trial also exercises a failed pre-admission recovery attempt: the first
+replacement cohort is stopped after a manager interpreter/module-path failure;
+reentry creates generation two at term three and completes the same job. All
+33 registered role groups have terminal cleanup receipts, and provider inventory
+confirms deletion of the failure instance. The existing A6000 remains allocated
+for the separate original-framework integration work.
+
+This 64-row working set fits on the survivor. The separate 60 GiB capacity trial
+measures a model that exceeds one GPU's memory; the node-loss trial measures
+recovery and replacement routing.
+
+[Hardware, source hashes, replay frontiers, full-state comparison and cleanup
+evidence](validation/2026-11-05-provider-node-loss-recovery.json).
+
 ## Executed local node-scope checks
 
 `managed_physical_node_scope_recovery` uses three local process/storage scopes
@@ -93,10 +140,11 @@ updates committed before task completion. In the last case it also interrupts
 the manager after journal staging and reenters from durable state. No lost
 storage directory is recreated during recovery or completed-job reentry.
 
+An additional case stops the first replacement cohort after journal staging,
+then verifies generation-two reentry from the same immutable source journals.
 All 64 parameter rows, row update counts, Adam moments and every loss match
 uninterrupted eight-round training exactly. Role cleanup receipts confirm the
-old terminal scope and all remaining managed roles are gone. Actual provider
-node termination is a separate physical trial.
+old terminal scope and all remaining managed roles are gone.
 
 [Source hashes, fault cases, replacement placement and cleanup records](validation/2026-11-05-physical-node-scope-recovery.json).
 

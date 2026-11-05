@@ -117,7 +117,10 @@ support reentry after journal staging; distinct TCP aliases verify translation
 between worker-visible and manager-visible parameter endpoints.
 [Physical role placement](docs/PHYSICAL_NODE_RECOVERY.md) separates logical
 Workers/shards from their hosts, preserves replica authority on surviving nodes
-and activates replacement routes after terminal node loss is confirmed.
+and activates replacement routes after terminal node loss is confirmed. An owned
+L40 instance was deleted at shard frontiers `[4, 3]`; surviving replicas on an
+A6000 restored both logical Workers to finish eight rounds, with all 64 model/Adam
+rows and complete loss histories matching uninterrupted two-GPU training exactly.
 
 [Owner incarnations](docs/OWNER_INCARNATIONS.md) separate the stable training run
 from a replacement parameter owner's identity. Old reads and control commands

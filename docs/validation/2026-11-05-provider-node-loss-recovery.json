@@ -1,0 +1,322 @@
+{
+  "recorded_at_utc": "2026-11-05T05:57:42.723356+00:00",
+  "base_commit": "cbb4f6584f4b90d60d3fe60e1f23fc7876141122",
+  "source_sha256": {
+    "CMakeLists.txt": "eb191c11488630b8bc8f5ff7d697244c4596662dab326984639a01a59f92a9a7",
+    "adapters/entropy/eps_backend.py": "eb37d3d4c8f078c8643b76daf1d7d7ea69fccb9cb044f3643a16052552980ac7",
+    "scripts/physical_roles.py": "dee19feabff2c42ba05c519a4892a54c5d99f386b8e3a9c7b5356a3021c86943",
+    "scripts/managed_roles.py": "6b8c08196bc9b4a481b04996d2af60bb3f0668eddb5ddf5a8010557359738c53",
+    "scripts/managed_training_recovery.py": "02b95721c743b67eaa2903622097338183a94a97c15833bc79e96c404563afac",
+    "scripts/recover_training.py": "3fbd5a990222a46fda6cbcf1130029871c924521b7cb43e696dabff72f364513",
+    "scripts/transfer_worker_journals.py": "3469d599138b176cc6cdc30bf62bd3d9a2e1ad056ce72c4daf5359fd5e2e11e4",
+    "tests/backend_subprocess_paths.py": "941ff74b2e304058f11f6c1e1d86fd1be94271ac1148bfa01792cef2057e7c79",
+    "tests/physical_training_recovery.py": "d9f9cc0cce246b564b3ac6894f8b9c623aafabd7fc5e61ffc0b2926e146ff774"
+  },
+  "scope": "one owned L40 instance is deleted while a round is partly committed; parameter/gradient authority survives on the existing A6000; replacement logical roles co-locate there",
+  "deployment": {
+    "initial_physical_gpus": 2,
+    "recovery_physical_gpus": 1,
+    "logical_workers": 2,
+    "logical_parameter_shards": 2,
+    "rows": 64,
+    "dimension": 8,
+    "hidden": 4,
+    "rounds": 8,
+    "hardware": [
+      {
+        "gpu": "NVIDIA L40",
+        "device_total_bytes": 48305799168,
+        "gpu_uuid": "GPU-4e5dcb3e-703a-5fc2-a37a-2ee4dc79edf7"
+      },
+      {
+        "gpu": "NVIDIA RTX A6000",
+        "device_total_bytes": 51527024640,
+        "gpu_uuid": "GPU-d110b742-ff7e-5d44-8338-b15d0f1fa8b3"
+      }
+    ],
+    "initial_worker_hosts": [
+      0,
+      1
+    ],
+    "replacement_worker_hosts": [
+      1,
+      1
+    ],
+    "parameter_replica_hosts": [
+      1,
+      1
+    ],
+    "gradient_mirror_hosts": [
+      1,
+      1
+    ]
+  },
+  "provenance": {
+    "initial_linux_source_archive": {
+      "commit": "cbb4f6584f4b90d60d3fe60e1f23fc7876141122",
+      "files": 263,
+      "sha256": "084e784096d1e11cbed2967b23714a6c8f296a2de4431b010a94097cd67d5ef5"
+    },
+    "portable_runtime": {
+      "sha256": "0dcd67ec50996dd361aee19b53b2e112e988483babda5d51886ef2ee0c6e81cf",
+      "bytes": 35137824,
+      "binaries": {
+        "eps_server": "24c39f8704e36bec7c8f554dbd9ddfcfe8d3bf094815feabccc84d518e6d3b25",
+        "eps_replica": "2198b0405aeb35ac1b4b8f3cce82a8313f04f1fff76ae734aa5d80bc0b5bed8e",
+        "eps_replica_control": "f87f8716abeab2c4b408b2815354448111120341c621f86b9ed5bdce57e2d81d",
+        "eps_training_coordinator": "a3e6bcf84ca17646b873a8112eb1bd16a5e241f74b9587db220e36c2c8a130d8",
+        "eps_training_control": "7a9b72864d4a6dba736e4986d2f36593832a1698881379d2dd42788fc6c546ec",
+        "eps_training_prepare": "73dd734575b80f1cc0cdae0fad7f25f5891efc96db4236f040adde1a977e2d40",
+        "eps_cache_agent": "5aa20da0f70f3610bb5c2e7554caea4350a44ed14b02a376962a26e5a2d5c825",
+        "eps_snapshot_compare": "fac160c0943d554472acdecd7bea01ef3f01bb21d41202a6bda64a9b45754604"
+      },
+      "module": "_eps_native.cpython-312-x86_64-linux-gnu.so",
+      "module_sha256": "70d64cd2f1e8a9b5d1a1f8f272b56302b827133c81d32b724be6094934f2b930",
+      "libraries": [
+        "libgflags.so.2.2",
+        "libleveldb.so.1d",
+        "libssl.so.3",
+        "libcrypto.so.3",
+        "libz.so.1",
+        "libsnappy.so.1",
+        "libcudart.so.12"
+      ]
+    },
+    "resumed_linux_backend_sha256": "eb37d3d4c8f078c8643b76daf1d7d7ea69fccb9cb044f3643a16052552980ac7",
+    "manager_python": "CPython 3.11.14",
+    "linux_model_python": "CPython 3.12",
+    "linux_tensorflow": "2.20.0",
+    "raw_report_sha256": "e51962b33282ac96ab48eff6b378607b67fb92cd67079777991e21e6e668ec86"
+  },
+  "terminal_node_evidence": {
+    "kind": "provider_instance_deleted",
+    "provider": "Thunder Compute",
+    "previously_owned": true,
+    "inventory_absent": true,
+    "observed_epoch": 1793857306.69666,
+    "delete_exit_code": 0,
+    "parameter_rounds_before": [
+      4,
+      3
+    ]
+  },
+  "recovery": {
+    "generation": 2,
+    "previous_pre_admission_attempts": 1,
+    "previous_attempt_failure": "manager interpreter ABI mismatch and IPC child module discovery; cohort stopped before admission",
+    "replica_heads_before_reconciliation": [
+      {
+        "base_round": 0,
+        "baseline": true,
+        "baseline_bytes": 3764,
+        "bytes": 6996,
+        "next_round": 4,
+        "primary": "primary-0-g2",
+        "term": 3
+      },
+      {
+        "base_round": 0,
+        "baseline": true,
+        "baseline_bytes": 3764,
+        "bytes": 6412,
+        "next_round": 3,
+        "primary": "primary-1-g2",
+        "term": 3
+      }
+    ],
+    "replayed_rounds": [
+      3
+    ],
+    "fetched_from_gradient_mirrors": [
+      true,
+      true
+    ],
+    "final_completed": [
+      8,
+      8
+    ],
+    "final_gradient_mirrors": [
+      {
+        "next_round": 8,
+        "records": 8
+      },
+      {
+        "next_round": 8,
+        "records": 8
+      }
+    ]
+  },
+  "comparison": {
+    "compared_rows": 64,
+    "fields": [
+      "weights",
+      "first_moment",
+      "second_moment",
+      "row_updates"
+    ],
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "tolerance": 5e-05,
+    "baseline_loss_histories": [
+      [
+        0.6924896836280823,
+        0.6802571415901184,
+        0.6930297017097473,
+        0.6897282600402832,
+        0.656464695930481,
+        0.6892696619033813,
+        0.6775924563407898,
+        0.6333305239677429
+      ],
+      [
+        0.6951781511306763,
+        0.6927079558372498,
+        0.7187797427177429,
+        0.660355806350708,
+        0.6903569102287292,
+        0.730739176273346,
+        0.6297228932380676,
+        0.6809110641479492
+      ]
+    ],
+    "recovered_loss_histories": [
+      [
+        0.6924896836280823,
+        0.6802571415901184,
+        0.6930297017097473,
+        0.6897282600402832,
+        0.656464695930481,
+        0.6892696619033813,
+        0.6775924563407898,
+        0.6333305239677429
+      ],
+      [
+        0.6951781511306763,
+        0.6927079558372498,
+        0.7187797427177429,
+        0.660355806350708,
+        0.6903569102287292,
+        0.730739176273346,
+        0.6297228932380676,
+        0.6809110641479492
+      ]
+    ]
+  },
+  "cleanup": {
+    "verified": true,
+    "baseline_role_groups": 22,
+    "recovery_role_groups": 33,
+    "all_role_groups_gone": true,
+    "provider_inventory": {
+      "observed_epoch": 1793858194.714498,
+      "owned_failure_absent": true,
+      "owned_survivor_present": true,
+      "active_instances": 1
+    }
+  },
+  "local_regressions": {
+    "checks": [
+      {
+        "name": "managed_role_processes",
+        "seconds": 0.57
+      },
+      {
+        "name": "managed_gradient_replicas",
+        "seconds": 61.98
+      },
+      {
+        "name": "managed_training_recovery",
+        "seconds": 57.19
+      },
+      {
+        "name": "managed_physical_node_scope_recovery",
+        "seconds": 84.37
+      },
+      {
+        "name": "backend_subprocess_paths",
+        "seconds": 0.49
+      },
+      {
+        "name": "entropy_original_table_external_shards",
+        "seconds": 3.84
+      },
+      {
+        "name": "tensorflow_graph_external_shards",
+        "seconds": 3.51
+      }
+    ],
+    "simulated_scopes": 3,
+    "physical_gpus": 0,
+    "cases": [
+      {
+        "run": "physical-baseline",
+        "fault": null,
+        "generation": 0,
+        "completed": [
+          8,
+          8
+        ],
+        "lost_storage_removed": false,
+        "manager_reentry": false
+      },
+      {
+        "run": "physical-after_pull",
+        "fault": "after_pull",
+        "generation": 1,
+        "completed": [
+          8,
+          8
+        ],
+        "lost_storage_removed": true,
+        "manager_reentry": false
+      },
+      {
+        "run": "physical-partial_round",
+        "fault": "partial_round",
+        "generation": 1,
+        "completed": [
+          8,
+          8
+        ],
+        "lost_storage_removed": true,
+        "manager_reentry": false
+      },
+      {
+        "run": "physical-after_update",
+        "fault": "after_update",
+        "generation": 1,
+        "completed": [
+          8,
+          8
+        ],
+        "lost_storage_removed": true,
+        "manager_reentry": true
+      },
+      {
+        "run": "physical-recovery_restart",
+        "fault": "after_update",
+        "generation": 2,
+        "completed": [
+          8,
+          8
+        ],
+        "lost_storage_removed": true,
+        "manager_reentry": true
+      }
+    ],
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "cleanup_verified": true,
+    "backend_subprocess_check": {
+      "pythonpath_removed": true,
+      "parent_sys_path_only": true,
+      "real_shards": 2,
+      "pull_push_join": true
+    }
+  },
+  "remaining": [
+    "Original Entropy native full-module reader/model/main/Executor multi-peer training/control/progress/replay",
+    "Cross-node generation retirement",
+    "GPU common-quality consistency-policy and scaling characterization"
+  ]
+}
