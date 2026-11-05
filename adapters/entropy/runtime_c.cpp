@@ -1,6 +1,7 @@
 #include "eps/runtime_c.h"
 #include "eps/entropy_adapter.hpp"
 #include "eps/brpc_client.hpp"
+#include "eps/brpc_training.hpp"
 #include "eps/brpc_cache_backend.hpp"
 #include "eps/cache_resolver.hpp"
 #include "eps/worker_cache_agent.hpp"
@@ -70,6 +71,10 @@ struct Runtime {
   std::shared_ptr<CudaOwner> gpu_owner;
 #endif
   std::unique_ptr<entropy::TableAdapter> adapter;
+  std::unique_ptr<BrpcTrainingProgress> training;
+  std::uint32_t training_worker=0;
+  std::uint64_t training_iteration=0,training_floor=0;
+  bool training_armed=false,training_active=false,training_failed=false;
   int device=-1;
   std::uint64_t epoch=1;
   bool release_read_only=false;
@@ -86,6 +91,13 @@ struct Runtime {
     std::vector<std::shared_ptr<ParameterService>> shards;
     for(const auto& endpoint:config.at("endpoints")){auto connection=std::make_shared<BrpcParameterService>(endpoint.get<std::string>());connections.push_back(connection);shards.push_back(connection);}
     adapter=std::make_unique<entropy::TableAdapter>(entropy::AdapterOptions{run,config.value("learner",0U),epoch,config.value("max_live",128U),4096},shards);
+    if(config.contains("training")){
+      const auto& t=config.at("training");const auto endpoint=t.at("coordinator").get<std::string>();
+      detail::Require(!endpoint.empty(),"native training coordinator is empty");
+      training_worker=t.value("worker",config.value("learner",0U));training_iteration=t.value("start_iteration",std::uint64_t(0));
+      detail::Require(training_worker<1024 && training_iteration<UINT64_MAX,"invalid native training worker or iteration");
+      training=std::make_unique<BrpcTrainingProgress>(endpoint,run,epoch,20000);
+    }
     std::map<AgentId,std::shared_ptr<CacheBackend>> remote;
     if(config.contains("agents"))for(const auto& a:config.at("agents")){AgentId id=a.at("id");detail::Require(!remote.contains(id),"duplicate native Agent");remote[id]=std::make_shared<BrpcCacheBackend>(a.at("endpoint").get<std::string>(),a.value("owner_run",run),0,id);}
 #ifdef EPS_HAS_CUDA
@@ -102,7 +114,19 @@ struct Runtime {
     {detail::Require(!config.contains("cuda"),"CUDA native runtime is not available");if(!remote.empty())adapter->SetCacheResolver(MakeCacheResolver(std::move(remote)),config.value("coalesce_gather",true));}
     for(const auto& definition:config.at("tables"))Take(adapter->CreateTable(Table(definition,shards.size(),epoch)));
   }
-  ~Runtime(){adapter.reset();worker.reset();backend.reset();}
+  void CancelTraining(const std::string& reason){
+    const bool admitted=training_active;training_armed=false;training_active=false;
+    if(admitted){training_failed=true;Take(training->Abort(reason));}
+  }
+  void BeginTraining(bool read_only){
+    if(!training || read_only)return;
+    detail::Require(!training_failed && training_armed,"native training Pull requires an armed step");
+    if(!training_active){
+      training_active=true;  // A lost Begin reply must still abort the uncertain task.
+      training_floor=Take(training->Begin(training_worker,training_iteration)).observed_completion_floor;
+    }
+  }
+  ~Runtime(){try{if(training_active)CancelTraining("native training context destroyed during a step");}catch(...){}adapter.reset();worker.reset();backend.reset();}
   void Close(){adapter.reset();worker.reset();backend.reset();
 #ifdef EPS_HAS_CUDA
     gpu_owner.reset();
@@ -152,6 +176,7 @@ void Destroy(void* p){try{delete static_cast<Runtime*>(p);}catch(...){}}
 int Pull(void* p,const EpsFeature* features,std::uint64_t count,int32_t read_only,int32_t device,EpsBatch* output,EpsStatus* status){
   if(output)*output={};return Boundary(status,[&]{detail::Require(output,"null batch output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);auto input=Features(features,count);
     const bool mode=r.ReadOnly(Tables(input),read_only);
+    r.BeginTraining(mode);
     if(device){detail::Require(r.device>=0,"runtime has no CUDA device");Publish(r,Take(r.adapter->PullDevice(std::move(input),mode)),output,mode);}
     else Publish(r,Take(r.adapter->Pull(std::move(input),mode)),output,mode);});
 }
@@ -161,6 +186,7 @@ int PullPrepared(void* p,std::uint64_t token,int32_t read_only,int32_t device,Ep
   if(output)*output={};return Boundary(status,[&]{detail::Require(output,"null prepared output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);
     auto entry=r.prepared_tables.find(token);detail::Require(entry!=r.prepared_tables.end(),"unknown native prepared token");const bool mode=r.ReadOnly(entry->second,read_only);
     try{
+      r.BeginTraining(mode);
       if(device){detail::Require(r.device>=0,"runtime has no CUDA device");Publish(r,Take(r.adapter->PullPreparedDevice(token,mode)),output,mode);}
       else Publish(r,Take(r.adapter->PullPrepared(token,mode)),output,mode);
     }catch(...){r.prepared_tables.erase(entry);throw;}r.prepared_tables.erase(entry);});
@@ -186,6 +212,25 @@ void ReleaseText(void* p){delete static_cast<std::string*>(p);}
 int Command(void* p,const char* command,const char* arguments,EpsText* output,EpsStatus* status){if(output)*output={};return Boundary(status,[&]{
   detail::Require(command && output,"invalid native control output");auto& r=Get(p);std::lock_guard lock(r.mutex);Ready(r);const auto args=Parse(arguments);const std::string method(command);Json result;
   if(method=="join")Take(r.adapter->Join());
+  else if(method=="training_arm"){
+    detail::Require(r.training && !r.training_failed && !r.training_armed && !r.training_active,"native training step cannot be armed");
+    Take(r.adapter->Join());r.training_armed=true;
+  }
+  else if(method=="training_finish"){
+    detail::Require(r.training && r.training_armed && r.training_active && !r.training_failed,"native training step has no admitted parameter read");
+    Take(r.adapter->Join());Take(r.training->Complete(r.training_worker,r.training_iteration));
+    ++r.training_iteration;r.training_active=false;r.training_armed=false;result={{"next_iteration",r.training_iteration}};
+  }
+  else if(method=="training_cancel"){
+    detail::Require(bool(r.training),"native training is not configured");r.CancelTraining(args.value("reason",std::string("original model step failed")));
+  }
+  else if(method=="training_status"){
+    detail::Require(bool(r.training),"native training is not configured");const auto stats=Take(r.training->Stats());
+    result={{"next_iteration",r.training_iteration},{"armed",r.training_armed},{"active",r.training_active},
+      {"observed_completion_floor",r.training_floor},{"completed",stats.completed},{"waiting",stats.waiting},
+      {"coordinator_active",stats.active},{"granted_tasks",stats.granted_tasks},{"completed_tasks",stats.completed_tasks},
+      {"failed",stats.failed || r.training_failed}};
+  }
   else if(method=="create_table")Take(r.adapter->CreateTable(Table(args,r.connections.size(),r.epoch)));
   else if(method=="release")Take(r.adapter->Release(args.at("handle")));
   else if(method=="cancel_prepared"){const std::uint64_t token=args.at("token");Take(r.adapter->CancelPrepared(token));r.prepared_tables.erase(token);}
@@ -205,8 +250,8 @@ int Command(void* p,const char* command,const char* arguments,EpsText* output,Ep
     result={{"offset",chunk.offset},{"total_bytes",chunk.total_bytes},{"data",Hex(chunk.data)},{"eof",chunk.eof},{"checksum",checksum},{"tail",Hex(next_tail)}};
   }
   else if(method=="stats"){result=Json::array();for(auto& c:r.connections){auto s=Take(c->Stats());result.push_back({{"updates",s.updates},{"live_tickets",s.live_tickets},{"cached_rows",s.cached_rows}});}}
-  else if(method=="close"){Take(r.adapter->Join());r.Close();}
-  else if(method=="abort")r.Close();
+  else if(method=="close"){detail::Require(!r.training_active && !r.training_armed,"cannot close native context during a training step");Take(r.adapter->Join());r.Close();}
+  else if(method=="abort"){if(r.training)r.CancelTraining("native parameter context aborted");r.Close();}
   else detail::Require(false,"unknown native control command");
   auto owner=std::make_unique<std::string>(result.dump());*output={owner->data(),owner->size(),owner.get(),ReleaseText};owner.release();
 });}

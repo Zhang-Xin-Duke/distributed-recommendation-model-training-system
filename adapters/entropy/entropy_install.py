@@ -28,7 +28,7 @@ def _integer(value, name, minimum, maximum):
 class JobConfiguration:
     def __init__(self, values):
         allowed={'schema_version','run','endpoints','partition_epoch','tables',
-                 'learner_id_stride','cache_agents','coalesce_gather','max_live_batches','backend','native'}
+                 'learner_id_stride','cache_agents','coalesce_gather','max_live_batches','backend','native','training'}
         if not isinstance(values,dict) or set(values)-allowed:
             raise ValueError('unknown parameter-service job option')
         if type(values.get('schema_version')) is not int or values['schema_version'] != 1:
@@ -46,6 +46,13 @@ class JobConfiguration:
         self.max_live=_integer(values.get('max_live_batches',128),'live batch limit',1,1048576)
         self.backend=values.get('backend','portable')
         if self.backend not in ('portable','native'):raise ValueError('unknown table backend')
+        self.training=copy.deepcopy(values.get('training'))
+        if self.training is not None:
+            t=self.training
+            if (self.backend!='native' or not isinstance(t,dict) or set(t)-{'coordinator','start_iteration'}
+                    or not isinstance(t.get('coordinator'),str) or not t['coordinator']):
+                raise ValueError('training progress requires a native backend and coordinator')
+            _integer(t.setdefault('start_iteration',0),'initial training iteration',0,UINT64_MAX-1)
         self.native=copy.deepcopy(values.get('native',{}))
         if not isinstance(self.native,dict) or set(self.native)-{'device','cuda','op_library','runtime_library'}:
             raise ValueError('unknown native backend option')
@@ -173,6 +180,7 @@ class Installation:
                 self._native_owner=NativeWorkerOwner(self._native_configuration(0),
                     runtime_library=self.config.native.get('runtime_library'))
             self._install_controller()
+            self._install_training()
         except BaseException:
             self.close();raise
 
@@ -247,6 +255,8 @@ class Installation:
             agents=[dict(id=i,endpoint=e,owner_run=r) for i,e,r in self.config.cache_agents])
         if 'cuda' in self.config.native:
             values['cuda']=dict(self.config.native['cuda'],owner_key=self._owner_key)
+        if self.config.training is not None:
+            values['training']=dict(self.config.training,worker=identifier//self.config.learner_stride)
         return values
 
     def _control_backend(self):
@@ -431,6 +441,36 @@ class Installation:
         original=getattr(owner,name)
         setattr(owner,name,replacement)
         self._controller_originals.append((owner,name,original,replacement))
+
+    def _install_training(self):
+        if self.config.training is None:return
+        runner=getattr(self.train,'_MultiDatasetRunner',None)
+        if runner is None or not callable(getattr(runner,'run',None)):
+            raise ValueError('training progress requires the original Runner.run boundary')
+        def training_fetch(value):
+            return isinstance(value,dict) and ('run_op' in value or any(training_fetch(v) for v in value.values()))
+        owners=[runner]
+        scene=getattr(self.train,'_MultiSceneRunner',None)
+        if scene is not None and 'run' in scene.__dict__:owners.append(scene)
+        for owner in owners:
+            original=owner.run
+            @functools.wraps(original)
+            def run(instance,*args,_original=original,**kwargs):
+                if (not getattr(instance,'is_worker',False) or not args or not training_fetch(args[0])
+                        or instance.prediction_mode()):
+                    return _original(instance,*args,**kwargs)
+                _,identifier=self._context()
+                backend=self._backend(identifier)
+                backend.arm_training()
+                try:
+                    result=_original(instance,*args,**kwargs)
+                    backend.finish_training()
+                    return result
+                except BaseException as error:
+                    try:backend.cancel_training(type(error).__name__)
+                    except Exception:pass
+                    raise
+            self._patch_controller(owner,'run',run)
 
     def _install_controller(self):
         runner=getattr(self.train,'_MultiDatasetRunner',None)

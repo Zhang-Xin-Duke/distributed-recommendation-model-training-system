@@ -1,0 +1,575 @@
+{
+  "recorded_at_utc": "2026-11-05T04:55:25.594336+00:00",
+  "base_commit": "6ae97b95680a16cba1b9e3a176e9762b0bb98a16",
+  "scope": "Native parameter context and preserved original Runner training-task admission/completion, with CPU and GPU model execution",
+  "source_sha256": {
+    "CMakeLists.txt": "ca11db84f2c757411df47b97cd9cd1f138896c14e3a642c102b5e04d5469887e",
+    "adapters/entropy/runtime_c.cpp": "5d87e13a7f7a9a8dd6cf09c3148d9ef95ab7a7456bdf44318bab993ef5abe0ab",
+    "adapters/entropy/native_session_backend.py": "a9cd10029b0bf0419b703fadf8acaf05878cbe65d1e537ec1ebd652c8d88d87d",
+    "adapters/entropy/entropy_install.py": "383196df203dd3850b949a4037e5dd904f849bcef3c49987015f7f52b7d930fc",
+    "tests/entropy_source_contract.py": "6a22dd887d44ae5c2bdc7e2d83ec4b020d915af5112d747cff64b8875661d806",
+    "tests/entropy_install_tests.py": "df6602d3668df77197fd676160ca54fbab95e3e194cf76e2147c5f8272dce424",
+    "tests/runtime_training_progress.py": "cd6b8d8ad7740e7be124ddc0464d6a2ebb65a02e167412ad3daec15711defad3",
+    "tests/native_training_progress.py": "a129bb7c438303bd081365b3f230766828695ae33cedf252ef009f63e722e81e"
+  },
+  "environment": {
+    "source_sha256": {
+      "CMakeLists.txt": "ca11db84f2c757411df47b97cd9cd1f138896c14e3a642c102b5e04d5469887e",
+      "adapters/entropy/runtime_c.cpp": "5d87e13a7f7a9a8dd6cf09c3148d9ef95ab7a7456bdf44318bab993ef5abe0ab",
+      "adapters/entropy/native_session_backend.py": "a9cd10029b0bf0419b703fadf8acaf05878cbe65d1e537ec1ebd652c8d88d87d",
+      "adapters/entropy/entropy_install.py": "383196df203dd3850b949a4037e5dd904f849bcef3c49987015f7f52b7d930fc",
+      "tests/entropy_source_contract.py": "6a22dd887d44ae5c2bdc7e2d83ec4b020d915af5112d747cff64b8875661d806",
+      "tests/entropy_install_tests.py": "df6602d3668df77197fd676160ca54fbab95e3e194cf76e2147c5f8272dce424",
+      "tests/runtime_training_progress.py": "cd6b8d8ad7740e7be124ddc0464d6a2ebb65a02e167412ad3daec15711defad3",
+      "tests/native_training_progress.py": "a129bb7c438303bd081365b3f230766828695ae33cedf252ef009f63e722e81e"
+    },
+    "binaries": {
+      "libeps_runtime.so": "c7d7c660163698cda948d11aa8f9b4db15f9322e4c554b2a6ce4aab45b76de33",
+      "eps_tensorflow_ops.so": "49cfc6081ac6a7562dc83e86c1718cf71515fda28ed4c2f2348bc476254150ca"
+    },
+    "gpu": "NVIDIA RTX A6000, GPU-d110b742-ff7e-5d44-8338-b15d0f1fa8b3, 49140 MiB, 610.43.02"
+  },
+  "native_c_abi": {
+    "test": "native_runtime_training_progress",
+    "workers": 2,
+    "shards": 2,
+    "iterations": 3,
+    "final_progress": {
+      "active": false,
+      "armed": false,
+      "completed": [
+        3,
+        3
+      ],
+      "completed_tasks": 6,
+      "coordinator_active": 0,
+      "failed": false,
+      "granted_tasks": 6,
+      "next_iteration": 3,
+      "observed_completion_floor": 2,
+      "waiting": 0
+    },
+    "shard_stats": [
+      {
+        "cached_rows": 0,
+        "live_tickets": 0,
+        "updates": 6
+      },
+      {
+        "cached_rows": 0,
+        "live_tickets": 0,
+        "updates": 6
+      }
+    ],
+    "prepared_pull_admission": true,
+    "eof_before_pull_consumes_no_task": true,
+    "prediction_consumes_no_task": true,
+    "finish_before_update_rejected": true,
+    "model_failure_aborts_group": true,
+    "progress_worker_ids_independent_of_parameter_learner_ids": true
+  },
+  "original_method_models": {
+    "cpu": {
+      "model_device": "cpu",
+      "scope": "preserved original Runner.run/SparseTable methods with explicit framework stand-ins; actual TensorFlow native model and two independent parameter shards/coordinator",
+      "state": {
+        "active": 0,
+        "completed": [
+          3,
+          3
+        ],
+        "completed_tasks": 6,
+        "completion_floor": 3,
+        "duplicate_completions": 0,
+        "failed": false,
+        "granted_tasks": 6,
+        "paused": false,
+        "rows": [
+          {
+            "first_moment": [
+              -0.0738326907157898,
+              -0.0369163453578949,
+              -0.01845817267894745
+            ],
+            "home": 0,
+            "key": 0,
+            "row_updates": 2,
+            "second_moment": [
+              0.00030201804474927485,
+              7.550451118731871e-05,
+              1.8876127796829678e-05
+            ],
+            "weights": [
+              0.2687043845653534,
+              0.26757198572158813,
+              0.2656806409358978
+            ]
+          },
+          {
+            "first_moment": [
+              -0.07439662516117096,
+              -0.03748992085456848,
+              -0.019035691395401955
+            ],
+            "home": 0,
+            "key": 2,
+            "row_updates": 2,
+            "second_moment": [
+              0.0003065332130063325,
+              7.783882028888911e-05,
+              2.0067767763976008e-05
+            ],
+            "weights": [
+              0.26329830288887024,
+              0.2625207006931305,
+              0.26124098896980286
+            ]
+          },
+          {
+            "first_moment": [
+              -0.07459741830825806,
+              -0.037875283509492874,
+              -0.019513189792633057
+            ],
+            "home": 0,
+            "key": 4,
+            "row_updates": 2,
+            "second_moment": [
+              0.00030823456472717226,
+              7.946036930661649e-05,
+              2.109125125571154e-05
+            ],
+            "weights": [
+              0.26168668270111084,
+              0.26101770997047424,
+              0.2599347233772278
+            ]
+          },
+          {
+            "first_moment": [
+              -0.0738326907157898,
+              -0.0369163453578949,
+              -0.01845817267894745
+            ],
+            "home": 1,
+            "key": 1,
+            "row_updates": 2,
+            "second_moment": [
+              0.00030201804474927485,
+              7.550451118731871e-05,
+              1.8876127796829678e-05
+            ],
+            "weights": [
+              0.2687043845653534,
+              0.26757198572158813,
+              0.2656806409358978
+            ]
+          },
+          {
+            "first_moment": [
+              -0.07439662516117096,
+              -0.03748992085456848,
+              -0.019035691395401955
+            ],
+            "home": 1,
+            "key": 3,
+            "row_updates": 2,
+            "second_moment": [
+              0.0003065332130063325,
+              7.783882028888911e-05,
+              2.0067767763976008e-05
+            ],
+            "weights": [
+              0.26329830288887024,
+              0.2625207006931305,
+              0.26124098896980286
+            ]
+          },
+          {
+            "first_moment": [
+              -0.07459741830825806,
+              -0.037875283509492874,
+              -0.019513189792633057
+            ],
+            "home": 1,
+            "key": 5,
+            "row_updates": 2,
+            "second_moment": [
+              0.00030823456472717226,
+              7.946036930661649e-05,
+              2.109125125571154e-05
+            ],
+            "weights": [
+              0.26168668270111084,
+              0.26101770997047424,
+              0.2599347233772278
+            ]
+          }
+        ],
+        "shard_stats": [
+          {
+            "cached_rows": 0,
+            "live_tickets": 0,
+            "rows": 3,
+            "updates": 6
+          },
+          {
+            "cached_rows": 0,
+            "live_tickets": 0,
+            "rows": 3,
+            "updates": 6
+          }
+        ],
+        "waiting": 0
+      },
+      "workers": [
+        {
+          "worker": 0,
+          "parameter_learner_id": 0,
+          "training_worker_id": 0,
+          "losses": [
+            0.598346471786499,
+            0.6017858982086182,
+            0.6011062264442444
+          ],
+          "progress": {
+            "active": false,
+            "armed": false,
+            "completed": [
+              3,
+              2
+            ],
+            "completed_tasks": 5,
+            "coordinator_active": 0,
+            "failed": false,
+            "granted_tasks": 5,
+            "next_iteration": 3,
+            "observed_completion_floor": 2,
+            "waiting": 0
+          },
+          "model_device": "/device:CPU:0",
+          "gpu_memory": null,
+          "original_runner_run": true,
+          "original_sparse_table": true,
+          "graph_python_callbacks": false,
+          "eof_preserves_completed_clock": true,
+          "source_sha256": {
+            "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+            "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+          }
+        },
+        {
+          "worker": 1,
+          "parameter_learner_id": 8,
+          "training_worker_id": 1,
+          "losses": [
+            0.6103515625,
+            0.6057825088500977,
+            0.59454745054245
+          ],
+          "progress": {
+            "active": false,
+            "armed": false,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 6,
+            "coordinator_active": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "next_iteration": 3,
+            "observed_completion_floor": 2,
+            "waiting": 0
+          },
+          "model_device": "/device:CPU:0",
+          "gpu_memory": null,
+          "original_runner_run": true,
+          "original_sparse_table": true,
+          "graph_python_callbacks": false,
+          "eof_preserves_completed_clock": true,
+          "source_sha256": {
+            "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+            "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+          }
+        }
+      ]
+    },
+    "cuda": {
+      "model_device": "cuda",
+      "scope": "preserved original Runner.run/SparseTable methods with explicit framework stand-ins; actual TensorFlow native model and two independent parameter shards/coordinator",
+      "state": {
+        "active": 0,
+        "completed": [
+          3,
+          3
+        ],
+        "completed_tasks": 6,
+        "completion_floor": 3,
+        "duplicate_completions": 0,
+        "failed": false,
+        "granted_tasks": 6,
+        "paused": false,
+        "rows": [
+          {
+            "first_moment": [
+              -0.0742187649011612,
+              -0.0371093824505806,
+              -0.0185546912252903
+            ],
+            "home": 0,
+            "key": 0,
+            "row_updates": 2,
+            "second_moment": [
+              0.0003050192608498037,
+              7.625481521245092e-05,
+              1.906370380311273e-05
+            ],
+            "weights": [
+              0.2687094807624817,
+              0.26757898926734924,
+              0.2656903564929962
+            ]
+          },
+          {
+            "first_moment": [
+              -0.0742659941315651,
+              -0.0374208502471447,
+              -0.0189982783049345
+            ],
+            "home": 0,
+            "key": 2,
+            "row_updates": 2,
+            "second_moment": [
+              0.000305513443890959,
+              7.756710692774504e-05,
+              1.9993038222310133e-05
+            ],
+            "weights": [
+              0.2632969617843628,
+              0.2625187635421753,
+              0.261238157749176
+            ]
+          },
+          {
+            "first_moment": [
+              -0.07459483295679092,
+              -0.037872202694416046,
+              -0.019510354846715927
+            ],
+            "home": 0,
+            "key": 4,
+            "row_updates": 2,
+            "second_moment": [
+              0.0003082093608099967,
+              7.94450897956267e-05,
+              2.1083989850012586e-05
+            ],
+            "weights": [
+              0.26168665289878845,
+              0.26101750135421753,
+              0.25993406772613525
+            ]
+          },
+          {
+            "first_moment": [
+              -0.0742187649011612,
+              -0.0371093824505806,
+              -0.0185546912252903
+            ],
+            "home": 1,
+            "key": 1,
+            "row_updates": 2,
+            "second_moment": [
+              0.0003050192608498037,
+              7.625481521245092e-05,
+              1.906370380311273e-05
+            ],
+            "weights": [
+              0.2687094807624817,
+              0.26757898926734924,
+              0.2656903564929962
+            ]
+          },
+          {
+            "first_moment": [
+              -0.0742659941315651,
+              -0.0374208502471447,
+              -0.0189982783049345
+            ],
+            "home": 1,
+            "key": 3,
+            "row_updates": 2,
+            "second_moment": [
+              0.000305513443890959,
+              7.756710692774504e-05,
+              1.9993038222310133e-05
+            ],
+            "weights": [
+              0.2632969617843628,
+              0.2625187635421753,
+              0.261238157749176
+            ]
+          },
+          {
+            "first_moment": [
+              -0.07459483295679092,
+              -0.037872202694416046,
+              -0.019510354846715927
+            ],
+            "home": 1,
+            "key": 5,
+            "row_updates": 2,
+            "second_moment": [
+              0.0003082093608099967,
+              7.94450897956267e-05,
+              2.1083989850012586e-05
+            ],
+            "weights": [
+              0.26168665289878845,
+              0.26101750135421753,
+              0.25993406772613525
+            ]
+          }
+        ],
+        "shard_stats": [
+          {
+            "cached_rows": 0,
+            "live_tickets": 0,
+            "rows": 3,
+            "updates": 6
+          },
+          {
+            "cached_rows": 0,
+            "live_tickets": 0,
+            "rows": 3,
+            "updates": 6
+          }
+        ],
+        "waiting": 0
+      },
+      "workers": [
+        {
+          "worker": 0,
+          "parameter_learner_id": 0,
+          "training_worker_id": 0,
+          "losses": [
+            0.6103515625,
+            0.6057825088500977,
+            0.6012476086616516
+          ],
+          "progress": {
+            "active": false,
+            "armed": false,
+            "completed": [
+              3,
+              2
+            ],
+            "completed_tasks": 5,
+            "coordinator_active": 0,
+            "failed": false,
+            "granted_tasks": 5,
+            "next_iteration": 3,
+            "observed_completion_floor": 2,
+            "waiting": 0
+          },
+          "model_device": "/device:GPU:0",
+          "gpu_memory": {
+            "current": 3584,
+            "peak": 4864
+          },
+          "original_runner_run": true,
+          "original_sparse_table": true,
+          "graph_python_callbacks": false,
+          "eof_preserves_completed_clock": true,
+          "source_sha256": {
+            "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+            "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+          }
+        },
+        {
+          "worker": 1,
+          "parameter_learner_id": 8,
+          "training_worker_id": 1,
+          "losses": [
+            0.6103515625,
+            0.5980194211006165,
+            0.5944783687591553
+          ],
+          "progress": {
+            "active": false,
+            "armed": false,
+            "completed": [
+              3,
+              3
+            ],
+            "completed_tasks": 6,
+            "coordinator_active": 0,
+            "failed": false,
+            "granted_tasks": 6,
+            "next_iteration": 3,
+            "observed_completion_floor": 2,
+            "waiting": 0
+          },
+          "model_device": "/device:GPU:0",
+          "gpu_memory": {
+            "current": 3584,
+            "peak": 4864
+          },
+          "original_runner_run": true,
+          "original_sparse_table": true,
+          "graph_python_callbacks": false,
+          "eof_preserves_completed_clock": true,
+          "source_sha256": {
+            "train_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+            "inputs_sha256": "907382c92b3ce9eeccf867e9002c7292075856cdda33e2310623ed950a82602a"
+          }
+        }
+      ]
+    }
+  },
+  "linux_checks": [
+    {
+      "name": "native_tensorflow_cpu_graph",
+      "seconds": 10.03
+    },
+    {
+      "name": "native_session_context_cpu",
+      "seconds": 8.08
+    },
+    {
+      "name": "original_runner_native_training_progress_cpu",
+      "seconds": 8.96
+    },
+    {
+      "name": "original_runner_native_training_progress_cuda",
+      "seconds": 10.61
+    },
+    {
+      "name": "native_runtime_c_abi",
+      "seconds": 0.26
+    },
+    {
+      "name": "native_runtime_training_progress",
+      "seconds": 0.53
+    }
+  ],
+  "local_checks": {
+    "configuration_unit_cases": 9,
+    "native_c_abi_process_checks": 2,
+    "original_source_regressions": 4
+  },
+  "verified": [
+    "First training Pull obtains admission after input tensors exist; prepared Pulls share the same protocol",
+    "Two training Workers remain distinct from parameter learner identities with a stride of eight",
+    "Completion requires acknowledged Push and no live parameter handle",
+    "EOF and prediction before training Pull do not consume a task",
+    "Model failure after an admitted Pull aborts the group",
+    "CPU and one-physical-A6000 GPU models run original SparseTable and Runner.run bodies through native TF operations"
+  ],
+  "remaining": [
+    "Full original module/reader/main/Executor and multi-peer service execution awaits matching TensorFlow build and live acceptance gates",
+    "Original framework checkpoint/restore must bind task progress to saved model and input state",
+    "Physical-node loss, cross-node retirement and GPU common-quality/scaling remain separate required work"
+  ]
+}

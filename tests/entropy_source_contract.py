@@ -112,7 +112,7 @@ def load(tf):
             exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
     original_runner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='_MultiDatasetRunner')
     runner_methods=[n for n in original_runner.body if isinstance(n,ast.FunctionDef) and
-                    n.name in {'checkpoint','prepare_ckpt','prepare_path','is_chief','restore'}]
+                    n.name in {'checkpoint','prepare_ckpt','prepare_path','is_chief','restore','run','prediction_mode'}]
     runner=ast.ClassDef(name='_MultiDatasetRunner',bases=[],keywords=[],body=runner_methods,decorator_list=[])
     exec(compile(ast.fix_missing_locations(ast.Module(body=[runner],type_ignores=[])),str(path),'exec'),namespace)
     # Original functions retain their own namespace, including original class identity.

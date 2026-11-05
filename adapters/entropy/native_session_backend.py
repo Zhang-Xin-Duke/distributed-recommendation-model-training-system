@@ -76,6 +76,10 @@ class NativeSessionBackend:
     def resume(self,snapshot_id):return self._call('resume',dict(id=snapshot_id))
     def stats(self):return self._call('stats')
     def restored_from(self):return self._call('restored_from')
+    def arm_training(self):return self._call('training_arm')
+    def finish_training(self):return self._call('training_finish')
+    def cancel_training(self,reason):return self._call('training_cancel',dict(reason=str(reason)))
+    def training_status(self):return self._call('training_status')
 
     def read_checkpoint(self,snapshot_id,shard,offset,max_bytes,checksum,tail):
         reply=self._call('read_checkpoint',dict(id=snapshot_id,shard=shard,offset=offset,

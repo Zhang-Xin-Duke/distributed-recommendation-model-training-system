@@ -180,11 +180,23 @@ if(EPS_BUILD_BRPC)
           set_tests_properties(native_tensorflow_cpu_graph PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           add_test(NAME native_session_context_cpu COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_session_context.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" cpu)
           set_tests_properties(native_session_context_cpu PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+          add_test(NAME original_runner_native_training_progress_cpu COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_training_progress.py" --build "${CMAKE_CURRENT_BINARY_DIR}"
+            --runtime $<TARGET_FILE:eps_runtime> --operations "${eps_tf_operations}"
+            --out "${CMAKE_CURRENT_BINARY_DIR}/original-runner-training-progress-cpu.json")
+          set_tests_properties(original_runner_native_training_progress_cpu PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           if(EPS_BUILD_CUDA)
             add_test(NAME native_tensorflow_cuda_graph COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_tensorflow_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" $<TARGET_FILE:eps_snapshot_compare> cuda)
             set_tests_properties(native_tensorflow_cuda_graph PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
             add_test(NAME native_session_context_cuda COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_session_context.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> "${eps_tf_operations}" cuda)
             set_tests_properties(native_session_context_cuda PROPERTIES TIMEOUT 180 ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+            add_test(NAME original_runner_native_training_progress_cuda COMMAND "${Python3_EXECUTABLE}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/tests/native_training_progress.py" --build "${CMAKE_CURRENT_BINARY_DIR}"
+              --runtime $<TARGET_FILE:eps_runtime> --operations "${eps_tf_operations}" --model-device cuda
+              --out "${CMAKE_CURRENT_BINARY_DIR}/original-runner-training-progress-cuda.json")
+            set_tests_properties(original_runner_native_training_progress_cuda PROPERTIES TIMEOUT 240 SKIP_RETURN_CODE 77
+              ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           endif()
         endif()
       endif()
@@ -192,6 +204,10 @@ if(EPS_BUILD_BRPC)
     if(EPS_BUILD_TESTS)
       add_test(NAME native_runtime_c_abi COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_c_processes.py" $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime>)
       set_tests_properties(native_runtime_c_abi PROPERTIES TIMEOUT 45)
+      add_test(NAME native_runtime_training_progress COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_training_progress.py" --build "${CMAKE_CURRENT_BINARY_DIR}"
+        --runtime $<TARGET_FILE:eps_runtime> --out "${CMAKE_CURRENT_BINARY_DIR}/native-training-progress.json")
+      set_tests_properties(native_runtime_training_progress PROPERTIES TIMEOUT 120)
       add_test(NAME native_runtime_owner_incarnation COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_c_processes.py"
         $<TARGET_FILE:eps_server> $<TARGET_FILE:eps_runtime> $<TARGET_FILE:eps_cache_agent>)
       set_tests_properties(native_runtime_owner_incarnation PROPERTIES TIMEOUT 45)

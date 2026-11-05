@@ -52,6 +52,9 @@ The GPU execution currently uses host staging at the RPC boundary.
 [Consistency-policy model experiments](docs/MODEL_CONSISTENCY_POLICIES.md) compare
 sequential, bounded-delay and eventual admission with the same per-Worker
 Embedding/MLP update algorithm, recording training loss and straggler waits.
+[Original Runner training progress](docs/ORIGINAL_TRAINING_PROGRESS.md) obtains a
+permit at the first parameter Pull and completes it after the original model
+step and parameter acknowledgements finish; input EOF consumes no task.
 
 [Reusable Lookup layouts](docs/REUSABLE_LOOKUP_LAYOUTS.md) register repeated ID
 lists and CSR layouts once per shard, then send scoped tokens for fresh reads.

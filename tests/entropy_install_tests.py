@@ -63,6 +63,54 @@ class Configuration(unittest.TestCase):
             c['cache_agents'][0]['owner_run']=scope
             with self.subTest(scope=scope),self.assertRaises(ValueError):JobConfiguration(c)
 
+    def test_native_training_progress_configuration(self):
+        values=dict(configuration(),backend='native',training=dict(coordinator='127.0.0.1:9300'))
+        self.assertEqual(JobConfiguration(values).training['start_iteration'],0)
+        for training in [dict(),dict(coordinator=''),dict(coordinator=7),
+                         dict(coordinator='node',start_iteration=True),
+                         dict(coordinator='node',start_iteration=2**64-1),
+                         dict(coordinator='node',unknown=True)]:
+            with self.subTest(training=training),self.assertRaises(ValueError):
+                JobConfiguration(dict(values,training=training))
+        with self.assertRaises(ValueError):JobConfiguration(dict(values,backend='portable'))
+
+    def test_training_runner_scope_and_method_restoration(self):
+        class SparseTable:pass
+        for name in ['_create_table','embedding_lookup_and_pooling','vars','output',
+                     'apply_gradients','set_prediction','set_training','set_upsert']:
+            setattr(SparseTable,name,lambda *args,**kwargs:None)
+        class Runner:
+            is_worker=True
+            prediction=False
+            def prediction_mode(self):return self.prediction
+            def run(self,fetches,**kwargs):
+                if kwargs.get('fail'):raise EOFError('input ended')
+                return fetches
+        class Scene(Runner):
+            def run(self,fetches,**kwargs):return fetches
+        module=types.SimpleNamespace(SparseTable=SparseTable,_MultiDatasetRunner=Runner,_MultiSceneRunner=Scene,
+            get_default_learner=lambda:types.SimpleNamespace(learner_rank=1,thread_id=2))
+        events=[]
+        backend=types.SimpleNamespace(arm_training=lambda:events.append('arm'),
+            finish_training=lambda:events.append('finish'),cancel_training=lambda reason:events.append(('cancel',reason)))
+        base,scene=Runner.run,Scene.run
+        values=dict(configuration(),backend='native',training=dict(coordinator='127.0.0.1:9300',start_iteration=2))
+        with install(module,values) as hooks:
+            with mock.patch.object(hooks,'_backend',return_value=backend) as selected:
+                runner=Runner();fetches=dict(run_op='step')
+                self.assertIs(runner.run(fetches),fetches)
+                self.assertEqual(events,['arm','finish']);selected.assert_called_with(10)
+                self.assertEqual(hooks._native_configuration(10)['training']['start_iteration'],2)
+                self.assertEqual(hooks._native_configuration(10)['training']['worker'],1)
+                events.clear();runner.run('administrative-op');runner.prediction=True;runner.run(fetches)
+                self.assertEqual(events,[])
+                runner.prediction=False
+                with self.assertRaises(EOFError):runner.run(fetches,fail=True)
+                self.assertEqual(events,['arm',('cancel','EOFError')])
+                events.clear();Scene().run({0:fetches})
+                self.assertEqual(events,['arm','finish'])
+        self.assertIs(Runner.run,base);self.assertIs(Scene.run,scene)
+
     def test_preserves_class_identity_and_restores_methods(self):
         class SparseTable:
             def __init__(self, name='native'):self._name=name
