@@ -2,8 +2,12 @@
 
 The available code collection contains the framework's Bazel rules, TensorFlow
 SDK and several internal source dependencies in separate repositories. A local
-dependency graph now loads with a public Redis SDK adapter. Building the original
-`ts_clib.so` next requires the matching Linux/NVIDIA toolchain and runtime.
+dependency graph loads with a public Redis SDK adapter. Both original native
+targets are now undergoing C++/CUDA compilation on a Linux GPU host. The recovered
+TensorFlow 2.12.1 SDK has passed C API metadata and real GPU execution checks;
+the matching Python runtime is also being built from its recovered source.
+Original shared-library loading and full reader/training/control execution remain
+open until their own checks pass.
 
 ```mermaid
 flowchart LR
@@ -11,7 +15,7 @@ flowchart LR
   C --> B[bgraph ops_utils]
   B --> R[common base redis]
   R --> S[Public BRPC Redis SDK adapter]
-  E --> G[Linux / NVIDIA toolchain: required for build execution]
+  E --> G[Linux CUDA 12.2 / Clang 18: configured]
   T[TensorFlow 2.12.1 NVIDIA SDK: found] --> E
   W[Bazel rules and local source dependencies: found] --> E
 ```
@@ -129,6 +133,55 @@ initializer is not executed. The matching Python wheel still needs compilation
 and loading before it can supply the original framework's runtime.
 
 [Source and dependency preparation](validation/2026-11-04-original-tensorflow-source.json).
+
+## Linux toolchain and SDK execution
+
+The Linux build host uses Ubuntu 22.04, eight CPU cores, an RTX A6000 and CUDA
+12.2.140. GCC 11 compiles the host C++ sources; Clang 18 compiles the CUDA
+dependencies that supply Clang/LLVM-specific options. RDMA development libraries,
+libunwind, libaio and cuDNN 8 are installed from their package repositories.
+
+Configure a transported private workspace with:
+
+```sh
+python scripts/configure_original_native_linux.py \
+  --workspace /path/to/original-native-portable \
+  --cuda /usr/local/cuda-12.2 --gcc /usr/bin/gcc --clang /usr/bin/clang-18
+```
+
+The tool records actual compiler include paths, generates CUDA rules against the
+installed toolkit, enumerates real RDMA headers/libraries and initializes the
+Bazel version feature repository. The independent source copies also carry
+bounded build fixes: explicit TensorFlow helper qualification for GCC C++17 and
+a transitive common Redis header define selecting its declared hiredis include
+layout. The original mounted repositories remain unchanged.
+
+The full GPU dependency selection requires `--define=enable_gpu=1` in addition to
+the CUDA toolchain flags:
+
+```sh
+bazel --output_user_root=/path/to/private-bazel-cache build \
+  --enable_bzlmod=false --define=enable_gpu=1 --jobs=6 \
+  --extra_toolchains=//.resources/toolchains/cc:cc-toolchain-k8-gcc,//.resources/toolchains/cuda:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cuda-clang-cuda-toolchain \
+  --//.resources/toolchains/cuda:compiler=clang \
+  --//.resources/toolchains/cuda:version=. \
+  --//.resources/toolchains/cuda:capabilities=sm_86 \
+  //entropy:ts_clib.so //entropy:ts_clib_gpu.so
+```
+
+`scripts/probe_original_tensorflow.py` loads the recovered framework, NCCL and
+TensorFlow C++ shared libraries through their C API. It validates the SDK's
+serialized operation list and runs GPU MatMul with runtime-fed inputs and soft
+placement disabled. TensorFlow reports version **2.12.1**, exposes a GPU and
+returns the expected matrix result. With `--ops`, the same probe additionally
+loads an original custom-operation library and requires a nonempty registered
+operation list. That custom-library check will run after the build completes.
+
+The SDK execution probe establishes native TensorFlow GPU operation in this
+environment. Full framework training is validated separately after both original
+libraries and their matching Python runtime are ready.
+
+[Linux environment and SDK execution](validation/2026-11-04-original-linux-sdk.json).
 
 [Redis adapter verification and build analysis](validation/2026-11-04-public-redis-sdk.json) ·
 [Earlier build-input inventory](validation/2026-11-01-native-build-preflight.json)

@@ -133,8 +133,9 @@ learner and an early-started GPU owner per worker.
 [Public Redis SDK integration](docs/PUBLIC_REDIS_SDK.md) supplies the original
 shared wrapper's missing client interfaces using real Redis commands. Binary
 batch results, TTL, timeouts and lost-reply behavior are process-tested; the
-original native dependency graph now resolves. Its build analysis requires the
-matching Linux/NVIDIA environment before complete framework execution.
+original native dependency graph resolves. [Original framework integration](docs/ORIGINAL_NATIVE_BUILD.md)
+is progressing through Linux C++/CUDA compilation and a matching Python-runtime
+build; complete framework execution remains a separate acceptance check.
 [Peer-coordinated checkpoints](docs/PEER_CHECKPOINTS.md) also support a chief
 without an external learner table; two-process/four-thread checks cover repeated
 commit, admission control and a failed model save.

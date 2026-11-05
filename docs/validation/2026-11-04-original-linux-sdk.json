@@ -1,0 +1,88 @@
+{
+  "recorded_at_utc": "2026-11-05T01:01:28.665319+00:00",
+  "base_commit": "aba704651b3a7e2c618892b6b9e96fd4a0045e6a",
+  "scope": "Real Linux build environment and recovered TensorFlow2.12.1 SDK C API/GPU execution; original framework library and training acceptance remain open",
+  "environment": {
+    "os": "Ubuntu22.04",
+    "gpu_name": "NVIDIA RTX A6000",
+    "compute_capability": "8.6",
+    "cpu_affinity": 8,
+    "versions": {
+      "clang": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)",
+      "lld": "Ubuntu LLD 18.1.8 (compatible with GNU linkers)",
+      "python310": "Python 3.10.12"
+    }
+  },
+  "configuration": {
+    "cuda_version": "12.2",
+    "toolkit_nvcc_version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2023 NVIDIA Corporation\nBuilt on Tue_Aug_15_22:02:13_PDT_2023\nCuda compilation tools, release 12.2, V12.2.140\nBuild cuda_12.2.r12.2/compiler.33191640_0\n",
+    "gcc": "x86_64-linux-gnu-gcc-11 (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "clang": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)",
+    "configured_toolkit": "/usr/local/cuda-12.2",
+    "rdma_imports": 4,
+    "cuda_option_translation": {
+      "-nvcc_options=relaxed-constexpr": "--expt-relaxed-constexpr",
+      "-nvcc_options=ftz=true": "--ftz=true"
+    },
+    "qualified_tensorflow_helpers": [
+      "MaybeLockVariableInputMutexesInOrder",
+      "GetInputTensorFromVariable"
+    ],
+    "redis_header_define": "AI_BUILD_WITH_BAZEL=1",
+    "required_bazel_defines": [
+      "enable_gpu=1"
+    ],
+    "native_compiled": false
+  },
+  "sdk_probe": {
+    "tensorflow": "2.12.1",
+    "device_types": [
+      "CPU",
+      "GPU"
+    ],
+    "gpu_matmul": [
+      7.0,
+      10.0,
+      15.0,
+      22.0
+    ],
+    "core_operation_count": 1731,
+    "op_library_loaded": null,
+    "registered_operation_count": 0,
+    "registered_operations": [],
+    "full_framework_training_verified": false
+  },
+  "script_sha256": {
+    "configure_original_native_linux.py": "e0174f5cfef216073e1735e61d4d7b65d508ef24a7002ef8d1c83b93a2dc6372",
+    "probe_original_tensorflow.py": "091af58ca8fdc70a04063aa3df8b2b47a811132435dd4d52d339d988424dd740"
+  },
+  "upstream_files_verified_unchanged": [
+    {
+      "file": "entropy/contrib/tensorswitch.bzl",
+      "sha256": "a1aece5b7cf6b4a6687a68385be10c4aeaf1aa4ffaaaf71b61c14c8e809cac97",
+      "unchanged": true
+    },
+    {
+      "file": "entropy/tensorswitch/ops/mio_adam_op.cc",
+      "sha256": "b07b97419730df7f580d2004e7b3a3cfeb8d3ed53bf2b7b5f6569eb631450967",
+      "unchanged": true
+    },
+    {
+      "file": "repositories/common/base/BUILD",
+      "sha256": "16312934f2fbee363d231daac38a9fbb8f1d3305bf62e3934dcc0ed3816fc4e0",
+      "unchanged": true
+    }
+  ],
+  "source_archive_sha256": "6eab9ff18007956d2c4ad6dfcb3fd218b64240b93bd41aa551d9ffd515225da9",
+  "matching_tensorflow_source_archive_sha256": "ead4c58439bfb9820b35224000d3750f37b45cbd35a215ece3e8daf4894136c9",
+  "checks": {
+    "source_bundle_ctest": "passed",
+    "python_syntax": "passed",
+    "git_diff": "passed",
+    "sdk_c_api_gpu": "passed"
+  },
+  "native_library_build_completed": false,
+  "matching_python_wheel_built": false,
+  "original_reader_training_control_verified": false,
+  "credentialed_bootstrap_executed": false
+}
