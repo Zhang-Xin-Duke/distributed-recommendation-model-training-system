@@ -50,7 +50,7 @@ def registered_operations(data):
     return names
 
 
-def probe(framework, nccl, tensorflow, ops=None):
+def probe(framework, nccl, tensorflow, ops=None, row_segments=False):
     handles = [c.CDLL(str(path.resolve()), mode=c.RTLD_GLOBAL) for path in (nccl, framework)]
     tf = c.CDLL(str(tensorflow.resolve()), mode=c.RTLD_GLOBAL)
     ptr = c.c_void_p
@@ -112,6 +112,25 @@ def probe(framework, nccl, tensorflow, ops=None):
         attr_bool(op, name, 0)
     product = Output(finish(op, status), 0)
     check()
+    row_inputs, row_product = [], None
+    if row_segments:
+        if "GpuRowLengthSegment" not in operation_names:
+            raise RuntimeError("row-segment execution requires the original GPU operation library")
+        for name, dimensions in [(b"row_ends", [-1]), (b"row_values_size", [])]:
+            op = new_op(graph, b"Placeholder", name)
+            attr_type(op, b"dtype", 3)  # TF_INT32
+            dimensions_array = (c.c_int64 * len(dimensions))(*dimensions)
+            attr_shape(op, b"shape", dimensions_array, len(dimensions))
+            row_inputs.append(Output(finish(op, status), 0))
+            check()
+        op = new_op(graph, b"GpuRowLengthSegment", b"original_gpu_row_segments")
+        set_device(op, b"/device:GPU:0")
+        for value in row_inputs:
+            add_input(op, value)
+        attr_type(op, b"T", 3)
+        attr_type(op, b"Tindicessize", 3)
+        row_product = Output(finish(op, status), 0)
+        check()
     options = bind("TF_NewSessionOptions", ptr)()
     # ConfigProto.gpu_options.allow_growth=true. Soft placement remains false;
     # an unavailable GPU must fail rather than execute the requested op on CPU.
@@ -144,6 +163,28 @@ def probe(framework, nccl, tensorflow, ops=None):
     values = list(c.cast(tensor_data(result), c.POINTER(c.c_float * 4)).contents)
     if values != [7.0, 10.0, 15.0, 22.0]:
         raise RuntimeError("GPU matrix result mismatch: " + repr(values))
+    row_cases = []
+    if row_segments:
+        byte_size = bind("TF_TensorByteSize", c.c_size_t, ptr)
+        tensor_type = bind("TF_TensorType", c.c_int, ptr)
+        for ends, expected in [([2, 3, 5, 8], [0, 0, 1, 2, 2, 3, 3, 3]),
+                               ([0, 0, 2, 2, 5, 5], [2, 2, 4, 4, 4])]:
+            vector_shape = (c.c_int64 * 1)(len(ends))
+            ends_tensor = allocate(3, vector_shape, 1, len(ends) * 4)
+            size_tensor = allocate(3, None, 0, 4)
+            c.memmove(tensor_data(ends_tensor), (c.c_int32 * len(ends))(*ends), len(ends) * 4)
+            c.memmove(tensor_data(size_tensor), c.byref(c.c_int32(len(expected))), 4)
+            row_result = ptr()
+            run(session, None, (Output * 2)(*row_inputs), (ptr * 2)(ends_tensor, size_tensor), 2,
+                c.byref(row_product), c.byref(row_result), 1, None, 0, None, status)
+            check()
+            if tensor_type(row_result) != 3 or byte_size(row_result) != len(expected) * 4:
+                raise RuntimeError("original GPU row output type or size mismatch")
+            actual = list(c.cast(tensor_data(row_result), c.POINTER(c.c_int32 * len(expected))).contents)
+            if actual != expected:
+                raise RuntimeError("original GPU row-segment result mismatch")
+            row_cases.append(dict(row_ends=ends, segments=actual))
+            tensors.extend([ends_tensor, size_tensor, row_result])
     bind("TF_CloseSession", None, ptr, ptr)(session, status)
     check()
     bind("TF_DeleteSession", None, ptr, ptr)(session, status)
@@ -161,6 +202,7 @@ def probe(framework, nccl, tensorflow, ops=None):
                 op_library_loaded=str(ops) if ops else None,
                 registered_operation_count=len(operation_names),
                 registered_operations=operation_names,
+                original_gpu_row_cases=row_cases,
                 full_framework_training_verified=False)
 
 
@@ -169,8 +211,9 @@ def main():
     for name in ("framework", "nccl", "tensorflow", "out"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--ops", type=Path)
+    parser.add_argument("--row-segments", action="store_true")
     args = parser.parse_args()
-    result = probe(args.framework, args.nccl, args.tensorflow, args.ops)
+    result = probe(args.framework, args.nccl, args.tensorflow, args.ops, args.row_segments)
     args.out.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result))
 

@@ -1,0 +1,145 @@
+{
+  "recorded_at_utc": "2026-11-05T02:26:30.454328+00:00",
+  "build-exit.json": {
+    "exit_code": 0
+  },
+  "original-sdk-validation.json": {
+    "stage": "original_sdk_probes_passed",
+    "steps": [
+      {
+        "variant": "cpu",
+        "exit_code": 0
+      },
+      {
+        "variant": "gpu",
+        "exit_code": 0
+      }
+    ]
+  },
+  "original-cpu-sdk-probe.json": {
+    "tensorflow": "2.12.1",
+    "device_types": [
+      "CPU",
+      "GPU"
+    ],
+    "gpu_matmul": [
+      7.0,
+      10.0,
+      15.0,
+      22.0
+    ],
+    "core_operation_count": 1731,
+    "registered_operation_count": 314,
+    "original_gpu_row_cases": [],
+    "full_framework_training_verified": false,
+    "required_operations_present": {
+      "GpuRowLengthSegment": true,
+      "TensorSwitchDensePushPullOp": true
+    }
+  },
+  "original-gpu-sdk-probe.json": {
+    "tensorflow": "2.12.1",
+    "device_types": [
+      "CPU",
+      "GPU"
+    ],
+    "gpu_matmul": [
+      7.0,
+      10.0,
+      15.0,
+      22.0
+    ],
+    "core_operation_count": 1731,
+    "registered_operation_count": 315,
+    "original_gpu_row_cases": [
+      {
+        "row_ends": [
+          2,
+          3,
+          5,
+          8
+        ],
+        "segments": [
+          0,
+          0,
+          1,
+          2,
+          2,
+          3,
+          3,
+          3
+        ]
+      },
+      {
+        "row_ends": [
+          0,
+          0,
+          2,
+          2,
+          5,
+          5
+        ],
+        "segments": [
+          2,
+          2,
+          4,
+          4,
+          4
+        ]
+      }
+    ],
+    "full_framework_training_verified": false,
+    "required_operations_present": {
+      "GpuRowLengthSegment": true,
+      "TensorSwitchDensePushPullOp": true
+    }
+  },
+  "eps-build-exit.json": {
+    "exit_code": 0
+  },
+  "cpu-rebalance.json": {
+    "stage": "resumed_with_8_jobs",
+    "previous_wrapper_pid": 24986,
+    "client_pid": 24997,
+    "wrapper_pid": 78856
+  },
+  "artifacts": [
+    {
+      "name": "ts_clib.so",
+      "bytes": 989429808,
+      "sha256": "395e564c026b34e94bfb69b1672c4618db84e07cc6a55fdb1fc131b05fe24787"
+    },
+    {
+      "name": "ts_clib_gpu.so",
+      "bytes": 995998312,
+      "sha256": "7c072f8a3b405a4e369d095bfb8269c99cea23c4403a3b4ca6dc483d6a287da2"
+    },
+    {
+      "name": "libeps_runtime.so",
+      "bytes": 12845440,
+      "sha256": "1891a53c4437f5ef8a2e7f62609c59228371c38ef17667cad745e73bc18aed76"
+    },
+    {
+      "name": "eps_server",
+      "bytes": 12881288,
+      "sha256": "66a85e956ae6823260ad75ae9ad0ee224396ec20f6300e88d44bd77d714691f3"
+    },
+    {
+      "name": "eps_cache_agent",
+      "bytes": 12192224,
+      "sha256": "30c9aa6f2d3a332295eb8f4b8f8ea73ee27175462eea6dc545b961eceb63d148"
+    }
+  ],
+  "original_build_summary": "WithInsert/NonUnique.Handle.cc; 43s processwrapper-sandbox ... (4 actions running)\n[6,352 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 30s processwrapper-sandbox ... (3 actions running)\n[6,352 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 41s processwrapper-sandbox ... (3 actions running)\n[6,353 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 44s processwrapper-sandbox ... (2 actions running)\n[6,353 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 55s processwrapper-sandbox ... (2 actions running)\n[6,353 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 85s processwrapper-sandbox ... (2 actions running)\n[6,354 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 91s processwrapper-sandbox\n[6,354 / 6,357] Compiling entropy/tensorswitch/common/instantiation/sparse_lazyadam_hashmap_v2/UnifiedPurge/WithInsert/NonUnique.cc; 101s processwrapper-sandbox\n[6,355 / 6,357] [Prepa] Linking entropy/ts_clib.so\n[6,355 / 6,357] Linking entropy/ts_clib_gpu.so; 1s processwrapper-sandbox ... (2 actions running)\n[6,355 / 6,357] Linking entropy/ts_clib_gpu.so; 11s processwrapper-sandbox ... (2 actions running)\nINFO: Found 2 targets...\n[6,357 / 6,357] no actions running\nINFO: Elapsed time: 959.461s, Critical Path: 223.92s\nINFO: 110 processes: 1 internal, 109 processwrapper-sandbox.\nINFO: Build completed successfully, 110 total actions\n",
+  "runtime_ctest": "Start testing: Nov 05 02:25 UTC\n----------------------------------------------------------\n1/47 Testing: native_runtime_c_abi\n1/47 Test: native_runtime_c_abi\nCommand: \"/home/ubuntu/entropy-native/original-python/bin/python\" \"/home/ubuntu/entropy-native/eps-source/tests/runtime_c_processes.py\" \"/home/ubuntu/entropy-native/eps-native/build/eps_server\" \"/home/ubuntu/entropy-native/eps-native/build/libeps_runtime.so\"\nDirectory: /home/ubuntu/entropy-native/eps-native/build\n\"native_runtime_c_abi\" start time: Nov 05 02:25 UTC\nOutput:\n----------------------------------------------------------\n{\"test\": \"native_runtime_c_abi\", \"abi_version\": 1, \"shards\": 2, \"prepared_input\": true, \"duplicate_push\": true, \"buffer_outlives_runtime\": true, \"checkpoint_chunk_checksum\": true, \"restore_metadata\": true, \"prediction_auto_release\": true, \"prepared_mode_at_consumption\": true, \"live_mode_change_rejected\": true, \"independent_owner_incarnation\": false}\n<end of output>\nTest time =   0.24 sec\n----------------------------------------------------------\nTest Passed.\n\"native_runtime_c_abi\" end time: Nov 05 02:25 UTC\n\"native_runtime_c_abi\" time elapsed: 00:00:00\n----------------------------------------------------------\n\n2/47 Testing: native_runtime_owner_incarnation\n2/47 Test: native_runtime_owner_incarnation\nCommand: \"/home/ubuntu/entropy-native/original-python/bin/python\" \"/home/ubuntu/entropy-native/eps-source/tests/runtime_c_processes.py\" \"/home/ubuntu/entropy-native/eps-native/build/eps_server\" \"/home/ubuntu/entropy-native/eps-native/build/libeps_runtime.so\" \"/home/ubuntu/entropy-native/eps-native/build/eps_cache_agent\"\nDirectory: /home/ubuntu/entropy-native/eps-native/build\n\"native_runtime_owner_incarnation\" start time: Nov 05 02:25 UTC\nOutput:\n----------------------------------------------------------\n{\"test\": \"native_runtime_c_abi\", \"abi_version\": 1, \"shards\": 2, \"prepared_input\": true, \"duplicate_push\": true, \"buffer_outlives_runtime\": true, \"checkpoint_chunk_checksum\": true, \"restore_metadata\": true, \"prediction_auto_release\": true, \"prepared_mode_at_consumption\": true, \"live_mode_change_rejected\": true, \"independent_owner_incarnation\": true}\n<end of output>\nTest time =   0.27 sec\n----------------------------------------------------------\nTest Passed.\n\"native_runtime_owner_incarnation\" end time: Nov 05 02:25 UTC\n\"native_runtime_owner_incarnation\" time elapsed: 00:00:00\n----------------------------------------------------------\n\n46/47 Testing: cuda_state_and_device_results\n46/47 Test: cuda_state_and_device_results\nCommand: \"/home/ubuntu/entropy-native/eps-native/build/eps_cuda_tests\"\nDirectory: /home/ubuntu/entropy-native/eps-native/build\n\"cuda_state_and_device_results\" start time: Nov 05 02:25 UTC\nOutput:\n----------------------------------------------------------\nPASS real CUDA multi-table gather, optimizer states, atomic rejection, slot reuse and device-result lifetime\n<end of output>\nTest time =   4.25 sec\n----------------------------------------------------------\nTest Passed.\n\"cuda_state_and_device_results\" end time: Nov 05 02:25 UTC\n\"cuda_state_and_device_results\" time elapsed: 00:00:04\n----------------------------------------------------------\n\nEnd testing: Nov 05 02:25 UTC\n",
+  "runtime_dependencies": "\tlinux-vdso.so.1 (0x00007752cba36000)\n\t/etc/thunder/libthunder.so (0x00007752c8a16000)\n\tlibgflags.so.2.2 => /lib/x86_64-linux-gnu/libgflags.so.2.2 (0x00007752c89e5000)\n\tlibleveldb.so.1d => /lib/x86_64-linux-gnu/libleveldb.so.1d (0x00007752c899a000)\n\tlibssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x00007752c88f5000)\n\tlibcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007752c84b1000)\n\tlibz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007752c8493000)\n\tlibcudart.so.12 => /usr/local/cuda-12.2/lib64/libcudart.so.12 (0x00007752c8000000)\n\tlibstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007752c7dd4000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007752c83ac000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007752c838c000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007752c7bab000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007752cba38000)\n\tlibpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007752c8385000)\n\tlibdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007752c8380000)\n\tlibrt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007752c837b000)\n\tlibsnappy.so.1 => /lib/x86_64-linux-gnu/libsnappy.so.1 (0x00007752c8371000)\n",
+  "base_commit": "4e42e3125f1767993caad55afc48a408767f5424",
+  "scope": "Complete original CPU/GPU shared-library build, C API custom-op loading and original GPU kernel; CUDA12.2 parameter-service C ABI/GPU validation",
+  "script_sha256": {
+    "configure_original_native_linux.py": "7ff84154ac6218dac9c3709569540cf4fc04a75d48c3a36c3ac7ab6872578090",
+    "probe_original_tensorflow.py": "08d8708088c2112a782c0505348defe94c89cfe37a20d4467426eb2955a0bf3f"
+  },
+  "full_framework_training_verified": false,
+  "matching_python_runtime_verified": false,
+  "source_archive_sha256": "6eab9ff18007956d2c4ad6dfcb3fd218b64240b93bd41aa551d9ffd515225da9"
+}

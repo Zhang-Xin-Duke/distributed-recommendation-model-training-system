@@ -1,13 +1,15 @@
-# Original framework native build preflight
+# Original framework native build and execution
 
 The available code collection contains the framework's Bazel rules, TensorFlow
 SDK and several internal source dependencies in separate repositories. A local
 dependency graph loads with a public Redis SDK adapter. Both original native
-targets are now undergoing C++/CUDA compilation on a Linux GPU host. The recovered
-TensorFlow 2.12.1 SDK has passed C API metadata and real GPU execution checks;
-the matching Python runtime is also being built from its recovered source.
-Original shared-library loading and full reader/training/control execution remain
-open until their own checks pass.
+targets now compile successfully on Linux with CUDA 12.2 and Clang 18. The CPU
+and GPU libraries load into the recovered TensorFlow 2.12.1 SDK and register
+314 and 315 operations, respectively. The original GPU row-segmentation kernel
+passes ordinary and empty-row boundary checks. The matching Python runtime is
+being built from recovered source for full reader, training and control execution.
+
+[Native build, library loading and GPU execution record](validation/2026-11-04-original-native-build.json).
 
 ```mermaid
 flowchart LR
@@ -15,7 +17,7 @@ flowchart LR
   C --> B[bgraph ops_utils]
   B --> R[common base redis]
   R --> S[Public BRPC Redis SDK adapter]
-  E --> G[Linux CUDA 12.2 / Clang 18: configured]
+  E --> G[Linux CUDA 12.2 / Clang 18: compiled and loaded]
   T[TensorFlow 2.12.1 NVIDIA SDK: found] --> E
   W[Bazel rules and local source dependencies: found] --> E
 ```
@@ -66,8 +68,8 @@ the actual retained consumer, including ordered nil/error values and binary data
 
 The updated dependency query exits zero and resolves 39,343 labels. A subsequent
 build analysis reaches `@@cuda//:missing` and fails with `Missing CUDA Environment`
-on the macOS host with an empty CUDA compiler map. No original library has been
-compiled or loaded by this analysis. The full original reader/cluster/training
+on the macOS host with an empty CUDA compiler map. That analysis did not compile
+or load an original library. The full original reader/cluster/training
 execution remains required in the matching Linux/NVIDIA environment; generated
 pip labels used for C++ graph loading do not establish that Python runtime.
 
@@ -112,8 +114,9 @@ The recovered SDK's own CUDA configuration specifies **CUDA 12.2 and cuDNN 8**.
 The original Python lockfile selects a **CPython 3.10 TensorFlow 2.12.1 NVIDIA
 wheel**. Linux compilation must use actual compiler, CUDA and system-library
 fixtures, followed by library loading and original training/control execution.
-The portable source audit establishes build-input coverage; native compilation
-and runtime execution are still open.
+The portable source audit establishes build-input coverage. The Linux build and
+C API execution below now verify the original binaries; full Python application
+execution requires the matching runtime rebuild.
 
 [Relocation and source-input audit](validation/2026-11-04-original-native-bundle.json).
 
@@ -140,7 +143,10 @@ The Linux build host uses Ubuntu 22.04, eight CPU cores, an RTX A6000 and CUDA
 12.2.140. Clang 18 compiles both host C++ and CUDA dependencies. The original
 local-call registry uses in-class explicit template specializations accepted by
 Clang, and GPU dependencies supply Clang/LLVM-specific options. RDMA development libraries,
-libunwind, libaio and cuDNN 8 are installed from their package repositories.
+libunwind, libaio, `libgoogle-perftools-dev`, Clang's `libomp-18-dev` headers and cuDNN 8 are installed from
+their package repositories. Framework CPU paths use AVX2/F16C/FMA instructions
+for FP16 conversion and parameter gathering/pooling. These features are present
+on the build host and enabled for the framework sources.
 
 Configure a transported private workspace with:
 
@@ -168,6 +174,7 @@ bazel --output_user_root=/path/to/private-bazel-cache build \
   --//.resources/adapters:rdkafka.active_variant=2 \
   --copt=-DAI_BUILD_WITH_BAZEL=1 --host_copt=-DAI_BUILD_WITH_BAZEL=1 \
   --cxxopt=-fsized-deallocation --host_cxxopt=-fsized-deallocation \
+  --per_file_copt='.*entropy/tensorswitch/.*@-mavx2,-mf16c,-mfma' \
   --extra_toolchains=//.resources/toolchains/cc:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cuda-clang-cuda-toolchain \
   --//.resources/toolchains/cc:compiler=clang \
   --//.resources/toolchains/cuda:compiler=clang \
@@ -186,7 +193,18 @@ serialized operation list and runs GPU MatMul with runtime-fed inputs and soft
 placement disabled. TensorFlow reports version **2.12.1**, exposes a GPU and
 returns the expected matrix result. With `--ops`, the same probe additionally
 loads an original custom-operation library and requires a nonempty registered
-operation list. That custom-library check will run after the build completes.
+operation list. Both original libraries now pass that check in separate processes.
+
+With `--row-segments`, the probe additionally runs the original
+`GpuRowLengthSegment` kernel on the GPU, checking both ordinary and empty-row
+segment boundaries. It requires the provided library to register that operation;
+an unrelated operation library is rejected. Both original-kernel cases pass on
+the RTX A6000 with soft placement disabled.
+
+The parameter service has also been rebuilt against the same CUDA 12.2 toolkit.
+Its C ABI, independent owner identity and real CUDA state/device-result checks
+pass (3/3). The private build artifacts retain the static BRPC/Protobuf
+dependencies and runtime binaries for subsequent original-framework execution.
 
 The SDK execution probe establishes native TensorFlow GPU operation in this
 environment. Full framework training is validated separately after both original
