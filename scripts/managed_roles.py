@@ -16,8 +16,10 @@ class ManagedRoles:
     def __enter__(self):return self
     def __exit__(self,*_):self.transport.__exit__()
 
+    def node(self,index,role):return self.nodes[index]
+
     def call(self,index,op,role,**extra):
-        node=self.nodes[index]
+        node=self.node(index,role)
         request=dict(op=op,root=node['root'],run=self.run,role=role,**extra)
         for attempt in range(3):
             try:return self.transport.invoke(node,request)
@@ -25,7 +27,7 @@ class ManagedRoles:
                 if attempt==2:raise
 
     def ensure(self,index,role,command,config=None,environment=None,config_position=None):
-        node=self.nodes[index]
+        node=self.node(index,role)
         env=dict(PYTHONPATH=node['module_dir']+':'+str(pathlib.PurePath(node['source'])/'adapters/entropy'),
                  LD_LIBRARY_PATH=':'.join([str(pathlib.PurePath(node['root'])/'portable-runtime/lib'),str(pathlib.PurePath(node['root'])/'dependencies/lib')]),TF_CPP_MIN_LOG_LEVEL='2')
         env.update(environment or {})

@@ -1,0 +1,264 @@
+{
+  "recorded_at_utc": "2026-11-05T05:29:33.745674+00:00",
+  "base_commit": "36eb3c268c6f6836666cc236e647bff05f3ec5ba",
+  "scope": "local process/storage scope loss and real TCP routing; actual provider node termination remains a separate trial",
+  "source_sha256": {
+    "CMakeLists.txt": "762f82ee653be1fe0eb54e0fcea6c83943851a21f4639ea0a1fee53ca60f1e6d",
+    "scripts/managed_roles.py": "6b8c08196bc9b4a481b04996d2af60bb3f0668eddb5ddf5a8010557359738c53",
+    "scripts/physical_roles.py": "74f0d01fa934393f3b868bee2a9fc9d06addc052d41de9cf25df510d4bbd2701",
+    "scripts/managed_training_recovery.py": "36da3541c7938052a7d2bf42f8461acf8cd623d66c48a799b7b7d87efe78ea95",
+    "tests/physical_training_recovery.py": "52507bfebd1767e001709802f1a9ecb316715f30cc3b70060f83e849a3c5a8be"
+  },
+  "workers": 2,
+  "rows": 64,
+  "rounds": 8,
+  "physical_gpus": 0,
+  "simulated_node_scopes": 3,
+  "max_state_absolute_error": 0.0,
+  "max_loss_absolute_error": 0.0,
+  "network_timeout_rejected": true,
+  "cleanup_verified": true,
+  "cases": [
+    {
+      "fault": null,
+      "recovered": false,
+      "completed": [
+        8,
+        8
+      ],
+      "storage_destroyed": false,
+      "manager_reentry_after_stage": false,
+      "terminal_node_receipts": [],
+      "replacement_placement": null,
+      "cleanup_roles": 22,
+      "replica_heads": null
+    },
+    {
+      "fault": "after_pull",
+      "recovered": true,
+      "completed": [
+        8,
+        8
+      ],
+      "storage_destroyed": true,
+      "manager_reentry_after_stage": false,
+      "terminal_node_receipts": [
+        {
+          "run": "physical-after_pull",
+          "node_id": "scope-0",
+          "kind": "test_role_scope_destroyed",
+          "storage_removed": true,
+          "observed_epoch": 1793856151.5734951,
+          "stopped_roles": [
+            "worker-0-g0",
+            "primary-0-g0",
+            "owner-0-g0"
+          ]
+        }
+      ],
+      "replacement_placement": {
+        "worker": [
+          1,
+          1
+        ],
+        "primary": [
+          1,
+          1
+        ],
+        "owner": [
+          1,
+          1
+        ],
+        "replica": [
+          2,
+          2
+        ],
+        "journal-mirror": [
+          2,
+          2
+        ],
+        "coordinator": 2
+      },
+      "cleanup_roles": 22,
+      "replica_heads": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3763,
+          "bytes": 6152,
+          "next_round": 3,
+          "primary": "primary-0-g1",
+          "term": 2
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3763,
+          "bytes": 6408,
+          "next_round": 3,
+          "primary": "primary-1-g1",
+          "term": 2
+        }
+      ]
+    },
+    {
+      "fault": "partial_round",
+      "recovered": true,
+      "completed": [
+        8,
+        8
+      ],
+      "storage_destroyed": true,
+      "manager_reentry_after_stage": false,
+      "terminal_node_receipts": [
+        {
+          "run": "physical-partial_round",
+          "node_id": "scope-0",
+          "kind": "test_role_scope_destroyed",
+          "storage_removed": true,
+          "observed_epoch": 1793856170.0853188,
+          "stopped_roles": [
+            "worker-0-g0",
+            "primary-0-g0",
+            "owner-0-g0"
+          ]
+        }
+      ],
+      "replacement_placement": {
+        "worker": [
+          1,
+          1
+        ],
+        "primary": [
+          1,
+          1
+        ],
+        "owner": [
+          1,
+          1
+        ],
+        "replica": [
+          2,
+          2
+        ],
+        "journal-mirror": [
+          2,
+          2
+        ],
+        "coordinator": 2
+      },
+      "cleanup_roles": 22,
+      "replica_heads": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3766,
+          "bytes": 7006,
+          "next_round": 4,
+          "primary": "primary-0-g1",
+          "term": 2
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3766,
+          "bytes": 7262,
+          "next_round": 4,
+          "primary": "primary-1-g1",
+          "term": 2
+        }
+      ]
+    },
+    {
+      "fault": "after_update",
+      "recovered": true,
+      "completed": [
+        8,
+        8
+      ],
+      "storage_destroyed": true,
+      "manager_reentry_after_stage": true,
+      "terminal_node_receipts": [
+        {
+          "kind": "test_role_scope_destroyed",
+          "node_id": "scope-0",
+          "observed_epoch": 1793856188.6641338,
+          "run": "physical-after_update",
+          "stopped_roles": [
+            "worker-0-g0",
+            "primary-0-g0",
+            "owner-0-g0"
+          ],
+          "storage_removed": true
+        }
+      ],
+      "replacement_placement": {
+        "coordinator": 2,
+        "journal-mirror": [
+          2,
+          2
+        ],
+        "owner": [
+          1,
+          1
+        ],
+        "primary": [
+          1,
+          1
+        ],
+        "replica": [
+          2,
+          2
+        ],
+        "worker": [
+          1,
+          1
+        ]
+      },
+      "cleanup_roles": 22,
+      "replica_heads": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3765,
+          "bytes": 7001,
+          "next_round": 4,
+          "primary": "primary-0-g1",
+          "term": 2
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 3765,
+          "bytes": 7257,
+          "next_round": 4,
+          "primary": "primary-1-g1",
+          "term": 2
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "name": "managed_physical_node_scope_recovery",
+      "seconds": 66.06
+    },
+    {
+      "name": "managed_role_processes",
+      "seconds": 0.73
+    },
+    {
+      "name": "managed_gradient_replicas",
+      "seconds": 65.64
+    },
+    {
+      "name": "managed_training_recovery",
+      "seconds": 55.7
+    }
+  ],
+  "remaining": [
+    "Actual provider node termination on GPU machines",
+    "Full original Entropy native training/control/progress/replay integration",
+    "Cross-node retirement and common-quality/GPU scaling characterization"
+  ]
+}

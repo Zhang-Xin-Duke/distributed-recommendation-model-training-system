@@ -26,10 +26,12 @@ from training_journal import canonical
 from training_journal import WorkerJournal,identity as journal_identity
 from role_node import write
 from recover_training import recover
+from physical_roles import PhysicalRoles,storage_node
 
 
-def execute(fleet, run, out, fault=None, on_checkpoint=None):
-    nodes=fleet['nodes'];manager=fleet['manager'];count=len(nodes)
+def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
+    nodes=copy.deepcopy(fleet['nodes']);manager=copy.deepcopy(fleet['manager']);count=len(nodes)
+    placed='role_placement' in fleet
     mirror_enabled=fleet.get('mirror_worker_journals',False)
     if count!=2:raise ValueError('managed recovery currently requires two worker/shard nodes')
     if mirror_enabled and (len(manager.get('journal_mirrors',[]))!=count or any(len(n.get('journal_mirrors',[]))!=count or not n.get('journal_mirror_listen') for n in nodes)):
@@ -49,7 +51,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
             print(json.dumps(dict(phase=name,run=run)),flush=True)
             if on_checkpoint:on_checkpoint(name)
         return copy.deepcopy(saved['steps'][name])
-    def path(index,role):return pathlib.PurePath(nodes[index]['root'])/'results'/run/'roles'/role
+    def path(index,role):return pathlib.PurePath(storage_node(fleet,nodes,role,index)['root'])/'results'/run/'roles'/role
     def binary(index,name):return str(pathlib.PurePath(nodes[index]['bin_dir'])/name)
     table=dict(id=1,dimension=8,dtype='float32',optimizer=dict(kind='sparse_lazy_adam',learning_rate=.02,beta1=.9,beta2=.999,epsilon=1e-8,initial_beta1_power=.9,initial_beta2_power=.999),initialization=dict(min=-.1,max=.1,seed=42))
     batches=[[[dict(keys=[7,8,7],label=0.),dict(keys=[9],label=1.)],[dict(keys=[10],label=1.)],[dict(keys=[11,12],label=0.),dict(keys=[9],label=1.)]],[[dict(keys=[9,10],label=1.)],[dict(keys=[11],label=0.),dict(keys=[12,9],label=1.)],[dict(keys=[7,12],label=0.)]]]
@@ -94,6 +96,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
         host=(home+1)%count
         cfg=primary_cfg(home,0)
         cfg.update(listen=nodes[host]['replica_listen'],replica_directory=str(path(host,f'replica-{home}-g0')/'storage'))
+        if placed:cfg['snapshot_directory']=str(path(host,f'replica-{home}-g0')/'snapshots')
         cfg['synchronous_training'].pop('replica')
         cfg.pop('cache');cfg.pop('agents')
         return cfg
@@ -126,9 +129,10 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
         roles.ready(host,name)
         return dict(worker=worker,generation=generation+1,host=host)
     manager_node=dict(local=True,source=str(ROOT),python=sys.executable)
-    with ManagedRoles(nodes,run) as roles:
+    client=PhysicalRoles(nodes,run,fleet,out) if placed else ManagedRoles(nodes,run)
+    with client as roles:
         def inspect_hardware():
-            result=[roles.call(h,'hardware','hardware',gpu=n.get('gpu',False)) for h,n in enumerate(nodes)]
+            result=[roles.call(h,'hardware',f'worker-{h}-g0',gpu=n.get('gpu',False)) for h,n in enumerate(nodes)]
             if all(n.get('gpu') for n in nodes) and len({r['gpu']['uuid'] for r in result})!=count:
                 raise ValueError('managed GPU nodes do not expose distinct physical devices')
             return result
@@ -174,7 +178,10 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                         elif fault=='partial_round':reached=groups[0]['next_round']==target+1 and groups[1]['next_round']==target and state['active']==2
                         else:reached=all(g['next_round']==target+1 for g in groups) and state['completed'][0]==target
                         if reached:
-                            roles.stop(0,'primary-0-g0')
+                            if on_fault is not None:
+                                if not placed:raise ValueError('terminal node fault observer requires physical placement')
+                                receipt=on_fault(state,roles);roles.record_loss(receipt)
+                            else:roles.stop(0,'primary-0-g0')
                             injected=state
                             continue
                     if time.monotonic()>=deadline:raise TimeoutError('training observation expired; retain all role handles')
@@ -193,12 +200,22 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                     if not all(r['owned_processes_gone'] for r in report):raise RuntimeError('former role remains live')
                     return report
                 step('former_roles_stopped',stop_generation)
+                if placed:
+                    # Reapply routing on manager reentry even when the durable
+                    # placement step already exists. Original configs stay in
+                    # the fetched journal identities, independent of routes.
+                    nodes[:]=copy.deepcopy(fleet['replacement_nodes'])
+                    manager.update(copy.deepcopy(fleet['replacement_manager']))
+                    settings.update(coordinator=manager['coordinator'],shards=manager['shards'])
+                    step('replacement_placement',lambda:dict(roles=fleet['role_placement']['1'],
+                        terminal_nodes=list(roles.lost.values())))
                 def fetch():
                     result=[]
                     for w,cfg in enumerate(workers):
                         host=(w+1)%count if mirror_enabled else w
                         source_cfg=dict(cfg,journal_directory=str(path(host,f'journal-mirror-{w}-g0')/'store')) if mirror_enabled else cfg
-                        record=transfer(source_cfg,nodes[host],manager_node,out/f'worker-{w}-journal','fetch-'+run)
+                        source_node=storage_node(fleet,nodes,f'journal-mirror-{w}-g0' if mirror_enabled else f'worker-{w}-g0',host)
+                        record=transfer(source_cfg,source_node,manager_node,out/f'worker-{w}-journal','fetch-'+run)
                         record['from_gradient_replica']=mirror_enabled
                         record['config']['shards']=manager['shards'];record['config']['coordinator']=manager['coordinator'];result.append(record)
                     return result
@@ -221,7 +238,8 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None):
                         result['config'].update(shards=nodes[w]['shards'],coordinator=nodes[w]['coordinator'],agents=[dict(a,owner_run=owner_run(run,1,h,2,f'primary-{h}-g1')) for h,a in enumerate(nodes[w]['agents'])]);staged.append(result)
                         if mirror_enabled:
                             host=(w+1)%count
-                            result['gradient_replica_seed']=transfer(cfg,manager_node,nodes[host],str(path(host,f'journal-mirror-{w}-g1')/'store'),'stage-'+run)
+                            target=storage_node(fleet,nodes,f'journal-mirror-{w}-g1',host)
+                            result['gradient_replica_seed']=transfer(cfg,manager_node,target,str(path(host,f'journal-mirror-{w}-g1')/'store'),'stage-'+run)
                             result['config']['journal_mirror']=dict(endpoint=nodes[w]['journal_mirrors'][w],generation=2,writer=f'worker-{w}-g1')
                     return staged
                 staged=step('journals_staged',stage)
