@@ -65,6 +65,34 @@ transport timeout leaves that participant unresolved.
 
 ## Deployment
 
+An uninterrupted two-node managed training run can export the source generation
+directly:
+
+```sh
+python scripts/managed_training_recovery.py \
+  --fleet /private/training-fleet.json --run training-prefix \
+  --out /controller/training-prefix --export-checkpoint
+```
+
+After both Workers finish, the native controller pauses admission and streams
+the joint parameter/optimizer checkpoint to the controller. The manager then
+stops its owned processes and publishes
+`/controller/training-prefix/source-generation/source.json`. This descriptor
+contains the source job's worker, primary, replica and mirror configurations,
+exact resource ownership, and per-host terminal process handles. Remote journal
+payloads remain on their original hosts. The controller checkpoint is a separate
+immutable participant.
+
+Reentry adopts the recorded training phases. A checkpoint published before the
+manager recorded its phase is validated through the native snapshot reader and
+matched against the input progress before adoption. The export descriptor omits
+SSH authentication and connection fields. Join its deployment node IDs with the
+original private fleet transport configuration, and provide local Python/source
+paths for the checkpoint-controller participant. Nonlocal training nodes must
+have explicit stable `node_id` values. This export entry currently covers a
+fixed-placement, uninterrupted generation; fault recovery uses the existing
+managed recovery entry.
+
 First use the existing checkpoint-rollover planner and readiness verifier to
 publish the replacement `plan.json` and `ready.json`. Supply a private deployment
 file containing:
@@ -118,6 +146,14 @@ The protocol checks additionally cover a live local process or journal lock,
 future gradient, omitted resource, interrupted node seal/unlink, changed payload,
 changed completion receipt, and preservation of unrelated files.
 
+The managed source-export check runs two real TensorFlow Workers, two parameter
+shards and opposite-node gradient/parameter replicas for four rounds. It
+interrupts the manager after checkpoint publication, reenters, validates the
+checkpoint and every participant's retained storage, and checks terminal process
+handles. A changed input cursor cannot adopt the checkpoint. This local check
+retains 20 certified payload paths on each training participant and three on the
+checkpoint controller; it performs no retirement or GPU execution.
+
 ```sh
 ctest --test-dir build/tensorflow --output-on-failure \
   -R '^(distributed_retirement_protocol|tensorflow_distributed_retirement|tensorflow_distributed_retirement_recovery)$'
@@ -128,3 +164,5 @@ Actual SSH-host execution and the same-workload physical multi-GPU scaling
 comparison remain separate project acceptance gates.
 
 [Commands, source hashes and measured results](validation/2026-11-05-distributed-training-retirement.json).
+
+[Managed source-export validation](validation/2026-11-05-managed-training-source-export.json).

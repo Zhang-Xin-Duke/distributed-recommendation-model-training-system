@@ -1,0 +1,101 @@
+{
+  "kind": "eps-managed-training-source-export-validation-v1",
+  "date": "2026-11-05",
+  "base_commit": "09835f1de570edfbeebc18991a4a206189c81f85",
+  "source_sha256": {
+    "scripts/training_source_export.py": "06cb08f0bf74bb188eb6268ee140ae4a7d4b99d50d2b7443c223d4551d1a7621",
+    "scripts/managed_training_recovery.py": "5b8ea651c76c21286460481a73ff428a6de7b42fc298dc02b8e508241e9196dd",
+    "tests/training_source_export.py": "a984de105f774663529f9db23e198871d2bb32960f7733aa4a551ae1cf4fc934",
+    "CMakeLists.txt": "82e2186cd6ddbb5ec28568b8876696065599ff31a92fe1996b39944ec83f4054"
+  },
+  "test_result": {
+    "test": "managed_training_source_export",
+    "physical_hosts": 1,
+    "physical_gpus": 0,
+    "training_workers": 2,
+    "parameter_shards": 2,
+    "rounds": 4,
+    "rows": 32,
+    "completed": [
+      4,
+      4
+    ],
+    "checkpoint_progress": {
+      "completed": [
+        4,
+        4
+      ],
+      "consistency": 0,
+      "epoch": 1,
+      "max_delay": 0,
+      "source_run": "source-export"
+    },
+    "model": "embedding_tanh_mlp",
+    "participants": [
+      {
+        "node_id": "node-0",
+        "resources": [
+          "worker-0",
+          "mirror-1",
+          "primary-0",
+          "replica-1"
+        ],
+        "files": 20
+      },
+      {
+        "node_id": "node-1",
+        "resources": [
+          "worker-1",
+          "mirror-0",
+          "replica-0",
+          "primary-1"
+        ],
+        "files": 20
+      },
+      {
+        "node_id": "checkpoint-controller",
+        "resources": [
+          "checkpoint"
+        ],
+        "files": 3
+      }
+    ],
+    "manager_reentry_after_checkpoint": true,
+    "committed_checkpoint_adoption": true,
+    "changed_input_progress_rejected": true,
+    "credential_fields_excluded": true,
+    "terminal_handles_validated": true,
+    "source_storage_retained": true,
+    "native_checkpoint_validated": true,
+    "cleanup_verified": true
+  },
+  "commands": [
+    {
+      "command": "ctest --test-dir build/tensorflow --output-on-failure -R '^managed_training_source_export$'",
+      "passed": 1,
+      "total": 1,
+      "elapsed_seconds": 9.63
+    },
+    {
+      "command": "ctest --test-dir build/tensorflow --output-on-failure -R '^managed_training_recovery$'",
+      "passed": 1,
+      "total": 1,
+      "elapsed_seconds": 57.02
+    }
+  ],
+  "managed_recovery_regression": {
+    "workers": 2,
+    "parameter_shards": 2,
+    "replicas": 2,
+    "rounds": 8,
+    "rows": 64,
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "cleanup_verified": true
+  },
+  "rented_gpu_this_change": false,
+  "remaining_acceptance": [
+    "actual SSH-host distributed generation retirement",
+    "fixed-workload one-versus-multiple physical GPU model scaling"
+  ]
+}

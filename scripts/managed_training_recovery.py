@@ -30,9 +30,14 @@ from recover_training import recover
 from physical_roles import PhysicalRoles,storage_node
 
 
-def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
+def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, export_checkpoint=False):
     nodes=copy.deepcopy(fleet['nodes']);manager=copy.deepcopy(fleet['manager']);count=len(nodes)
     placed='role_placement' in fleet
+    if export_checkpoint and (fault is not None or placed):
+        raise ValueError('source export currently requires an uninterrupted, fixed-placement generation')
+    if export_checkpoint:
+        from training_source_export import node_ids
+        node_ids(nodes)
     mirror_enabled=fleet.get('mirror_worker_journals',False)
     if count!=2:raise ValueError('managed recovery currently requires two worker/shard nodes')
     if mirror_enabled and (len(manager.get('journal_mirrors',[]))!=count or any(len(n.get('journal_mirrors',[]))!=count or not n.get('journal_mirror_listen') for n in nodes)):
@@ -44,6 +49,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
         raise ValueError('manager Python cannot load its native module; use the interpreter matching manager.module_dir')
     state_path=out/'state.json'
     identity=dict(run=run,fault=fault,fleet_sha256=hashlib.sha256(canonical(fleet)).hexdigest())
+    if export_checkpoint:identity['export_checkpoint']=True
     if state_path.exists():
         saved=json.loads(state_path.read_text())
         if saved['identity']!=identity:raise ValueError('managed recovery configuration changed')
@@ -310,20 +316,41 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None):
                         if mirror_state['next_round']!=rounds or mirror_state['records']!=rounds:raise RuntimeError('gradient replica history did not complete')
                         mirror_states.append(mirror_state)
                 return dict(workers=outputs,state=final,loss_history=histories,final_journal_receipts=receipts,gradient_replicas=mirror_states)
-            final=step('final_model',finish);terminal=True
+            final=step('final_model',finish)
+            if export_checkpoint:
+                def export():
+                    from training_source_export import save_checkpoint
+                    return save_checkpoint(command,settings,workers,final['workers'],out/'source-generation'/'checkpoint')
+                step('source_checkpoint',export)
+            terminal=True
             result=dict(run=run,fault=fault,recovered=observed['recovery'],generation=generation,model=final,steps=saved['steps'],hardware=hardware,mirror_worker_journals=mirror_enabled,workload=dict(rows=rows,dimension=dimension,rounds=rounds,hidden=hidden,inspected_rows=len(inspect_keys)))
         finally:
             if terminal:
                 cleanup=roles.cleanup()
                 if not all(x['owned_processes_gone'] for x in cleanup):raise RuntimeError('managed roles did not clean up')
                 write(out/'cleanup.json',cleanup)
-    result['cleanup']=json.loads((out/'cleanup.json').read_text());write(out/'summary.json',result)
+    result['cleanup']=json.loads((out/'cleanup.json').read_text())
+    if export_checkpoint:
+        from training_source_export import publish_source
+        mirrors=[]
+        if mirror_enabled:
+            for w,cfg in enumerate(workers):
+                host=(w+1)%count
+                mirrors.append(dict(listen=nodes[host]['journal_mirror_listen'],
+                    directory=str(path(host,f'journal-mirror-{w}-g0')/'store'),worker_config=cfg,
+                    generation=1,writer=f'worker-{w}-g0'))
+        result['source_generation']=publish_source(out/'source-generation',run,nodes,
+            manager,workers,[primary_cfg(h,0) for h in range(count)],
+            [replica_cfg(h) for h in range(count)],mirrors,
+            saved['steps']['source_checkpoint'],result['cleanup'])
+    write(out/'summary.json',result)
     return result
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fleet',type=pathlib.Path,required=True);p.add_argument('--run',required=True);p.add_argument('--out',type=pathlib.Path,required=True);p.add_argument('--fault',choices=['after_pull','partial_round','after_update'])
-    a=p.parse_args();result=execute(json.loads(a.fleet.read_text()),a.run,a.out,a.fault)
+    p.add_argument('--export-checkpoint',action='store_true',help='export a joint checkpoint and stopped source-storage ownership after an uninterrupted generation')
+    a=p.parse_args();result=execute(json.loads(a.fleet.read_text()),a.run,a.out,a.fault,export_checkpoint=a.export_checkpoint)
     print(json.dumps(dict(run=a.run,recovered=result['recovered'],completed=result['model']['state']['completed'])))
 
 

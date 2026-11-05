@@ -56,3 +56,11 @@ Adam rows and loss trajectories matching uninterrupted training exactly.
 These tests use separate participant processes on one physical host. The SSH
 transport path is implemented; actual physical-host execution remains a gate,
 followed by fixed-workload physical multi-GPU scaling within the standing budget.
+
+The managed training entry now exports a joint source checkpoint, exact per-node
+storage ownership and stopped-process handles after an uninterrupted generation.
+The native TensorFlow source-export test verifies checkpoint publication/reentry,
+adoption, input-progress mismatch rejection and retained participant payloads.
+This prepares real-host retirement without copying the remote training logs into
+a controller-local fixture. The physical SSH deployment and same-workload scaling
+checks remain outstanding.
