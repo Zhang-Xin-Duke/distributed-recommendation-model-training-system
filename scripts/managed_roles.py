@@ -32,6 +32,7 @@ class ManagedRoles:
                  LD_LIBRARY_PATH=':'.join([str(pathlib.PurePath(node['root'])/'portable-runtime/lib'),str(pathlib.PurePath(node['root'])/'dependencies/lib')]),TF_CPP_MIN_LOG_LEVEL='2')
         env.update(environment or {})
         spec=dict(command=list(map(str,command)),environment=env)
+        if node.get('reservation_token'):spec['reservation_token']=node['reservation_token']
         if config is not None:spec['config']=config
         if config_position is not None:spec['config_position']=config_position
         self.roles[role]=index

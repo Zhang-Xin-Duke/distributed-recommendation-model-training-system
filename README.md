@@ -1,442 +1,322 @@
-# Distributed Parameter Server
+# Distributed Training with a Sharded Parameter Server
 
-**Sharded parameter storage and optimizer updates for distributed training.**
+A **C++20 distributed training system** with sharded parameter and optimizer state,
+CPU/CUDA parameter owners, training-task coordination, and checkpoint/replay recovery.
+Workers execute model forward/backward computation; parameter shards own shared
+state and apply updates. The runtime connects these roles through BRPC/Protobuf
+and native TensorFlow operations.
 
-Training workers pull the parameters needed for a batch and push gradients back
-for updates. Distributed Parameter Server partitions those parameters across
-server shards and manages batched access and optimizer state. GPU parameter
-owners hold complete rows and execute resident pooling and sparse updates.
+The executable model trains **embeddings and a dense two-layer MLP** together.
+A separate integration runs an existing training framework through its original
+application entry point, preserving its reader, model, and dense optimizer while
+replacing the embedding parameter backend.
 
-[Distributed training execution](docs/TRAINING_EXECUTION.md) is the central
-implementation track: worker task dependencies, gradient/update semantics,
-logical progress, replication and recovery, evaluated at a common quality
-target. A standalone RPC coordinator now enforces sequential, eventual and
-bounded-delay task admission across worker processes. Four independent workers
-train a shared sparse model through two parameter-server processes, with task
-completion following acknowledged parameter updates. Synchronous rounds now
-support replica-backed primary recovery with retained-gradient retries. Complete
-original Entropy execution and the remaining failure paths are tracked in the
-implementation plan.
+The implementation covers three connected responsibilities:
 
-The first implementation targets sparse access to embedding tables: each batch
-touches only a small fraction of a large table. This pattern appears in
-recommendation, advertising, knowledge graphs, graph learning and word-embedding
-models.
+- **Parameter execution:** route batched reads and gradients, aggregate updates,
+  and manage complete parameter/Adam state on CPU and GPU.
+- **Training coordination:** enforce iteration dependencies, acknowledge completed
+  updates, and manage worker/server process generations.
+- **Recovery:** preserve committed state and original gradients, reconcile partial
+  rounds, and restore the matching model, optimizer, progress, and input position.
 
-The principal multi-GPU scenario is training when parameter and optimizer state
-exceeds one GPU's memory. The service partitions embedding rows across GPU
-owners; workers pull required vectors, run GPU forward/backward and return
-sparse gradients to the corresponding owners.
+[Build and run](docs/RUNNING.md) · [Training execution](docs/TRAINING_EXECUTION.md) ·
+[Validation records](docs/VALIDATION.md) · [中文架构说明](docs/ARCHITECTURE.zh-CN.md)
 
-![Multi-GPU training capacity and loss](docs/assets/multi-gpu-training-capacity.svg)
+## System architecture
 
-**Executed capacity:** two physical GPU nodes—L40 and RTX A6000—hold **60 GiB
-of initialized, resident parameter/Adam state**, with **30 GiB per owner**.
-The larger single GPU exposes 47.99 GiB. Both workers finish eight synchronous
-rounds and mean training loss decreases from **0.694 to 0.231**. The workload
-uses 5.24 million rows × 1,024 FP32 dimensions and a two-layer MLP. A preceding
-small cross-node run matches reference parameters/Adam state within `8.94e-7`.
-[Workload, memory placement and validation](docs/MULTIGPU_TRAINING_CAPACITY.md).
+![Distributed training architecture: control, parameter execution, and durable recovery state](docs/assets/distributed-training-architecture.png)
 
-[Synchronous gradient rounds](docs/SYNCHRONOUS_GRADIENTS.md) collect one sparse
-contribution per worker at each parameter shard, combine matching Keys and apply
-one optimizer update per round. Worker and sample-weighted averaging support
-different training batch sizes, including empty shard contributions.
+[Open the scalable SVG](docs/assets/distributed-training-architecture.svg). Solid
+arrows show data/state paths; dashed arrows show control. Logical roles can share
+one physical host. [Regenerate the diagram](scripts/render_architecture.py).
 
-[TensorFlow model workers](docs/TENSORFLOW_SHARDED_TRAINING.md) train both
-Embedding vectors and two-layer MLP weights/biases through this shared parameter
-path. CPU and A6000 GPU runs compare aggregated gradients, complete touched
-weights/Adam state, task progress and loss against a single-worker reference.
-The GPU execution currently uses host staging at the RPC boundary.
+| Component | Responsibility |
+| --- | --- |
+| Training worker | Read its input, run forward/backward, submit gradients, and report completion |
+| Distributed client | Route `(table, key)` rows to home shards and reconstruct ordered or pooled features |
+| Parameter shard | Own row locations, lookup tickets, gradient/update execution, and optimizer clocks |
+| CPU/CUDA owner | Store weights and Adam state; execute access and updates at the current location |
+| Progress coordinator | Admit iterations according to completed worker clocks |
+| Manager | Observe named processes, replace failed generations, and drive recovery |
+| Replicas, journals, checkpoints | Retain the state and original work needed to continue training |
 
-[Consistency-policy model experiments](docs/MODEL_CONSISTENCY_POLICIES.md) compare
-sequential, bounded-delay and eventual admission with the same per-Worker
-Embedding/MLP update algorithm, recording training loss and straggler waits.
-[Original Runner training progress](docs/ORIGINAL_TRAINING_PROGRESS.md) obtains a
-permit at the first parameter Pull and completes it after the original model
-step and parameter acknowledgements finish; input EOF consumes no task.
-[Original-framework progress checkpoints](docs/ORIGINAL_TRAINING_CHECKPOINTS.md)
-bind those clocks to the saved parameter state and validate paused replacement
-coordinators before original Runner restoration reopens training.
+These components have separate identities and completion boundaries. A training
+permit does not imply a parameter update; a successful update does not itself
+advance a worker's task clock. The worker reports completion after all required
+parameter acknowledgements.
 
-[Reusable Lookup layouts](docs/REUSABLE_LOOKUP_LAYOUTS.md) register repeated ID
-lists and CSR layouts once per shard, then send scoped tokens for fresh reads.
-Bounded LRU/TTL registries and same-request fallback preserve parameter and
-ticket semantics through metadata eviction or registry restart.
-[Reusable gradient Key lists](docs/REUSABLE_GRADIENT_LAYOUTS.md) extend metadata
-reuse to synchronous updates while transmitting fresh gradient values each round.
+## One training iteration
 
-[Joint training checkpoints](docs/JOINT_TRAINING_CHECKPOINT.md) restore parameters,
-Adam state, gradient rounds, completed worker clocks and the next input batch
-together. New processes start paused, rehydrate existing rows on their owners
-and reopen training after all shard identities and clocks match.
+1. **Obtain a permit.** The worker asks the coordinator to begin its next iteration.
+2. **Pull parameters.** The client partitions keys by home shard. Shards deduplicate
+   repeated IDs, resolve CPU/GPU locations, and retain read-lifecycle tickets.
+3. **Construct model inputs.** Partial sums are combined, means use the original
+   bag denominator, and sequence outputs return to their original positions.
+4. **Compute gradients.** TensorFlow executes the model and automatic differentiation.
+5. **Submit updates.** Repeated-key gradients are reduced and sent to owning shards.
+   Journal-enabled synchronous workers persist and mirror original gradients first.
+6. **Finish the round.** Shards apply the configured update, complete any required
+   durable replication, and acknowledge. The worker then completes its task.
 
-[Checkpoint generation rollover](docs/TRAINING_LOG_ROLLOVER.md) starts new replica
-and Worker-journal baselines at that checkpoint round, verifies their durable
-state with admission paused, and continues from the saved model/input position.
-Its retirement operation checks stopped-role identities and exclusive storage
-locks before removing certified old payloads; durable markers reject stale restarts.
-Host and CUDA model checks cover two rotations followed by loss of every Worker,
-primary, parameter owner and coordinator process, recovering from surviving
-replicas with identical final parameters, Adam state and continued losses.
-[Distributed generation retirement](docs/DISTRIBUTED_GENERATION_RETIREMENT.md)
-assigns old storage to its owning nodes, seals every participant before the
-manager commits deletion, and resumes interrupted cleanup from durable receipts.
-Separate-node-process model checks preserve the complete training trajectory
-through two rotations and subsequent process loss.
-An additional two-host trial runs a GPU Worker/shard on a rented L40 and a CPU
-Worker/shard on the controller with cross-host parameter and gradient replicas.
-After a joint checkpoint, the controller restores the model, retires the former
-storage over SSH and continues training; every inspected model/Adam row and loss
-matches the uninterrupted reference within measured error below `6e-8`.
+The ordinary adapter uses a Pull/Push/Join handle lifecycle; read-only work closes
+with Release. The synchronous model worker closes read tickets before submitting
+its retained row-gradient contributions. Both paths preserve the original input
+positions and distinguish read completion from optimizer completion.
 
-[Fixed-workload model measurement](docs/MODEL_SCALING.md) keeps two logical
-Workers/shards and the model/data constant across physical GPU placements.
-Worker warmup gates, per-stage timings and owner-local journal verification
-separate training throughput from initialization and result collection.
+[Parameter lifecycle](docs/ARCHITECTURE.md) ·
+[Synchronous gradients](docs/SYNCHRONOUS_GRADIENTS.md) ·
+[Model worker](docs/TENSORFLOW_SHARDED_TRAINING.md)
 
-[Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
-parameters, Adam state and request progress on an independent disk-backed replica
-before acknowledging a synchronous round. A replacement primary restores that
-state under a new durable term; workers retain and retry their original gradients.
-Two CPU model-training fault cases cover a lost commit acknowledgement and an
-unpublished update, with zero final state/loss difference from uninterrupted
-training. [Read-lifecycle recovery](docs/READ_LIFECYCLE_RECOVERY.md) closes uncertain
-cross-shard Pulls by request identity, fences late reads and retries partial
-Release acknowledgements before admitting another model read. Failed cleanup
-requires job recovery; partially applied gradient updates keep their existing
-failure contract.
+## Execution and state management
 
-[Worker/coordinator recovery](docs/WORKER_RECOVERY.md) journals original gradients
-before submission, rolls a partially committed round forward and reconstructs
-task clocks and input positions. CPU model checks restart actual process groups
-after an abandoned read, a partial commit and a lost task completion, preserving
-all parameters, Adam state and per-round loss.
+### Sharded parameters and CPU/GPU ownership
 
-[Worker journal handoff](docs/WORKER_JOURNAL_HANDOFF.md) seals stopped workers'
-original gradients, transfers bounded chunks over persistent node connections
-and publishes complete journals on replacement nodes. Model recovery checks
-fetch to manager storage, reconcile partial rounds and stage independent worker
-copies before continuing the same training input.
+Rows have fixed logical home shards. Their current weights and Adam first/second
+moments can reside in CPU storage or a CUDA owner. Migration transfers complete
+row state, waits for live references, and publishes a new location/generation
+only after acknowledgement. CPU backing for resident rows is refreshed during
+writeback and checkpointing.
 
-[Worker gradient replicas](docs/WORKER_GRADIENT_REPLICAS.md) durably copy each
-original gradient to another node before parameter submission. Across two
-A6000 GPU instances, three fault cases delete both worker-local journals,
-recover from opposite-node replicas and complete eight rounds. All 64 rows'
-weights/Adam state and per-round losses match uninterrupted GPU training exactly.
+GPU owners support resident pooling, gradient reduction, optimizer updates, and
+batched state transfer. Reuse-aware admission compares expected access savings
+with loading and writeback costs; frequency and manual placement remain controls.
+Unadmitted rows remain accessible through CPU paths.
 
-[Managed training recovery](docs/MANAGED_TRAINING_RECOVERY.md) starts and observes
-named role generations, detects process failure and drives replica promotion,
-owner rehydration, journal handoff and worker continuation. Durable manager phases
-support reentry after journal staging; distinct TCP aliases verify translation
-between worker-visible and manager-visible parameter endpoints.
-[Physical role placement](docs/PHYSICAL_NODE_RECOVERY.md) separates logical
-Workers/shards from their hosts, preserves replica authority on surviving nodes
-and activates replacement routes after terminal node loss is confirmed. An owned
-L40 instance was deleted at shard frontiers `[4, 3]`; surviving replicas on an
-A6000 restored both logical Workers to finish eight rounds, with all 64 model/Adam
-rows and complete loss histories matching uninterrupted two-GPU training exactly.
+[Architecture](docs/ARCHITECTURE.md) · [Placement policy](docs/CACHE_POLICY.md) ·
+[Device feature assembly](docs/DEVICE_PULL.md)
 
-[Owner incarnations](docs/OWNER_INCARNATIONS.md) separate the stable training run
-from a replacement parameter owner's identity. Old reads and control commands
-reject at the replacement endpoint while optimizer updates retain their original
-model identity. [Replica-backed owner recovery](docs/REPLICA_OWNER_RECOVERY.md)
-reloads complete row/Adam state into replacement owners before rolling partial
-rounds forward. Host and L40 CUDA training checks replace all roles and match uninterrupted
-parameters and loss exactly. The CUDA recovery check uses two owner processes
-on one physical GPU; cross-node capacity is recorded separately.
+### Why access and migration are separate decisions
 
-[Node orchestration](docs/DISTRIBUTED_MODEL_TRAINING.md) places a parameter shard,
-owner and model worker on each node, initializes local backing/resident rows,
-samples resources and verifies round completion and process cleanup. Its Host-backed workflow and two-node CUDA capacity execution pass, including
-complete residency counts, GPU model placement and verified process cleanup.
+A CPU-backed bag can be pooled near storage before transfer, or its unique
+vectors can be transferred for GPU processing. A long sum/mean bag may shrink
+to one feature vector; a sequence must preserve its positions. The access
+planner compares these routes while resident rows always use their current
+owner. Cache hit rate alone does not capture CPU work, transferred bytes, queue
+waits, or migration cost.
 
-A [native worker owner](docs/WORKER_AGENT.md) embeds the Agent in the training
-process. [Device Pull](docs/DEVICE_PULL.md) combines CPU, native CUDA and remote
-Agent contributions into complete model features on GPU, including global mean
-normalization and padded sequences. It retains the existing Pull/Push/Join
-handles; the standalone Agent uses the same worker ownership and admission path.
+Admission changes a row's location, not whether it participates in training.
+Loading a row transfers weights and optimizer history; eviction must wait for
+live references and acknowledged writeback before reusing its slot. Compact
+pooled-gradient transport reduces repeated vectors while preserving occurrence
+maps, normalization, and each original update's optimizer context.
 
-A Pull/Push/Join adapter connects embedding operations to an existing training
-framework. [Native TensorFlow CPU/CUDA operations](docs/NATIVE_TENSORFLOW.md)
-return complete feature tensors directly to the model and submit its automatic
-gradients to the service. A versioned C interface isolates private transport
-dependencies from TensorFlow's ABI. A portable callback bridge is also available.
-Dataset readers, model computation and dense gradient synchronization remain the
-training framework's responsibility.
+[Access and migration rationale](docs/ACCELERATION.md) ·
+[Gradient transfer contract](include/eps/compact_gradients.hpp)
 
-[Named Entropy table and Runner hooks](docs/ENTROPY_TABLE_HOOKS.md) install that
-boundary before the existing job entry point builds its graph. Source-level
-Session checks execute the original methods against independent parameter shards,
-including a mid-run original-controller checkpoint.
-[Native table installation](docs/NATIVE_TABLE_INSTALLATION.md) selects Eps
-operations through the same job configuration, with one shared context per
-learner and an early-started GPU owner per worker.
-[Public Redis SDK integration](docs/PUBLIC_REDIS_SDK.md) supplies the original
-shared wrapper's missing client interfaces using real Redis commands. Binary
-batch results, TTL, timeouts and lost-reply behavior are process-tested; the
-original native dependency graph resolves. [Original framework integration](docs/ORIGINAL_NATIVE_BUILD.md)
-now compiles and loads both original CPU/GPU libraries with TensorFlow 2.12.1;
-the matching Python runtime executes the original ORC reader, decoder and GPU
-row-segmentation kernel. Original Runner GPU training and fresh-process
-checkpoint continuation reproduce the uninterrupted loss trajectory and sparse
-optimizer state. Full original main/Executor execution also passes with two
-training peers, including an input-aware joint checkpoint at 32 completed
-batches. Fresh-process full-application recovery replays post-checkpoint work
-and completes 128 committed samples without omission or duplication; restored
-sparse/Adam state and native DenseAdam match the saved cut exactly. See the
-[integration record](docs/ORIGINAL_NATIVE_BUILD.md).
-[Peer-coordinated checkpoints](docs/PEER_CHECKPOINTS.md) also support a chief
-without an external learner table; two-process/four-thread checks cover repeated
-commit, admission control and a failed model save.
+### Dependency-aware parameter execution
 
-![Large-table multi-GPU scaling](docs/assets/overload-large-table-scaling.svg)
+Each shard has one state-owning thread. Operations suspend while awaiting owner
+work and resume on that thread; independent requests can progress during the wait.
+Row, optimizer, and owner-stream dependencies preserve conflicting-operation order.
+Save/restore and selected maintenance operations use full barriers.
 
-**Measured operating envelope:** a fixed million-row, 512-dimensional table
-represents **6 GiB of logical parameter/Adam state**. With 8,192 IDs/update and
-512 concurrent Learners, one/two/three RTX A6000 owners complete
-**36.56 / 30.33 / 26.52 acknowledged sparse updates/s**, with median trial P99
-**12.82 / 15.70 / 17.99 seconds**. These are medians of two five-second submission
-windows followed by full drain, using four parameter shards and SSH-forwarded
-BRPC between cloud instances. More owners add communication and coordination
-cost in this deployment. [Scaling, overload and raw measurements](docs/OVERLOAD_SCHEDULING.md).
+Queued dependency plans are retained within bounded metadata budgets. Lookup
+layouts and gradient-key lists can be registered once and reused with scoped
+tokens; parameter values and gradient values remain fresh. Independent statistics
+completion keeps waiting data operations observable.
 
-**Observable overload:** bounded dependency-plan retention and an independent
-statistics path keep parameter shards inspectable while data operations wait.
-The 256 MiB/shard lookup-ticket budget produces an explicit capacity rejection
-at 1,022 large-input Learners; the failed cohort's tickets and Agent queues drain.
-With 512 MiB/shard, single-owner and three-owner controls complete
-1,022-Learner windows; the three-owner trial records **23.61 updates/s** and
-**35.47 s P99**.
-[Earlier 1/2/4-owner measurements](docs/NATIVE_MULTIGPU_RESULTS.md) retain their
-runtime, longer-duration small-input results and original overload failures.
+[Resumable operations](docs/RESUMABLE_OPERATIONS.md) ·
+[Lookup layout reuse](docs/REUSABLE_LOOKUP_LAYOUTS.md) ·
+[Gradient layout reuse](docs/REUSABLE_GRADIENT_LAYOUTS.md) ·
+[Overload behavior](docs/OVERLOAD_SCHEDULING.md)
 
-**Implemented:** independent BRPC parameter shards, cross-shard batching,
-sparse LazyAdam with optional weight clipping, CUDA-resident weights and optimizer states, CPU/GPU migration,
-generation fencing, bounded lookup tickets, Agent-wide RPC admission, and durable snapshots with optimizer
-restore. Pooled gradients travel as feature vectors plus ordered ID references;
-CUDA expands and reduces them at their parameter owner. Independent GPU owners
-execute updates concurrently. CPU pooling and unique-vector transfer are executable access paths;
-a pluggable cost planner selects between them. A TensorFlow graph check exercises
-Pull → dense model/loss → sparse Push → Join against external server processes.
+### Task dependencies and optimizer semantics
 
-**Validation:** completed pressure-test windows inspect finite sampled weights,
-exact sampled row-update counters and drained lookup/Agent queues. Native model
-checks separately compare complete touched optimizer state. The Ubuntu
-TensorFlow/CUDA integration suite passes **56/56** with the recorded original-method
-source fixture. Five follow-up checks verify CPU-only controller Sessions,
-shared contexts, original native CPU/GPU table graphs and checkpoint continuation.
-Native table graphs contain no Python callback operations. Native restore compares
-all selected weights, Adam moments, counters and beta powers with zero difference.
-[Native table checks and scope](docs/validation/2026-11-01-native-table-installation.json).
-Pinned multi-owner model traces separately cover **1/2/3 physical GPU parameter
-owners**, with an earlier four-owner trajectory.
-[Native integration checks](docs/NATIVE_TENSORFLOW.md#executed-verification).
-Device Pull follows
-five training steps across two shards and mixed native/remote cache paths,
-comparing complete features and all touched optimizer rows with CPU replay.
-The core ASan/UBSan suite passes **18/18**.
-[Device Pull verification](docs/validation/2026-11-01-device-pull.json).
-The admission component passes ASan/UBSan and
-ThreadSanitizer checks. [Validation index](docs/validation/2026-11-01-agent-admission.json).
-The [validation record](docs/VALIDATION.md) retains the scope and provenance of
-checkpoint continuation, optimizer-state comparisons, migration and fencing.
+The coordinator supports **sequential, eventual, and bounded-delay admission**
+using contiguous completed-worker counts. These policies control iteration
+eligibility; they do not define gradient averaging or an atomic cross-shard model
+snapshot.
 
-[Build and run](docs/RUNNING.md) · [Validation](docs/VALIDATION.md) ·
-[Implementation progress](docs/plans/2026-10-31-implementation.md)
+Two update paths are implemented:
 
-```mermaid
-sequenceDiagram
-    participant W as Training worker / client
-    participant A as Parameter shard 0
-    participant B as Parameter shard 1
-    W->>A: Batched IDs owned by shard 0
-    W->>B: Batched IDs owned by shard 1
-    A-->>W: Partial features + ticket
-    B-->>W: Partial features + ticket
-    Note over W: Combine sums / normalize means / restore sequence order
-    Note over W: Model forward and backward
-    W->>A: Gradients + original ticket
-    W->>B: Gradients + original ticket
-    A-->>W: Update completed
-    B-->>W: Update completed
+| Update path | Optimizer behavior |
+| --- | --- |
+| Per-worker | Each worker contribution applies its own LazyAdam update; used to compare the three admission policies |
+| Synchronous round | Each shard collects the full worker group, reduces matching rows, and applies one update per round; supports sum, worker mean, and sample-weighted mean |
+
+The retained-gradient recovery protocol operates on synchronous group rounds.
+Per-worker admission-policy experiments have a separate update contract.
+
+[Progress controller](include/eps/training_progress.hpp) ·
+[Policy model experiments](docs/MODEL_CONSISTENCY_POLICIES.md)
+
+## Recovery and continuation
+
+**Parameter replicas preserve the actual update result.** Before acknowledging a
+replicated synchronous round, the primary persists exact updated weights, Adam
+moments, optimizer clocks, and request progress on an independent disk-backed
+replica. Replacement primaries restore these after-images. Durable terms and owner
+incarnations reject obsolete primary and owner identities.
+
+**Worker journals preserve the original work.** Workers retain exact gradients,
+input identity, read progress, and loss before submission. Cross-node gradient
+mirrors allow recovery when worker-local storage is lost. If one shard committed
+a round and another did not, replay submits the original gradients: completed
+shards acknowledge the existing result and lagging shards finish the update.
+
+**Joint checkpoints preserve the training cut.** Checkpoints bind parameters,
+optimizer state, gradient rounds, worker clocks, and input positions. In the
+original framework integration, capture also includes prepared batches, pipeline
+buffers, ORC reader positions, and original dense/model state. Replacement roles
+start paused and reopen training after state and progress checks.
+
+The manager records durable recovery phases, observes process birth identities,
+and can adopt existing roles after interruption. Terminal node loss requires
+explicit deployment evidence; a connection timeout leaves a node unresolved.
+Checkpoint rollover establishes new recovery baselines, and distributed retirement
+removes certified old logs only after all participants seal their state and the
+manager publishes a durable decision.
+
+[Replicated updates](docs/REPLICATED_TRAINING.md) ·
+[Worker recovery](docs/WORKER_RECOVERY.md) ·
+[Joint checkpoints](docs/JOINT_TRAINING_CHECKPOINT.md) ·
+[Managed recovery](docs/MANAGED_TRAINING_RECOVERY.md) ·
+[Physical-node recovery](docs/PHYSICAL_NODE_RECOVERY.md) ·
+[Generation retirement](docs/DISTRIBUTED_GENERATION_RETIREMENT.md)
+
+## Framework integration
+
+The native TensorFlow path uses resource and asynchronous CPU/GPU operations for
+Pull, Push, preparation, and lifecycle commands. A **versioned C ABI** separates
+TensorFlow's operation library from BRPC/Protobuf C++ dependencies. GPU Pull wraps
+owned device results in TensorFlow buffers; the RPC gradient path currently uses
+host payloads. A portable callback/isolated-client path is also available.
+
+Two model integrations establish different boundaries:
+
+- **Standalone TensorFlow worker:** embedding vectors and packed dense MLP
+  weights/biases all live in the parameter service and share its optimizer path.
+- **Original framework application:** the original main/Executor, reader, native
+  peers, model, and DenseAdam remain active; this project replaces the embedding
+  backend and coordinates parameter/progress/input checkpoint continuation.
+
+The model examples exercise dense parameters as well as embeddings. Large dense
+collectives and arbitrary-model parallelism are outside the demonstrated service
+path. Initial experiments use sparse row access; the model and transport APIs
+make that access pattern explicit.
+
+[Native TensorFlow operations](docs/NATIVE_TENSORFLOW.md) ·
+[Original application integration](docs/ORIGINAL_NATIVE_BUILD.md) ·
+[Original input recovery](docs/ORIGINAL_INPUT_CHECKPOINT.md)
+
+## Verified experiments
+
+The following are **separate experiments**, each with its own workload and source
+record. GPU count, training-state capacity, model correctness, and throughput
+measure different properties.
+
+| Experiment | Executed result | Scope |
+| --- | --- | --- |
+| Cross-node training capacity | L40 + RTX A6000 hold **60 GiB** of initialized GPU-resident parameters/Adam state; two workers complete eight rounds, loss **0.694 → 0.231** | 5,242,880 rows × 1,024 FP32 dimensions; 521 rows touched; 64 touched rows inspected. Establishes capacity beyond either single GPU, not a speedup |
+| Numerical reference | Small cross-node training matches sampled complete weights/Adam vectors within **8.94e-7** | Separate deterministic small-model reference; no full 60 GiB reference replay |
+| Physical node loss | Delete the L40 at shard frontiers **[4, 3]**; restore on A6000 and finish eight rounds with **zero state/loss difference** from uninterrupted training | All 64 model rows inspected; surviving parameter/gradient replicas retained. This recovery workload fits on the survivor |
+| Full original application | Two native peers complete **128 records / 32 batches**; fresh-process recovery replays eight uncommitted sample attempts with no missing/duplicate committed sample marks | One physical A6000; original reader, dense optimizer, and external parameter shards |
+| Consistency policies | **36 fresh GPU-model trials** verify three admission policies and reach the common target loss | Two workers on one A6000, CPU parameter shards; target-time ranges overlap, so no repeatable speedup is established |
+
+Reports and machine-readable records:
+
+- [Capacity](docs/MULTIGPU_TRAINING_CAPACITY.md) · [capacity manifest](docs/validation/2026-11-04-multi-gpu-training-capacity.json)
+- [Node loss](docs/PHYSICAL_NODE_RECOVERY.md) · [node-loss manifest](docs/validation/2026-11-05-provider-node-loss-recovery.json)
+- [Original application replay](docs/ORIGINAL_INPUT_CHECKPOINT.md) · [replay manifest](docs/validation/2026-11-05-original-executor-uncommitted-replay.json)
+- [Policy comparison](docs/MODEL_CONSISTENCY_POLICIES.md) · [GPU-policy manifest](docs/validation/2026-11-05-gpu-model-consistency-policies.json)
+
+### Parameter-runtime performance
+
+Matched subsystem measurements identify specific costs; their rates are not
+end-to-end model-training throughput:
+
+- **Dependency-plan caching:** at one shard and 32 concurrent Learners, a
+  same-binary cache-on/off comparison improves **67.69 → 94.50 updates/s** and
+  reduces dependency preparation **10.28 → 0.82 ms/update**.
+  [Scheduling experiments](docs/SCHEDULING_RESULTS.md).
+- **Compact gradient transfer:** numeric gradient payload is **4.3–9.7× smaller**
+  than the expanded representation for the recorded eight-Learner workloads;
+  row identities and protocol headers are excluded.
+  [Payload definitions](docs/BENCHMARKS.md#gradient-payload).
+- **Multi-owner scaling:** a fixed large-table deployment records **36.56 / 30.33 /
+  26.52 updates/s** with one/two/three A6000 owners. Added communication and
+  coordination dominate in that SSH-forwarded deployment.
+  [Scaling and overload records](docs/OVERLOAD_SCHEDULING.md).
+
+A separate [fixed-workload model protocol](docs/MODEL_SCALING.md) holds logical
+workers, shards, model, and data constant while varying physical placement. Its
+[local protocol validation](docs/validation/2026-11-05-fixed-workload-measurement-protocol.json)
+uses CPU processes and establishes timing/reentry checks, not physical GPU scaling.
+
+## Build and explore
+
+A dependency-light core build requires C++20, CMake 3.20+, and POSIX file APIs:
+
+```sh
+cmake -S . -B build/core -DCMAKE_BUILD_TYPE=Release -DEPS_BUILD_BRPC=OFF
+cmake --build build/core -j 4
+ctest --test-dir build/core --output-on-failure
 ```
 
-## Runtime structure
+Network services additionally require BRPC, Protobuf, and nlohmann/json. CUDA
+owners require a matching CUDA toolkit; framework workers require the documented
+TensorFlow/Python environment. See [build and run](docs/RUNNING.md) for installation,
+service configuration, and native integration commands.
 
-```mermaid
-flowchart LR
-    subgraph Framework[Training framework]
-        G[Model forward / backward] <--> A[Pull / Push / Join adapter]
-        A <--> H[Native TensorFlow CPU / GPU operations]
-    end
-    H <-->|Versioned C interface| C[Native distributed client]
-    C <-->|Batched IDs and gradients| S[Parameter shards]
-    C <-->|Resident feature gather| W[CUDA cache agents]
-    S <-->|Updates and full-state migration| W
-    S --- T[CPU weights + Adam state]
-    W --- V[GPU weights + Adam state]
+To run the distributed model on prepared nodes:
+
+```sh
+python scripts/distributed_model_training.py \
+  --fleet /private/connected-fleet.json \
+  --rows 5242880 --dimension 1024 --hidden 8 \
+  --samples 16 --bag 16 --iterations 8 --require-capacity \
+  --out results/capacity
 ```
 
-## Service responsibilities
+This capacity command needs two distinct compatible GPU nodes and the memory
+checks described in the [deployment guide](docs/DISTRIBUTED_MODEL_TRAINING.md).
+Fleet connection details stay outside version control. The repository contains
+executable examples and tests; the original framework's private source/runtime
+bundle is a separate integration prerequisite.
 
-- **Parameter storage:** shard `(table, key)` rows and retain weights and optimizer state.
-- **Batched access:** deduplicate requests while preserving bag and sequence positions;
-  support sum, mean and ordered sequence features.
-- **Sparse updates:** merge repeated-key contributions within the original update
-  request and apply its configured sparse optimizer at the current parameter location.
-- **Cache management:** coordinate CPU/GPU placement, acknowledged state transfer,
-  generation checks and slot reclamation; automatically admit and replace rows
-  within configured migration budgets.
-- **Framework integration:** return the tensor layouts expected by the existing
-  training graph; expose drain, bounded checkpoint export and matched resume for
-  periodic saves. The controller commits sparse, dense and input state together.
-  [Checkpoint lifecycle](docs/PERIODIC_CHECKPOINTS.md).
+## Code and documentation map
 
-## Implemented optimizations
+| Area | Entry points |
+| --- | --- |
+| Public contracts | [`include/eps/`](include/eps/) |
+| Row storage and snapshots | [`src/store/`](src/store/) |
+| Batch access and reusable layouts | [`src/access/`](src/access/) |
+| CPU/CUDA optimizers and owners | [`src/update/`](src/update/), [`src/cuda/`](src/cuda/), [`src/cache/`](src/cache/) |
+| Task progress and synchronous reduction | [`src/training/`](src/training/) |
+| Durable replica protocol | [`src/replication/`](src/replication/) |
+| Servers and distributed transport | [`src/server/`](src/server/), [`src/transport/`](src/transport/), [`src/client/`](src/client/) |
+| Framework integration | [`adapters/entropy/`](adapters/entropy/) |
+| Model example | [`examples/tensorflow_training_worker.py`](examples/tensorflow_training_worker.py) |
+| Process orchestration and recovery | [`scripts/managed_training_recovery.py`](scripts/managed_training_recovery.py), [`scripts/recover_training.py`](scripts/recover_training.py) |
 
-- **Resumable shard operations:** suspend pending cache calls and resume their
-  continuations on the shard's single state-owning thread. Independent requests
-  can progress; row, optimizer and agent-stream dependencies keep conflicting
-  operations ordered. Automatic maintenance upgrades to a barrier at its decision
-  window; save/restore retain ordered full barriers.
-  [Execution, bounds and validation](docs/RESUMABLE_OPERATIONS.md).
-- **Bounded asynchronous input preparation:** prepare future IDs, padding maps
-  and shard layouts on one worker while current model/RPC work runs. Count and
-  byte limits bound queued work; FIFO tokens are consumed explicitly. Parameter
-  reads occur at Pull consumption, preserving the caller's update/read order.
-  Eight service phase counters distinguish preparation, optimizer work, owner
-  waits and migration. [Lifecycle and metrics](docs/ASYNCHRONOUS_PREPARATION.md).
-- **Automatic reuse-aware placement:** track bounded, decayed per-row request
-  reuse, admit rows whose predicted savings cover full-state migration, and
-  replace lower-benefit residents after a minimum residence interval. Skip rows
-  held by live tickets; enforce shared migration budgets and destination-side
-  slot reserves. Manual and frequency-window baselines remain selectable.
-  [Policy flow, costs and configuration](docs/CACHE_POLICY.md).
-- **Destination-aware gathers:** send only the ID positions each destination
-  reads and restore sequence positions on return. The default processes replies
-  in shard order, starting each shard's cache work before waiting for the next
-  reply. Optional cross-shard coalescing merges compatible work and reduces up
-  to `shards × GPUs` calls to `GPUs` calls. This trades waiting for every shard
-  against fewer calls. Original tickets and update boundaries remain independent.
-  Both policies have native and TensorFlow correctness coverage; the plotted
-  GPU measurements remain attached to their source revision.
-- **Compact sparse-gradient transfer:** send each pooled feature gradient with
-  ordered row references and mean scales. The destination GPU reduces those
-  contributions into row gradients before Adam. Use expanded gradients when they
-  are smaller. The measured numeric gradient payload is **4.3–9.7× smaller** than
-  the expanded representation of the same updates at eight Learners.
-- **Concurrent owner updates:** dispatch to independent GPU owners concurrently
-  while retaining control-command ordering at each owner and the original
-  request's optimizer context.
-- **Bounded completion waiting:** reserve completion capacity before mutation;
-  dedicated waiter threads notify BRPC callbacks when native futures finish.
-  Requests no longer poll for completion on a timer.
-- **Agent-wide RPC admission:** dispatch at most 32 unfinished operations per
-  owner and retain waiting work within count/byte budgets. Permits cover backend
-  completion and response encoding. [Admission design](docs/AGENT_ADMISSION.md).
-- **Contiguous state and reusable staging:** preallocate CUDA parameter state and
-  staging buffers, batch state transfers and return owning device results.
+[API](docs/API.md) · [Architecture](docs/ARCHITECTURE.md) ·
+[Design decisions](docs/adr/README.md) · [Implementation history](docs/plans/2026-10-31-implementation.md)
 
-![Paired numeric gradient-payload comparison](docs/assets/gradient-payload.svg)
+## Scope and design references
 
-The payload comparison excludes protocol row identities and headers. CPU-side
-validation still runs before the destination GPU reduces the compact payload.
-See [benchmark definitions](docs/BENCHMARKS.md#gradient-payload).
+The implemented manager uses explicit deployment routes and role generations.
+A multi-job controller adds priority/FIFO queues, cooperative node reservations,
+and bounded resource-aware placement for 2–8 logical groups. Local checks cover
+2/4/8-group model training, concurrent jobs, restart adoption, cancellation, and
+node-scope recovery; physical multi-job GPU validation remains a separate gate.
+[Controller scope and checks](docs/TRAINING_JOB_CONTROLLER.md). Existing validation
+covers the stated failure cases with surviving state authorities. Each shard's
+current replica protocol uses one standby authority rather than quorum election;
+loss of every authoritative state copy is outside its recovery contract.
 
-## Access and cache policy design
+The system follows the Parameter Server separation of workers, parameter owners,
+and logical training progress. Task/state dependencies and process lifecycle
+management are complementary runtime layers. This is a project-specific
+implementation; its manager and executor do not require Ray or Borg.
 
-| Optimization | What changes | Why it can accelerate training |
-|---|---|---|
-| Cost-based access planning | Compare CPU pooling with unique-vector transfer and GPU processing | Reduce traffic without moving the bottleneck into CPU pooling |
-| Reuse-aware admission | Account for parameter-state loading and writeback when admitting a row | Avoid one-use insertions and repeated cache churn |
-| Migration budgets and slot reserve | Bound in-flight transfer work and prepare reusable capacity early | Reduce bursts and waits for old rows to finish writing back |
-| Batched preparation and transfer | Prepare ID routing ahead and coalesce compatible payloads | Reduce allocation, scheduling and small-message overhead |
+1. Li et al., [Scaling Distributed Machine Learning with the Parameter Server](https://www.usenix.org/conference/osdi14/technical-sessions/presentation/li_mu), OSDI 2014.
+2. Moritz et al., [Ray: A Distributed Framework for Emerging AI Applications](https://www.usenix.org/conference/osdi18/presentation/moritz), OSDI 2018.
+3. Verma et al., [Large-scale cluster management at Google with Borg](https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/), EuroSys 2015.
 
-The access planner, automatic admission/replacement controller and migration
-budgets and asynchronous input preparation are implemented. Decisions currently
-execute in coarse windows under a shard barrier. Agent waits suspend the actor;
-independent work can proceed outside maintenance/save barriers. The [acceleration design](docs/ACCELERATION.md) explains the
-choices and costs.
-
-## Shard scheduling
-
-![Same-binary serialized and resumable scheduling controls](docs/assets/resumable-scheduling.svg)
-
-At one parameter shard and 32 concurrent Learners, caching queued dependency
-plans increases throughput from **67.69 to 94.50 updates/s** in a same-binary
-cache-on/off comparison. Dependency preparation falls from **10.28 to 0.82 ms per
-completed update**, while trial P99 falls from **708.21 to 396.30 ms**.
-
-The latest single-A6000 deployment retains **70 capacity trials and 25,990
-updates**, with zero training-update errors. Serialized/resumable controls retain
-mixed results across shard counts and automatic policies: one-shard manual loads
-improve by 5.3–10.6%, while some automatic-maintenance configurations regress.
-The [scheduling report](docs/SCHEDULING_RESULTS.md) separates the cache ablation,
-concurrency controls, numerical replay and earlier uncached implementation.
-
-## Measured cache-policy behavior
-
-![Cache hit rate, throughput and migration cost](docs/assets/cache-policy-moderate-adaptation.svg)
-
-In the 2,048-ID shifted-hot-set profile, reuse-cost placement completes **103.90
-updates/s** with **14.80 ms median trial P99**, versus **71.16 updates/s** and
-**42.62 ms** for frequency placement. Calibration selects a zero admission-savings
-prior in this profile, avoiding new full-state migrations; static placement
-reaches 106.28 updates/s. The report also includes CPU-only baselines and a larger
-8,192-ID profile. [Two-profile results, costs and raw records](docs/CACHE_POLICY_RESULTS.md).
-
-## Design and code map
-
-- [Service architecture](docs/ARCHITECTURE.md)
-- [API and integration](docs/API.md)
-- [Original ORC/FileFeeder input checkpoints](docs/ORIGINAL_INPUT_CHECKPOINT.md)
-- [中文项目说明](docs/ARCHITECTURE.zh-CN.md)
-- [Application families and sources](docs/APPLICATIONS.md)
-- [Design decisions](docs/adr/README.md)
-- [Implementation plan](docs/plans/2026-10-31-implementation.md)
-- [Project scope and provenance](docs/PROVENANCE.md)
-
-```text
-include/eps/       C++20 service and cache-agent contracts
-src/store/         Chunked row storage and durable binary snapshots
-src/access/        Deduplicated lookup and feature-gradient reduction
-src/update/        Sparse LazyAdam validation and updates
-src/server/        Bounded shard executor and standalone server
-src/transport/     BRPC services, client and attachment codec
-src/client/        Cross-shard routing, pooling and sequence reconstruction
-src/cache/         Agent control, host reference backend and cost planner
-src/cuda/          Resident pooling, sparse Adam and batched state transfers
-adapters/entropy/  C++ Pull/Push/Join adapter and portable TensorFlow bridge
-proto/            Service protocol
-configs/          Example service/integration configuration
-tests/            Core, CUDA, TensorFlow, recovery and capacity probes
-scripts/          GPU build and process/fleet capacity sweeps
-docs/             Architecture, rationale and delivery plan
-references/       Local reference collection guide
-```
-
-The implementation is designed around **C++20**, **BRPC/Protobuf** and contiguous
-parameter-state storage. The C++ agent can run inside a compatible training worker
-or as a standalone process. The supplied portable TensorFlow bridge isolates
-BRPC's binary dependencies in a local client process; feature tensors cross a
-host-memory boundary. The C++ CUDA API also returns owning device tensors for
-native callers. Clients use the same table/key/gradient contract across tasks.
-
-The [adapter guide](adapters/entropy/README.md) describes integration and gradient
-conventions. The [implementation plan](docs/plans/2026-10-31-implementation.md)
-tracks completed subsystems, original-framework native integration and integrated
-workload evaluation.
-
-## References
-
-1. Li, M., et al. *Scaling Distributed Machine Learning with the Parameter Server.*
-   OSDI, 2014. [Paper](https://www.usenix.org/conference/osdi14/technical-sessions/presentation/li_mu).
-2. Zheng, D., et al. *DGL-KE: Training Knowledge Graph Embeddings at Scale.* SIGIR, 2020.
-   [Paper](https://www.amazon.science/publications/dgl-ke-training-knowledge-graph-embeddings-at-scale).
-3. PyTorch. *FBGEMM: Table Batched Embedding Training Module.*
-   [Documentation](https://docs.pytorch.org/FBGEMM/fbgemm_gpu/python-api/tbe_ops_training.html).
-
-Original project contributions use [PolyForm Noncommercial 1.0.0](LICENSE).
-See [NOTICE](NOTICE) for attribution. Local upstream source and internal reference
-material are excluded from version control.
+The parameter subsystem was extracted and developed against an existing training
+framework. Its prior capabilities and this project's contribution boundaries are
+recorded in [PROVENANCE](docs/PROVENANCE.md). Historical framework measurements
+remain separate from project experiments. Original project contributions use
+[PolyForm Noncommercial 1.0.0](LICENSE); inherited rights and attribution are in
+[NOTICE](NOTICE).

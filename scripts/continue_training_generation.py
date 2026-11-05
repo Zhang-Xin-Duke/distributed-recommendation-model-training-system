@@ -44,7 +44,7 @@ def continue_generation(source,fleet,build,out,run,end_round,*,lose_commit_reply
     publish(out/'request.json',request)
     if report_path.exists():return json.loads(report_path.read_text())
     source_job=copy.deepcopy(source['job']);workers=source_job['workers'];count=len(workers)
-    if count!=2 or len(source_job['shards'])!=2:raise ValueError('continuation requires two logical Workers/shards')
+    if not 2<=count<=8 or len(source_job['shards'])!=count:raise ValueError('continuation requires 2–8 matching logical groups')
     sockets=[]
     def endpoint():
         channel=socket.socket();channel.bind(('127.0.0.1',0));sockets.append(channel)

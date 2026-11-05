@@ -99,6 +99,14 @@ def snapshot(path):
 
 
 def ensure(root, run, role, spec):
+    if spec.get('reservation_token'):
+        from node_resources import launch_guard
+        with launch_guard(root, run, role, spec['reservation_token']):
+            return ensure_unreserved(root, run, role, spec)
+    return ensure_unreserved(root, run, role, spec)
+
+
+def ensure_unreserved(root, run, role, spec):
     path = directory(root, run, role)
     if not isinstance(spec.get('command'), list) or not spec['command'] or any(not isinstance(x,str) for x in spec['command']):
         raise ValueError('node role command must be an argument list')
@@ -265,6 +273,18 @@ def journal_report(root,run,role):
 
 def dispatch(request):
     handlers=dict(ensure=ensure,status=status,stop=stop,read=read,hardware=hardware,training_gate=training_gate,journal_report=journal_report)
+    if request['op']=='role_config':
+        path=directory(request['root'],request['run'],request['role'])
+        with locked(path):
+            state=snapshot(path)
+            if state['live_child'] or state['live_wrapper']:raise ValueError('config transfer requires stopped role')
+            return json.loads((path/'config.json').read_text())
+    if request['op']=='replica_handoff':
+        from replica_handoff import operation
+        return operation(**{k:v for k,v in request.items() if k!='op'})
+    if request['op']=='resources':
+        from node_resources import operation
+        return operation(**{k:v for k,v in request.items() if k!='op'})
     op=request['op']
     if op not in handlers:raise ValueError('unknown role node operation')
     return handlers[op](**{k:v for k,v in request.items() if k!='op'})

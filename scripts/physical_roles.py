@@ -30,7 +30,8 @@ class PhysicalRoles(ManagedRoles):
         super().__init__(nodes,run)
         self.fleet=fleet;self.physical=fleet['physical_nodes'];self.directory=pathlib.Path(state_directory)
         if not 2<=len(self.physical)<=64:raise ValueError('invalid physical node roster')
-        if len(fleet['replacement_nodes'])!=2:raise ValueError('replacement deployment must retain two logical Workers')
+        self.count=len(nodes)
+        if not 2<=self.count<=8 or len(fleet['replacement_nodes'])!=self.count:raise ValueError('replacement deployment must retain 2–8 logical groups')
         ids=[n.get('node_id') for n in self.physical]
         if any(not isinstance(n,str) or not n for n in ids) or len(set(ids))!=len(ids):
             raise ValueError('physical nodes require unique stable identities')
@@ -43,11 +44,11 @@ class PhysicalRoles(ManagedRoles):
             spec=fleet['role_placement'][generation]
             selected=[spec['coordinator']]
             for kind in ('owner','primary','worker','replica','journal-mirror'):
-                if len(spec[kind])!=2:raise ValueError('physical placement requires two logical roles per kind')
+                if len(spec[kind])!=self.count:raise ValueError('physical placement membership differs')
                 selected.extend(spec[kind])
             if any(type(i) is not int or not 0<=i<len(self.physical) for i in selected):
                 raise ValueError('physical role placement is outside the roster')
-        if any(fleet['role_placement']['0'][kind]!=fleet['role_placement']['1'][kind]
+        if not fleet.get('controller_managed') and any(fleet['role_placement']['0'][kind]!=fleet['role_placement']['1'][kind]
                for kind in ('replica','journal-mirror')):
             raise ValueError('replica storage hosts must survive this placement transition')
         if not fleet.get('mirror_worker_journals'):raise ValueError('physical node recovery requires gradient mirrors')
@@ -78,7 +79,7 @@ class PhysicalRoles(ManagedRoles):
         else:raise ValueError('unknown terminal node receipt')
         # No required surviving authority may be placed on the lost node.
         initial=self.fleet['role_placement']['0'];replacement=self.fleet['role_placement']['1']
-        if (index in initial['replica'] or index in initial['journal-mirror'] or initial['coordinator']==index
+        if not self.fleet.get('controller_managed') and (index in initial['replica'] or index in initial['journal-mirror'] or initial['coordinator']==index
                 or any(index in replacement[k] for k in ('worker','owner','primary'))
                 or replacement['coordinator']==index):
             raise ValueError('lost node also hosts required surviving or replacement authority')

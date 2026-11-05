@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-05",
+  "scope": "Local CPU process/network validation; one physical host; zero GPUs",
+  "resources": {
+    "test": "job_resources",
+    "checks": [
+      "atomic_competing_reservations",
+      "lost_successful_reserve_reply_is_idempotent",
+      "live_process_prevents_release",
+      "stopped_process_allows_release",
+      "released_token_cannot_reopen",
+      "external_port_conflict_rejected",
+      "durable_submit_identity",
+      "synthetic_gpu_placement_only",
+      "gpu_exclusivity_admission"
+    ],
+    "success": true,
+    "physical_gpus": 0
+  },
+  "controller": {
+    "test": "training_job_controller",
+    "checks": [
+      "2_groups_real_training_and_gang_cleanup",
+      "4_groups_real_training_and_gang_cleanup",
+      "8_groups_real_training_and_gang_cleanup",
+      "priority_and_equal_priority_fifo",
+      "two_jobs_concurrently_running",
+      "capacity_queue_handoff",
+      "controller_restart_adopts_executor_handles",
+      "running_job_cancel_stops_owned_groups_before_release"
+    ],
+    "physical_hosts": 1,
+    "physical_gpus": 0,
+    "logical_group_counts": [
+      2,
+      4,
+      8
+    ],
+    "cleanup_verified": true
+  },
+  "recovery": {
+    "test": "job_controller_node_recovery",
+    "physical_hosts": 1,
+    "physical_gpus": 0,
+    "simulated_node_scopes": 4,
+    "source_selection": [
+      {
+        "shard": 0,
+        "parameter_source": "replica",
+        "parameter_node": "node-0",
+        "gradient_source": "journal-mirror",
+        "gradient_node": "node-0",
+        "handoff": {
+          "verified": true,
+          "files": 7
+        }
+      },
+      {
+        "shard": 1,
+        "parameter_source": "primary",
+        "parameter_node": "node-0",
+        "gradient_source": "worker",
+        "gradient_node": "node-0",
+        "handoff": {
+          "verified": true,
+          "files": 7
+        }
+      }
+    ],
+    "all_64_rows_verified": true,
+    "max_state_absolute_error": 0.0,
+    "max_loss_absolute_error": 0.0,
+    "controller_restart_after_redundancy_rebuild": true,
+    "lost_storage_not_recreated": true,
+    "cleanup_verified": true
+  },
+  "source_sha256": {
+    "scripts/job_placement.py": "7b21437be72bc74e9fd5fe37317deb7e9c14877a5757a1e4e5d03f4dbb3d083f",
+    "scripts/job_recovery.py": "74224f720d72cf42a1558f80d1342fdcb2f944c95cac1facb9482edf0fd59e50",
+    "scripts/job_fleet.py": "84ca747ae47f66a70ef4bb35059d1c598735b9c9536a2185fe3ea885a1a501a8",
+    "scripts/training_job_controller.py": "fcf8147309914aec4912a54c54f3c271e3eca68618e7f3bd91908c787c0cf108",
+    "scripts/training_job_executor.py": "578fdc3d2e007200557d5ebeaf8b7147198f7b03be84e5a39815cad50b26f2d0",
+    "scripts/node_resources.py": "91fb867da9a024c65590069c8dfef04f04e8e5ee536964dcc98ae335ff0587b0",
+    "scripts/replica_handoff.py": "2d60cc9345fae5f91906c8d887a13a1c980121c22bf8cf97e24267592638fc28",
+    "scripts/managed_training_recovery.py": "c252d509612da28035d3e629a1e0872dba103009d6c7053bed56b5718913c629",
+    "tests/training_job_controller_tests.py": "a5df8714b149153f534d3e675223ed77d67e94234fa82f2187924084b38f9576",
+    "tests/job_controller_recovery.py": "f519f0831a4f918fac650ceb40523725d4af1b23a171921831358a111b5ead02",
+    "tests/job_resources.py": "95100e6e555190f281500e7f164ca3d74cc0a7e347bbbf43e8ba4fe264b7d680"
+  }
+}

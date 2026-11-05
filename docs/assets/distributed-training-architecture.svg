@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1120" viewBox="0 0 1500 1120" role="img" aria-labelledby="title desc">
+<title id="title">Distributed training system architecture</title>
+<desc id="desc">Workers compute model gradients, parameter shards manage CPU and CUDA state, and a manager coordinates recovery using parameter replicas, original-gradient mirrors and joint checkpoints. Solid arrows show data and update paths; dashed arrows show control.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+<rect width="1500" height="1120" fill="#f5f7fb"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#18283f}.label{font-size:15px;fill:#506179}.body{font-size:17px;fill:#42536a}.box-title{font-size:21px;font-weight:700}.section{font-size:14px;font-weight:700;letter-spacing:2px}.edge{fill:none;stroke-width:2.4;marker-end:url(#arrow)}</style>
+<text x="54" y="58" class="section" text-anchor="start">DISTRIBUTED TRAINING</text>
+<text x="54" y="104" font-size="35" font-weight="700">Sharded state. Coordinated execution. Recoverable progress.</text>
+<text x="54" y="139" class="body" text-anchor="start">C++20  /  BRPC + Protobuf  /  CUDA owners  /  TensorFlow integration</text>
+<rect x="40" y="175" width="1420" height="180" rx="16" fill="#edf1fb" stroke="#d8dfef"/>
+<text x="62" y="202" class="section" text-anchor="start">CONTROL &amp; LIFECYCLE</text>
+<rect x="62" y="218" width="510" height="115" rx="16" fill="#fff" stroke="#b8c6e3"/>
+<text x="84" y="252" class="box-title" text-anchor="start">Job manager</text>
+<text x="84" y="282" class="body" text-anchor="start">Start / observe / replace named process generations</text>
+<text x="84" y="307" class="body" text-anchor="start">Fence old owners; reconcile state before resuming</text>
+<rect x="762" y="218" width="676" height="115" rx="16" fill="#fff" stroke="#b8c6e3"/>
+<text x="784" y="252" class="box-title" text-anchor="start">Training progress coordinator</text>
+<text x="784" y="282" class="body" text-anchor="start">Begin: sequential / eventual / bounded-delay permits</text>
+<text x="784" y="307" class="body" text-anchor="start">Complete: advance clocks after update acknowledgements</text>
+<path d="M572 274 H762" class="edge" stroke="#7b6dba" stroke-dasharray="7 6"/>
+<rect x="632.6" y="249" width="64.8" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="665" y="265" class="label" text-anchor="middle">manage</text>
+<rect x="62" y="415" width="485" height="155" rx="16" fill="#fff" stroke="#a4c8bf"/>
+<text x="84" y="449" class="box-title" text-anchor="start">Training workers</text>
+<text x="84" y="479" class="body" text-anchor="start">Input batches → forward / loss / backward</text>
+<text x="84" y="504" class="body" text-anchor="start">Embedding + dense MLP example</text>
+<text x="84" y="529" class="body" text-anchor="start">Framework path: native model + dense optimizer</text>
+<rect x="702" y="415" width="736" height="155" rx="16" fill="#fff" stroke="#a4c8bf"/>
+<text x="724" y="449" class="box-title" text-anchor="start">Distributed client &amp; native TensorFlow boundary</text>
+<text x="724" y="479" class="body" text-anchor="start">Route keys to shards; preserve pooling and sequence positions</text>
+<text x="724" y="504" class="body" text-anchor="start">Pull / Push / Join handles and explicit read release</text>
+<text x="724" y="529" class="body" text-anchor="start">Versioned C ABI separates framework and transport modules</text>
+<path d="M547 493 H702" class="edge" stroke="#248b78" marker-start="url(#arrow)"/>
+<rect x="541.9" y="466" width="166.2" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="625" y="482" class="label" text-anchor="middle">tensors / gradients</text>
+<path d="M1098 333 V378 H305 V415" class="edge" stroke="#7b6dba" stroke-dasharray="7 6"/>
+<rect x="613.0" y="362" width="174.0" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="700" y="378" class="label" text-anchor="middle">permits / completion</text>
+<rect x="62" y="652" width="485" height="158" rx="16" fill="#fff" stroke="#a4bfdc"/>
+<text x="84" y="686" class="box-title" text-anchor="start">Parameter-server shards</text>
+<text x="84" y="716" class="body" text-anchor="start">Row locations + lookup tickets + optimizer clocks</text>
+<text x="84" y="741" class="body" text-anchor="start">Per-worker updates OR synchronous reduction</text>
+<text x="84" y="766" class="body" text-anchor="start">Suspend on owner waits; order conflicting operations</text>
+<rect x="702" y="652" width="330" height="158" rx="16" fill="#fff" stroke="#a4bfdc"/>
+<text x="724" y="686" class="box-title" text-anchor="start">CPU row storage</text>
+<text x="724" y="716" class="body" text-anchor="start">Weights + Adam moments</text>
+<text x="724" y="741" class="body" text-anchor="start">Home-shard backing</text>
+<text x="724" y="766" class="body" text-anchor="start">Read / update / snapshot</text>
+<rect x="1108" y="652" width="330" height="158" rx="16" fill="#fff" stroke="#a4bfdc"/>
+<text x="1130" y="686" class="box-title" text-anchor="start">CUDA owners</text>
+<text x="1130" y="716" class="body" text-anchor="start">Resident weights + Adam</text>
+<text x="1130" y="741" class="body" text-anchor="start">Gather / reduce / update</text>
+<text x="1130" y="766" class="body" text-anchor="start">Full-state migration</text>
+<path d="M1070 570 V612 H305 V652" class="edge" stroke="#4378b9" marker-start="url(#arrow)"/>
+<rect x="637.2" y="596" width="345.59999999999997" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="810" y="612" class="label" text-anchor="middle">batched parameter reads / gradient updates</text>
+<path d="M547 708 H702" class="edge" stroke="#4378b9" marker-start="url(#arrow)"/>
+<rect x="580.9" y="681" width="88.2" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="625" y="697" class="label" text-anchor="middle">CPU state</text>
+<path d="M547 797 H605 V835 H1070 V732 H1108" class="edge" stroke="#4378b9" marker-start="url(#arrow)"/>
+<rect x="739.1" y="819" width="181.79999999999998" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="830" y="835" class="label" text-anchor="middle">owner RPC / migration</text>
+<path d="M317 333 V389 H23 V730 H62" class="edge" stroke="#7b6dba" stroke-dasharray="7 6"/>
+<rect x="40" y="893" width="1420" height="163" rx="16" fill="#f6f0e6" stroke="#e6d9c0"/>
+<text x="62" y="920" class="section" text-anchor="start">DURABLE RECOVERY STATE</text>
+<rect x="62" y="936" width="420" height="98" rx="16" fill="#fff" stroke="#d8bf91"/>
+<text x="84" y="970" class="box-title" text-anchor="start">Parameter replicas</text>
+<text x="84" y="1000" class="body" text-anchor="start">Exact updated rows + Adam + frontiers</text>
+<text x="84" y="1025" class="body" text-anchor="start">Durable acknowledgement; fenced primary terms</text>
+<rect x="539" y="936" width="420" height="98" rx="16" fill="#fff" stroke="#d8bf91"/>
+<text x="561" y="970" class="box-title" text-anchor="start">Worker journals &amp; mirrors</text>
+<text x="561" y="1000" class="body" text-anchor="start">Original gradients + input identity + loss</text>
+<text x="561" y="1025" class="body" text-anchor="start">Persist before submission; replay partial rounds</text>
+<rect x="1016" y="936" width="422" height="98" rx="16" fill="#fff" stroke="#d8bf91"/>
+<text x="1038" y="970" class="box-title" text-anchor="start">Joint checkpoints</text>
+<text x="1038" y="1000" class="body" text-anchor="start">Model / optimizer / rounds / input position</text>
+<text x="1038" y="1025" class="body" text-anchor="start">Verify paused replacement before admission</text>
+<path d="M271 810 V936" class="edge" stroke="#ac7d32"/>
+<rect x="203.5" y="849" width="135.0" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="271" y="865" class="label" text-anchor="middle">committed state</text>
+<path d="M305 570 V603 H580 V860 H750 V936" class="edge" stroke="#ac7d32"/>
+<rect x="690.3" y="849" width="119.39999999999999" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="750" y="865" class="label" text-anchor="middle">original work</text>
+<path d="M1260 810 V936" class="edge" stroke="#ac7d32"/>
+<rect x="1196.4" y="849" width="127.2" height="23" rx="4" fill="#f5f7fb" stroke="#f5f7fb"/>
+<text x="1260" y="865" class="label" text-anchor="middle">checkpoint cut</text>
+<text x="54" y="1094" class="label" text-anchor="start">Solid arrows: data / state flow     Dashed arrows: control     Deployment may co-locate logical roles.</text>
+</svg>

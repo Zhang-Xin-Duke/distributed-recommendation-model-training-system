@@ -41,8 +41,9 @@ the recurring key layouts and training path.
 Placement comparisons enable deterministic TensorFlow operators and disable
 TF32. Parameter initialization and input order are seeded independently of the
 run name. The model mode belongs to the workload fingerprint; ordinary Worker
-runs opt into determinism through `deterministic_model`. Zero-tolerance checks
-can therefore separate transport/update semantics from GPU reduction ordering.
+runs opt into determinism through `deterministic_model`. Every placement uses
+that same mode and an explicitly recorded numerical tolerance. Additional
+bitwise-comparison probes are retained separately from those numerical checks.
 
 For measured round set `R`, the sample rate is:
 
