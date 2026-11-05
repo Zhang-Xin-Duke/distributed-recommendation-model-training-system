@@ -26,8 +26,10 @@ def main():
                         help="Start new replica and Worker journal baselines at the saved round")
     parser.add_argument('--retire-old',action='store_true')
     parser.add_argument('--repeated-recovery',action='store_true')
+    parser.add_argument('--distributed-retirement',action='store_true')
     parser.add_argument('--gpu',action='store_true',help='Use one physical CUDA device for model Workers and parameter owners')
     a = parser.parse_args()
+    if a.distributed_retirement and not a.retire_old:parser.error('distributed retirement requires retirement')
     if a.retire_old and not a.replicated_rollover:parser.error('retirement requires replicated rollover')
     if a.repeated_recovery and not a.retire_old:parser.error('repeated recovery requires retirement')
     build = a.build.resolve()
@@ -282,39 +284,43 @@ def main():
                             except ValueError:
                                 failures.append(dict(action='retirement-live-role',reason='live supervised process rejects retirement'))
                             else:raise AssertionError('live source role accepted as stopped')
-                            # A live unknown journal holder still prevents GC,
-                            # even with terminal supervised source-role handles.
-                            old=job['workers'][0]
-                            with WorkerJournal(old['journal_directory'],identity(old)):
+                            if a.distributed_retirement:
+                                from distributed_retirement_model import run as retire_distributed
+                                retirement=retire_distributed(rollover_plan,job,build,source,failures)
+                            else:
+                                # A live unknown journal holder still prevents GC,
+                                # even with terminal supervised source-role handles.
+                                old=job['workers'][0]
+                                with WorkerJournal(old['journal_directory'],identity(old)):
+                                    try:retirement_api.retire(rollover_plan,build)
+                                    except BlockingIOError:
+                                        failures.append(dict(action='retirement-live-journal',reason='exclusive source journal lock is required'))
+                                    else:raise AssertionError('live source storage was retired')
+                                with WorkerJournal(old['journal_directory'],identity(old)) as journal:
+                                    saved=journal.get(base_round-1)
+                                    journal.put(base_round,saved['sample_count'],saved['completed_reads']+1,
+                                                saved['loss'],saved['tables'])
                                 try:retirement_api.retire(rollover_plan,build)
-                                except BlockingIOError:
-                                    failures.append(dict(action='retirement-live-journal',reason='exclusive source journal lock is required'))
-                                else:raise AssertionError('live source storage was retired')
-                            with WorkerJournal(old['journal_directory'],identity(old)) as journal:
-                                saved=journal.get(base_round-1)
-                                journal.put(base_round,saved['sample_count'],saved['completed_reads']+1,
-                                            saved['loss'],saved['tables'])
-                            try:retirement_api.retire(rollover_plan,build)
-                            except ValueError as error:
-                                assert 'frontier' in str(error)
-                                failures.append(dict(action='retirement-future-gradient',reason=str(error)))
-                            else:raise AssertionError('gradient beyond checkpoint frontier was retired')
-                            (pathlib.Path(old['journal_directory'])/f'round-{base_round}.epsw').unlink()
-                            real_unlink=retirement_api.unlink_payload
-                            count=0
-                            def interrupted_unlink(path):
-                                nonlocal count
-                                count+=1
-                                if count==2:raise OSError('injected interrupted payload retirement')
-                                real_unlink(path)
-                            with patch.object(retirement_api,'unlink_payload',interrupted_unlink):
-                                try:retirement_api.retire(rollover_plan,build)
-                                except OSError as error:
-                                    assert 'injected interrupted' in str(error)
-                                    failures.append(dict(action='retirement-interrupted-unlink',reason=str(error)))
-                                else:raise AssertionError('retirement interruption was not injected')
-                            retirement=retirement_api.retire(rollover_plan,build)
-                            assert retirement_api.retire(rollover_plan,build)==retirement
+                                except ValueError as error:
+                                    assert 'frontier' in str(error)
+                                    failures.append(dict(action='retirement-future-gradient',reason=str(error)))
+                                else:raise AssertionError('gradient beyond checkpoint frontier was retired')
+                                (pathlib.Path(old['journal_directory'])/f'round-{base_round}.epsw').unlink()
+                                real_unlink=retirement_api.unlink_payload
+                                count=0
+                                def interrupted_unlink(path):
+                                    nonlocal count
+                                    count+=1
+                                    if count==2:raise OSError('injected interrupted payload retirement')
+                                    real_unlink(path)
+                                with patch.object(retirement_api,'unlink_payload',interrupted_unlink):
+                                    try:retirement_api.retire(rollover_plan,build)
+                                    except OSError as error:
+                                        assert 'injected interrupted' in str(error)
+                                        failures.append(dict(action='retirement-interrupted-unlink',reason=str(error)))
+                                    else:raise AssertionError('retirement interruption was not injected')
+                                retirement=retirement_api.retire(rollover_plan,build)
+                                assert retirement_api.retire(rollover_plan,build)==retirement
                             assert unrelated.read_text()=='retain unrelated source notes'
                             assert not pathlib.Path(job['manifest']).exists()
                             for old in job['workers']:
@@ -532,7 +538,11 @@ def main():
                           source_phase=middle,fault=True)
             continuation.append(resumed)
             assert not pathlib.Path(middle['generation_plan']['manifest']).exists()
-            assert retirement_api.retire(middle['generation_plan'],build)==middle['rollover']['retirement']
+            if a.distributed_retirement:
+                from distributed_retirement_model import replay as replay_distributed
+                assert replay_distributed(middle['generation_plan'],build)==middle['rollover']['retirement']
+            else:
+                assert retirement_api.retire(middle['generation_plan'],build)==middle['rollover']['retirement']
         expected = {row["key"]: row for row in baseline["state"]["rows"]}
         maximum = 0.
         for row in resumed["state"]["rows"]:
@@ -551,7 +561,7 @@ def main():
         for w in resumed["workers"]:
             assert w["input_state"] == baseline["workers"][w["worker"]]["input_state"]
             assert w["input_state"]["next_iteration"] == rounds and w["input_state"]["next_batch"] == rounds % 3
-        result = dict(test="repeated_retirement_and_recovery" if a.repeated_recovery else "replicated_checkpoint_retirement" if a.retire_old else "replicated_checkpoint_rollover" if a.replicated_rollover else "joint_training_checkpoint_restart", device="CUDA" if a.gpu else "CPU", shards=2, workers=2,
+        result = dict(distributed_retirement=a.distributed_retirement,test="repeated_retirement_and_recovery" if a.repeated_recovery else "replicated_checkpoint_retirement" if a.retire_old else "replicated_checkpoint_rollover" if a.replicated_rollover else "joint_training_checkpoint_restart", device="CUDA" if a.gpu else "CPU", shards=2, workers=2,
                       iterations=rounds, checkpoint_round=split, input_cycle_batches=3,
                       max_state_absolute_error=maximum, max_continuation_loss_error=loss_error,
                       compared_rows=len(expected), negative_cases=failures,

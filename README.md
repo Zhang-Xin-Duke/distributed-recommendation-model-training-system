@@ -79,6 +79,11 @@ locks before removing certified old payloads; durable markers reject stale resta
 Host and CUDA model checks cover two rotations followed by loss of every Worker,
 primary, parameter owner and coordinator process, recovering from surviving
 replicas with identical final parameters, Adam state and continued losses.
+[Distributed generation retirement](docs/DISTRIBUTED_GENERATION_RETIREMENT.md)
+assigns old storage to its owning nodes, seals every participant before the
+manager commits deletion, and resumes interrupted cleanup from durable receipts.
+Separate-node-process model checks preserve the complete training trajectory
+through two rotations and subsequent process loss.
 
 [Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
 parameters, Adam state and request progress on an independent disk-backed replica

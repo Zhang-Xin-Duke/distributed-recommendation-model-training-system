@@ -478,6 +478,21 @@ if(EPS_BUILD_BRPC)
             --out "${CMAKE_CURRENT_BINARY_DIR}/tf-checkpoint-retirement.json")
         set_tests_properties(tensorflow_checkpoint_retirement PROPERTIES TIMEOUT 240
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME distributed_retirement_protocol
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/distributed_retirement_tests.py")
+        set_tests_properties(distributed_retirement_protocol PROPERTIES TIMEOUT 60)
+        add_test(NAME tensorflow_distributed_retirement
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover --retire-old --distributed-retirement
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-distributed-retirement.json")
+        set_tests_properties(tensorflow_distributed_retirement PROPERTIES TIMEOUT 300
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_distributed_retirement_recovery
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover --retire-old --distributed-retirement --repeated-recovery
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-distributed-retirement-recovery.json")
+        set_tests_properties(tensorflow_distributed_retirement_recovery PROPERTIES TIMEOUT 480
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_repeated_retirement_recovery
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover --retire-old --repeated-recovery

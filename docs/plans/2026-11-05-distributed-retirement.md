@@ -42,3 +42,17 @@ Shared storage would simplify direct unlinking but require filesystem deployment
 and common locking semantics. Ad hoc SSH removal would not retain a recoverable
 group decision. Per-node sealing uses the existing storage formats and transport,
 at the cost of a durable two-stage control protocol and small retained receipts.
+
+## Executed progress
+
+The shared inspector retains the host-local repeated-retirement regression.
+The node/manager protocol passes interrupted publication/unlink, changed and
+dangling payloads, changed receipts, lost successful responses, partial sealing
+and partial commit. The native TensorFlow regression uses two training-storage
+participants plus an immutable-checkpoint controller. Two round-4/8 rotations
+and later round-10 process loss recover to round 12 with all 32 full parameter/
+Adam rows and loss trajectories matching uninterrupted training exactly.
+
+These tests use separate participant processes on one physical host. The SSH
+transport path is implemented; actual physical-host execution remains a gate,
+followed by fixed-workload physical multi-GPU scaling within the standing budget.

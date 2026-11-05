@@ -8,6 +8,7 @@ import os
 import pathlib
 import re
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -53,7 +54,7 @@ def birth(pid):
 
 def handle():
     pid = os.getpid()
-    return dict(pid=pid, birth=birth(pid), group=os.getpgrp())
+    return dict(pid=pid, birth=birth(pid), group=os.getpgrp(), host=socket.gethostname())
 
 
 def alive(record):

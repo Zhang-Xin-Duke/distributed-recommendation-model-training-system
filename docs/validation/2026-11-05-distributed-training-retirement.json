@@ -1,0 +1,259 @@
+{
+  "schema": "eps.distributed-training-retirement.v1",
+  "date": "2026-11-05",
+  "scope": "CPU TensorFlow model with native checkpoint/replica authority and separate node processes on one physical host",
+  "physical_hosts": 1,
+  "workers": 2,
+  "parameter_shards": 2,
+  "participant_processes": 3,
+  "protocol": {
+    "test": "distributed_retirement_protocol",
+    "participant_processes": 2,
+    "real_worker_journals": true,
+    "replacement_authority": "protocol fixture; separately covered by model integration",
+    "all_nodes_sealed_before_unlink": true,
+    "live_lock_rejected": true,
+    "missing_resource_rejected": true,
+    "interrupted_seal_resumed": true,
+    "interrupted_unlink_resumed": true,
+    "lost_commit_reply_retried": true,
+    "changed_payload_rejected_before_any_unlink": true,
+    "changed_completion_receipt_rejected": true,
+    "dangling_payload_replacement_rejected": true,
+    "manager_reentry_after_partial_commit": true,
+    "completed_replay_without_authority": true,
+    "unrelated_files_preserved": true,
+    "unlinked_paths": 4
+  },
+  "source_sha256": {
+    "scripts/retirement_storage.py": "6f2037105fed7b9308c85749db2f9a36e9ecaab6ef137a025a07124c5fc72061",
+    "scripts/retirement_node.py": "4ebc0050219fd63f4100a3163b178c33fef934d6de01ab82382095bb25da7aa8",
+    "scripts/distributed_retirement.py": "f040125c537481a785f2c41b6411755e91b3ccec02ee22bf043b95a15758156c",
+    "scripts/retire_training_generation.py": "109ace31b420c6fa6c2360730ba8037bda51ccf62482579d5827e428bafb0e98",
+    "tests/distributed_retirement_tests.py": "3532c393f91e11c2583ea7cebe491f54b4a6c6d2e3031adbc47d5d25b289eadd",
+    "tests/distributed_retirement_model.py": "274ed2482bcda8f087456426860399f68e9e15741ee3a2544625209934e2d0ea",
+    "tests/tensorflow_checkpoint_training.py": "3aef5a1378e034f27f0cfdd55797c90f0146e829c543cc2da331b6f84bcc3482",
+    "scripts/role_node.py": "63047bbdc218b486ab9a6ba9b9590e72f8d6a3296779638ce5fb1fbec773adf3"
+  },
+  "single_rotation": {
+    "iterations": 8,
+    "compared_rows": 32,
+    "max_state_absolute_error": 0,
+    "max_continuation_loss_error": 0,
+    "retirement": {
+      "kind": "eps-distributed-retirement-complete-v1",
+      "source_run": "before-restart",
+      "new_run": "after-restart",
+      "boundary": 4,
+      "unlinked_paths": 44,
+      "unlinked_path_bytes": 47794,
+      "validation": {
+        "participant_processes": 3,
+        "training_storage_participants": 2,
+        "checkpoint_controller_participants": 1,
+        "immutable_controller_requires_no_stopped_training_pid": true,
+        "transport": "persistent serialized node streams",
+        "replacement_authority": "actual native checkpoint and replica RPCs",
+        "all_sealed_before_unlink": true,
+        "interrupted_seal_resumed": true,
+        "successful_commit_reply_lost": 3,
+        "manager_reentry": true,
+        "completed_receipt_replay_without_authority": true,
+        "physical_hosts": 1
+      }
+    }
+  },
+  "repeated_rotation": {
+    "iterations": 12,
+    "compared_rows": 32,
+    "max_state_absolute_error": 0,
+    "max_continuation_loss_error": 0,
+    "completed": [
+      12,
+      12
+    ],
+    "retirements": [
+      {
+        "kind": "eps-distributed-retirement-complete-v1",
+        "source_run": "before-restart",
+        "new_run": "after-restart",
+        "boundary": 4,
+        "unlinked_paths": 44,
+        "unlinked_path_bytes": 47794,
+        "validation": {
+          "participant_processes": 3,
+          "training_storage_participants": 2,
+          "checkpoint_controller_participants": 1,
+          "immutable_controller_requires_no_stopped_training_pid": true,
+          "transport": "persistent serialized node streams",
+          "replacement_authority": "actual native checkpoint and replica RPCs",
+          "all_sealed_before_unlink": true,
+          "interrupted_seal_resumed": true,
+          "successful_commit_reply_lost": 3,
+          "manager_reentry": true,
+          "completed_receipt_replay_without_authority": true,
+          "physical_hosts": 1
+        }
+      },
+      {
+        "kind": "eps-distributed-retirement-complete-v1",
+        "source_run": "after-restart",
+        "new_run": "after-second-restart",
+        "boundary": 8,
+        "unlinked_paths": 47,
+        "unlinked_path_bytes": 53457,
+        "validation": {
+          "participant_processes": 3,
+          "training_storage_participants": 2,
+          "checkpoint_controller_participants": 1,
+          "immutable_controller_requires_no_stopped_training_pid": true,
+          "transport": "persistent serialized node streams",
+          "replacement_authority": "actual native checkpoint and replica RPCs",
+          "all_sealed_before_unlink": true,
+          "interrupted_seal_resumed": true,
+          "successful_commit_reply_lost": 3,
+          "manager_reentry": true,
+          "completed_receipt_replay_without_authority": true,
+          "physical_hosts": 1
+        }
+      }
+    ],
+    "fault_recovery": {
+      "kind": "all_workers_primaries_owners_and_coordinator_process_loss",
+      "termination_signal": "SIGKILL",
+      "checkpoint_base": 8,
+      "recovered_round": 10,
+      "clock_before": [
+        9,
+        10
+      ],
+      "replica_heads": [
+        {
+          "base_round": 8,
+          "baseline": true,
+          "baseline_bytes": 1972,
+          "bytes": 3492,
+          "next_round": 10,
+          "primary": "after-second-restart-primary-0-replacement",
+          "term": 2
+        },
+        {
+          "base_round": 8,
+          "baseline": true,
+          "baseline_bytes": 1972,
+          "bytes": 3748,
+          "next_round": 10,
+          "primary": "after-second-restart-primary-1-replacement",
+          "term": 2
+        }
+      ],
+      "owner_rehydration": [
+        {
+          "dimension": 8,
+          "logical_parameter_optimizer_bytes": 3072,
+          "resident": true,
+          "restore_existing": true,
+          "rows": 32,
+          "seconds": 0.00514225,
+          "shards": [
+            {
+              "cpu_state_bytes": 106496,
+              "initialized_rows": 16,
+              "logical_resident_state_bytes": 1536,
+              "remaining_slots": 23,
+              "replica": {
+                "next_round": 10,
+                "owner_run": "eps-owner-a4ed0e137b5c0b4ca38492837f6ae067512a0f0a1ae2186f50bf56d0ab12eece",
+                "primary": "after-second-restart-primary-0-replacement",
+                "term": 2
+              },
+              "resident_rows": 16,
+              "shard": 0
+            }
+          ]
+        },
+        {
+          "dimension": 8,
+          "logical_parameter_optimizer_bytes": 3072,
+          "resident": true,
+          "restore_existing": true,
+          "rows": 32,
+          "seconds": 0.004844541,
+          "shards": [
+            {
+              "cpu_state_bytes": 106496,
+              "initialized_rows": 16,
+              "logical_resident_state_bytes": 1536,
+              "remaining_slots": 23,
+              "replica": {
+                "next_round": 10,
+                "owner_run": "eps-owner-e9532052b52df3265a039ce27585f208082da28532ba669f2b420346680dc04f",
+                "primary": "after-second-restart-primary-1-replacement",
+                "term": 2
+              },
+              "resident_rows": 16,
+              "shard": 1
+            }
+          ]
+        }
+      ],
+      "retained_prefix_losses": [
+        [
+          0.6766626834869385,
+          0.645764946937561
+        ],
+        [
+          0.7338495254516602,
+          0.5786116123199463
+        ]
+      ]
+    }
+  },
+  "legacy_shared_inspector": {
+    "iterations": 8,
+    "max_state_absolute_error": 0,
+    "max_continuation_loss_error": 0
+  },
+  "supervised_role_host_identity": {
+    "test": "role_node_processes",
+    "success": true,
+    "checks": [
+      "process_handles_include_storage_host_identity",
+      "completed_command_not_reexecuted",
+      "immutable_role_intent",
+      "lost_start_ack_same_process",
+      "observed_readiness",
+      "orphan_child_cleanup",
+      "repeated_stop"
+    ]
+  },
+  "registered_test_result": {
+    "passed": 3,
+    "total": 3,
+    "log_sha256": "a39e26a805d31e1f41138e6e28573f4d59afded0fa5198418d7a4f1f9eff5aea"
+  },
+  "raw_record": {
+    "file": "docs/validation/artifacts/2026-11-05-distributed-training-retirement.json.gz",
+    "uncompressed_sha256": "826f0e76c55c1a1e2bbb8dc5e5c06f3222f9e5279d56e8b17472ad94cf33e850",
+    "compressed_sha256": "15e3c31008fff7b99795687fb23bf8c74dca8de9a12fd5a7ea4571f42cb7e0f6",
+    "compressed_bytes": 84945
+  },
+  "pending": [
+    "actual SSH-host retirement execution",
+    "same-workload physical multi-GPU model scaling"
+  ],
+  "final_targeted_regression": {
+    "passed": 2,
+    "total": 2,
+    "tests": [
+      "distributed_retirement_protocol",
+      "tensorflow_distributed_retirement_recovery"
+    ],
+    "log_sha256": "eda3786e37427fb25e92ee9ad6c91d31c0994df7b4d25d1de8aca2692515b7fc"
+  },
+  "legacy_entrypoint_regression": {
+    "passed": 1,
+    "total": 1,
+    "log_sha256": "89c0378d22bdb441c4c6f5c03a8d15807e9775c618ffd90e597e1191b046aa84"
+  }
+}

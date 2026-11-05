@@ -236,3 +236,14 @@ maximum state and continuation-loss differences from their uninterrupted
 baselines. [Source hashes, model comparisons and recovery records](validation/2026-11-04-repeated-training-retirement-recovery.json).
 Physical-node loss and cross-node cleanup retain separate
 acceptance in the [implementation plan](plans/2026-11-04-replicated-checkpoint-rollover.md).
+
+## Distributed storage retirement
+
+The [distributed retirement manager](DISTRIBUTED_GENERATION_RETIREMENT.md) now
+dispatches storage inspection and deletion to each owning node. All nodes seal
+their old mutable roots before a durable group decision allows unlinking. A
+checkpoint-only controller participates without stopping its manager process.
+Lost replies, partial sealing, partial commit and manager reentry reuse the same
+certificates and decision. Independent participant-process tests execute two
+rotations and later training-process failure with identical complete model,
+optimizer and loss results. Physical SSH-host execution remains the next gate.

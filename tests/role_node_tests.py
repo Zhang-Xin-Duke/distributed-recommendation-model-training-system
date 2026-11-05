@@ -4,6 +4,7 @@ import json
 import os
 import pathlib
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,8 @@ def main():
         marker=root/'effect'
         spec=dict(command=[sys.executable,'-c',"import pathlib,sys;open(sys.argv[1],'a').write('x')",str(marker)])
         first=call('ensure','one-shot',spec=spec)
+        assert first['wrapper']['host']==first['child']['host']==socket.gethostname()
+        checked.append('process_handles_include_storage_host_identity')
         deadline=time.monotonic()+10
         while 'result' not in (done:=call('status','one-shot')):
             assert time.monotonic()<deadline;time.sleep(.02)

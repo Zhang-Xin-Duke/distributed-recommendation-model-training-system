@@ -18,8 +18,9 @@ The November 4 [distributed-training design](2026-11-04-distributed-training-des
 sets the current implementation priority: training-task dependencies, update
 semantics, logical progress, replication/recovery and common-quality evaluation.
 Task-progress RPCs, sparse/dense model execution, recovery and full original
-Entropy integration now execute. Remaining overall acceptance focuses on
-cross-host generation retirement and common-workload multi-GPU scaling.
+Entropy integration now execute. Distributed retirement also passes native
+model checks across separate participant processes. Remaining overall acceptance
+focuses on its physical SSH-host execution and common-workload multi-GPU scaling.
 
 | Phase | Current evidence |
 |---|---|
@@ -323,6 +324,13 @@ in every repetition; target-time ranges overlap.
 [Original application and recovery](../ORIGINAL_INPUT_CHECKPOINT.md) ·
 [GPU policy measurements](../MODEL_CONSISTENCY_POLICIES.md#gpu-model-execution).
 
-Cross-host generation retirement and same-workload physical multi-GPU scaling
-remain in overall acceptance. Earlier physical two-GPU capacity and node-loss
-records retain their separate measured scopes.
+Distributed retirement now uses per-node certificates and an all-sealed group
+decision. Three participant processes pass live-lock/frontier checks,
+interrupted sealing, lost completion replies and manager reentry. The native
+CPU model executes two rotations followed by full process-group loss and
+recovers all 32 parameter/Adam rows and losses exactly to round 12.
+
+[Distributed retirement protocol and results](../DISTRIBUTED_GENERATION_RETIREMENT.md).
+Physical SSH-host retirement and same-workload physical multi-GPU scaling remain
+in overall acceptance. Earlier physical two-GPU capacity and node-loss records
+retain their separate measured scopes.
