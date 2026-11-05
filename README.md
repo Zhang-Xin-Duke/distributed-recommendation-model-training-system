@@ -70,6 +70,9 @@ and Worker-journal baselines at that checkpoint round, verifies their durable
 state with admission paused, and continues from the saved model/input position.
 Its retirement operation checks stopped-role identities and exclusive storage
 locks before removing certified old payloads; durable markers reject stale restarts.
+Host and CUDA model checks cover two rotations followed by loss of every Worker,
+primary, parameter owner and coordinator process, recovering from surviving
+replicas with identical final parameters, Adam state and continued losses.
 
 [Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
 parameters, Adam state and request progress on an independent disk-backed replica

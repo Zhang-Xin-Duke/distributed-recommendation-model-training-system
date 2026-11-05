@@ -128,6 +128,12 @@ birth observation requires an observed `terminal_exit_code`. The controller
 requires the same host and verifies that each recorded process is gone; remote
 PID values are not interpreted as local process identities.
 
+For a source created by an earlier rotation, `source_generation` supplies that
+generation's published plan. Retirement validates its ready receipt and initial
+checkpoint before adding the former staged baseline to the certified payloads.
+This removes the old baseline as well as the source's latest checkpoint and
+logs when another rotation succeeds.
+
 Retirement then takes exclusive Worker/mirror journal and replica-log locks.
 Every primary holds a shared lock on its parent journal directory throughout
 its lifetime, closing the race with a new term starting during cleanup. The
@@ -203,5 +209,30 @@ ctest --test-dir build/tensorflow --output-on-failure \
   -R '^tensorflow_checkpoint_retirement$'
 ```
 
-Repeated rollover followed by a new failure, and cross-node cleanup remain in the
-[implementation plan](plans/2026-11-04-replicated-checkpoint-rollover.md).
+`tensorflow_repeated_retirement_recovery` rotates a twelve-round training run at
+rounds four and eight. Each rotation retires the stopped generation; the second
+also removes the first replacement's staged initial checkpoint. A completed
+retirement receipt remains replayable after that later cleanup, without querying
+the former live services or reopening their removed checkpoint.
+
+After both rotations, the fixture pauses a Worker after submitting round nine
+but before completing its task. It sends `SIGKILL` to both Workers, both parameter
+primaries, both parameter owners and the coordinator. Parameter and original-
+gradient replicas survive. Recovery grants a new primary term, recreates the
+owners, reconciles task progress against durable round ten and reloads all 32
+parameter rows before continuing through round twelve. It compares complete
+weights, Adam moments, update counts, losses and input cursors with uninterrupted
+training.
+
+```sh
+ctest --test-dir build/tensorflow --output-on-failure \
+  -R '^tensorflow_repeated_retirement_recovery$'
+```
+
+The CUDA build exposes `tensorflow_repeated_retirement_recovery_cuda`, using
+CUDA parameter owners and GPU model computation. The fixture places its actors
+on one physical GPU. Both Host and RTX A6000 CUDA executions finish with zero
+maximum state and continuation-loss differences from their uninterrupted
+baselines. [Source hashes, model comparisons and recovery records](validation/2026-11-04-repeated-training-retirement-recovery.json).
+Physical-node loss and cross-node cleanup retain separate
+acceptance in the [implementation plan](plans/2026-11-04-replicated-checkpoint-rollover.md).

@@ -435,6 +435,12 @@ if(EPS_BUILD_BRPC)
             --out "${CMAKE_CURRENT_BINARY_DIR}/tf-checkpoint-retirement.json")
         set_tests_properties(tensorflow_checkpoint_retirement PROPERTIES TIMEOUT 240
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_repeated_retirement_recovery
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover --retire-old --repeated-recovery
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-repeated-retirement-recovery.json")
+        set_tests_properties(tensorflow_repeated_retirement_recovery PROPERTIES TIMEOUT 360
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_reusable_lookup_layouts
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_lookup_layouts.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-lookup-layouts.json")
@@ -507,6 +513,12 @@ if(EPS_BUILD_BRPC)
         set_tests_properties(durable_worker_gradients PROPERTIES TIMEOUT 30)
         set_tests_properties(distributed_model_orchestration PROPERTIES TIMEOUT 120)
         if(EPS_BUILD_CUDA)
+          add_test(NAME tensorflow_repeated_retirement_recovery_cuda
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+              --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover --retire-old --repeated-recovery --gpu
+              --out "${CMAKE_CURRENT_BINARY_DIR}/tf-repeated-retirement-recovery-cuda.json")
+          set_tests_properties(tensorflow_repeated_retirement_recovery_cuda PROPERTIES TIMEOUT 480
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
           add_test(NAME tensorflow_read_failures_cuda
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_read_failures.py"
               --build "${CMAKE_CURRENT_BINARY_DIR}" --cuda --out "${CMAKE_CURRENT_BINARY_DIR}/tf-read-failures-cuda.json")

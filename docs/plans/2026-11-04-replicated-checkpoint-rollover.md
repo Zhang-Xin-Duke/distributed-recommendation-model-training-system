@@ -62,7 +62,13 @@ Task 3's host-local retirement operation is implemented: supervised process
 identity checks, exclusive storage locks, streamed snapshot inspection, durable
 retirement tombstones, exact payload unlinking and interrupted-deletion retry.
 The model check still matches all 32 rows and continued losses exactly.
-Repeated rollover followed by another failure and cross-node retirement
-orchestration remain open.
-Repeated rotations must also retire the preceding generation's staged initial
+Two rotations at rounds four and eight now retire the preceding staged initial
 baseline and preserve completed-retirement receipt retries after later cleanup.
+The fixture then forcibly terminates both Workers, primaries, parameter owners
+and the coordinator with `SIGKILL`. Surviving parameter/gradient replicas recover
+round ten under a new primary term, rebuild all owner rows and continue to round
+twelve. Complete parameter/Adam state and continued losses match uninterrupted
+training exactly in both Host and CUDA runs. The CUDA run uses one physical
+A6000 with GPU model Workers and CUDA parameter owners. Source-hashed evidence:
+`../validation/2026-11-04-repeated-training-retirement-recovery.json`.
+Cross-node retirement orchestration remains open.

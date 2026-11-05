@@ -57,6 +57,21 @@ def retire(plan,build):
             or ready['boundary']!=plan['boundary']
             or ready['plan_sha256']!=hashlib.sha256(canonical(plan)).hexdigest()):
         raise ValueError('retirement lacks the matching durable replacement receipt')
+    # A completed operation remains replayable after a later generation retires
+    # this generation's own checkpoint and replicas. It performs no new writes.
+    if (directory/'retirement.json').exists():
+        pending=json.loads((directory/'retirement.pending.json').read_text())
+        result=json.loads((directory/'retirement.json').read_text())
+        digest=hashlib.sha256(canonical(pending)).hexdigest()
+        if (pending['plan_sha256']!=ready['plan_sha256'] or result['new_run']!=plan['run']
+                or result['boundary']!=plan['boundary'] or result['certificate_sha256']!=digest):
+            raise ValueError('completed retirement receipt binding differs')
+        for item in pending['roots']:
+            marker=json.loads((pathlib.Path(item['path'])/'retired.json').read_text())
+            if marker['certificate_sha256']!=digest:raise ValueError('completed retirement marker differs')
+        if any(pathlib.Path(item['path']).exists() for item in pending['files']):
+            raise ValueError('completed retirement payload has reappeared')
+        return result
     # Revalidate the independent checkpoint copy and current replica authority.
     command(build,'eps_training_control',dict(run=plan['run'],manifest=plan['manifest']),'restore-config')
     for cfg in plan['replicas']:
@@ -172,6 +187,22 @@ def retire(plan,build):
                 for entry in source['parameters']:
                     retain([file_metadata(old.parent/entry['file'])])
                 retain([file_metadata(old)])
+            previous=job.get('source_generation')
+            if previous:
+                previous_root=pathlib.Path(previous['directory'])
+                if (previous['run']!=source_run or previous['boundary']>boundary
+                        or json.loads((previous_root/'plan.json').read_text())!=previous):
+                    raise ValueError('source generation baseline ownership differs')
+                previous_ready=json.loads((previous_root/'ready.json').read_text())
+                if previous_ready['plan_sha256']!=hashlib.sha256(canonical(previous)).hexdigest():
+                    raise ValueError('source generation lacks its verified initial baseline')
+                initial=pathlib.Path(previous['manifest'])
+                command(build,'eps_training_control',dict(run=plan['run'],manifest=str(initial)),'restore-config')
+                old_initial=json.loads(initial.read_text())
+                if old_initial['progress']['completed']!=[previous['boundary']]*len(job['workers']):
+                    raise ValueError('source staged baseline frontier differs')
+                retain([file_metadata(initial.parent/p['file']) for p in old_initial['parameters']])
+                retain([file_metadata(initial)])
             unique={}
             for item in files:
                 path=pathlib.Path(item['path']).resolve()
