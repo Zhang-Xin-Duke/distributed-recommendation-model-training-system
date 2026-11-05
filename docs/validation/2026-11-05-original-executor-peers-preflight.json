@@ -1,9 +1,11 @@
 {
   "recorded_at_utc": "2026-11-05T06:07:49.981127+00:00",
-  "base_commit": "b0c867e74f47a894d4f04a0e308313d6907c87e4",
+  "base_commit": "364f5d95d9a2bf4d2b02b43bceadfd039a1ee9c3",
   "source_sha256": {
-    "scripts/validate_original_executor.py": "747fc34d542da551f570dbf30d403970fc5f974df26873e627db43f1ecd5baea",
-    "examples/entropy_executor_model.py": "b6fcb46d9d7107e21750d2f0dfcea9f2795386eef96062f5f1d9fd2ae1a93cb6"
+    "CMakeLists.txt": "70f273f99b162b7f3b5513d0a81decf7cb1371211052a17601e844b649ea3f78",
+    "scripts/validate_original_executor.py": "d1c068dd94fa22fb5e04888c1df64798e4c97b3ea4f8f98dac1d8b8372883fe7",
+    "examples/entropy_executor_model.py": "b6fcb46d9d7107e21750d2f0dfcea9f2795386eef96062f5f1d9fd2ae1a93cb6",
+    "tests/original_executor_sink.py": "d20493c4ef1b6bf5c610c9bf6a44e274fb709ab894ed247e72584e4411982cda"
   },
   "stage": "native_environment_preflight_passed_execution_gated",
   "native_execution_verified": false,
@@ -15,7 +17,24 @@
     "remote_source_matches": true,
     "native_runtime_and_operation_library_present": true,
     "original_table_installation_and_session_backend_match": true,
-    "linux_syntax_reverified_epoch": 1793859207.224043
+    "linux_syntax_reverified_epoch": 1793859358.7823775,
+    "http_sink_linux_result": {
+      "test": "original_executor_observation_sink",
+      "original_callback_accepted": true,
+      "anonymous_metrics_parsed": true,
+      "headers_not_retained": true,
+      "cleanup_verified": true
+    },
+    "local_http_checks": [
+      {
+        "name": "original_executor_observation_sink",
+        "seconds": 0.6
+      },
+      {
+        "name": "entropy_monitor_endpoint",
+        "seconds": 0.59
+      }
+    ]
   },
   "gate": {
     "pid": 167049,

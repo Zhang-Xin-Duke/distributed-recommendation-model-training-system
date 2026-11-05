@@ -73,13 +73,35 @@ def configuration(work,run,peers,data,spec,local_api,addresses):
     return config,topology
 
 
+def observation_sink(losses,posts):
+    from http.server import BaseHTTPRequestHandler
+    from prometheus_client.parser import text_string_to_metric_families
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            body=self.rfile.read(int(self.headers.get('Content-Length','0')))
+            authenticated=bool(self.headers.get('Authorization'))
+            if self.path.startswith('/metrics/'):
+                if authenticated:
+                    self.send_error(403,'validation metrics must be anonymous');return
+                for family in text_string_to_metric_families(body.decode()):
+                    for sample in family.samples:
+                        if sample.name=='loss' and sample.labels.get('loss_name')=='loss':
+                            losses.append(dict(value=float(sample.value),labels=sample.labels))
+            # Original state callbacks can supply their existing header. Record
+            # only its presence, never the header or callback body contents.
+            posts.append(dict(path=self.path,bytes=len(body),authenticated=authenticated))
+            self.send_response(200);self.send_header('Content-Type','application/json');self.end_headers()
+            self.wfile.write(b'{"code":0,"data":{},"message":"ok"}')
+        def log_message(self,*_):pass
+    return Handler
+
+
 def execute(args):
     import numpy as np
     import pyarrow as pa
     import pyarrow.orc as orc
     import grpc
-    from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
-    from prometheus_client.parser import text_string_to_metric_families
+    from http.server import ThreadingHTTPServer
     from google.protobuf import text_format
     from tensorflow.core.framework import graph_pb2
     from proto import entropy_instance_list_pb2 as records
@@ -100,22 +122,7 @@ def execute(args):
             '--action',action],capture_output=True,text=True,check=True,timeout=30)
         return json.loads(process.stdout)
     losses=[];posts=[]
-    class Handler(BaseHTTPRequestHandler):
-        def do_POST(self):
-            body=self.rfile.read(int(self.headers.get('Content-Length','0')))
-            authenticated=bool(self.headers.get('Authorization'))
-            if authenticated:
-                self.send_error(403,'validation sink accepts anonymous requests only');return
-            if self.path.startswith('/metrics/'):
-                for family in text_string_to_metric_families(body.decode()):
-                    for sample in family.samples:
-                        if sample.name=='loss' and sample.labels.get('loss_name')=='loss':
-                            losses.append(dict(value=float(sample.value),labels=sample.labels))
-            posts.append(dict(path=self.path,bytes=len(body),authenticated=False))
-            self.send_response(200);self.send_header('Content-Type','application/json');self.end_headers()
-            self.wfile.write(b'{"code":0,"data":{},"message":"ok"}')
-        def log_message(self,*_):pass
-    receiver=ThreadingHTTPServer(('127.0.0.1',0),Handler)
+    receiver=ThreadingHTTPServer(('127.0.0.1',0),observation_sink(losses,posts))
     thread=threading.Thread(target=receiver.serve_forever,daemon=True);thread.start()
     local_api='http://127.0.0.1:'+str(receiver.server_port)
     (work/'dataset').mkdir()

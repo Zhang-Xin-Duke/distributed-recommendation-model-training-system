@@ -388,6 +388,9 @@ if(EPS_BUILD_BRPC)
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('prometheus_client')"
         RESULT_VARIABLE eps_prometheus_available OUTPUT_QUIET ERROR_QUIET)
       if(eps_prometheus_available EQUAL 0)
+        add_test(NAME original_executor_observation_sink
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/original_executor_sink.py")
+        set_tests_properties(original_executor_observation_sink PROPERTIES TIMEOUT 15)
         add_test(NAME entropy_monitor_endpoint
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_metrics_endpoint.py")
         set_tests_properties(entropy_monitor_endpoint PROPERTIES TIMEOUT 15
