@@ -423,6 +423,12 @@ if(EPS_BUILD_BRPC)
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-joint-checkpoint.json")
         set_tests_properties(tensorflow_joint_training_checkpoint PROPERTIES TIMEOUT 240
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_replicated_checkpoint_rollover
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_checkpoint_training.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --replicated-rollover
+            --out "${CMAKE_CURRENT_BINARY_DIR}/tf-replicated-rollover.json")
+        set_tests_properties(tensorflow_replicated_checkpoint_rollover PROPERTIES TIMEOUT 240
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_reusable_lookup_layouts
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_lookup_layouts.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-lookup-layouts.json")

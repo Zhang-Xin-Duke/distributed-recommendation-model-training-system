@@ -1,0 +1,518 @@
+{
+  "recorded_at_utc": "2026-11-05T03:43:19.043928+00:00",
+  "base_commit": "c37b228a2e1a4f9f87c7907fa548db8ffdc69f20",
+  "scope": "Host-owned replicated TensorFlow Embedding/MLP checkpoint generation rollover; staged replacement baselines and paused readiness verification",
+  "source_sha256": {
+    "src/training/control_main.cpp": "b8b93915add45e250d977fdd49b90b7d8d9edf805bd3250c576de5ec3e0e4136",
+    "src/training/job_checkpoint.cpp": "6386310a195b4a08e0e1309c457f8c48776fddd5078d8ebb9a38cf4c1bf0e774",
+    "scripts/rotate_training_checkpoint.py": "f24c4f0b3a25a9fcd524add6a553bc36897b8b9a044922ac76d06b661099d971",
+    "tests/tensorflow_checkpoint_training.py": "d31aaa861c5b08b351f9fc31ba0e54acc07a8a80f37163d9f1dd2e6778824fa0"
+  },
+  "source_checkpoint_detached": true,
+  "model": {
+    "rows": 32,
+    "dimension": 8,
+    "hidden": 4,
+    "workers": 2,
+    "shards": 2,
+    "replicas": 2,
+    "parameter_owners": 2,
+    "gradient_mirrors": 2
+  },
+  "checkpoint_round": 4,
+  "end_round": 8,
+  "input_cycle_batches": 3,
+  "max_state_absolute_error": 0.0,
+  "max_continuation_loss_error": 0.0,
+  "generation_ready_receipt": {
+    "kind": "eps-rollover-ready-v1",
+    "run": "after-restart",
+    "boundary": 4,
+    "plan_sha256": "b7230516998277eced0610d68457fe74d8f37fbaf4f2527e9af1dcb01a629393",
+    "replica_heads": [
+      {
+        "base_round": 4,
+        "baseline": true,
+        "baseline_bytes": 1965,
+        "bytes": 1965,
+        "next_round": 4,
+        "primary": "after-restart-primary-0",
+        "term": 1
+      },
+      {
+        "base_round": 4,
+        "baseline": true,
+        "baseline_bytes": 1965,
+        "bytes": 1965,
+        "next_round": 4,
+        "primary": "after-restart-primary-1",
+        "term": 1
+      }
+    ],
+    "worker_journals": [
+      {
+        "worker": 0,
+        "identity_sha256": "33f7f68c0924070d0f0e31d9001d3a29946fa2b17f31389be8107e01e15de43a",
+        "base_round": 4
+      },
+      {
+        "worker": 1,
+        "identity_sha256": "5cdc33fc30c9e83d84a824b045540a144ca2f9e54c0d8c6d1ab750b0da5911e9",
+        "base_round": 4
+      }
+    ],
+    "gradient_replicas": [
+      {
+        "worker": 0,
+        "status": {
+          "generation": 1,
+          "next_round": 4,
+          "records": 0
+        }
+      },
+      {
+        "worker": 1,
+        "status": {
+          "generation": 1,
+          "next_round": 4,
+          "records": 0
+        }
+      }
+    ],
+    "training": {
+      "next_round": 4,
+      "ok": true,
+      "paused": true
+    }
+  },
+  "phases": {
+    "baseline": {
+      "base_round": 0,
+      "replica_heads_before": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1962,
+          "bytes": 1962,
+          "next_round": 0,
+          "primary": "continuous-primary-0",
+          "term": 1
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1962,
+          "bytes": 1962,
+          "next_round": 0,
+          "primary": "continuous-primary-1",
+          "term": 1
+        }
+      ],
+      "replica_heads_after": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1962,
+          "bytes": 8346,
+          "next_round": 8,
+          "primary": "continuous-primary-0",
+          "term": 1
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1962,
+          "bytes": 8858,
+          "next_round": 8,
+          "primary": "continuous-primary-1",
+          "term": 1
+        }
+      ],
+      "worker_journals": [
+        {
+          "base_round": 0,
+          "retained_rounds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "bytes": 5579
+        },
+        {
+          "base_round": 0,
+          "retained_rounds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "bytes": 5590
+        }
+      ],
+      "readiness": null,
+      "source_checkpoint_detached": false,
+      "streamed_snapshot_fallback_tested": false
+    },
+    "prefix": {
+      "base_round": 0,
+      "replica_heads_before": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1966,
+          "bytes": 1966,
+          "next_round": 0,
+          "primary": "before-restart-primary-0",
+          "term": 1
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1966,
+          "bytes": 1966,
+          "next_round": 0,
+          "primary": "before-restart-primary-1",
+          "term": 1
+        }
+      ],
+      "replica_heads_after": [
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1966,
+          "bytes": 5174,
+          "next_round": 4,
+          "primary": "before-restart-primary-0",
+          "term": 1
+        },
+        {
+          "base_round": 0,
+          "baseline": true,
+          "baseline_bytes": 1966,
+          "bytes": 5430,
+          "next_round": 4,
+          "primary": "before-restart-primary-1",
+          "term": 1
+        }
+      ],
+      "worker_journals": [
+        {
+          "base_round": 0,
+          "retained_rounds": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "bytes": 3204
+        },
+        {
+          "base_round": 0,
+          "retained_rounds": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "bytes": 3135
+        }
+      ],
+      "readiness": null,
+      "source_checkpoint_detached": false,
+      "streamed_snapshot_fallback_tested": false
+    },
+    "resumed": {
+      "base_round": 4,
+      "replica_heads_before": [
+        {
+          "base_round": 4,
+          "baseline": true,
+          "baseline_bytes": 1965,
+          "bytes": 1965,
+          "next_round": 4,
+          "primary": "after-restart-primary-0",
+          "term": 1
+        },
+        {
+          "base_round": 4,
+          "baseline": true,
+          "baseline_bytes": 1965,
+          "bytes": 1965,
+          "next_round": 4,
+          "primary": "after-restart-primary-1",
+          "term": 1
+        }
+      ],
+      "replica_heads_after": [
+        {
+          "base_round": 4,
+          "baseline": true,
+          "baseline_bytes": 1965,
+          "bytes": 5105,
+          "next_round": 8,
+          "primary": "after-restart-primary-0",
+          "term": 1
+        },
+        {
+          "base_round": 4,
+          "baseline": true,
+          "baseline_bytes": 1965,
+          "bytes": 5361,
+          "next_round": 8,
+          "primary": "after-restart-primary-1",
+          "term": 1
+        }
+      ],
+      "worker_journals": [
+        {
+          "base_round": 4,
+          "retained_rounds": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "bytes": 3122
+        },
+        {
+          "base_round": 4,
+          "retained_rounds": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "bytes": 3174
+        }
+      ],
+      "readiness": {
+        "kind": "eps-rollover-ready-v1",
+        "run": "after-restart",
+        "boundary": 4,
+        "plan_sha256": "b7230516998277eced0610d68457fe74d8f37fbaf4f2527e9af1dcb01a629393",
+        "replica_heads": [
+          {
+            "base_round": 4,
+            "baseline": true,
+            "baseline_bytes": 1965,
+            "bytes": 1965,
+            "next_round": 4,
+            "primary": "after-restart-primary-0",
+            "term": 1
+          },
+          {
+            "base_round": 4,
+            "baseline": true,
+            "baseline_bytes": 1965,
+            "bytes": 1965,
+            "next_round": 4,
+            "primary": "after-restart-primary-1",
+            "term": 1
+          }
+        ],
+        "worker_journals": [
+          {
+            "worker": 0,
+            "identity_sha256": "33f7f68c0924070d0f0e31d9001d3a29946fa2b17f31389be8107e01e15de43a",
+            "base_round": 4
+          },
+          {
+            "worker": 1,
+            "identity_sha256": "5cdc33fc30c9e83d84a824b045540a144ca2f9e54c0d8c6d1ab750b0da5911e9",
+            "base_round": 4
+          }
+        ],
+        "gradient_replicas": [
+          {
+            "worker": 0,
+            "status": {
+              "generation": 1,
+              "next_round": 4,
+              "records": 0
+            }
+          },
+          {
+            "worker": 1,
+            "status": {
+              "generation": 1,
+              "next_round": 4,
+              "records": 0
+            }
+          }
+        ],
+        "training": {
+          "next_round": 4,
+          "ok": true,
+          "paused": true
+        }
+      },
+      "source_checkpoint_detached": true,
+      "streamed_snapshot_fallback_tested": true
+    }
+  },
+  "negative_cases": [
+    {
+      "action": "save-job",
+      "reason": "eps_training_control: worker input iteration mismatch"
+    },
+    {
+      "action": "save-job",
+      "reason": "eps_training_control: checkpoint write failed"
+    },
+    {
+      "action": "save-job",
+      "reason": "eps_training_control: checkpoint directory already exists or parent is absent"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: parameter snapshot native checksum mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: missing parameter snapshot"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: checkpoint gradient group mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: checkpoint table schema mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: worker input dataset fingerprint mismatch"
+    },
+    {
+      "action": "restore-config",
+      "reason": "eps_training_control: parameter checkpoint fingerprint mismatch"
+    },
+    {
+      "action": "rollover-partial-prepare",
+      "reason": "injected interruption before generation-plan publication"
+    },
+    {
+      "action": "rollover-cross-filesystem-staging",
+      "reason": "EXDEV snapshot links fall back to fsynced streaming copies"
+    },
+    {
+      "action": "rollover-input",
+      "reason": "rollover Worker input/model identity differs"
+    },
+    {
+      "action": "resume-job",
+      "reason": "eps_training_control: restored gradient group differs from manifest"
+    },
+    {
+      "action": "rollover-live-journal",
+      "reason": "active Worker journal rejects readiness"
+    },
+    {
+      "action": "worker-input",
+      "reason": "incorrect restored input cursor rejected"
+    },
+    {
+      "action": "worker-input",
+      "reason": "incorrect restored input cursor rejected"
+    },
+    {
+      "action": "rollover-advanced-generation",
+      "reason": "new-generation Worker journal has advanced or has the wrong baseline"
+    }
+  ],
+  "regression": {
+    "passed": 2,
+    "failed": 0,
+    "log": "build/tensorflow/rollover-final.log",
+    "sha256": "1f0c1d1277177f30a1664226215a90b99601575741720f4780e4c7f473812b02"
+  },
+  "raw_record": {
+    "path": "build/tensorflow/tf-replicated-rollover.json",
+    "sha256": "80cbf15974a5f0f9402288d01dd82a1e2840ad315c793833db2bbf16efce8310",
+    "bytes": 169708
+  },
+  "remaining": [
+    "Retire old-generation payloads after exclusive shutdown and durable replacement verification",
+    "Repeat rotation and inject a subsequent replica/Worker failure",
+    "Integrate cross-node retirement with the explicit role manager"
+  ],
+  "final_input_guard_regression": {
+    "passed": 1,
+    "failed": 0,
+    "log": "build/tensorflow/rollover-final-guard.log",
+    "sha256": "0aac51e6d85cd49070d5775e1bb5886317acda67d1dd324783dd9254da6b7faf"
+  },
+  "linux_native_process_validation": {
+    "observed_epoch": 1793849954.2930436,
+    "pid": 101182,
+    "state": "missing",
+    "result": {
+      "exit_code": 0,
+      "error": null
+    },
+    "test": "distributed_training_processes",
+    "reports": [
+      {
+        "final_loss": 0.2779181664345581,
+        "initial_loss": 0.6931471805599453,
+        "parameter_shards": 2,
+        "policy": "sequential",
+        "progress_checkpoint_restored": true,
+        "tickets_drained": true,
+        "worker_updates": 160,
+        "workers": 4
+      },
+      {
+        "final_loss": 0.2778377655164913,
+        "initial_loss": 0.6931471805599453,
+        "parameter_shards": 2,
+        "policy": "bounded_delay",
+        "progress_checkpoint_restored": true,
+        "tickets_drained": true,
+        "worker_updates": 160,
+        "workers": 4
+      },
+      {
+        "final_loss": 0.2904825955910977,
+        "initial_loss": 0.6931471805599453,
+        "parameter_shards": 2,
+        "policy": "eventual",
+        "progress_checkpoint_restored": true,
+        "tickets_drained": true,
+        "worker_updates": 160,
+        "workers": 4
+      }
+    ]
+  },
+  "linux_build_retry": {
+    "initial_error": "cmake absent from non-login PATH",
+    "resolution": "Use the already-prepared eps-native/tools/bin/cmake and its isolated library prefix",
+    "initial_attempt": "build/entropy-linux-native/missing-cmake-* on owned node; no successful result claimed"
+  },
+  "linux_control_artifact": {
+    "platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "source_sha256": {
+      "src/training/control_main.cpp": "b8b93915add45e250d977fdd49b90b7d8d9edf805bd3250c576de5ec3e0e4136",
+      "src/training/job_checkpoint.cpp": "6386310a195b4a08e0e1309c457f8c48776fddd5078d8ebb9a38cf4c1bf0e774"
+    },
+    "binary_sha256": {
+      "eps_training_control": "a369dd073d93355b19af25254e822a895b5f0dc0a9ae3a2f86e42145c4befb28",
+      "eps_training_worker": "b4cff3d1aef619295b7f40b60a24081696306d91688a269c1ae71d3a2cccb9b0",
+      "eps_training_coordinator": "d10a1adbd73de00bad16ebe0ce256049e37828af3fddcb0ff9e56723ef36c8b6"
+    },
+    "log_sha256": "ab0fe095e6ddf4251fca6fcc5f5871a6453f1d2fbf693f81818b514b8020fd4b",
+    "scope": "Linux CUDA-linked control compilation and CPU-owned native three-policy process training; no new GPU model result",
+    "archive_sha256": "483cc7b017e003549cc6bd8ff2bcb9b23c977faf7b4cae0f107dba238b760cc9",
+    "archive_bytes": 11982671
+  }
+}

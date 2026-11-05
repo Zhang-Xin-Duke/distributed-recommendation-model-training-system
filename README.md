@@ -65,6 +65,10 @@ Adam state, gradient rounds, completed worker clocks and the next input batch
 together. New processes start paused, rehydrate existing rows on their owners
 and reopen training after all shard identities and clocks match.
 
+[Checkpoint generation rollover](docs/TRAINING_LOG_ROLLOVER.md) starts new replica
+and Worker-journal baselines at that checkpoint round, verifies their durable
+state with admission paused, and continues from the saved model/input position.
+
 [Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
 parameters, Adam state and request progress on an independent disk-backed replica
 before acknowledging a synchronous round. A replacement primary restores that

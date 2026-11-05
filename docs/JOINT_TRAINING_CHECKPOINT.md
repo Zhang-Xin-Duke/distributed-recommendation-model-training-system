@@ -5,6 +5,11 @@ joint checkpoint couples parameter weights, Adam moments and optimizer clocks
 with each shard's gradient round, the coordinator's completed worker clocks,
 model configuration and worker input positions.
 
+[Replica/journal generation rollover](TRAINING_LOG_ROLLOVER.md) uses the committed
+checkpoint as a new full baseline. `verify-job` checks snapshot provenance and
+the restored training group while admission remains paused; `resume-job` opens
+the validated generation.
+
 ```mermaid
 sequenceDiagram
     participant W as Model workers

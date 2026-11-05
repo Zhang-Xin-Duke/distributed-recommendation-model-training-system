@@ -17,12 +17,12 @@ template<class T> T Take(std::future<Result<T>> f) {
 int main(int argc, char** argv) {
   try {
     if (argc != 5 || std::string(argv[1]) != "--config" || std::string(argv[3]) != "--action")
-      throw std::runtime_error("usage: eps_training_control --config FILE --action stats|inspect|pause|checkpoint|resume|abort|save-job|restore-config|resume-job");
+      throw std::runtime_error("usage: eps_training_control --config FILE --action stats|inspect|pause|checkpoint|resume|abort|save-job|restore-config|verify-job|resume-job");
     std::ifstream file(argv[2]);
     if (!file) throw std::runtime_error("cannot open training control config");
     nlohmann::json j; file >> j;
     const std::string action = argv[4];
-    if (action == "save-job" || action == "restore-config" || action == "resume-job") {
+    if (action == "save-job" || action == "restore-config" || action == "verify-job" || action == "resume-job") {
       std::cout << training::JobCheckpoint(j, action).dump() << '\n'; return 0;
     }
     if(action=="pause-shards" || action=="resume-shards") {

@@ -233,7 +233,7 @@ Json RestoreConfig(const Json& j, const Json& m, const fs::path& directory) {
   }
   return result;
 }
-Json Resume(const Json& j, const Json& m) {
+Json Resume(const Json& j, const Json& m, bool activate = true) {
   const auto run = j.at("run").get<std::string>(); const auto epoch = m.at("epoch").get<std::uint64_t>();
   Require(run != m.at("source_run").get<std::string>() && !run.empty(), "resume requires a fresh restored run");
   const auto addresses = j.at("shards").get<std::vector<std::string>>();
@@ -254,10 +254,12 @@ Json Resume(const Json& j, const Json& m) {
       actual.bytes == p.at("bytes") && actual.checksum == p.at("checksum"), "restored parameter identity mismatch");
     for (const auto& t : m.at("tables")) Take(parameters.CreateTable(DecodeTable(t, addresses.size(), epoch)));
   }
-  // No worker can obtain a permit until every parameter shard is ready.
-  for (const auto& address : addresses) { BrpcSynchronousGradients group(address, run, epoch, 120000); Take(group.Resume()); }
-  Take(coordinator.Resume());
-  return {{"ok", true}, {"next_round", Round(m.at("progress"))}};
+  // Validate the entire restored generation before any task admission opens.
+  if (activate) {
+    for (const auto& address : addresses) { BrpcSynchronousGradients group(address, run, epoch, 120000); Take(group.Resume()); }
+    Take(coordinator.Resume());
+  }
+  return {{"ok", true}, {"next_round", Round(m.at("progress"))}, {"paused", !activate}};
 }
 }  // namespace
 Json JobCheckpoint(const Json& config, const std::string& action) {
@@ -265,6 +267,7 @@ Json JobCheckpoint(const Json& config, const std::string& action) {
   const auto path = fs::absolute(config.at("manifest").get<std::string>());
   const auto manifest = ReadJson(path); ValidateManifest(manifest, path.parent_path());
   if (action == "restore-config") return RestoreConfig(config, manifest, path.parent_path());
+  if (action == "verify-job") return Resume(config, manifest, false);
   if (action == "resume-job") return Resume(config, manifest);
   throw std::runtime_error("unknown job checkpoint action");
 }
