@@ -47,6 +47,14 @@ Assignments fetched after the saved cut return to the queue.
   restore plan. Native local functions export and restore the actual
   FileFeeder source metadata.
 
+Parallel readers carry an input scope in their FileFeeder URI. The native
+registry retains a reader's completed assignment history after TensorFlow
+releases that reader. Capture includes histories completed before serialization
+began, together with readers visited by iterator serialization. An unfinished
+reader missing from serialization, or a reader created during capture, requires
+a new serialization attempt while the training step stays paused. A new input
+generation discards the preceding input shot's reader registry.
+
 ## Executed validation
 
 The modified original CPU and GPU operation libraries compiled successfully
@@ -59,6 +67,8 @@ of the first filename, for 21 records in total.
 | --- | --- | --- |
 | Direct ORC with prefetch depth 2 | 0, 1, 5, 6, 7, 13, 20, 21 | Exact remaining record sequence at every position |
 | Original FileFeeder RPC with prefetch depth 2 | 0, 1, 5, 6, 7, 13, 20, 21 | Exact remaining record sequence at every position |
+| Six parallel FileFeeder readers, output buffer 2 per stream | 0, 1, 5, 6, 7, 13, 20, 21 | Consumed plus restored records match the complete input multiset at every position |
+| Six parallel FileFeeder readers, output buffer 32 per stream | 5 | All six leaf readers already destroyed; remaining 16 records restored from upstream buffers |
 
 The capture after five consumed records recorded a reader position of seven,
 and the fresh process returned exactly the remaining 16 records. This exercises
@@ -68,6 +78,11 @@ restore.
 
 The [machine-readable record](validation/2026-11-05-original-input-checkpoint.json)
 contains the native library hashes, overlay manifest and individual cases.
+The [parallel-reader lifecycle record](validation/2026-11-05-original-input-lifecycle.json)
+contains the second native build and the six-stream cases. In the larger-buffer
+case, TensorFlow visited zero leaf readers during serialization. The native
+registry supplied all six completed histories, covering three assigned file
+occurrences. Consumed plus restored records matched all 21 input records.
 [`original_orc_checkpoint_sdk.py`](../tests/original_orc_checkpoint_sdk.py)
 drives the original TensorFlow C API directly; a Python TensorFlow package is
 not required for this reader test. Standalone source-allocation/cut tests also
@@ -76,9 +91,7 @@ passed AddressSanitizer, UndefinedBehaviorSanitizer and ThreadSanitizer checks.
 ## Full training integration
 
 The next integration step binds the input checkpoint to sparse parameters,
-dense state and the distributed training progress commit. Original parallel
-interleave pipelines can release an exhausted leaf reader while its records
-remain in an upstream buffer. Their completed assignment histories must remain
-part of the input cut. The direct ORC/FileFeeder results above establish native
-reader and queue recovery; complete original parallel-pipeline training
-recovery is tracked separately until that lifecycle and joint commit execute.
+dense state and the distributed training progress commit, including the Python
+input-shot position. The native tests above execute direct and parallel input
+recovery. Complete original multi-peer model training, joint save, fresh-process
+restore and failure replay remain the full application integration checks.

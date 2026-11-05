@@ -368,6 +368,7 @@ reaches 106.28 updates/s. The report also includes CPU-only baselines and a larg
 
 - [Service architecture](docs/ARCHITECTURE.md)
 - [API and integration](docs/API.md)
+- [Original ORC/FileFeeder input checkpoints](docs/ORIGINAL_INPUT_CHECKPOINT.md)
 - [中文项目说明](docs/ARCHITECTURE.zh-CN.md)
 - [Application families and sources](docs/APPLICATIONS.md)
 - [Design decisions](docs/adr/README.md)

@@ -105,6 +105,66 @@ int main(int argc, char** argv) {
     input::FinishCapture(argv[1]);
     Check(input::DecodeCapture(input::ReadFile(argv[1])).size() == 8, "concurrent reader captures were lost");
     std::filesystem::remove(argv[1]);
+
+    // Parallel interleave may destroy an exhausted leaf while its records stay
+    // in upstream serialized buffers. Preserve that leaf's assignment history.
+    input::BeginInputGeneration("train");
+    Check(input::ReaderScope({"filefeeder://train/handle/0/eps_scope/train/interleave/0"}) == "train",
+          "native reader lost its input scope");
+    input::RegisterReader("eval");  // An unrelated live input must not enter this cut.
+    const auto ended = input::RegisterReader("train");
+    input::Cursor ended_cursor{"filefeeder://train/handle/0/eps_scope/train/interleave/0",
+                               0, {0}, false, input::no_assignment, "", 0};
+    input::ReaderCompleted(ended, ended_cursor); input::ReaderDestroyed(ended);
+    const auto reading = input::RegisterReader("train");
+    input::Cursor live_cursor{"filefeeder://train/handle/0/eps_scope/train/interleave/1",
+                              0, {1}, true, 1, "second.orc", 2};
+    input::BeginScopedCapture("train");
+    input::Capture("active", live_cursor, reading);
+    input::FinishCapture(argv[1]);
+    auto cut = input::DecodeCapture(input::ReadFile(argv[1]));
+    Check(cut.size() == 2, "destroyed completed reader history disappeared");
+    std::vector<input::Cursor> saved;
+    for (const auto& item : cut) saved.push_back(item.second);
+    Check(input::RestoreCut(source, saved).excluded == std::vector<std::uint64_t>({0, 1}),
+          "completed leaf assignments were requeued");
+    std::filesystem::remove(argv[1]);
+
+    // A completion after Begin is not proof that its rows are in the saved
+    // upstream buffers. An uncaptured reader forces a new serialization cut.
+    const auto late_reader = input::RegisterReader("train");
+    auto late_cursor = ended_cursor; late_cursor.assignments = {2};
+    input::BeginScopedCapture("train");
+    input::Capture("active", live_cursor, reading);
+    input::ReaderCompleted(late_reader, late_cursor);
+    try { input::FinishCapture(argv[1]); throw std::logic_error("unstable reader cut accepted"); }
+    catch (const std::runtime_error& error) {
+      Check(std::string(error.what()).find("retry input capture:") == 0, "wrong capture rejection");
+    }
+    Check(!std::filesystem::exists(argv[1]), "rejected input cut published metadata");
+    input::CancelCapture();
+    input::BeginScopedCapture("train");
+    input::Capture("active", live_cursor, reading);
+    input::FinishCapture(argv[1]);
+    Check(input::DecodeCapture(input::ReadFile(argv[1])).size() == 3, "stable retry lost completed readers");
+    std::filesystem::remove(argv[1]);
+
+    input::BeginScopedCapture("train");
+    const auto new_reader = input::RegisterReader("train");
+    auto new_cursor = ended_cursor; new_cursor.assignments = {3};
+    input::ReaderCompleted(new_reader, new_cursor);
+    input::Capture("active", live_cursor, reading);
+    try { input::FinishCapture(argv[1]); throw std::logic_error("new reader cut accepted"); }
+    catch (const std::runtime_error& error) {
+      Check(std::string(error.what()).find("retry input capture:") == 0, "wrong new-reader rejection");
+    }
+    input::CancelCapture();
+    input::BeginInputGeneration("train");
+    input::BeginScopedCapture("train");
+    input::FinishCapture(argv[1]);
+    Check(input::DecodeCapture(input::ReadFile(argv[1])).empty(), "previous input generation leaked into new cut");
+    std::filesystem::remove(argv[1]);
+    std::filesystem::remove(std::string(argv[1]) + ".readers.json");
     std::cout << "{\"test\":\"input_checkpoint_cut\",\"total_rows\":20,\"consumed_rows\":5,"
                  "\"remaining_rows\":15,\"duplicate_filename_occurrences\":true,"
                  "\"post_snapshot_assignments_requeued\":true,\"concurrent_source_fetches\":true,\"concurrent_streams\":8}\n";

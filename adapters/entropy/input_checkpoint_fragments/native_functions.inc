@@ -30,6 +30,12 @@ template <class Function> int InputCheckpointOperation(Function function) {
 TS_REGISTER_LOCAL_FUNCTION("eps_input_begin_capture", []() -> int {
   return InputCheckpointOperation([] { eps::input_checkpoint::BeginCapture(); });
 });
+TS_REGISTER_LOCAL_FUNCTION("eps_input_begin_generation", [](const std::string& scope) -> int {
+  return InputCheckpointOperation([&] { eps::input_checkpoint::BeginInputGeneration(scope); });
+});
+TS_REGISTER_LOCAL_FUNCTION("eps_input_begin_scoped_capture", [](const std::string& scope) -> int {
+  return InputCheckpointOperation([&] { eps::input_checkpoint::BeginScopedCapture(scope); });
+});
 TS_REGISTER_LOCAL_FUNCTION("eps_input_finish_capture", [](const std::string& path) -> int {
   return InputCheckpointOperation([&] { eps::input_checkpoint::FinishCapture(path); });
 });
@@ -57,5 +63,5 @@ TS_REGISTER_LOCAL_FUNCTION("eps_input_restore_source", [](int64_t handle, const 
 }  // namespace tensorswitch
 
 extern "C" __attribute__((visibility("default"))) int eps_entropy_input_checkpoint_version() {
-  return 1;
+  return 2;
 }

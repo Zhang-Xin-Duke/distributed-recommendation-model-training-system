@@ -8,7 +8,7 @@
       if (reader_ && cursor.active) { cursor.filename = reader_->CheckpointFilename(); cursor.row = reader_->CheckpointRow(); }
       const auto bytes = eps::input_checkpoint::Encode(cursor);
       TF_RETURN_IF_ERROR(writer->WriteScalar(full_name("eps_input_cursor_v1"), tstring(bytes)));
-      eps::input_checkpoint::Capture(full_name("eps_input_cursor_v1"), cursor);
+      eps::input_checkpoint::Capture(full_name("eps_input_cursor_v1"), cursor, checkpoint_reader_id_);
       return OkStatus();
     }
 
@@ -16,6 +16,9 @@
                            IteratorStateReader* reader) override {
       mutex_lock lock(mu_);
       ResetStreamsLocked();
+      eps::input_checkpoint::ForgetReaderForRestore(checkpoint_reader_id_);
+      checkpoint_reader_id_ = eps::input_checkpoint::RegisterReader(
+          eps::input_checkpoint::ReaderScope(dataset()->filenames_));
       int64 current;
       TF_RETURN_IF_ERROR(reader->ReadScalar(full_name(kCurrentFileIndex), &current));
       if (current < 0 || std::uint64_t(current) > dataset()->filenames_.size())
@@ -32,7 +35,11 @@
       } catch (const std::exception& error) {
         return errors::InvalidArgument(error.what());
       }
-      if (!saved_cursor_.active) return OkStatus();
+      if (!saved_cursor_.active) {
+        if (current_file_index_ == dataset()->filenames_.size())
+          eps::input_checkpoint::ReaderCompleted(checkpoint_reader_id_, saved_cursor_);
+        return OkStatus();
+      }
       if (current_file_index_ >= dataset()->filenames_.size())
         return errors::InvalidArgument("active ORC reader is beyond dataset EOF");
       const auto& stream = dataset()->filenames_[current_file_index_];

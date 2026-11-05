@@ -77,6 +77,16 @@ tensorflow::Status RestoreFileFeeder(const std::string& stream,
   cntl->response_attachment().append(eps::input_checkpoint::AssignmentTag(assignment.second));''')
     result[filename]=text
     filename='tensorswitch/orc_dataset.cc';text=result[filename]
+    text=replace(text,': DatasetIterator<Dataset>(params) {}','''
+        : DatasetIterator<Dataset>(params) {
+      checkpoint_reader_id_ = eps::input_checkpoint::RegisterReader(
+          eps::input_checkpoint::ReaderScope(dataset()->filenames_));
+    }
+    ~Iterator() override { eps::input_checkpoint::ReaderDestroyed(checkpoint_reader_id_); }'''.lstrip())
+    text=replace(text,'          *end_of_sequence = true;','''          auto completed = saved_cursor_;
+          if (completed.stream.empty()) completed.stream = prefix();
+          eps::input_checkpoint::ReaderCompleted(checkpoint_reader_id_, completed);
+          *end_of_sequence = true;''')
     text=replace(text,'\n    next_row_index_ = 0;\n','\n    next_row_index_ = 0;\n    checkpoint_row_ = 0; checkpoint_filename_ = filename;\n')
     text=replace(text,'        next_row_index_ += 1;','        next_row_index_ += 1;\n        checkpoint_row_ += 1;')
     text=replace(text,'  Status ReadRecord(IteratorContext* ctx, std::vector<Tensor>* out_tensors, size_t* read_bytes) {',
@@ -94,7 +104,7 @@ tensorflow::Status RestoreFileFeeder(const std::string& stream,
         saved_cursor_.active = false; saved_cursor_.current = eps::input_checkpoint::no_assignment;
         saved_cursor_.filename.clear(); saved_cursor_.row = 0;
       }''')
-    text=replace(text,'    mutex mu_;','    eps::input_checkpoint::Cursor saved_cursor_;\n    mutex mu_;')
+    text=replace(text,'    mutex mu_;','    std::uint64_t checkpoint_reader_id_ = 0;\n    eps::input_checkpoint::Cursor saved_cursor_;\n    mutex mu_;')
     result[filename]=text
     text=dependency(result['BUILD'],'file_feeder',[':eps_input_checkpoint',':local_call'])
     text+='''

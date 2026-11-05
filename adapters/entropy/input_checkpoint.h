@@ -273,22 +273,124 @@ inline std::string ReadFile(const std::string& path) {
 inline std::mutex capture_mutex;
 inline bool capturing = false;
 inline std::map<std::string, Cursor> captured;
+struct ReaderLife {
+  std::string scope;
+  std::uint64_t generation = 0;
+  bool completed = false;
+  bool destroyed = false;
+  Cursor cursor;
+};
+inline std::map<std::string, std::uint64_t> generations;
+inline std::map<std::uint64_t, ReaderLife> reader_lives;
+inline std::uint64_t next_reader = 1;
+inline std::string capture_scope;
+inline std::uint64_t capture_generation = 0;
+inline bool reader_created_during_capture = false;
+inline std::map<std::uint64_t, ReaderLife> readers_at_begin;
+inline std::set<std::uint64_t> saved_readers;
+
+// A scope belongs to one input iterator. It is embedded in each FileFeeder URI
+// so readers created later by parallel interleave inherit the same identity.
+inline std::string ReaderScope(const std::vector<std::string>& streams) {
+  std::string result;
+  for (const auto& stream : streams) {
+    const std::string marker = "/eps_scope/";
+    const auto position = stream.find(marker);
+    if (position == std::string::npos) return "";
+    const auto begin = position + marker.size(), end = stream.find('/', begin);
+    const auto scope = stream.substr(begin, end == std::string::npos ? end : end - begin);
+    if (scope.empty() || (!result.empty() && scope != result))
+      throw std::invalid_argument("ORC streams have different input scopes");
+    result = scope;
+  }
+  return result;
+}
+inline void BeginInputGeneration(const std::string& scope) {
+  if (scope.empty()) throw std::invalid_argument("input scope is empty");
+  std::lock_guard<std::mutex> lock(capture_mutex);
+  if (capturing) throw std::runtime_error("cannot change input generation during capture");
+  ++generations[scope];
+  for (auto it = reader_lives.begin(); it != reader_lives.end();)
+    if (it->second.scope == scope) it = reader_lives.erase(it); else ++it;
+}
+inline std::uint64_t RegisterReader(const std::string& scope) {
+  if (scope.empty()) return 0;
+  std::lock_guard<std::mutex> lock(capture_mutex);
+  const auto id = next_reader++;
+  const auto generation = generations[scope];
+  reader_lives.emplace(id, ReaderLife{scope, generation, false, false, {}});
+  if (capturing && capture_scope == scope && capture_generation == generation)
+    reader_created_during_capture = true;
+  return id;
+}
+inline void ReaderCompleted(std::uint64_t id, const Cursor& cursor) {
+  if (!id) return;
+  Validate(cursor); std::lock_guard<std::mutex> lock(capture_mutex);
+  auto found = reader_lives.find(id);
+  if (found != reader_lives.end()) { found->second.completed = true; found->second.cursor = cursor; }
+}
+inline void ReaderDestroyed(std::uint64_t id) {
+  if (!id) return;
+  std::lock_guard<std::mutex> lock(capture_mutex);
+  auto found = reader_lives.find(id);
+  if (found != reader_lives.end()) found->second.destroyed = true;
+}
+inline void ForgetReaderForRestore(std::uint64_t id) {
+  std::lock_guard<std::mutex> lock(capture_mutex);
+  if (capturing) throw std::runtime_error("cannot restore an input reader during capture");
+  reader_lives.erase(id);
+}
 inline void BeginCapture() {
   std::lock_guard<std::mutex> lock(capture_mutex);
   if (capturing) throw std::runtime_error("input capture already active");
-  captured.clear(); capturing = true;
+  captured.clear(); capture_scope.clear(); readers_at_begin.clear(); saved_readers.clear();
+  reader_created_during_capture = false; capturing = true;
 }
-inline void Capture(const std::string& key, const Cursor& cursor) {
+inline void BeginScopedCapture(const std::string& scope) {
+  if (scope.empty()) throw std::invalid_argument("input capture scope is empty");
+  std::lock_guard<std::mutex> lock(capture_mutex);
+  if (capturing) throw std::runtime_error("input capture already active");
+  captured.clear(); readers_at_begin.clear(); saved_readers.clear();
+  capture_scope = scope; capture_generation = generations[scope];
+  for (const auto& item : reader_lives)
+    if (item.second.scope == scope && item.second.generation == capture_generation)
+      readers_at_begin.insert(item);
+  reader_created_during_capture = false; capturing = true;
+}
+inline void Capture(const std::string& key, const Cursor& cursor, std::uint64_t reader = 0) {
   Validate(cursor); std::lock_guard<std::mutex> lock(capture_mutex);
-  if (capturing) captured[key] = cursor;
+  if (!capturing) return;
+  if (capture_scope.empty()) { captured[key] = cursor; return; }
+  const auto found = reader_lives.find(reader);
+  if (found == reader_lives.end() || found->second.scope != capture_scope ||
+      found->second.generation != capture_generation) return;
+  saved_readers.insert(reader);
+  captured["reader/" + std::to_string(reader)] = cursor;
 }
 inline void FinishCapture(const std::string& path) {
   std::lock_guard<std::mutex> lock(capture_mutex);
   if (!capturing) throw std::runtime_error("input capture is not active");
+  if (!capture_scope.empty()) {
+    std::size_t completed = 0, destroyed = 0;
+    if (reader_created_during_capture)
+      throw std::runtime_error("retry input capture: a parallel reader was created during serialization");
+    for (const auto& item : readers_at_begin) {
+      if (saved_readers.count(item.first)) continue;
+      if (!item.second.completed)
+        throw std::runtime_error("retry input capture: an unfinished reader was absent from serialization");
+      captured["reader/" + std::to_string(item.first)] = item.second.cursor;
+      ++completed; destroyed += item.second.destroyed;
+    }
+    WriteFile(path + ".readers.json", "{\"readers_at_begin\":" + std::to_string(readers_at_begin.size()) +
+        ",\"serialized_readers\":" + std::to_string(saved_readers.size()) +
+        ",\"completed_reader_histories\":" + std::to_string(completed) +
+        ",\"destroyed_completed_reader_histories\":" + std::to_string(destroyed) + "}\n");
+  }
   auto bytes = EncodeCapture(captured); WriteFile(path, bytes); capturing = false;
 }
 inline void CancelCapture() {
-  std::lock_guard<std::mutex> lock(capture_mutex); captured.clear(); capturing = false;
+  std::lock_guard<std::mutex> lock(capture_mutex);
+  captured.clear(); readers_at_begin.clear(); saved_readers.clear(); capture_scope.clear(); capturing = false;
 }
 
 }}  // namespace eps::input_checkpoint

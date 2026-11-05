@@ -5,6 +5,7 @@ it does not require or impersonate a TensorFlow Python package. Complete origina
 application training is validated separately.
 """
 import argparse
+import collections
 import ctypes as c
 import hashlib
 import json
@@ -29,7 +30,8 @@ class API:
             str(args.ops.resolve()).encode(),self.status);self.check()
         self.native=c.CDLL(str(args.ops.resolve()))
         self.native.eps_entropy_input_checkpoint_version.restype=c.c_int
-        assert self.native.eps_entropy_input_checkpoint_version()==1
+        self.cursor_version=self.native.eps_entropy_input_checkpoint_version()
+        assert self.cursor_version>=1
         self.session=None;self.tensors=[]
 
     def bind(self,name,result,*arguments):
@@ -70,8 +72,12 @@ class API:
         initialize.restype=c.c_int;initialize.argtypes=[c.c_int,c.c_char_p,c.c_bool,c.c_bool,c.c_size_t]
         if initialize(0,','.join(args.files).encode(),False,False,sum(pathlib.Path(p).stat().st_size for p in args.files))!=0:
             raise RuntimeError('original FileFeeder initialization failed')
+        if args.parallel:
+            if self.cursor_version<2:raise RuntimeError('parallel input requires native reader lifecycle support')
+            self.native_call('eps_input_begin_generation','sdk-input')
         if args.phase=='restore':self.native_call('eps_input_restore_source',0,str(args.checkpoint)+'.source-restore.bin')
-        return ['filefeeder://sdk/handle/0/interleave/0']
+        return ['filefeeder://sdk/handle/0/'+('eps_scope/sdk-input/' if args.parallel else '')+'interleave/'+str(i)
+                for i in range(args.parallel or 1)]
 
     def check(self):
         code=self.bind('TF_GetCode',c.c_int,c.c_void_p)(self.status)
@@ -80,7 +86,7 @@ class API:
             if code==11:raise EOFError(message)
             raise RuntimeError(message)
 
-    def node(self,kind,name,inputs=(),types=None,dtype=None,shape=None,strings=None,list_input=None):
+    def node(self,kind,name,inputs=(),types=None,dtype=None,shape=None,strings=None,list_input=None,tensor=None):
         ptr=c.c_void_p
         op=self.bind('TF_NewOperation',ptr,ptr,c.c_char_p,c.c_char_p)(self.graph,kind.encode(),name.encode())
         self.bind('TF_SetDevice',None,ptr,c.c_char_p)(op,b'/device:CPU:0')
@@ -88,17 +94,51 @@ class API:
         if list_input is not None:
             self.bind('TF_AddInputList',None,ptr,c.POINTER(Output),c.c_int)(op,(Output*len(list_input))(*list_input),len(list_input))
         if dtype is not None:self.bind('TF_SetAttrType',None,ptr,c.c_char_p,c.c_int)(op,b'dtype',dtype)
+        if tensor is not None:
+            self.bind('TF_SetAttrTensor',None,ptr,c.c_char_p,ptr,ptr)(op,b'value',tensor,self.status);self.check()
         if shape is not None:
             dimensions=(c.c_int64*len(shape))(*shape)
             self.bind('TF_SetAttrShape',None,ptr,c.c_char_p,c.POINTER(c.c_int64),c.c_int)(op,b'shape',dimensions,len(shape))
         if types is not None:
             self.bind('TF_SetAttrTypeList',None,ptr,c.c_char_p,c.POINTER(c.c_int),c.c_int)(
-                op,b'dtypes' if kind in ['SaveV2','RestoreV2'] else b'output_types',(c.c_int*len(types))(*types),len(types))
+                op,b'dtypes' if kind in ['SaveV2','RestoreV2'] else b'Toutput_types' if kind=='TensorSliceDataset' else b'output_types',
+                (c.c_int*len(types))(*types),len(types))
             if kind not in ['SaveV2','RestoreV2']:
                 self.bind('TF_SetAttrShapeList',None,ptr,c.c_char_p,c.POINTER(c.POINTER(c.c_int64)),c.POINTER(c.c_int),c.c_int)(
                     op,b'output_shapes',(c.POINTER(c.c_int64)*len(types))(),(c.c_int*len(types))(*([-1]*len(types))),len(types))
         for key,value in (strings or {}).items():
             self.bind('TF_SetAttrString',None,ptr,c.c_char_p,ptr,c.c_size_t)(op,key.encode(),value,len(value))
+        operation=self.bind('TF_FinishOperation',ptr,ptr,ptr)(op,self.status);self.check();return Output(operation,0)
+
+    def parallel(self,filenames,count,buffer):
+        ptr=c.c_void_p;parent=self.graph
+        body=self.bind('TF_NewGraph',ptr)();self.graph=body
+        try:
+            filename=self.node('Placeholder','filename',dtype=7,shape=[])
+            fields=self.node('Const','fields',dtype=7,tensor=self.string_tensor(['sample']))
+            output=self.node('OrcDataset','reader',[filename,fields])
+            function=self.bind('TF_GraphToFunction',ptr,ptr,c.c_char_p,c.c_ubyte,c.c_int,
+                c.POINTER(ptr),c.c_int,c.POINTER(Output),c.c_int,c.POINTER(Output),
+                c.POINTER(c.c_char_p),ptr,c.c_char_p,ptr)(
+                body,b'EpsOriginalOrc',0,-1,None,1,c.byref(filename),1,c.byref(output),None,None,None,self.status)
+            self.check()
+            self.bind('TF_GraphCopyFunction',None,ptr,ptr,ptr,ptr)(parent,function,None,self.status);self.check()
+            self.bind('TF_DeleteFunction',None,ptr)(function)
+        finally:
+            self.graph=parent;self.bind('TF_DeleteGraph',None,ptr)(body)
+        source=self.node('TensorSliceDataset','streams',types=[7],list_input=[filenames])
+        values=[self.node('Const','parallel_arg_'+str(i),dtype=9,tensor=self.integer(n))
+                for i,n in enumerate([count,1,buffer,count,count])]
+        op=self.bind('TF_NewOperation',ptr,ptr,c.c_char_p,c.c_char_p)(parent,b'ParallelInterleaveDatasetV4',b'parallel_orc')
+        self.bind('TF_AddInput',None,ptr,Output)(op,source)
+        self.bind('TF_AddInputList',None,ptr,c.POINTER(Output),c.c_int)(op,None,0)
+        for value in values:self.bind('TF_AddInput',None,ptr,Output)(op,value)
+        self.bind('TF_SetAttrTypeList',None,ptr,c.c_char_p,c.POINTER(c.c_int),c.c_int)(op,b'Targuments',None,0)
+        self.bind('TF_SetAttrTypeList',None,ptr,c.c_char_p,c.POINTER(c.c_int),c.c_int)(op,b'output_types',(c.c_int*1)(7),1)
+        self.bind('TF_SetAttrShapeList',None,ptr,c.c_char_p,c.POINTER(c.POINTER(c.c_int64)),c.POINTER(c.c_int),c.c_int)(
+            op,b'output_shapes',(c.POINTER(c.c_int64)*1)(),(c.c_int*1)(-1),1)
+        self.bind('TF_SetAttrFuncName',None,ptr,c.c_char_p,c.c_char_p,c.c_size_t)(op,b'f',b'EpsOriginalOrc',14)
+        self.bind('TF_SetAttrString',None,ptr,c.c_char_p,ptr,c.c_size_t)(op,b'deterministic',b'true',4)
         operation=self.bind('TF_FinishOperation',ptr,ptr,ptr)(op,self.status);self.check();return Output(operation,0)
 
     def string_tensor(self,values,scalar=False):
@@ -165,7 +205,7 @@ def child(args):
         filenames=api.node('Placeholder','filenames',dtype=7,shape=[-1])
         fields=api.node('Placeholder','fields',dtype=7,shape=[-1])
         depth=api.node('Placeholder','prefetch_depth',dtype=9,shape=[])
-        dataset=api.node('OrcDataset','original_orc',[filenames,fields])
+        dataset=api.parallel(filenames,args.parallel,args.parallel_buffer) if args.parallel else api.node('OrcDataset','original_orc',[filenames,fields])
         dataset=api.node('PrefetchDataset','prefetch',[dataset,depth],types=[7])
         iterator=api.node('IteratorV2','iterator',types=[7],strings=dict(shared_name=b'',container=b''))
         make=api.node('MakeIterator','make',[dataset,iterator])
@@ -185,16 +225,23 @@ def child(args):
         values=[]
         if args.phase=='save':
             for _ in range(args.count):values.extend(api.strings(api.run(get)))
-            api.native_call('eps_input_begin_capture')
-            api.run(targets=[save],feeds=checkpoint)
-            api.native_call('eps_input_finish_capture',str(args.checkpoint)+'.capture.bin')
+            for attempt in range(20):
+                api.native_call('eps_input_begin_scoped_capture','sdk-input') if args.parallel else api.native_call('eps_input_begin_capture')
+                try:
+                    api.run(targets=[save],feeds=checkpoint)
+                    api.native_call('eps_input_finish_capture',str(args.checkpoint)+'.capture.bin')
+                    break
+                except RuntimeError:
+                    api.native_call('eps_input_cancel_capture')
+                    if not args.parallel or attempt==19:raise
             if args.filefeeder:api.native_call('eps_input_export_source',0,str(args.checkpoint)+'.source.bin')
         else:
+            if args.parallel:api.native_call('eps_input_begin_generation','sdk-input')
             api.run(targets=[restore],feeds=checkpoint)
             while True:
                 try:values.extend(api.strings(api.run(get)))
                 except EOFError:break
-        print(json.dumps(dict(phase=args.phase,rows=values,native_cursor_version=1)),flush=True)
+        print(json.dumps(dict(phase=args.phase,rows=values,native_cursor_version=api.cursor_version)),flush=True)
     finally:api.close()
 
 
@@ -208,7 +255,11 @@ def main():
     parser.add_argument('--filefeeder',action='store_true')
     parser.add_argument('--protocols',type=pathlib.Path)
     parser.add_argument('--planner',type=pathlib.Path)
+    parser.add_argument('--parallel',type=int,default=0,help='Use scoped native parallel interleave with this many streams')
+    parser.add_argument('--parallel-buffer',type=int,default=2)
     args=parser.parse_args()
+    if args.parallel and (not args.filefeeder or not 1<=args.parallel<=64):parser.error('--parallel requires --filefeeder and 1 to 64 streams')
+    if not 1<=args.parallel_buffer<=1024:parser.error('--parallel-buffer must be between 1 and 1024')
     if args.phase:return child(args)
     import pyarrow as pa
     import pyarrow.orc as orc
@@ -229,6 +280,7 @@ def main():
                 '--phase',phase,'--count',str(count),'--checkpoint',str(checkpoint),'--files',*files]
             for name in ['framework','nccl','tensorflow','ops']:command+=['--'+name,str(getattr(args,name))]
             if args.filefeeder:command+=['--filefeeder','--protocols',str(args.protocols)]
+            if args.parallel:command+=['--parallel',str(args.parallel),'--parallel-buffer',str(args.parallel_buffer)]
             result=subprocess.run(command,capture_output=True,text=True,timeout=120)
             (args.work/f'{count}-{phase}.stderr').write_text(result.stderr)
             if result.returncode:raise RuntimeError(phase+' failed: '+result.stderr[-3000:])
@@ -237,12 +289,25 @@ def main():
                 planned=subprocess.run([str(args.planner),'--source',str(checkpoint)+'.source.bin',
                     '--capture',str(checkpoint)+'.capture.bin','--output',str(checkpoint)+'.source-restore.bin'],
                     capture_output=True,text=True,check=True,timeout=15)
-        assert outputs[0]['rows']==expected[:count]
-        assert outputs[1]['rows']==expected[count:]
-        reports.append(dict(saved_after_rows=count,restored_rows=len(outputs[1]['rows']),exact_sequence=True))
+        if args.parallel:
+            assert len(outputs[0]['rows'])==count
+            assert collections.Counter(outputs[0]['rows']+outputs[1]['rows'])==collections.Counter(expected)
+        else:
+            assert outputs[0]['rows']==expected[:count]
+            assert outputs[1]['rows']==expected[count:]
+        case=dict(saved_after_rows=count,restored_rows=len(outputs[1]['rows']),
+                  exact_sequence=not bool(args.parallel),exact_record_multiset=True)
+        diagnostics=pathlib.Path(str(checkpoint)+'.capture.bin.readers.json')
+        if diagnostics.exists():case['reader_lifecycle']=json.loads(diagnostics.read_text())
+        if args.filefeeder:
+            inspected=subprocess.run([str(args.planner),'--inspect-capture',str(checkpoint)+'.capture.bin'],
+                capture_output=True,text=True,check=True,timeout=15)
+            case['reader_snapshot']=json.loads(inspected.stdout)
+        reports.append(case)
     result=dict(test='original_orc_iterator_checkpoint',fresh_process_restore=True,prefetch_rows=2,
         original_orc_kernel=True,python_tensorflow_package_used=False,rows=21,
-        duplicate_filename_occurrences=True,original_filefeeder_rpc=args.filefeeder,cases=reports,
+        duplicate_filename_occurrences=True,original_filefeeder_rpc=args.filefeeder,parallel_streams=args.parallel,
+        parallel_output_buffer=args.parallel_buffer if args.parallel else None,cases=reports,
         checkpoint_files=[dict(file=p.name,bytes=p.stat().st_size) for p in args.work.glob('checkpoint-*')],
         scope='original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate')
     if args.out:args.out.write_text(json.dumps(result,indent=2)+'\n')

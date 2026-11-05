@@ -1,7 +1,5 @@
 # Original Input Checkpoint Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
-
 **Goal:** Restore original ORC/FileFeeder input at the same batch boundary as sparse parameters, native dense state and training progress.
 
 **Architecture:** TensorFlow iterator serialization preserves pending pipeline buffers. Extend the isolated original native build with actual ORC row positions and stable FileFeeder assignment IDs. Every serialized stream reports its assigned-file history and active cursor; the restored master excludes these assignments because their remaining records reside in restored iterator buffers/current readers. Files assigned by speculative prefetch after a stream snapshot return to the remaining queue. Publish iterator files, stream summaries and the master restore plan under the existing joint-checkpoint commit.
@@ -21,3 +19,9 @@ repeated occurrences of the same file remain distinguishable. A stream's saved
 history includes files whose rows have already entered serialized prefetch
 buffers. Excluding only its current file would duplicate those buffered rows;
 retaining the master's later allocation offset would lose post-snapshot reads.
+
+Native stages 1–3 have executed, including direct FileFeeder recovery at eight
+positions and six-stream parallel interleave recovery. The registry also keeps
+completed reader histories after leaf destruction; a larger-buffer case
+restored all remaining records after all six leaves were released. Stages 4–5
+continue with Python input-shot state and the full training joint commit.
