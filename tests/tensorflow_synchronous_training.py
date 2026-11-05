@@ -28,6 +28,7 @@ def main():
     p.add_argument("--bag-size", type=int, default=16)
     p.add_argument("--out", type=pathlib.Path)
     p.add_argument("--disable-lookup-cache", action="store_true")
+    p.add_argument("--disable-gradient-cache", action="store_true")
     p.add_argument("--owner-incarnation", default="", help="Owner identity suffix independent of the stable training run")
     a = p.parse_args()
     build = a.build.resolve()
@@ -139,6 +140,7 @@ def main():
                             "dimension": a.dimension, "hidden": a.hidden, "iterations": a.iterations,
                             "samples": examples, "agents": agents, "record_gradients": True,
                             "reuse_lookup_layouts": not a.disable_lookup_cache,
+                            "reuse_gradient_layouts": not a.disable_gradient_cache,
                             "device": "/GPU:0" if gpu and not reference else "/CPU:0"}, worker_env))
                 workers = []
                 for child in children:

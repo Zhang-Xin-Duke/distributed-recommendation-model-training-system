@@ -290,3 +290,22 @@ Next acceptance priorities retain complete original Entropy native build/load/
 training/control execution, physical-node loss with surviving authority and
 replacement placement/routing, bounded replica/journal compaction, gradient-Key
 metadata reuse and common-quality/scaling characterization.
+
+## Gradient Key metadata reuse
+
+Synchronous Submit now supports reusable table/dimension/Key layouts through
+bounded, worker/run/epoch/shard-scoped registries. Misses fall back once with the
+same task and original numerical gradients, before collector admission. The
+Lookup and gradient registries share one typed implementation. Native RPC tests
+cover empty contributions, schema/scope errors, TTL/eviction and duplicate rounds.
+
+Two-worker/two-shard TensorFlow training compares all 503 touched rows and losses
+across eight rounds. Cached versus full-Key results are identical; Submit request
+bytes decrease from 287,224 to 237,980 (17.1%) for this eight-dimensional workload.
+This completes the initial gradient-Key reuse path. Its counters describe Submit
+requests, independently of the earlier Lookup metadata measurement. See
+[design and execution](../REUSABLE_GRADIENT_LAYOUTS.md).
+
+Remaining acceptance retains full original Entropy training/control, physical
+node loss with surviving parameter authority and replacement routing, bounded
+replica/journal compaction and common-quality/scaling characterization.

@@ -47,6 +47,11 @@ through this path and advance their optimizer context once, without modifying
 absent rows. The configured mode disables ordinary worker writes and permits
 read-only Pull; worker IDs range from 0 to 1022.
 
+[Reusable gradient Key metadata](REUSABLE_GRADIENT_LAYOUTS.md) replaces repeated
+Key lists with scoped tokens while preserving fresh values and these reduction
+semantics. An explicit metadata miss falls back with the same task before any
+collector admission.
+
 ## Bounded collection and failure
 
 There is one active round and at most one retained contribution per worker.

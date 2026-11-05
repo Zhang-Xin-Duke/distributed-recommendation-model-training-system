@@ -1,0 +1,161 @@
+{
+  "recorded_at_utc": "2026-11-05T02:44:53.890360+00:00",
+  "base_commit": "816c5a461955d5937080747ee6bc8946cbcde203",
+  "scope": "Synchronous-gradient Key metadata reuse; CPU model state/loss and serialized Submit bytes; same-host CUDA12.2 native/GPU regression checks",
+  "model": {
+    "test": "tensorflow_gradient_layout_ablation",
+    "device": "CPU",
+    "workers": 2,
+    "shards": 2,
+    "iterations": 8,
+    "rows": 512,
+    "dimension": 8,
+    "local_samples": 16,
+    "bag_size": 64,
+    "inspected_rows": 503,
+    "state_scope": "all_touched_rows",
+    "max_cached_uncached_state_error": 0.0,
+    "max_cached_uncached_loss_error": 0.0,
+    "gradient_request_byte_reduction": 0.1714480684065398,
+    "uncached": {
+      "full_requests": 32,
+      "token_requests": 0,
+      "fallback_requests": 0,
+      "request_bytes": 287224,
+      "avoided_request_bytes": 0
+    },
+    "cached": {
+      "full_requests": 4,
+      "token_requests": 28,
+      "fallback_requests": 0,
+      "request_bytes": 237980,
+      "avoided_request_bytes": 49308
+    }
+  },
+  "training_trajectories": [
+    {
+      "completed": [
+        8,
+        8
+      ],
+      "shard_updates": [
+        8,
+        8
+      ],
+      "worker_losses": [
+        [
+          0.6911853551864624,
+          0.6732645630836487,
+          0.645241379737854,
+          0.6092263460159302,
+          0.5701678395271301,
+          0.5311337113380432,
+          0.4942183494567871,
+          0.4601556658744812
+        ],
+        [
+          0.6940387487411499,
+          0.6801706552505493,
+          0.6521933078765869,
+          0.6136468648910522,
+          0.5721356868743896,
+          0.531603991985321,
+          0.49407121539115906,
+          0.45992231369018555
+        ]
+      ]
+    },
+    {
+      "completed": [
+        8,
+        8
+      ],
+      "shard_updates": [
+        8,
+        8
+      ],
+      "worker_losses": [
+        [
+          0.6911853551864624,
+          0.6732645630836487,
+          0.645241379737854,
+          0.6092263460159302,
+          0.5701678395271301,
+          0.5311337113380432,
+          0.4942183494567871,
+          0.4601556658744812
+        ],
+        [
+          0.6940387487411499,
+          0.6801706552505493,
+          0.6521933078765869,
+          0.6136468648910522,
+          0.5721356868743896,
+          0.531603991985321,
+          0.49407121539115906,
+          0.45992231369018555
+        ]
+      ]
+    }
+  ],
+  "full_model_report_sha256": "ae7a9f6e9377c5f325ad139cf257a11f8419fb4f030582b521505c8fc63ee454",
+  "checks": {
+    "native": {
+      "passed": 43,
+      "failed": 0,
+      "log_sha256": "0c47e92d553516e9f4221ece4f95928bf66b16007992d9aa178c430a5e4ba40f"
+    },
+    "framework": {
+      "passed": 76,
+      "failed": 0,
+      "log_sha256": "59974ea7c6f2f1d544251a9d547d5d4c9441044dcbea3bba63b64f1e714ea7e4"
+    },
+    "asan_ubsan": {
+      "passed": 2,
+      "failed": 0,
+      "log_sha256": "743fe4822f38fb2c2fd3ea03f135f160309d0ddae21ca9659f23b0f43b72969c"
+    },
+    "tsan": {
+      "passed": 2,
+      "failed": 0,
+      "log_sha256": "956d70955561a92a2916a2d2475ccc21cc5bc81a79d5f4e940290fe09fefa3c2"
+    },
+    "linux_cuda122": {
+      "passed": 7,
+      "failed": 0,
+      "source_archive_sha256": "5da85e885d43e4bcd09152dd7e54840b59a04a2a20a6c9df51737cc32c51963f",
+      "runtime_sha256": "575940e23da47d7aba257c11b5ca8956c6e5baa97326f1624442bf0891acc09c",
+      "log_sha256": "80258edd4c44fb9d04dfd6f7b4ece808d541a8e311bd3140a7c73d140603e679"
+    }
+  },
+  "linux_source_files_match_current_checkout": true,
+  "linux_runtime_artifact": {
+    "ready": true,
+    "bytes": 24618100,
+    "sha256": "0bb4a5556425a63bef50c7338a2831c1d4809a29d2f3bc3f07ba9e497891d263"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "c613e64609d5664ce4eed8f504ee05503708d4b34e08267bca03c6539baf8d3c",
+    "adapters/entropy/eps_backend.py": "59444bbf22340d71d3dd598353178b6480916ef4b486b940d84aab3a88ea2f0c",
+    "adapters/entropy/eps_backend_worker.py": "997a5a72dc04e32fff053868969814756780cfccf0ca8aade912c3ee4f2d2fb0",
+    "adapters/entropy/python_bindings.cpp": "1fd774e4b5caa9139cbd52add64b581c6559d9e5598f8649f4717f45a98007c2",
+    "examples/tensorflow_training_worker.py": "448728e1831354f5f7db430fda7058bfcd0614b65bd0d0a78afd9a47c84e2fcc",
+    "include/eps/brpc_synchronous_gradients.hpp": "8f7e522565439276ff2d9c7d1dd1d83b38627c529fd020f3b8fe9047ed90c479",
+    "include/eps/gradient_layout_cache.hpp": "f70ece59996c1a54c86899a028146b1b10f11157464bebd7bd4eb71a59c3a1fe",
+    "proto/embedding_service.proto": "8cae5ce88717ea6c9a10fd5143b510906b35a2020bff6a9c830780c299d6237d",
+    "src/access/gradient_layout_cache.cpp": "99556ef4e7fc3aba6a2263f77d6051dc6ca1e5c793b0ae3b1fd9174bd3663e1c",
+    "src/access/lookup_layout_cache.cpp": "31365a0e7d4e983ee0f02a6dfd3530bb8d102e92e5d0841ec146dc650883b49c",
+    "src/common/immutable_metadata_cache.hpp": "f7dc7a0347076e3dacecc9a918f9314abfcc3a222fa55fcb431afe606fe37896",
+    "src/server/main.cpp": "ec142b4d89c2cadb0bcacbd3533f8492d621b0e6c93dd9c70799f154f7428886",
+    "src/transport/brpc_synchronous_client.cpp": "5ec77e5f997d78225049d457327a0334d1c0fa537f741d866c217aaf680586b1",
+    "src/transport/brpc_synchronous_server.cpp": "fb094515f39e4cb054b24ab8ad4433df5682b6179345a73e9af61782d6043e49",
+    "src/transport/brpc_synchronous_server.hpp": "9b8e98e561e5f090efea7365062ecc42a7e2cab4238ca72997922045a0a09c07",
+    "tests/gradient_layout_cache_tests.cpp": "9ce923df2ec6399db57689f60757f2809bb45c69c0e39709833d927096cd6f5f",
+    "tests/gradient_layout_rpc_tests.cpp": "32b82ea83ccc7b1519f917789551fc7b4990c7f5a756528a40d02f130fc41c68",
+    "tests/tensorflow_gradient_layouts.py": "8721c998056db9d010d4b45add906dccee67b3aac94c6e3ef5ed5f3610d021f5",
+    "tests/tensorflow_synchronous_training.py": "a72a2686cb1c34046aab93cbd9efdc0809e3519bfb436a262afbeda1ffa74fa8"
+  },
+  "gpu_model_metadata_ablation_measured": false,
+  "end_to_end_speedup_measured": false,
+  "full_original_entropy_training_verified": false
+}

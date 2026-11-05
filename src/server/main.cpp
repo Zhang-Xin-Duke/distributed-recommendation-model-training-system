@@ -194,7 +194,14 @@ int main(int argc,char** argv) {
         reduction == "worker_mean" ? GradientReduction::worker_mean : GradientReduction::sum;
       for (const auto& table : j.at("tables"))
         group.tables.push_back({table.at("id"), table.at("dimension"), {}, {}});
-      synchronous_rpc = std::make_unique<transport::BrpcSynchronousServer>(service, std::move(group),replica);
+      GradientLayoutCacheOptions gradient_layouts;
+      if(config.contains("layout_cache")) {
+        const auto& cache=config.at("layout_cache");
+        gradient_layouts.entries=cache.value("entries",gradient_layouts.entries);
+        gradient_layouts.bytes=cache.value("bytes",gradient_layouts.bytes);
+        gradient_layouts.idle_ttl=std::chrono::milliseconds(cache.value("idle_ttl_ms",std::int64_t(60000)));
+      }
+      synchronous_rpc = std::make_unique<transport::BrpcSynchronousServer>(service, std::move(group),replica,gradient_layouts);
       if (config.contains("restore")) {
         const auto& state=config.at("restore");
         const auto checkpoint=training::DecodeGroup(state.at("group"));

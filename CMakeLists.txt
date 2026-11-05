@@ -18,6 +18,7 @@ add_library(eps_core
   src/access/prepared_lookup.cpp
   src/access/prepare_queue.cpp
   src/access/lookup_layout_cache.cpp
+  src/access/gradient_layout_cache.cpp
   src/access/compact_gradients.cpp
   src/update/lazy_adam.cpp
   src/training/training_progress.cpp
@@ -276,6 +277,11 @@ if(EPS_BUILD_BRPC)
     target_include_directories(eps_synchronous_rpc_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     add_test(NAME synchronous_gradient_rpc COMMAND eps_synchronous_rpc_tests)
     set_tests_properties(synchronous_gradient_rpc PROPERTIES TIMEOUT 30)
+  add_executable(eps_gradient_layout_rpc_tests tests/gradient_layout_rpc_tests.cpp)
+  target_link_libraries(eps_gradient_layout_rpc_tests PRIVATE eps_brpc)
+  target_include_directories(eps_gradient_layout_rpc_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  add_test(NAME reusable_gradient_layout_rpc COMMAND eps_gradient_layout_rpc_tests)
+  set_tests_properties(reusable_gradient_layout_rpc PROPERTIES TIMEOUT 30)
     add_executable(eps_worker_agent_tests tests/worker_agent_tests.cpp)
     target_link_libraries(eps_worker_agent_tests PRIVATE eps_brpc)
     add_test(NAME in_process_worker_lifecycle COMMAND eps_worker_agent_tests)
@@ -408,6 +414,11 @@ if(EPS_BUILD_BRPC)
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_lookup_layouts.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-lookup-layouts.json")
         set_tests_properties(tensorflow_reusable_lookup_layouts PROPERTIES TIMEOUT 360
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME tensorflow_reusable_gradient_layouts
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_gradient_layouts.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/tf-gradient-layouts.json")
+        set_tests_properties(tensorflow_reusable_gradient_layouts PROPERTIES TIMEOUT 360
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME tensorflow_replicated_primary_recovery
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_replica_training.py"
@@ -591,6 +602,9 @@ if(EPS_BUILD_TESTS)
   add_test(NAME durable_replica_log COMMAND eps_replica_log_tests)
   target_link_libraries(eps_lookup_layout_cache_tests PRIVATE eps_core)
   add_test(NAME reusable_lookup_layout_cache COMMAND eps_lookup_layout_cache_tests)
+  add_executable(eps_gradient_layout_cache_tests tests/gradient_layout_cache_tests.cpp)
+  target_link_libraries(eps_gradient_layout_cache_tests PRIVATE eps_core)
+  add_test(NAME reusable_gradient_layout_cache COMMAND eps_gradient_layout_cache_tests)
   target_link_libraries(eps_synchronous_gradients_tests PRIVATE eps_core)
   add_test(NAME synchronous_gradient_rounds COMMAND eps_synchronous_gradients_tests)
   set_tests_properties(synchronous_gradient_rounds PROPERTIES TIMEOUT 30)

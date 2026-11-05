@@ -3,6 +3,7 @@
 #include "embedding_service.pb.h"
 #include "eps/runtime.hpp"
 #include "eps/synchronous_gradients.hpp"
+#include "eps/gradient_layout_cache.hpp"
 
 namespace eps::transport {
 class ReplicatedRoundWriter;
@@ -10,13 +11,16 @@ class BrpcSynchronousServer final : public v1::SynchronousGradientService {
  public:
   // RuntimeOptions::exclusive_update_learner must be 1023 for this mode.
   BrpcSynchronousServer(CpuParameterService& parameters, SynchronousGradientOptions options,
-                        std::shared_ptr<ReplicatedRoundWriter> replica={});
+                        std::shared_ptr<ReplicatedRoundWriter> replica={},
+                        GradientLayoutCacheOptions cache={});
   ~BrpcSynchronousServer() override;
   void Shutdown();
   Result<Ack> Restore(SynchronousGradientCheckpoint checkpoint, RestoredSnapshot expected);
   Result<Ack> RecoverReplica(std::uint64_t baseline,std::uint64_t next,bool activate=true);
   void Submit(google::protobuf::RpcController*, const v1::GradientContribution*,
-              v1::Ack*, google::protobuf::Closure*) override;
+              v1::GradientReply*, google::protobuf::Closure*) override;
+  void LayoutStats(google::protobuf::RpcController*, const v1::TrainingControl*,
+                   v1::LookupLayoutStatsReply*, google::protobuf::Closure*) override;
   void Stats(google::protobuf::RpcController*, const v1::TrainingControl*,
              v1::SynchronousGradientStatsReply*, google::protobuf::Closure*) override;
   void Abort(google::protobuf::RpcController*, const v1::TrainingControl*,

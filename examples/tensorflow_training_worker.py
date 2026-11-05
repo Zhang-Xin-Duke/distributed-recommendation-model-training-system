@@ -133,6 +133,7 @@ def main():
         if config.get("agents"):
             backend.cache_endpoints([(a["id"], a["endpoint"], a.get("owner_run",config["run"])) for a in config["agents"]], True)
         backend.configure_training(config["coordinator"],config.get("gradient_retry_ms",0))
+        backend.gradient_layout_cache(config.get("reuse_gradient_layouts", True))
         if 'read_sequence' in config:
             backend.restore_read_frontier(config['read_sequence'])
         batch_sizes = []
@@ -201,6 +202,7 @@ def main():
                           "first_row_gradients": first_gradients,
                           "tensorflow_device_memory": memory,
                           "lookup_transport": backend.lookup_transport_stats(),
+                          "gradient_transport": backend.gradient_transport_stats(),
                           "gradient_retry_count": backend.training_retry_count(),
                           "read_retry_count": read_retries,
                           "replayed_iterations": replayed,

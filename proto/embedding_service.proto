@@ -186,6 +186,14 @@ message GradientContribution {
   uint64 sample_count = 2;
   repeated GradientTable tables = 3;
   uint64 completed_reads = 4;
+  string layout_token = 5;
+  bool register_layout = 6;
+}
+// Field 1 remains wire compatible with the original Ack response.
+message GradientReply {
+  Status status = 1;
+  string layout_token = 2;
+  bool layout_miss = 3;
 }
 message SynchronousGradientStatsReply {
   Status status = 1;
@@ -210,7 +218,8 @@ message SynchronousGradientCheckpointReply {
   uint64 next_round = 9;
 }
 service SynchronousGradientService {
-  rpc Submit(GradientContribution) returns (Ack);
+  rpc Submit(GradientContribution) returns (GradientReply);
+  rpc LayoutStats(TrainingControl) returns (LookupLayoutStatsReply);
   rpc Stats(TrainingControl) returns (SynchronousGradientStatsReply);
   rpc Abort(TrainingControl) returns (Ack);
   rpc Pause(TrainingControl) returns (Ack);

@@ -53,6 +53,8 @@ The GPU execution currently uses host staging at the RPC boundary.
 lists and CSR layouts once per shard, then send scoped tokens for fresh reads.
 Bounded LRU/TTL registries and same-request fallback preserve parameter and
 ticket semantics through metadata eviction or registry restart.
+[Reusable gradient Key lists](docs/REUSABLE_GRADIENT_LAYOUTS.md) extend metadata
+reuse to synchronous updates while transmitting fresh gradient values each round.
 
 [Joint training checkpoints](docs/JOINT_TRAINING_CHECKPOINT.md) restore parameters,
 Adam state, gradient rounds, completed worker clocks and the next input batch

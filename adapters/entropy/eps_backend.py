@@ -107,6 +107,12 @@ class Backend:
         return self._call("lookup_layout_cache", bool(enabled))
     def lookup_transport_stats(self):
         return self._call("lookup_transport_stats")
+
+    def gradient_layout_cache(self, enabled):
+        return self._call("gradient_layout_cache", bool(enabled))
+
+    def gradient_transport_stats(self):
+        return self._call("gradient_transport_stats")
     def restored_from(self):
         return self._call("restored_from")
 

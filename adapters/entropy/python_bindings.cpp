@@ -231,6 +231,24 @@ class Backend {
     retry_ms_=retry_ms;
     progress_ = std::move(progress); collectors_ = std::move(collectors);
   }
+  void GradientCache(bool enabled) {
+    if(!progress_)throw std::invalid_argument("configure training before selecting gradient metadata reuse");
+    py::gil_scoped_release release;
+    for(const auto& collector:collectors_)collector->SetGradientLayoutCache(enabled);
+  }
+  std::vector<std::map<std::string,std::uint64_t>> GradientTransport() {
+    py::gil_scoped_release release;std::vector<std::map<std::string,std::uint64_t>> result;
+    for(const auto& collector:collectors_) {
+      const auto s=collector->TransportStats();
+      result.push_back({{"full_requests",s.full_requests},{"token_requests",s.token_requests},
+        {"fallback_requests",s.fallback_requests},{"request_bytes",s.request_bytes},
+        {"avoided_request_bytes",s.avoided_request_bytes},{"cache_entries",s.cache.entries},
+        {"cache_bytes",s.cache.bytes},{"cache_hits",s.cache.hits},{"cache_misses",s.cache.misses},
+        {"cache_evictions",s.cache.evictions},{"cache_expirations",s.cache.expirations},
+        {"cache_rejected",s.cache.rejected}});
+    }
+    return result;
+  }
   std::uint64_t BeginTraining(std::uint64_t iteration) {
     if (!progress_) throw std::invalid_argument("training is not configured");
     py::gil_scoped_release release;
@@ -319,6 +337,7 @@ PYBIND11_MODULE(_eps_native,m) {
     .def("lookup_layout_cache",&Backend::LookupCache).def("lookup_transport_stats",&Backend::LookupTransport)
     .def("resume",&Backend::Resume).def("read_checkpoint",&Backend::ReadCheckpoint)
     .def("configure_training",&Backend::ConfigureTraining,py::arg("coordinator"),py::arg("retry_ms")=0)
+    .def("gradient_layout_cache",&Backend::GradientCache).def("gradient_transport_stats",&Backend::GradientTransport)
     .def("training_retry_count",&Backend::TrainingRetryCount)
     .def("completed_read_frontier",&Backend::ReadFrontier).def("restore_read_frontier",&Backend::RestoreReadFrontier)
     .def("begin_training",&Backend::BeginTraining).def("complete_training",&Backend::CompleteTraining)
