@@ -76,7 +76,22 @@ tensorflow::Status RestoreFileFeeder(const std::string& stream,
   const auto& name = assignment.first;
   cntl->response_attachment().append(eps::input_checkpoint::AssignmentTag(assignment.second));''')
     result[filename]=text
+    filename='tensorswitch/python/tensorswitch/env.py';text=result[filename]
+    result[filename]=replace(text,
+        'self.clib = ctypes.CDLL(self.clib_path, mode=ctypes.RTLD_GLOBAL)',
+        'self.clib = ctypes.CDLL(self.clib_path, mode=ctypes.RTLD_LOCAL)')
+    filename='tensorswitch/common/sparse_table.cpp';text=result[filename]
+    text=replace(text,
+        '  config["sparse_shard"] = std::to_string(server::SparseTableRegistry::instance()->GetTableShardNum());',
+        '''  const auto native_table_versions = server::SparseTableRegistry::instance()->GetSparseTablesVersion();
+  config["sparse_shard"] = native_table_versions.empty() ? "0" :
+      std::to_string(server::SparseTableRegistry::instance()->GetTableShardNum());''')
+    result[filename]=replace(text,
+        '  auto table_version_map = server::SparseTableRegistry::instance()->GetSparseTablesVersion();',
+        '  const auto& table_version_map = native_table_versions;')
     filename='tensorswitch/orc_dataset.cc';text=result[filename]
+    text=replace(text,'shapes_.resize(1, tensorflow::PartialTensorShape({-1, 1}));',
+        'shapes_.resize(1, tensorflow::PartialTensorShape({1}));')
     text=replace(text,': DatasetIterator<Dataset>(params) {}','''
         : DatasetIterator<Dataset>(params) {
       checkpoint_reader_id_ = eps::input_checkpoint::RegisterReader(
@@ -105,6 +120,48 @@ tensorflow::Status RestoreFileFeeder(const std::string& stream,
         saved_cursor_.filename.clear(); saved_cursor_.row = 0;
       }''')
     text=replace(text,'    mutex mu_;','    std::uint64_t checkpoint_reader_id_ = 0;\n    eps::input_checkpoint::Cursor saved_cursor_;\n    mutex mu_;')
+    result[filename]=text
+    filename='tensorswitch/util/global_queue.h';text=result[filename]
+    text=replace(text,'  size_t Size() const {','''  struct CheckpointState {
+    Container queue;
+    T last_peek;
+  };
+
+  CheckpointState CheckpointSnapshot() const {
+    absl::WriterMutexLock lock(&mu_);
+    return {q_, last_peek_};
+  }
+
+  void RestoreCheckpoint(CheckpointState state) {
+    absl::WriterMutexLock lock(&mu_);
+    q_ = std::move(state.queue); last_peek_ = std::move(state.last_peek);
+  }
+
+  size_t Size() const {''')
+    result[filename]=text
+    filename='tensorswitch/ops/push_partition_dataset_op.cc';text=result[filename]
+    text=replace(text,'#include <memory>','#include <memory>\n#include <limits>')
+    text=replace(text,'      return GetNextInternal(ctx, &first_batch_, &first_batch_eof_);',
+        '      if (ctx->is_restoring()) return OkStatus();\n      return GetNextInternal(ctx, &first_batch_, &first_batch_eof_);')
+    found=list(re.finditer(r'    Status SaveInternal\([\s\S]*?(?=   private:)',text))
+    if len(found)!=1:raise ValueError('original partition iterator checkpoint methods differ')
+    result[filename]=text[:found[0].start()]+fragment('partition_checkpoint')+text[found[0].end():]
+    filename='tensorswitch/python/tensorswitch/dataset_pipeline.py';text=result[filename]
+    text=replace(text,'        dataset = tf.data.Dataset.from_tensor_slices(file_feeder.ff_filenames)',
+        '''        scope_factory = getattr(file_feeder, '_eps_input_scope_factory', None)
+        input_scope = scope_factory(file_feeder, is_train) if scope_factory else None
+        filenames = file_feeder.ff_filenames
+        if input_scope:
+            filenames = [name + '/eps_scope/' + input_scope for name in filenames]
+        dataset = tf.data.Dataset.from_tensor_slices(filenames)''')
+    text=replace(text,'''        return FileFeederNextableDataset(input_paths, file_feeder,
+                                         dataset, batch_size,
+                                         dataset_drop_remainder, prefetch)''',
+        '''        nextable = FileFeederNextableDataset(input_paths, file_feeder,
+                                         dataset, batch_size,
+                                         dataset_drop_remainder, prefetch)
+        nextable._eps_input_scope = input_scope
+        return nextable''')
     result[filename]=text
     text=dependency(result['BUILD'],'file_feeder',[':eps_input_checkpoint',':local_call'])
     text+='''
@@ -138,7 +195,10 @@ def atomic(path,data):
 
 def install(root,state):
     files=['BUILD','tensorswitch/file_feeder.h','tensorswitch/file_feeder.cpp',
-        'tensorswitch/orc_dataset.cc','tensorswitch/ps_service/BUILD','tensorswitch/ps_service/ps_service_impl.cc']
+        'tensorswitch/orc_dataset.cc','tensorswitch/ps_service/BUILD','tensorswitch/ps_service/ps_service_impl.cc',
+        'tensorswitch/util/global_queue.h','tensorswitch/ops/push_partition_dataset_op.cc',
+        'tensorswitch/python/tensorswitch/dataset_pipeline.py',
+        'tensorswitch/python/tensorswitch/env.py','tensorswitch/common/sparse_table.cpp']
     manifest=state/'manifest.json'
     previous=json.loads(manifest.read_text()) if manifest.exists() else None
     originals={}
@@ -146,7 +206,8 @@ def install(root,state):
         backup=state/'original'/name
         if not backup.exists():atomic(backup,(root/name).read_bytes())
         data=backup.read_bytes()
-        if previous and sha(data)!=previous['original_sha256'][name]:raise ValueError('original native overlay backup changed')
+        if previous and name in previous['original_sha256'] and sha(data)!=previous['original_sha256'][name]:
+            raise ValueError('original native overlay backup changed')
         originals[name]=data.decode()
     generated=transform(originals)
     original_hashes={f:sha(v.encode()) for f,v in originals.items()}

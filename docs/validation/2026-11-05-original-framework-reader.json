@@ -1,0 +1,68 @@
+{
+  "schema": "eps.original-framework-reader.v1",
+  "date": "2026-11-05",
+  "matching_tensorflow_version": "2.12.1",
+  "native_load_mode": "RTLD_LOCAL",
+  "native_orc_element_shape": [
+    1
+  ],
+  "process_exit_codes": [
+    {
+      "name": "original-shape-python-solibs",
+      "exit_code": 0
+    },
+    {
+      "name": "original-shape-reader-cpu",
+      "exit_code": 0
+    },
+    {
+      "name": "original-shape-reader-gpu",
+      "exit_code": 0
+    }
+  ],
+  "readers": {
+    "cpu": {
+      "stage": "probe_passed",
+      "variant": "cpu",
+      "full_framework_training_verified": false,
+      "tensorflow": "2.12.1",
+      "train_source_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+      "op_library_sha256": "fa9bf20e15cf398938e7cb6c19e32fcaf07003c5873bda0e49edde39c886a6e9",
+      "full_module_imported": true,
+      "executor_imported": true,
+      "feature_module_imported": true,
+      "original_orc_rows": 16,
+      "original_decoder_batches": 4,
+      "original_reader_eof": true,
+      "original_learner_ping": true,
+      "original_controller_ping": true
+    },
+    "gpu": {
+      "stage": "probe_passed",
+      "variant": "gpu",
+      "full_framework_training_verified": false,
+      "tensorflow": "2.12.1",
+      "train_source_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+      "op_library_sha256": "da40e87604dcd94e9e568436e69aaca76af48293e36596352fbb3ee0bddc012c",
+      "full_module_imported": true,
+      "executor_imported": true,
+      "feature_module_imported": true,
+      "original_gpu_row_segments": [
+        0,
+        0,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "original_orc_rows": 16,
+      "original_decoder_batches": 4,
+      "original_reader_eof": true,
+      "original_learner_ping": true,
+      "original_controller_ping": true
+    }
+  },
+  "full_original_model_training_verified": false
+}

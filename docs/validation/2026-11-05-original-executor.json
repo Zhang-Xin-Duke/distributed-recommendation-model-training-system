@@ -1,0 +1,182 @@
+{
+  "stage": "original_executor_passed",
+  "full_framework_training_verified": true,
+  "full_framework_recovery_verified": false,
+  "physical_gpus": 1,
+  "original_peers": 1,
+  "external_parameter_shards": 2,
+  "original_main_entrypoint": true,
+  "original_executor": true,
+  "original_native_cluster": true,
+  "original_file_feeder": true,
+  "original_dense_adam": true,
+  "original_controller_startup": true,
+  "original_runner_checkpoint": true,
+  "gpu_model": true,
+  "original_dataset_rows": 16,
+  "original_dataset_batches": 4,
+  "training_task_progress": {
+    "active": 0,
+    "completed": [
+      4
+    ],
+    "completed_tasks": 4,
+    "completion_floor": 4,
+    "duplicate_completions": 0,
+    "failed": false,
+    "granted_tasks": 4,
+    "paused": false,
+    "waiting": 0
+  },
+  "checkpoint_training_progress": {
+    "completed": [
+      4
+    ],
+    "consistency": 1,
+    "epoch": 1,
+    "max_delay": 0,
+    "source_run": "original-executor-1-peers"
+  },
+  "checkpoint_manifest": {
+    "files": [
+      {
+        "bytes": 441,
+        "file": "parameter-shard-0.bin",
+        "sha256": "8d2c7e3b4ba07cac30930699f0e4b7df9b1ec66e602323a93735d2eaa8d5364b",
+        "shard": 0
+      },
+      {
+        "bytes": 441,
+        "file": "parameter-shard-1.bin",
+        "sha256": "d8738853e96f1d6f85da846a0c342c492461228b2467625aaa5c507e93b712da",
+        "shard": 1
+      }
+    ],
+    "partition_epoch": 1,
+    "run": "original-executor-1-peers",
+    "schema_version": 1,
+    "snapshot_id": "entropy-a74d49c99c4d4e9886f4f4acb9b9d86e"
+  },
+  "dense_exports": {
+    "dense_ndarray.0.npy": {
+      "sha256": "6e280abe7952039b5da142310d3a461240e41f66f6edb4449f72cd7358fe95dc",
+      "tensors": {
+        "dense/bias/Adam:0": [
+          1
+        ],
+        "dense/bias/Adam_1:0": [
+          1
+        ],
+        "dense/bias:0": [
+          1
+        ],
+        "dense/first/Adam:0": [
+          4,
+          4
+        ],
+        "dense/first/Adam_1:0": [
+          4,
+          4
+        ],
+        "dense/first:0": [
+          4,
+          4
+        ],
+        "dense/second/Adam:0": [
+          4,
+          1
+        ],
+        "dense/second/Adam_1:0": [
+          4,
+          1
+        ],
+        "dense/second:0": [
+          4,
+          1
+        ]
+      }
+    }
+  },
+  "native_dense_checkpoints": {
+    "dense_table": {
+      "bytes": 272,
+      "sha256": "cbd39182e0969288411b0af735d194ac3c4d8c856ad2d3ddca9291d378b87ec3"
+    }
+  },
+  "native_dense_optimizer_state": {
+    "beta1_power": 0.59048992395401,
+    "beta2_power": 0.9950100779533386,
+    "first_moment_values": 21,
+    "row_bytes": 12,
+    "rows": 21,
+    "second_moment_values": 21,
+    "sha256": "cbd39182e0969288411b0af735d194ac3c4d8c856ad2d3ddca9291d378b87ec3",
+    "shards": 1
+  },
+  "gpu_matmul_nodes": {
+    "0": [
+      "dense/MatMul",
+      "dense/MatMul_1",
+      "gradients/dense/MatMul_1_grad/MatMul",
+      "gradients/dense/MatMul_1_grad/MatMul_1",
+      "gradients/dense/MatMul_grad/MatMul",
+      "gradients/dense/MatMul_grad/MatMul_1"
+    ]
+  },
+  "shard_stats": [
+    {
+      "cached_rows": 0,
+      "live_tickets": 0,
+      "rows": 4,
+      "updates": 4
+    },
+    {
+      "cached_rows": 0,
+      "live_tickets": 0,
+      "rows": 4,
+      "updates": 4
+    }
+  ],
+  "losses": [
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6947745084762573
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6921517848968506
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6941704154014587
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6923781633377075
+    }
+  ],
+  "source_sha256": {
+    "main.py": "6463ae2d7152cf4819f26ddf53f8f100c9a883001b64f51feb7ae15716a2af19",
+    "tensorswitch/executor.py": "63ade96fa41f06a091e52bfd57395d216d057c5c7e932526e845ba09a2d67d8f",
+    "tensorswitch/train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9"
+  },
+  "cleanup_verified": true,
+  "scope": "full original application and native peer execution on one physical GPU; joint restore/failure replay are separate acceptance",
+  "schema": "eps.original-executor.v1",
+  "date": "2026-11-05",
+  "gpu_model_name": "RTX A6000",
+  "global_op_determinism": false,
+  "external_table_seed": 42
+}

@@ -635,6 +635,12 @@ if(EPS_BUILD_TESTS)
     COMMAND eps_input_checkpoint_checks "${CMAKE_CURRENT_BINARY_DIR}/input-capture-staging.bin")
   find_package(Python3 QUIET COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
+    add_test(NAME joint_input_checkpoint_store
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/input_checkpoint_store.py")
+    set_tests_properties(joint_input_checkpoint_store PROPERTIES TIMEOUT 30)
+    add_test(NAME parameter_startup_gate
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/startup_gate.py")
+    set_tests_properties(parameter_startup_gate PROPERTIES TIMEOUT 30)
     add_test(NAME original_native_source_bundle
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/original_native_bundle_tests.py")
     set_tests_properties(original_native_source_bundle PROPERTIES TIMEOUT 30)

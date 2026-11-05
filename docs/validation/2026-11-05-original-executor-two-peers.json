@@ -1,0 +1,389 @@
+{
+  "stage": "original_executor_passed",
+  "full_framework_training_verified": true,
+  "full_framework_recovery_verified": false,
+  "physical_gpus": 1,
+  "original_peers": 2,
+  "external_parameter_shards": 2,
+  "original_main_entrypoint": true,
+  "original_executor": true,
+  "original_native_cluster": true,
+  "original_file_feeder": true,
+  "original_dense_adam": true,
+  "original_controller_startup": true,
+  "original_runner_checkpoint": true,
+  "gpu_model": true,
+  "original_dataset_rows": 128,
+  "original_dataset_batches": 32,
+  "training_task_progress": {
+    "active": 0,
+    "completed": [
+      16,
+      16
+    ],
+    "completed_tasks": 32,
+    "completion_floor": 16,
+    "duplicate_completions": 0,
+    "failed": false,
+    "granted_tasks": 32,
+    "paused": false,
+    "waiting": 0
+  },
+  "checkpoint_training_progress": {
+    "completed": [
+      16,
+      16
+    ],
+    "consistency": 1,
+    "epoch": 1,
+    "max_delay": 0,
+    "source_run": "original-executor-2-peers"
+  },
+  "checkpoint_input_group": null,
+  "checkpoint_manifest": {
+    "files": [
+      {
+        "bytes": 441,
+        "file": "parameter-shard-0.bin",
+        "sha256": "07b56118f2ef9c44d1252efe1d6054666f3c4565428d4f168b2dc4a4d94903b1",
+        "shard": 0
+      },
+      {
+        "bytes": 441,
+        "file": "parameter-shard-1.bin",
+        "sha256": "192b18eb80067b9287ccdd1622f1be5a55451af5147a000beaa2383709b01b4d",
+        "shard": 1
+      }
+    ],
+    "partition_epoch": 1,
+    "run": "original-executor-2-peers",
+    "schema_version": 1,
+    "snapshot_id": "entropy-d996d84ee656490a9ff10151a4fab16c"
+  },
+  "dense_exports": {
+    "dense_ndarray.0.npy": {
+      "sha256": "2a0fec923dea20fb127141ee64474b615803c57afab2b4a7c0772c07214e2da6",
+      "tensors": {
+        "dense/bias/Adam:0": [
+          1
+        ],
+        "dense/bias/Adam_1:0": [
+          1
+        ],
+        "dense/bias:0": [
+          1
+        ],
+        "dense/first/Adam:0": [
+          4,
+          4
+        ],
+        "dense/first/Adam_1:0": [
+          4,
+          4
+        ],
+        "dense/first:0": [
+          4,
+          4
+        ],
+        "dense/second/Adam:0": [
+          4,
+          1
+        ],
+        "dense/second/Adam_1:0": [
+          4,
+          1
+        ],
+        "dense/second:0": [
+          4,
+          1
+        ]
+      }
+    }
+  },
+  "native_dense_checkpoints": {
+    "dense_table": {
+      "bytes": 280,
+      "sha256": "cee97574972f9c6eeebe5f6237d3cc5df65f42c6269cdc65dc229c70518bc5eb"
+    }
+  },
+  "native_dense_optimizer_state": {
+    "beta1_power": 0.030903127044439316,
+    "beta2_power": 0.967522919178009,
+    "first_moment_values": 21,
+    "row_bytes": 12,
+    "rows": 21,
+    "second_moment_values": 21,
+    "sha256": "cee97574972f9c6eeebe5f6237d3cc5df65f42c6269cdc65dc229c70518bc5eb",
+    "shards": 2
+  },
+  "gpu_matmul_nodes": {
+    "0": [
+      "dense/MatMul",
+      "dense/MatMul_1",
+      "gradients/dense/MatMul_1_grad/MatMul",
+      "gradients/dense/MatMul_1_grad/MatMul_1",
+      "gradients/dense/MatMul_grad/MatMul",
+      "gradients/dense/MatMul_grad/MatMul_1"
+    ],
+    "1": [
+      "dense/MatMul",
+      "dense/MatMul_1",
+      "gradients/dense/MatMul_1_grad/MatMul",
+      "gradients/dense/MatMul_1_grad/MatMul_1",
+      "gradients/dense/MatMul_grad/MatMul",
+      "gradients/dense/MatMul_grad/MatMul_1"
+    ]
+  },
+  "shard_stats": [
+    {
+      "cached_rows": 0,
+      "live_tickets": 0,
+      "rows": 4,
+      "updates": 32
+    },
+    {
+      "cached_rows": 0,
+      "live_tickets": 0,
+      "rows": 4,
+      "updates": 32
+    }
+  ],
+  "losses": [
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6947745084762573
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6921517848968506
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6947745084762573
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6929649114608765
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.693375825881958
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6929710507392883
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6933518648147583
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6935600638389587
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927576661109924
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.692826509475708
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6935483813285828
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936924457550049
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927045583724976
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927456259727478
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936062574386597
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937030553817749
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926043033599854
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926653385162354
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.693658709526062
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937623620033264
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926646828651428
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926755905151367
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937716007232666
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.69377601146698
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926354765892029
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926367282867432
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937302350997925
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937397718429565
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926292777061462
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.692656934261322
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937428712844849
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937609910964966
+    }
+  ],
+  "source_sha256": {
+    "main.py": "6463ae2d7152cf4819f26ddf53f8f100c9a883001b64f51feb7ae15716a2af19",
+    "tensorswitch/executor.py": "63ade96fa41f06a091e52bfd57395d216d057c5c7e932526e845ba09a2d67d8f",
+    "tensorswitch/train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9"
+  },
+  "cleanup_verified": true,
+  "scope": "full original application and native peer execution on one physical GPU; joint restore/failure replay are separate acceptance",
+  "schema": "eps.original-executor.v1",
+  "date": "2026-11-05",
+  "gpu_model_name": "RTX A6000",
+  "global_op_determinism": false,
+  "external_table_seed": 42
+}

@@ -74,6 +74,19 @@ class Configuration(unittest.TestCase):
                 JobConfiguration(dict(values,training=training))
         with self.assertRaises(ValueError):JobConfiguration(dict(values,backend='portable'))
 
+    def test_input_checkpoint_requires_bound_training_and_planner(self):
+        values=dict(configuration(),backend='native',training=dict(coordinator='127.0.0.1:9300'),
+                    input_checkpoint=dict(planner='/opt/eps/eps_input_checkpoint_tool',restore=True))
+        configured=JobConfiguration(values)
+        self.assertTrue(configured.input_checkpoint['restore'])
+        self.assertEqual(configured.input_checkpoint['max_retries'],20)
+        for option in [dict(),dict(planner=''),dict(planner=7),dict(planner='tool',restore=1),
+                       dict(planner='tool',max_retries=0),dict(planner='tool',max_retries=True),
+                       dict(planner='tool',unknown=True)]:
+            with self.subTest(option=option),self.assertRaises(ValueError):
+                JobConfiguration(dict(values,input_checkpoint=option))
+        with self.assertRaises(ValueError):JobConfiguration(dict(values,training=None))
+
     def test_training_runner_scope_and_method_restoration(self):
         class SparseTable:pass
         for name in ['_create_table','embedding_lookup_and_pooling','vars','output',

@@ -1,0 +1,487 @@
+{
+  "stage": "original_executor_passed",
+  "full_framework_training_verified": true,
+  "full_framework_recovery_verified": false,
+  "physical_gpus": 1,
+  "original_peers": 2,
+  "external_parameter_shards": 2,
+  "original_main_entrypoint": true,
+  "original_executor": true,
+  "original_native_cluster": true,
+  "original_file_feeder": true,
+  "original_dense_adam": true,
+  "original_controller_startup": true,
+  "original_runner_checkpoint": true,
+  "gpu_model": true,
+  "original_dataset_rows": 128,
+  "original_dataset_batches": 32,
+  "training_task_progress": {
+    "active": 0,
+    "completed": [
+      16,
+      16
+    ],
+    "completed_tasks": 32,
+    "completion_floor": 16,
+    "duplicate_completions": 0,
+    "failed": false,
+    "granted_tasks": 32,
+    "paused": false,
+    "waiting": 0
+  },
+  "checkpoint_training_progress": {
+    "completed": [
+      16,
+      16
+    ],
+    "consistency": 1,
+    "epoch": 1,
+    "max_delay": 0,
+    "source_run": "original-executor-2-peers"
+  },
+  "checkpoint_input_group": {
+    "directory": "/home/ubuntu/entropy-native/executor-input-two-peer/outputs/ckpt/input_state",
+    "manifest": {
+      "completed": [
+        16,
+        16
+      ],
+      "partition_epoch": 1,
+      "run": "original-executor-2-peers",
+      "schema_version": 1,
+      "sources": [
+        {
+          "handle": 0,
+          "plan": {
+            "bytes": 222,
+            "file": "source-0-plan.bin",
+            "sha256": "8e692efc365b5784d7513ac9ed44f1c791f134dbb6445a394303e434ec335bac"
+          },
+          "roster": {
+            "bytes": 206,
+            "file": "source-0-roster.bin",
+            "sha256": "58aa139871ccfc39befe4264243ddda3925c5f1f8fb030372b0ec3f774022ffe"
+          }
+        }
+      ],
+      "workers": [
+        {
+          "sha256": "809384bccb470bfbbc8b05bccd5038c569c2d5542dabc311f01d32e1441a4efb",
+          "worker": 0
+        },
+        {
+          "sha256": "42af93e3584a9ae2ef5c98a92fd7f3c2bd43b8b45f0afe71111c57de10bf8242",
+          "worker": 1
+        }
+      ]
+    },
+    "workers": [
+      {
+        "end": true,
+        "files": [
+          {
+            "bytes": 190,
+            "file": "capture.bin",
+            "sha256": "29f48b3e698aabdf43d0ff96f7aec217dabbd557fbeba0e188c8b85a38906a99"
+          },
+          {
+            "bytes": 3181,
+            "file": "iterator.data-00000-of-00001",
+            "sha256": "6abd1d16719d98e1ccd8e91be58dcb1f77d054145a65b7754355598c0dc19829"
+          },
+          {
+            "bytes": 129,
+            "file": "iterator.index",
+            "sha256": "25db315fc4ffb37cc61af04f640dfba712ebb38ee0cd58b30e1bf053b5ee06b4"
+          }
+        ],
+        "ident": "epoch-0",
+        "input_spec_sha256": "85f8e6323ee976000e7eaa625aab525eeb2d2a867b1d4d5266bab90d1fa3f077",
+        "mode": "train",
+        "next_index": 1,
+        "passed_ident": "epoch-0",
+        "schema_version": 1,
+        "scope": "worker-0-source-0-train",
+        "shot_count": 1,
+        "source_handle": 0,
+        "worker": 0
+      },
+      {
+        "end": true,
+        "files": [
+          {
+            "bytes": 190,
+            "file": "capture.bin",
+            "sha256": "3dc2f2192ddec48219ebc37ed2f5382c7dc3124d59d96747264309d58b8d19c5"
+          },
+          {
+            "bytes": 3181,
+            "file": "iterator.data-00000-of-00001",
+            "sha256": "6abd1d16719d98e1ccd8e91be58dcb1f77d054145a65b7754355598c0dc19829"
+          },
+          {
+            "bytes": 129,
+            "file": "iterator.index",
+            "sha256": "25db315fc4ffb37cc61af04f640dfba712ebb38ee0cd58b30e1bf053b5ee06b4"
+          }
+        ],
+        "ident": "epoch-0",
+        "input_spec_sha256": "85f8e6323ee976000e7eaa625aab525eeb2d2a867b1d4d5266bab90d1fa3f077",
+        "mode": "train",
+        "next_index": 1,
+        "passed_ident": "epoch-0",
+        "schema_version": 1,
+        "scope": "worker-1-source-0-train",
+        "shot_count": 1,
+        "source_handle": 0,
+        "worker": 1
+      }
+    ]
+  },
+  "checkpoint_manifest": {
+    "files": [
+      {
+        "bytes": 441,
+        "file": "parameter-shard-0.bin",
+        "sha256": "5a7e13ba8f2ab249e32282638a34680b25751a03a8d723f1c2002adbb5b1833b",
+        "shard": 0
+      },
+      {
+        "bytes": 441,
+        "file": "parameter-shard-1.bin",
+        "sha256": "7c7d8c13dfa6ce60b3e0e4f133820399954dc36cfeae56e9e62c36dcbbf9a7a7",
+        "shard": 1
+      }
+    ],
+    "partition_epoch": 1,
+    "run": "original-executor-2-peers",
+    "schema_version": 1,
+    "snapshot_id": "entropy-05f54e4d39d04523a7fbcab21ff247f8"
+  },
+  "dense_exports": {
+    "dense_ndarray.0.npy": {
+      "sha256": "a1428631e9bb141e9bde13f594a121617b39ac490860397d5da35e98cea8050b",
+      "tensors": {
+        "dense/bias/Adam:0": [
+          1
+        ],
+        "dense/bias/Adam_1:0": [
+          1
+        ],
+        "dense/bias:0": [
+          1
+        ],
+        "dense/first/Adam:0": [
+          4,
+          4
+        ],
+        "dense/first/Adam_1:0": [
+          4,
+          4
+        ],
+        "dense/first:0": [
+          4,
+          4
+        ],
+        "dense/second/Adam:0": [
+          4,
+          1
+        ],
+        "dense/second/Adam_1:0": [
+          4,
+          1
+        ],
+        "dense/second:0": [
+          4,
+          1
+        ]
+      }
+    }
+  },
+  "native_dense_checkpoints": {
+    "dense_table": {
+      "bytes": 280,
+      "sha256": "e050fca5abd3125a4516b87d423f3659831c851a19e4a65b924dbff2eae16a6c"
+    }
+  },
+  "native_dense_optimizer_state": {
+    "beta1_power": 0.030903127044439316,
+    "beta2_power": 0.967522919178009,
+    "first_moment_values": 21,
+    "row_bytes": 12,
+    "rows": 21,
+    "second_moment_values": 21,
+    "sha256": "e050fca5abd3125a4516b87d423f3659831c851a19e4a65b924dbff2eae16a6c",
+    "shards": 2
+  },
+  "gpu_matmul_nodes": {
+    "0": [
+      "dense/MatMul",
+      "dense/MatMul_1",
+      "gradients/dense/MatMul_1_grad/MatMul",
+      "gradients/dense/MatMul_1_grad/MatMul_1",
+      "gradients/dense/MatMul_grad/MatMul",
+      "gradients/dense/MatMul_grad/MatMul_1"
+    ],
+    "1": [
+      "dense/MatMul",
+      "dense/MatMul_1",
+      "gradients/dense/MatMul_1_grad/MatMul",
+      "gradients/dense/MatMul_1_grad/MatMul_1",
+      "gradients/dense/MatMul_grad/MatMul",
+      "gradients/dense/MatMul_grad/MatMul_1"
+    ]
+  },
+  "shard_stats": [
+    {
+      "cached_rows": 0,
+      "live_tickets": 0,
+      "rows": 4,
+      "updates": 32
+    },
+    {
+      "cached_rows": 0,
+      "live_tickets": 0,
+      "rows": 4,
+      "updates": 32
+    }
+  ],
+  "losses": [
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6947745084762573
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6921517848968506
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6947745084762573
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.693375825881958
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6929649114608765
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6933518648147583
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6929710507392883
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6929813027381897
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6933378577232361
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6935394406318665
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.692883312702179
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6928777098655701
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936131119728088
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936184763908386
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927583813667297
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927626132965088
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936403512954712
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936628818511963
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927058696746826
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927328705787659
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937154531478882
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937317252159119
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927026510238647
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6927093267440796
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936993598937988
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936990022659302
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926642656326294
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6926831007003784
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6936827898025513
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.6937013864517212
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.69269859790802
+    },
+    {
+      "labels": {
+        "loss_name": "loss",
+        "recurrent_name": "unknown"
+      },
+      "value": 0.69364994764328
+    }
+  ],
+  "source_sha256": {
+    "main.py": "6463ae2d7152cf4819f26ddf53f8f100c9a883001b64f51feb7ae15716a2af19",
+    "tensorswitch/executor.py": "63ade96fa41f06a091e52bfd57395d216d057c5c7e932526e845ba09a2d67d8f",
+    "tensorswitch/train.py": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9"
+  },
+  "cleanup_verified": true,
+  "scope": "full original application and native peer execution on one physical GPU; joint restore/failure replay are separate acceptance",
+  "schema": "eps.original-executor.v1",
+  "date": "2026-11-05",
+  "gpu_model_name": "RTX A6000",
+  "global_op_determinism": false,
+  "external_table_seed": 42
+}

@@ -74,7 +74,16 @@ def load_committed(root,*,filesystem=None,checkpoint_id=None):
             raise ValueError('checkpoint training clocks violate the policy')
     elif fs.exists(progress_path):
         raise ValueError('training progress is not bound to the joint commit')
-    return dict(root=root,directory=directory,commit=commit,manifest=manifest,training_progress=progress)
+    input_group=None
+    if 'input_manifest_sha256' in commit:
+        if progress is None:raise ValueError('input checkpoint requires bound training progress')
+        from input_checkpoint_store import load_group
+        input_group=load_group(root,commit['input_manifest_sha256'],run=run,epoch=epoch,
+            completed=progress['completed'],filesystem=fs)
+    elif fs.exists(posixpath.join(root,'input_state','manifest.json')):
+        raise ValueError('input state is not bound to the joint commit')
+    return dict(root=root,directory=directory,commit=commit,manifest=manifest,
+                training_progress=progress,input_group=input_group)
 
 
 def training_restore_plan(root,*,run,coordinator_listen,coordinator_endpoint=None,filesystem=None,checkpoint_id=None):

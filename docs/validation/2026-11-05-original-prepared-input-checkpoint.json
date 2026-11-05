@@ -1,0 +1,302 @@
+{
+  "schema": "eps.original-prepared-input-checkpoint.v1",
+  "date": "2026-11-05",
+  "native_capability_version": 3,
+  "native_build": {
+    "stage": "input_partition_native_built_sdk_probes_passed",
+    "steps": [
+      {
+        "name": "native_build",
+        "exit_code": 0
+      },
+      {
+        "name": "sdk_cpu",
+        "exit_code": 0
+      },
+      {
+        "name": "sdk_gpu",
+        "exit_code": 0
+      }
+    ],
+    "previous_libraries": {
+      "ts_clib.so": {
+        "bytes": 989701240,
+        "sha256": "2c49ece04bc8b1f83f0749c99a2898fa5fae8487e8393b4f0aa336d848e16059"
+      },
+      "ts_clib_gpu.so": {
+        "bytes": 996269736,
+        "sha256": "c0c235c2864a394aace8a4f35d104966f259131491f62b144bc126f38252c8e3"
+      }
+    },
+    "command": [
+      "../tools/bazel-7.7.0-linux-x86_64",
+      "--output_user_root=/home/ubuntu/entropy-native/bazel-root",
+      "build",
+      "--enable_bzlmod=false",
+      "--define=enable_gpu=1",
+      "--//.resources/adapters:rdkafka.active_variant=2",
+      "--copt=-DAI_BUILD_WITH_BAZEL=1",
+      "--host_copt=-DAI_BUILD_WITH_BAZEL=1",
+      "--cxxopt=-fsized-deallocation",
+      "--host_cxxopt=-fsized-deallocation",
+      "--per_file_copt=.*entropy/tensorswitch/.*@-mavx2,-mf16c,-mfma",
+      "--jobs=2",
+      "--local_ram_resources=16000",
+      "--extra_toolchains=//.resources/toolchains/cc:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cc-toolchain-k8-clang,//.resources/toolchains/cuda:cuda-clang-cuda-toolchain",
+      "--//.resources/toolchains/cc:compiler=clang",
+      "--//.resources/toolchains/cuda:compiler=clang",
+      "--//.resources/toolchains/cuda:version=.",
+      "--//.resources/toolchains/cuda:capabilities=sm_86",
+      "//entropy:ts_clib.so",
+      "//entropy:ts_clib_gpu.so"
+    ],
+    "artifacts": {
+      "ts_clib.so": {
+        "bytes": 989770880,
+        "sha256": "0215f7230b433f595424ec2acabadca8cdbc0506af7cf91d9c83af410a9a209c"
+      },
+      "ts_clib_gpu.so": {
+        "bytes": 996339576,
+        "sha256": "5de3773b0caede150f4de34ec0ff786c3ed895272a5f38c6c6a8e0c35f9cef51"
+      }
+    },
+    "completed_epoch": 1793863993.7370706,
+    "full_input_restore_verified": false
+  },
+  "frozen_source_archive_sha256": "0cd3660f0bf5e6fbf38f6318bd602882292a5d4eed39419fb1f5a0d12390c68c",
+  "validation": {
+    "partition-input-boundaries-result": {
+      "test": "original_orc_iterator_checkpoint",
+      "fresh_process_restore": true,
+      "prefetch_rows": 2,
+      "original_orc_kernel": true,
+      "python_tensorflow_package_used": false,
+      "rows": 21,
+      "duplicate_filename_occurrences": true,
+      "original_filefeeder_rpc": true,
+      "parallel_streams": 6,
+      "parallel_output_buffer": 2,
+      "cases": [
+        {
+          "saved_after_rows": 0,
+          "restored_rows": 21,
+          "exact_sequence": false,
+          "exact_record_multiset": true,
+          "reader_lifecycle": {
+            "readers_at_begin": 6,
+            "serialized_readers": 3,
+            "completed_reader_histories": 3,
+            "destroyed_completed_reader_histories": 3
+          },
+          "reader_snapshot": {
+            "streams": 6,
+            "active_streams": 3,
+            "tracked_assignments": 3,
+            "reader_rows": [
+              3,
+              2,
+              2,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "saved_after_rows": 5,
+          "restored_rows": 16,
+          "exact_sequence": false,
+          "exact_record_multiset": true,
+          "reader_lifecycle": {
+            "readers_at_begin": 6,
+            "serialized_readers": 3,
+            "completed_reader_histories": 3,
+            "destroyed_completed_reader_histories": 3
+          },
+          "reader_snapshot": {
+            "streams": 6,
+            "active_streams": 3,
+            "tracked_assignments": 3,
+            "reader_rows": [
+              5,
+              4,
+              4,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "saved_after_rows": 21,
+          "restored_rows": 0,
+          "exact_sequence": false,
+          "exact_record_multiset": true,
+          "reader_lifecycle": {
+            "readers_at_begin": 6,
+            "serialized_readers": 0,
+            "completed_reader_histories": 6,
+            "destroyed_completed_reader_histories": 6
+          },
+          "reader_snapshot": {
+            "streams": 6,
+            "active_streams": 0,
+            "tracked_assignments": 3,
+            "reader_rows": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "prepared_batch_and_partition_queue": true,
+      "checkpoint_files": [
+        {
+          "file": "checkpoint-5.capture.bin",
+          "bytes": 1053
+        },
+        {
+          "file": "checkpoint-5.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-0.source.bin",
+          "bytes": 287
+        },
+        {
+          "file": "checkpoint-21.source.bin",
+          "bytes": 287
+        },
+        {
+          "file": "checkpoint-21.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-0.data-00000-of-00001",
+          "bytes": 5700
+        },
+        {
+          "file": "checkpoint-5.source.bin",
+          "bytes": 287
+        },
+        {
+          "file": "checkpoint-21.data-00000-of-00001",
+          "bytes": 1452
+        },
+        {
+          "file": "checkpoint-0.capture.bin",
+          "bytes": 1053
+        },
+        {
+          "file": "checkpoint-21.capture.bin",
+          "bytes": 840
+        },
+        {
+          "file": "checkpoint-0.capture.bin.readers.json",
+          "bytes": 118
+        },
+        {
+          "file": "checkpoint-0.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-0.source-restore.bin",
+          "bytes": 311
+        },
+        {
+          "file": "checkpoint-5.capture.bin.readers.json",
+          "bytes": 118
+        },
+        {
+          "file": "checkpoint-5.data-00000-of-00001",
+          "bytes": 5371
+        },
+        {
+          "file": "checkpoint-5.source-restore.bin",
+          "bytes": 311
+        },
+        {
+          "file": "checkpoint-21.source-restore.bin",
+          "bytes": 311
+        },
+        {
+          "file": "checkpoint-21.capture.bin.readers.json",
+          "bytes": 118
+        }
+      ],
+      "scope": "original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate"
+    },
+    "partition-input-wide-result": {
+      "test": "original_orc_iterator_checkpoint",
+      "fresh_process_restore": true,
+      "prefetch_rows": 2,
+      "original_orc_kernel": true,
+      "python_tensorflow_package_used": false,
+      "rows": 21,
+      "duplicate_filename_occurrences": true,
+      "original_filefeeder_rpc": true,
+      "parallel_streams": 6,
+      "parallel_output_buffer": 32,
+      "cases": [
+        {
+          "saved_after_rows": 5,
+          "restored_rows": 16,
+          "exact_sequence": false,
+          "exact_record_multiset": true,
+          "reader_lifecycle": {
+            "readers_at_begin": 6,
+            "serialized_readers": 0,
+            "completed_reader_histories": 6,
+            "destroyed_completed_reader_histories": 6
+          },
+          "reader_snapshot": {
+            "streams": 6,
+            "active_streams": 0,
+            "tracked_assignments": 3,
+            "reader_rows": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "prepared_batch_and_partition_queue": true,
+      "checkpoint_files": [
+        {
+          "file": "checkpoint-5.capture.bin",
+          "bytes": 840
+        },
+        {
+          "file": "checkpoint-5.source.bin",
+          "bytes": 269
+        },
+        {
+          "file": "checkpoint-5.source-restore.bin",
+          "bytes": 293
+        },
+        {
+          "file": "checkpoint-5.index",
+          "bytes": 135
+        },
+        {
+          "file": "checkpoint-5.data-00000-of-00001",
+          "bytes": 4091
+        },
+        {
+          "file": "checkpoint-5.capture.bin.readers.json",
+          "bytes": 118
+        }
+      ],
+      "scope": "original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate"
+    }
+  },
+  "full_original_multi_peer_joint_input_restore_verified": false
+}

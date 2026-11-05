@@ -352,3 +352,60 @@ with the rebuilt original Python runtime is a subsequent validation step.
 
 [Redis adapter verification and build analysis](validation/2026-11-04-public-redis-sdk.json) ·
 [Earlier build-input inventory](validation/2026-11-01-native-build-preflight.json)
+
+
+## Matching Python runtime and original Runner continuation
+
+The rebuilt NVIDIA TensorFlow 2.12.1 wheel installs in the dedicated Python 3.10
+application environment. Its SHA-256 is
+`2065e1c07e0218d086112dc28dd9f500a47b3adaacabce9a74a4618303357356`.
+The original CPU and GPU reader probes both exit successfully after reading
+16 ORC records, decoding four batches, reaching EOF and pinging the original
+Learner and Controller services. The ORC element shape is `[1]`, matching the
+actual native element and Python wrapper. The ctypes handle uses `RTLD_LOCAL`
+to avoid duplicate static-registry destruction on process exit.
+
+The original modules and Runner execute GPU forward/backward operations against
+two external parameter shards and the original native dense optimizer. An
+eight-batch uninterrupted run and a four-batch checkpoint followed by four
+batches in a fresh process produce the same loss trajectory at absolute
+tolerance `1e-6`. Both sparse partitions' complete weights and optimizer state
+have maximum absolute error zero. This run restores at a whole-file epoch
+boundary; the input-aware full-application gate additionally checks serialized
+prefetch buffers and input-shot state.
+
+A restored shard immediately registers its table with the model-process GPU
+owner. The optional `entropy_launch --startup-gate` handshake therefore starts
+the owner first, waits for the restored parameter shards and releases model
+construction only after their readiness signals. Its nonce binds release to
+that owner generation. See [joint input checkpoints](ORIGINAL_INPUT_CHECKPOINT.md)
+for the input and training-progress publication order.
+
+[Reader execution](validation/2026-11-05-original-framework-reader.json) ·
+[Original Runner continuation](validation/2026-11-05-original-runner-continuation.json) ·
+[Prepared-batch recovery](validation/2026-11-05-original-prepared-input-checkpoint.json).
+
+Full original main/Executor execution now passes with one and two training
+peers on one physical RTX A6000. The two-peer run completes 128 ORC records and
+32 GPU-model batches, with completed training clocks `[16, 16]`. Both peers'
+exported graphs retain GPU MatMul nodes; native DenseAdam state contains all
+21 model values and their first/second moments. The input-enabled run binds
+both serialized iterators and source plans to the joint checkpoint at those
+same completed clocks. All owned roles exit and clean up.
+
+Global op determinism is disabled in this fixture while model constants and
+table seeds remain fixed. TensorFlow's `make_deterministic` pass sets prefetch
+capacity to zero for this stateful custom pipeline; GDB observed a runtime
+prefetch limit of zero. The original multi-scene Runner peeks the partition
+notification before `Session.run`, so disabling autonomous prefetch causes a
+second-batch wait. Increasing the configured prefetch size or disabling the
+ordinary optimization/autotuning options does not override that mandatory pass.
+The validation retains the original asynchronous input path.
+
+[Single-peer execution](validation/2026-11-05-original-executor.json) ·
+[Two-peer execution](validation/2026-11-05-original-executor-two-peers.json) ·
+[Two-peer input-aware save](validation/2026-11-05-original-executor-input-two-peers.json).
+
+Fresh-process full-application joint restore and failure replay remain active
+integration gates. Their acceptance includes input coverage and complete
+model/optimizer/progress comparisons.

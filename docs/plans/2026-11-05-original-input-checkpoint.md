@@ -25,3 +25,49 @@ positions and six-stream parallel interleave recovery. The registry also keeps
 completed reader histories after leaf destruction; a larger-buffer case
 restored all remaining records after all six leaves were released. Stages 4–5
 continue with Python input-shot state and the full training joint commit.
+
+## Original prepared batch and partition notifications
+
+`PushPartitionDataset::Initialize` reads the first batch eagerly. Its original
+Save/Restore methods only traverse the upstream iterator: they omit the prepared
+batch, EOF flag and `GlobalQueue<CpuPartitionType>` notifications. Extend this
+native boundary with TensorFlow tensor/scalar state and a locked queue snapshot,
+including `last_peek`. During TensorFlow restore initialization, skip the eager
+read when `IteratorContext::is_restoring()` is true.
+
+Fresh original Runners also initialize their dataset before model restore. Add
+a FileFeeder source hold: held sources return EOF without advancing allocation.
+Keep the hold across source initialization, initialize the correct saved input
+shot while held, then restore the ordered source roster/assignment exclusion
+plan. After all peers finish held initialization, release allocation and restore
+their iterators. This prevents the fresh pipeline from claiming files before
+the restored readers and buffers take ownership.
+
+## Joint publication and restore order
+
+Add an opt-in `input_checkpoint` job option with the native planner path and a
+fresh-restore flag. The FileFeeder graph factory attaches deterministic per-
+learner/train-or-eval/source scopes to its URIs and returned dataset. Build
+`SerializeIterator`/`SaveV2` and `RestoreV2`/`DeserializeIterator` operations before
+the Runner creates its Session.
+
+After DRAINED/FROZEN/PATH_READY, each CPU learner serializes its active iterator
+under the process capture lock and publishes a worker manifest containing the
+next input-shot index, EOF state, input specification digest, scope, source
+handle and hashed iterator/capture files. At the global input-saved barrier,
+the chief exports each actual source roster, stages worker captures locally,
+runs the native planner and publishes an input group manifest. Bind that
+manifest's digest and completed training clocks to the existing joint commit.
+
+Restore verifies the committed input group, every local learner's staged files,
+input specification, scope and topology before the global verification barrier.
+Reinitialize the selected input shot while source allocation stays held; then
+the chief restores source plans. Restore dense state and each learner's iterator
+and Python shot position before the final global barrier releases training
+progress. An unsuccessful stage retains frozen parameter/progress admission.
+
+Test native prepared-batch/notification recovery at the start, mid-stream and
+EOF, including held fresh initialization. Then execute the complete original
+multi-peer model with the opt-in path, joint save and fresh-process continuation;
+compare consumed sample identities, complete parameter/optimizer state and
+training clocks against uninterrupted training.

@@ -162,8 +162,13 @@ shared wrapper's missing client interfaces using real Redis commands. Binary
 batch results, TTL, timeouts and lost-reply behavior are process-tested; the
 original native dependency graph resolves. [Original framework integration](docs/ORIGINAL_NATIVE_BUILD.md)
 now compiles and loads both original CPU/GPU libraries with TensorFlow 2.12.1;
-the original GPU row-segmentation kernel passes execution checks. A matching
-Python-runtime rebuild is in progress for complete framework execution.
+the matching Python runtime executes the original ORC reader, decoder and GPU
+row-segmentation kernel. Original Runner GPU training and fresh-process
+checkpoint continuation reproduce the uninterrupted loss trajectory and sparse
+optimizer state. Full original main/Executor execution also passes with two
+training peers, including an input-aware joint checkpoint at 32 completed
+batches. Fresh-process full-application recovery and failure replay continue
+in the [integration record](docs/ORIGINAL_NATIVE_BUILD.md).
 [Peer-coordinated checkpoints](docs/PEER_CHECKPOINTS.md) also support a chief
 without an external learner table; two-process/four-thread checks cover repeated
 commit, admission control and a failed model save.

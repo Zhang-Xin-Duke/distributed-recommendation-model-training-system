@@ -1,97 +1,96 @@
-# Original ORC and FileFeeder Checkpoints
+# Original input checkpoints
 
-The native input overlay saves an ORC reader's physical row position together
-with TensorFlow's iterator state. For FileFeeder input, it also records stable
-file-assignment IDs. A restored reader reopens its current file directly, seeks
-to the saved row and then resumes the original file-distribution RPC.
+The input checkpoint joins the original FileFeeder/ORC iterator to the parameter,
+dense optimizer and training-progress commit. A restored job resumes its saved
+batch boundary, including records already read into pipeline buffers.
 
-## Why the input cut has two positions
+## Enable capture
 
-When training has consumed five records, the reader may already have read seven.
-The two pending records belong to TensorFlow's serialized prefetch buffer. The
-checkpoint therefore preserves both the buffer and the reader's position:
+Install the native source overlay into a disposable original source bundle and
+compile its CPU/GPU targets. Native capability version 3 adds prepared-batch,
+EOF and partition-notification state to the original iterator serialization.
+The overlay preserves original source bytes and records input/output hashes.
 
-```mermaid
-flowchart LR
-    S[Ordered FileFeeder file roster] -->|stable occurrence ID| R[ORC reader: physical row 7]
-    R --> P[Serialized prefetch: records 6 and 7]
-    P --> M[Training: consumed 5 records]
-    R -. saved cursor .-> C[Input checkpoint]
-    P -. iterator state .-> C
+Add this option to the native parameter-adapter configuration:
+
+```json
+{
+  "input_checkpoint": {
+    "planner": "/path/to/eps_input_checkpoint_tool",
+    "max_retries": 20
+  }
+}
 ```
 
-The assignment ID identifies an occurrence in the original ordered roster.
-Two occurrences of the same filename have different IDs. During restore, the
-planner excludes assignments represented by saved reader histories, because
-their records are already consumed, buffered or owned by a restored reader.
-Assignments fetched after the saved cut return to the queue.
+The native backend and training coordinator must also be configured. Add
+`"restore": true` for a fresh process that will restore a committed input group.
+This holds FileFeeder allocation before the original Runner initializes input.
 
-## Implementation
+## Save order
 
-- [`input_checkpoint.h`](../adapters/entropy/input_checkpoint.h) implements the
-  bounded binary cursor/source formats, the source-allocation registry and the
-  restore-cut planner. Allocation and metadata export share a mutex; the
-  original filename vector remains in place.
-- [`install_original_input_checkpoint.py`](../scripts/install_original_input_checkpoint.py)
-  applies the overlay to a disposable original native source bundle. It retains
-  the original bytes outside that bundle, checks source hashes and supports
-  reentry after an interrupted update.
-- The original `FetchFile` RPC carries an eight-byte occurrence ID in its BRPC
-  response attachment. Its protobuf filename field remains the data path.
-- The ORC reader counts physical rows and uses ORC's `seekToRow` on restore.
-  TensorFlow serializes iterator and prefetch state through `SerializeIterator`
-  and `SaveV2`; a fresh process restores them through `RestoreV2` and
-  `DeserializeIterator`.
-- [`eps_input_checkpoint_tool`](../src/input/checkpoint_main.cpp) combines reader
-  captures with an ordered source roster and publishes an immutable queue
-  restore plan. Native local functions export and restore the actual
-  FileFeeder source metadata.
+```mermaid
+sequenceDiagram
+    participant R as Original Runners
+    participant P as Parameter/progress services
+    participant I as Input iterators
+    participant C as Chief
+    R->>P: Drain updates and freeze admission
+    R->>I: Serialize buffers, prepared batch and ORC cursors
+    I-->>C: Hashed per-worker manifests
+    C->>C: Build remaining-assignment plans
+    R->>R: Save original dense/model state
+    C->>C: Commit parameters + progress + input-group digest
+    C->>P: Resume admission
+```
 
-Parallel readers carry an input scope in their FileFeeder URI. The native
-registry retains a reader's completed assignment history after TensorFlow
-releases that reader. Capture includes histories completed before serialization
-began, together with readers visited by iterator serialization. An unfinished
-reader missing from serialization, or a reader created during capture, requires
-a new serialization attempt while the training step stays paused. A new input
-generation discards the preceding input shot's reader registry.
+Each worker manifest identifies its input scope, source handle, input
+specification, input shot and next-shot index. Its files contain the serialized
+TensorFlow iterator and native stream capture. The chief binds all worker
+manifests, ordered source plans and completed training clocks into one input
+group. The joint commit stores that group's digest.
 
-## Executed validation
+File assignment IDs distinguish repeated occurrences of the same filename.
+The planner excludes assignments retained by restored readers and buffers;
+speculative allocations outside the saved cut return to the remaining queue.
+Completed reader histories survive leaf destruction until the next generation.
 
-The modified original CPU and GPU operation libraries compiled successfully
-and passed the original TensorFlow C API loading probes. The CPU input probe
-then saved checkpoints, exited and restored each checkpoint in a new process.
-It ran against the original ORC kernel, two ORC files and a repeated occurrence
-of the first filename, for 21 records in total.
+## Fresh-process restore order
 
-| Input path | Save after records | Result |
-| --- | --- | --- |
-| Direct ORC with prefetch depth 2 | 0, 1, 5, 6, 7, 13, 20, 21 | Exact remaining record sequence at every position |
-| Original FileFeeder RPC with prefetch depth 2 | 0, 1, 5, 6, 7, 13, 20, 21 | Exact remaining record sequence at every position |
-| Six parallel FileFeeder readers, output buffer 2 per stream | 0, 1, 5, 6, 7, 13, 20, 21 | Consumed plus restored records match the complete input multiset at every position |
-| Six parallel FileFeeder readers, output buffer 32 per stream | 5 | All six leaf readers already destroyed; remaining 16 records restored from upstream buffers |
+1. Start model-process GPU owners before restored shards register their tables.
+   `entropy_launch --startup-gate gate.json` publishes owner readiness and waits
+   for a release record containing the same run, agent, endpoints and nonce.
+2. Verify the joint commit, group digest, worker membership, input specification
+   and payload hashes before the global verification barrier.
+3. Initialize the saved input shot while source allocation remains held.
+4. Restore ordered source assignment plans, then release source holds.
+5. Restore original dense/model state, iterator buffers, ORC positions and
+   Python input-shot position. Resume training progress after the final barrier.
 
-The capture after five consumed records recorded a reader position of seven,
-and the fresh process returned exactly the remaining 16 records. This exercises
-the difference between consumed data and prefetched data. The FileFeeder cases
-also execute actual source export, queue-plan construction and native source
-restore.
+Gate configuration uses fresh local paths:
 
-The [machine-readable record](validation/2026-11-05-original-input-checkpoint.json)
-contains the native library hashes, overlay manifest and individual cases.
-The [parallel-reader lifecycle record](validation/2026-11-05-original-input-lifecycle.json)
-contains the second native build and the six-stream cases. In the larger-buffer
-case, TensorFlow visited zero leaf readers during serialization. The native
-registry supplied all six completed histories, covering three assigned file
-occurrences. Consumed plus restored records matched all 21 input records.
-[`original_orc_checkpoint_sdk.py`](../tests/original_orc_checkpoint_sdk.py)
-drives the original TensorFlow C API directly; a Python TensorFlow package is
-not required for this reader test. Standalone source-allocation/cut tests also
-passed AddressSanitizer, UndefinedBehaviorSanitizer and ThreadSanitizer checks.
+```json
+{
+  "schema_version": 1,
+  "ready": "/private/run/owner-ready.json",
+  "release": "/private/run/parameters-ready.json",
+  "timeout_seconds": 120
+}
+```
 
-## Full training integration
+The orchestrator reads the ready record, starts the configured parameter shards,
+waits for their readiness and publishes the identical record to the release
+path. A release from an earlier owner generation is rejected.
 
-The next integration step binds the input checkpoint to sparse parameters,
-dense state and the distributed training progress commit, including the Python
-input-shot position. The native tests above execute direct and parallel input
-recovery. Complete original multi-peer model training, joint save, fresh-process
-restore and failure replay remain the full application integration checks.
+## Executed checks
+
+The original native TensorFlow C API verifies six-stream prepared-input recovery
+at start, mid-stream and EOF, including held fresh initialization and a larger
+prefetch buffer. The manifest tests reject missing workers, changed training
+clocks, changed manifests and changed payloads; chunked staging covers a
+1.5 MB payload. The startup-gate process test verifies generation identity.
+
+The complete input-aware main/Executor save passes with two original training
+peers at completed clocks `[16, 16]` (128 records, 32 batches on one physical
+GPU). Fresh-process restore and failure-replay execution remain the next gate. Custom global shuffle and label-partition
+buffers require their own serialization before this mode accepts those input
+configurations.

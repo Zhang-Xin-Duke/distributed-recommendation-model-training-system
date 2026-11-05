@@ -16,7 +16,10 @@ def main():
     if not (source/'tensorswitch/orc_dataset.cc').is_file():
         print('SKIP: original private native source is absent');return 77
     files=['BUILD','tensorswitch/file_feeder.h','tensorswitch/file_feeder.cpp',
-        'tensorswitch/orc_dataset.cc','tensorswitch/ps_service/BUILD','tensorswitch/ps_service/ps_service_impl.cc']
+        'tensorswitch/orc_dataset.cc','tensorswitch/ps_service/BUILD','tensorswitch/ps_service/ps_service_impl.cc',
+        'tensorswitch/util/global_queue.h','tensorswitch/ops/push_partition_dataset_op.cc',
+        'tensorswitch/python/tensorswitch/dataset_pipeline.py',
+        'tensorswitch/python/tensorswitch/env.py','tensorswitch/common/sparse_table.cpp']
     original={f:hashlib.sha256((source/f).read_bytes()).hexdigest() for f in files}
     with tempfile.TemporaryDirectory(prefix='eps-native-input-overlay-') as temporary:
         root=pathlib.Path(temporary)/'entropy';state=root.parent/'overlay'

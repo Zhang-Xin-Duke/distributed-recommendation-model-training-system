@@ -65,6 +65,10 @@ int main(int argc, char** argv) {
     const auto original = input::NextAssignment(&owner, next);
     Check(original.first == "same.orc" && original.second == 0, "initial source assignment differs");
     input::RestoreSource(&owner, restored);
+    input::HoldSource(&owner, true);
+    Check(input::NextAssignment(&owner, next).first.empty() && offset.load() == 0,
+          "restore initialization consumed a held source");
+    input::HoldSource(&owner, false);
     const auto late = input::NextAssignment(&owner, next);
     Check(late.first == "late.orc" && late.second == 4, "restored queue lost stable occurrence IDs");
     Check(input::AssignmentId(input::AssignmentTag(late.second)) == 4, "assignment wire tag differs");

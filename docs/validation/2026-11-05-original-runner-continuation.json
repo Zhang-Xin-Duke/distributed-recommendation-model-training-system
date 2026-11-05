@@ -1,0 +1,200 @@
+{
+  "schema": "eps.original-runner-continuation.v1",
+  "date": "2026-11-05",
+  "physical_gpus": 1,
+  "gpu_model": "RTX A6000",
+  "source_report": "original-training.json",
+  "loss_absolute_tolerance": 1e-06,
+  "stage": "original_training_restore_passed",
+  "full_framework_training_verified": false,
+  "comparisons": [
+    {
+      "checked_rows": 4,
+      "max_state_absolute_error": 0
+    },
+    {
+      "checked_rows": 4,
+      "max_state_absolute_error": 0
+    }
+  ],
+  "baseline": {
+    "stage": "training_checkpoint_passed",
+    "full_framework_training_verified": false,
+    "original_cluster_peers": 1,
+    "external_parameter_shards": 2,
+    "epochs": 2,
+    "restore_boundary": "whole-file epoch",
+    "tensorflow": "2.12.1",
+    "train_source_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+    "restored": false,
+    "losses": [
+      0.3125,
+      0.308643102645874,
+      0.29944002628326416,
+      0.2979458272457123,
+      0.28786757588386536,
+      0.2877955436706543,
+      0.27747663855552673,
+      0.27859294414520264
+    ],
+    "rows": 32,
+    "dense_weights": [
+      [
+        0.3289487957954407
+      ],
+      [
+        0.3289487957954407
+      ],
+      [
+        0.3289487957954407
+      ],
+      [
+        0.3289487957954407
+      ]
+    ],
+    "parameter_manifest": {
+      "schema_version": 1,
+      "run": "original-full-baseline",
+      "partition_epoch": 1,
+      "snapshot_id": "acceptance-final",
+      "files": [
+        {
+          "shard": 0,
+          "file": "parameter-shard-0.bin",
+          "bytes": 446,
+          "sha256": "3bb2c1864b06e33d82237f93ff1822e6bbd1ed551317849b5eda9835ef171588"
+        },
+        {
+          "shard": 1,
+          "file": "parameter-shard-1.bin",
+          "bytes": 446,
+          "sha256": "78e3b21c2f90e1a37a0cabefea299ad645e3cfc782bf989d777c73394f2376a9"
+        }
+      ]
+    },
+    "gpu_forward_backward": true,
+    "original_orc_reader": true,
+    "original_dense_optimizer": true,
+    "original_runner_checkpoint": true,
+    "original_runner_restore": false
+  },
+  "checkpoint": {
+    "stage": "training_checkpoint_passed",
+    "full_framework_training_verified": false,
+    "original_cluster_peers": 1,
+    "external_parameter_shards": 2,
+    "epochs": 1,
+    "restore_boundary": "whole-file epoch",
+    "tensorflow": "2.12.1",
+    "train_source_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+    "restored": false,
+    "losses": [
+      0.3125,
+      0.308643102645874,
+      0.29944002628326416,
+      0.2979458272457123
+    ],
+    "rows": 16,
+    "dense_weights": [
+      [
+        0.28987666964530945
+      ],
+      [
+        0.28987666964530945
+      ],
+      [
+        0.28987666964530945
+      ],
+      [
+        0.28987666964530945
+      ]
+    ],
+    "parameter_manifest": {
+      "schema_version": 1,
+      "run": "original-full-checkpoint",
+      "partition_epoch": 1,
+      "snapshot_id": "acceptance-final",
+      "files": [
+        {
+          "shard": 0,
+          "file": "parameter-shard-0.bin",
+          "bytes": 448,
+          "sha256": "b3876bcf16302a57b31dd3b314c926b964aafa427a9a605433146acd950c27b1"
+        },
+        {
+          "shard": 1,
+          "file": "parameter-shard-1.bin",
+          "bytes": 448,
+          "sha256": "91d66cd5e7cf731aac42a9d62740eb557cfb59aa45ba061f475b07b600147f93"
+        }
+      ]
+    },
+    "gpu_forward_backward": true,
+    "original_orc_reader": true,
+    "original_dense_optimizer": true,
+    "original_runner_checkpoint": true,
+    "original_runner_restore": false
+  },
+  "restored": {
+    "stage": "training_checkpoint_passed",
+    "full_framework_training_verified": false,
+    "original_cluster_peers": 1,
+    "external_parameter_shards": 2,
+    "epochs": 1,
+    "restore_boundary": "whole-file epoch",
+    "tensorflow": "2.12.1",
+    "train_source_sha256": "9d3f4e0a9e8f691f2574c9b2b01a69b59ee642108e0d754cce793e20b79046d9",
+    "restored": true,
+    "losses": [
+      0.28786757588386536,
+      0.2877955436706543,
+      0.27747663855552673,
+      0.27859294414520264
+    ],
+    "rows": 16,
+    "dense_weights": [
+      [
+        0.3289487957954407
+      ],
+      [
+        0.3289487957954407
+      ],
+      [
+        0.3289487957954407
+      ],
+      [
+        0.3289487957954407
+      ]
+    ],
+    "parameter_manifest": {
+      "schema_version": 1,
+      "run": "original-full-restored-bootstrap",
+      "partition_epoch": 1,
+      "snapshot_id": "acceptance-final",
+      "files": [
+        {
+          "shard": 0,
+          "file": "parameter-shard-0.bin",
+          "bytes": 456,
+          "sha256": "13fb3b585f18363ce7d67c4c7963819dc5b43ca9e36396eb96acf6941c8baa7d"
+        },
+        {
+          "shard": 1,
+          "file": "parameter-shard-1.bin",
+          "bytes": 456,
+          "sha256": "46885329c6d0569f2616df69d70a0c0cb0f75dc86c27f00fb8ed332622fb2c1f"
+        }
+      ]
+    },
+    "gpu_forward_backward": true,
+    "original_orc_reader": true,
+    "original_dense_optimizer": true,
+    "original_runner_checkpoint": true,
+    "original_runner_restore": true
+  },
+  "reader_rows": 32,
+  "gpu_forward_backward": true,
+  "original_dense_ps": true,
+  "original_runner_checkpoint_restore": true,
+  "scope": "full original modules and Runner with a bounded user model; full Executor entrypoint remains separate"
+}

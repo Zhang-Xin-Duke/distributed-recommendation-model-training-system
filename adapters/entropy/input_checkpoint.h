@@ -192,6 +192,12 @@ struct Source {
 };
 inline std::mutex source_mutex;
 inline std::map<const void*, Source> sources;
+inline std::set<const void*> source_holds;
+
+inline void HoldSource(const void* owner, bool held) {
+  std::lock_guard<std::mutex> lock(source_mutex);
+  if (held) source_holds.insert(owner); else source_holds.erase(owner);
+}
 
 inline void RegisterSource(const void* owner, std::vector<std::string>* files,
                            std::atomic<std::uint32_t>* offset) {
@@ -206,6 +212,7 @@ inline std::pair<std::string, std::uint64_t> NextAssignment(const void* owner, N
   const auto found = sources.find(owner);
   if (found == sources.end()) throw std::invalid_argument("input source has not been initialized");
   auto& source = found->second;
+  if (source_holds.count(owner)) return {"", no_assignment};
   while (true) {
     const auto& filename = next();
     if (filename.empty()) return {"", no_assignment};

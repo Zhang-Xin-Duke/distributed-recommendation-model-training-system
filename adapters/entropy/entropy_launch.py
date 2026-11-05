@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--parameter-config',required=True)
     parser.add_argument('--train-module',default='tensorswitch.train')
     parser.add_argument('--metrics-gateway',help='Use an anonymous Prometheus gateway for original monitors')
+    parser.add_argument('--startup-gate',help='Publish native GPU-owner readiness and wait for parameter-shard release')
     entry=parser.add_mutually_exclusive_group(required=True)
     entry.add_argument('--entry-module')
     entry.add_argument('--entry-script')
@@ -31,6 +32,9 @@ def main():
     sys.argv=[args.entry_module or args.entry_script,*arguments]
     try:
         with install(train,configuration),metrics:
+            if args.startup_gate:
+                from startup_gate import wait_for_parameters
+                wait_for_parameters(args.startup_gate,configuration)
             if args.entry_module:
                 runpy.run_module(args.entry_module,run_name='__main__',alter_sys=True)
             else:

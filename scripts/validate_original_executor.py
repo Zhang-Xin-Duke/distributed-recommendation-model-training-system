@@ -11,6 +11,7 @@ import json
 import os
 import pathlib
 import socket
+import struct
 import subprocess
 import sys
 import threading
@@ -25,6 +26,30 @@ def digest(path):
     with pathlib.Path(path).open('rb') as stream:
         for chunk in iter(lambda:stream.read(1<<20),b''):result.update(chunk)
     return result.hexdigest()
+
+
+def dense_adam_snapshot(path, minimum_rows=1):
+    """Inspect original native DenseAdam's beta metadata and m/v/w row layout."""
+    import numpy as np
+    raw=pathlib.Path(path).read_bytes()
+    if len(raw)<12 or struct.unpack_from('<I',raw)[0]!=8:
+        raise ValueError('native DenseAdam checkpoint has invalid beta metadata')
+    beta1,beta2=struct.unpack_from('<ff',raw,4)
+    if not all(np.isfinite(v) and 0<v<=1 for v in (beta1,beta2)):
+        raise ValueError('native DenseAdam checkpoint has invalid beta powers')
+    offset=12;rows=0;shards=0
+    while offset<len(raw):
+        if len(raw)-offset<8:raise ValueError('native dense shard header is truncated')
+        count,stride=struct.unpack_from('<II',raw,offset);offset+=8
+        if not count or stride!=12 or count>(len(raw)-offset)//stride:
+            raise ValueError('native DenseAdam checkpoint lost its m/v/w row layout')
+        values=np.frombuffer(raw,dtype='<f4',count=count*3,offset=offset).reshape(count,3)
+        if not np.isfinite(values).all() or np.any(values[:,1]<0):
+            raise ValueError('native DenseAdam checkpoint has invalid optimizer state')
+        offset+=count*stride;rows+=count;shards+=1
+    if rows<minimum_rows:raise ValueError('native DenseAdam checkpoint is missing model parameters')
+    return dict(rows=rows,shards=shards,row_bytes=12,first_moment_values=rows,second_moment_values=rows,
+        beta1_power=beta1,beta2_power=beta2,sha256=digest(path))
 
 
 def port():
@@ -54,7 +79,7 @@ def configuration(work,run,peers,data,spec,local_api,addresses):
             purge_interval_offline=1000,batch_save_model_interval=1,
             optimizers=[dict(param_scope='embedding',opt_name='SparseLazyAdam',
                 parameters=dict(learning_rate=.01,epsilon=.001,initial_range=.1,weight_bounds=None)),
-                dict(param_scope='default',opt_name='DenseAdam',parameters=dict(learning_rate=.01))]),
+                dict(param_scope='default',opt_name='Adam',parameters=dict(learning_rate=.01))]),
         learners=dict(worker=dict(locations=list(range(peers)),num_threads=1)),local_shards=1,
         train_data=dict(type='offline',field_name=['sample'],
             data_seq_preparsed=[dict(id='epoch-0',path=str(data))]),
@@ -63,7 +88,7 @@ def configuration(work,run,peers,data,spec,local_api,addresses):
         parse_num_parallel_calls=1,dataset_read_parallel=1,dataset_decode_inter_parallel=1,
         parse_prefetch=1,log_metric_interval=1,cold_layer_interval=1000,save_serving=False,
         save_model_path=str(work/'outputs'),serving_save_model_path=str(work/'outputs'),
-        load_model_path='',blackhole_url=local_api,enable_controller_service=True,
+        train_from_begin=True,blackhole_url=local_api,enable_controller_service=True,
         inter_op_parallelism_threads=4,intra_op_parallelism_threads=1,thread_pool_size=4,
         export_parallel=2,scale_sparse_grads=False)
     topology=dict(peers=addresses['native'],**{'ps+worker':list(range(peers))},
@@ -126,10 +151,13 @@ def execute(args):
     thread=threading.Thread(target=receiver.serve_forever,daemon=True);thread.start()
     local_api='http://127.0.0.1:'+str(receiver.server_port)
     (work/'dataset').mkdir()
+    # Keep each file larger than the upstream read-ahead window so one peer
+    # cannot claim the complete tiny roster before the other initializes.
+    rows_per_part=16 if args.peers==1 else 64
     for part in range(args.peers):
         binary=[]
-        for local in range(16):
-            index=part*16+local
+        for local in range(rows_per_part):
+            index=part*rows_per_part+local
             value=records.EntropyInstanceList();row=value.entropy_instance.add()
             row.labels.value.append(index%2);row.importance=1;row.mark=('row-'+str(index)).encode()
             row.feature.add().int_values.value.extend([index%8,(index+1)%8])
@@ -170,15 +198,24 @@ def execute(args):
                 for peer in range(args.peers):
                     directory=work/('peer-'+str(peer));directory.mkdir()
                     adapter=directory/'parameter-config.json'
-                    write(adapter,dict(schema_version=1,run=run,endpoints=endpoints,
+                    adapter_options=dict(schema_version=1,run=run,endpoints=endpoints,
+                        cache_agents=[agent for agent in agents if agent['id']!=peer],
                         tables=dict(entities=dict(id=3,seed=42)),backend='native',training=dict(coordinator=progress),
                         native=dict(device='/GPU:0',op_library=str(args.op_library),
                             runtime_library=str(build/'libeps_runtime.so'),cuda=dict(agent=peer,device=0,
-                                listen=addresses['agents'][peer],state_bytes=1<<20,rows_per_table=64))))
+                                listen=addresses['agents'][peer],state_bytes=1<<20,rows_per_table=64)))
+                    if args.input_checkpoint:
+                        adapter_options['input_checkpoint']=dict(planner=str(build/'eps_input_checkpoint_tool'))
+                    write(adapter,adapter_options)
                     command=[args.python,'-m','entropy_launch','--parameter-config',adapter,'--metrics-gateway',local_api,
                         '--entry-script',root/'native/entropy/tensorswitch/python/main.py','--','--role=worker',
                         '--real_rank='+str(peer),'--peers='+json.dumps(topology),'--config_str='+json.dumps(config),
-                        '--tf_config_for_current_gpu={}','--log_path='+str(directory),'--deterministic=true']
+                        # Global op determinism rewrites prefetch capacity to
+                        # zero for this stateful custom input pipeline. The
+                        # original Runner peeks its next partition before
+                        # Session.run and requires autonomous prefetch progress.
+                        # Model constants and external-table seeds remain fixed.
+                        '--tf_config_for_current_gpu={}','--log_path='+str(directory),'--deterministic=false']
                     name='peer-'+str(peer);children.append(name)
                     roles.ensure(0,name,command,environment=role_env)
                 pings={};observation=time.monotonic()+args.observation_window
@@ -208,7 +245,7 @@ def execute(args):
                         observation=time.monotonic()+args.observation_window
                     time.sleep(.2)
                 if len(pings)!=args.peers+1:raise AssertionError('original control services were not all observed')
-                expected=4*args.peers
+                expected=rows_per_part//4*args.peers
                 if len(losses)!=expected or not np.isfinite([x['value'] for x in losses]).all():
                     raise AssertionError('original model loss count/values differ from the ORC input')
                 progress_state=control('stats',dict(run=run,coordinator=progress))
@@ -218,6 +255,11 @@ def execute(args):
                     raise AssertionError('original task admission/completion did not drain')
                 checkpoint=work/'outputs/ckpt';committed=load_committed(checkpoint,checkpoint_id='ckpt')
                 saved=committed['training_progress']
+                input_group=committed.get('input_group')
+                if args.input_checkpoint and (input_group is None or
+                        len(input_group['workers'])!=args.peers or
+                        input_group['manifest']['completed']!=saved['completed']):
+                    raise AssertionError('original checkpoint lost its bound learner input group')
                 if (len(committed['manifest']['files'])!=2 or not saved or saved['source_run']!=run
                         or len(saved['completed'])!=args.peers or sum(saved['completed'])>expected):
                     raise AssertionError('original checkpoint lost sparse partitions or task progress')
@@ -227,8 +269,8 @@ def execute(args):
                     if not all(np.isfinite(value).all() for value in tensors.values()):
                         raise AssertionError('original DenseAdam checkpoint has nonfinite values')
                     dense[path.name]=dict(sha256=digest(path),tensors={name:list(v.shape) for name,v in tensors.items()})
-                if not dense or not any('Adam' in name for file in dense.values() for name in file['tensors']):
-                    raise AssertionError('original dense optimizer state was not saved')
+                if not dense:raise AssertionError('original dense variables were not saved')
+                native_dense_state=dense_adam_snapshot(checkpoint/'dense_table',21)
                 native_dense={path.name:dict(bytes=path.stat().st_size,sha256=digest(path))
                     for path in checkpoint.glob('dense_table*') if path.is_file()}
                 if not native_dense or any(not item['bytes'] for item in native_dense.values()):
@@ -237,7 +279,7 @@ def execute(args):
                     for path in checkpoint.glob('icb_feeder_ckpt*') if path.is_file()}
                 graphs={}
                 for peer in range(args.peers):
-                    paths=list((work/f'peer-{peer}').glob('train_graph_def.worker.*.txt'))
+                    paths=list((work/'results'/run/'roles'/f'peer-{peer}').glob('train_graph_def.worker.*.txt'))
                     if len(paths)!=1:raise AssertionError('original peer graph was not exported')
                     graph=graph_pb2.GraphDef();text_format.Parse(paths[0].read_text(),graph)
                     nodes=[node.name for node in graph.node if node.op=='MatMul' and node.device.endswith('GPU:0')]
@@ -247,13 +289,16 @@ def execute(args):
                 if any(s['updates']!=expected or s['live_tickets'] for s in state['shard_stats']):
                     raise AssertionError('external sparse updates did not follow original model tasks')
                 source=root/'native/entropy/tensorswitch/python'
-                result.update(stage='original_executor_passed',original_main_entrypoint=True,original_executor=True,
+                result.update(stage='original_executor_passed',full_framework_training_verified=True,
+                    full_framework_recovery_verified=False,original_main_entrypoint=True,original_executor=True,
                     original_native_cluster=True,original_file_feeder=True,original_dense_adam=True,
                     original_controller_startup=True,original_runner_checkpoint=True,gpu_model=True,
-                    original_dataset_rows=16*args.peers,original_dataset_batches=expected,
+                    original_dataset_rows=rows_per_part*args.peers,original_dataset_batches=expected,
                     training_task_progress=progress_state,checkpoint_training_progress=saved,
+                    checkpoint_input_group=input_group,
                     checkpoint_manifest=committed['manifest'],dense_exports=dense,
                     native_dense_checkpoints=native_dense,
+                    native_dense_optimizer_state=native_dense_state,
                     icb_auxiliary_checkpoints=auxiliary_feeders,
                     gpu_matmul_nodes=graphs,
                     shard_stats=state['shard_stats'],http_posts=posts,losses=losses,
@@ -284,6 +329,7 @@ def main():
     parser.add_argument('--work',type=pathlib.Path,required=True)
     parser.add_argument('--out',type=pathlib.Path,required=True)
     parser.add_argument('--observation-window',type=int,default=600)
+    parser.add_argument('--input-checkpoint',action='store_true',help='Save original iterator, FileFeeder and input-shot state in the joint commit')
     parser.add_argument('--_execute',action='store_true',help=argparse.SUPPRESS)
     args=parser.parse_args()
     for key in ['native_root','build','op_library','work','out']:

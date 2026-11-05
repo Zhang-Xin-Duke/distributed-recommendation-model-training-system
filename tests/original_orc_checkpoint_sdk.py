@@ -37,7 +37,7 @@ class API:
     def bind(self,name,result,*arguments):
         function=getattr(self.tf,name);function.restype=result;function.argtypes=list(arguments);return function
 
-    def native_call(self,name,*values):
+    def native_value(self,name,*values):
         def varint(value):
             result=bytearray()
             while value>127:result.append((value&127)|128);value>>=7
@@ -50,7 +50,10 @@ class API:
             raw+=b'\x0a'+varint(len(argument))+argument
         function=self.native.tensorswitch_local_call
         function.restype=c.c_int64;function.argtypes=[c.c_char_p,c.c_char_p,c.c_size_t]
-        if function(name.encode(),raw,len(raw))!=0:raise RuntimeError('native input capture operation failed')
+        return function(name.encode(),raw,len(raw))
+
+    def native_call(self,name,*values):
+        if self.native_value(name,*values)!=0:raise RuntimeError('native input capture operation failed')
 
     def filefeeder(self,args):
         sys.path.insert(0,str(args.protocols))
@@ -68,6 +71,7 @@ class API:
         start=self.native.tensorswitch_init_server;start.restype=c.c_int;start.argtypes=[]
         if start()!=0:raise RuntimeError('original native service startup failed')
         self.cluster_started=True
+        if args.partition and args.phase=='restore':self.native_call('eps_input_hold_source',0,1)
         initialize=self.native.tensorswitch_init_file_feeder
         initialize.restype=c.c_int;initialize.argtypes=[c.c_int,c.c_char_p,c.c_bool,c.c_bool,c.c_size_t]
         if initialize(0,','.join(args.files).encode(),False,False,sum(pathlib.Path(p).stat().st_size for p in args.files))!=0:
@@ -86,7 +90,7 @@ class API:
             if code==11:raise EOFError(message)
             raise RuntimeError(message)
 
-    def node(self,kind,name,inputs=(),types=None,dtype=None,shape=None,strings=None,list_input=None,tensor=None):
+    def node(self,kind,name,inputs=(),types=None,dtype=None,shape=None,strings=None,list_input=None,tensor=None,integers=None):
         ptr=c.c_void_p
         op=self.bind('TF_NewOperation',ptr,ptr,c.c_char_p,c.c_char_p)(self.graph,kind.encode(),name.encode())
         self.bind('TF_SetDevice',None,ptr,c.c_char_p)(op,b'/device:CPU:0')
@@ -108,6 +112,11 @@ class API:
                     op,b'output_shapes',(c.POINTER(c.c_int64)*len(types))(),(c.c_int*len(types))(*([-1]*len(types))),len(types))
         for key,value in (strings or {}).items():
             self.bind('TF_SetAttrString',None,ptr,c.c_char_p,ptr,c.c_size_t)(op,key.encode(),value,len(value))
+        for key,value in (integers or {}).items():
+            if isinstance(value,list):
+                self.bind('TF_SetAttrIntList',None,ptr,c.c_char_p,c.POINTER(c.c_int64),c.c_int)(
+                    op,key.encode(),(c.c_int64*len(value))(*value),len(value))
+            else:self.bind('TF_SetAttrInt',None,ptr,c.c_char_p,c.c_int64)(op,key.encode(),value)
         operation=self.bind('TF_FinishOperation',ptr,ptr,ptr)(op,self.status);self.check();return Output(operation,0)
 
     def parallel(self,filenames,count,buffer):
@@ -206,6 +215,10 @@ def child(args):
         fields=api.node('Placeholder','fields',dtype=7,shape=[-1])
         depth=api.node('Placeholder','prefetch_depth',dtype=9,shape=[])
         dataset=api.parallel(filenames,args.parallel,args.parallel_buffer) if args.parallel else api.node('OrcDataset','original_orc',[filenames,fields])
+        if args.partition:
+            if api.cursor_version<3:raise RuntimeError('partition checkpoint requires native capability version 3')
+            dataset=api.node('PushPartitionDataset','partition',[dataset],types=[7],
+                integers=dict(partition_indices=[],partitions=[],partition_key_index=0,ts_handle=0))
         dataset=api.node('PrefetchDataset','prefetch',[dataset,depth],types=[7])
         iterator=api.node('IteratorV2','iterator',types=[7],strings=dict(shared_name=b'',container=b''))
         make=api.node('MakeIterator','make',[dataset,iterator])
@@ -223,8 +236,12 @@ def child(args):
         checkpoint=[(prefix,api.string_tensor([str(args.checkpoint)],True)),
             (names,api.string_tensor(['iterator_state'])),(slices,api.string_tensor(['']))]
         values=[]
+        def next_row():
+            result=api.strings(api.run(get))
+            if args.partition:assert api.native_value('cpu_peek_and_pop_partition',0)==0
+            return result
         if args.phase=='save':
-            for _ in range(args.count):values.extend(api.strings(api.run(get)))
+            for _ in range(args.count):values.extend(next_row())
             for attempt in range(20):
                 api.native_call('eps_input_begin_scoped_capture','sdk-input') if args.parallel else api.native_call('eps_input_begin_capture')
                 try:
@@ -237,10 +254,12 @@ def child(args):
             if args.filefeeder:api.native_call('eps_input_export_source',0,str(args.checkpoint)+'.source.bin')
         else:
             if args.parallel:api.native_call('eps_input_begin_generation','sdk-input')
+            if args.partition:api.native_call('eps_input_hold_source',0,0)
             api.run(targets=[restore],feeds=checkpoint)
             while True:
-                try:values.extend(api.strings(api.run(get)))
+                try:values.extend(next_row())
                 except EOFError:break
+            if args.partition:assert api.native_value('cpu_peek_and_pop_partition',0)==-2
         print(json.dumps(dict(phase=args.phase,rows=values,native_cursor_version=api.cursor_version)),flush=True)
     finally:api.close()
 
@@ -257,9 +276,11 @@ def main():
     parser.add_argument('--planner',type=pathlib.Path)
     parser.add_argument('--parallel',type=int,default=0,help='Use scoped native parallel interleave with this many streams')
     parser.add_argument('--parallel-buffer',type=int,default=2)
+    parser.add_argument('--partition',action='store_true',help='Include the original prepared-batch and partition-notification stage')
     args=parser.parse_args()
     if args.parallel and (not args.filefeeder or not 1<=args.parallel<=64):parser.error('--parallel requires --filefeeder and 1 to 64 streams')
     if not 1<=args.parallel_buffer<=1024:parser.error('--parallel-buffer must be between 1 and 1024')
+    if args.partition and not args.filefeeder:parser.error('--partition requires --filefeeder')
     if args.phase:return child(args)
     import pyarrow as pa
     import pyarrow.orc as orc
@@ -281,6 +302,7 @@ def main():
             for name in ['framework','nccl','tensorflow','ops']:command+=['--'+name,str(getattr(args,name))]
             if args.filefeeder:command+=['--filefeeder','--protocols',str(args.protocols)]
             if args.parallel:command+=['--parallel',str(args.parallel),'--parallel-buffer',str(args.parallel_buffer)]
+            if args.partition:command+=['--partition']
             result=subprocess.run(command,capture_output=True,text=True,timeout=120)
             (args.work/f'{count}-{phase}.stderr').write_text(result.stderr)
             if result.returncode:raise RuntimeError(phase+' failed: '+result.stderr[-3000:])
@@ -308,6 +330,7 @@ def main():
         original_orc_kernel=True,python_tensorflow_package_used=False,rows=21,
         duplicate_filename_occurrences=True,original_filefeeder_rpc=args.filefeeder,parallel_streams=args.parallel,
         parallel_output_buffer=args.parallel_buffer if args.parallel else None,cases=reports,
+        prepared_batch_and_partition_queue=args.partition,
         checkpoint_files=[dict(file=p.name,bytes=p.stat().st_size) for p in args.work.glob('checkpoint-*')],
         scope='original native ORC reader and TensorFlow iterator/prefetch state; full FileFeeder/multi-peer model restore remains separate')
     if args.out:args.out.write_text(json.dumps(result,indent=2)+'\n')

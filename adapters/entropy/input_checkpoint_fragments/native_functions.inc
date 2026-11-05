@@ -59,9 +59,16 @@ TS_REGISTER_LOCAL_FUNCTION("eps_input_restore_source", [](int64_t handle, const 
     eps::input_checkpoint::RestoreSource(server::InputFiles::instance(handle), source);
   });
 });
+TS_REGISTER_LOCAL_FUNCTION("eps_input_hold_source", [](int64_t handle, int64_t held) -> int {
+  return InputCheckpointOperation([&] {
+    if (handle < 0 || handle >= server::InputFiles::kResourceCount || (held != 0 && held != 1))
+      throw std::invalid_argument("invalid input source hold");
+    eps::input_checkpoint::HoldSource(server::InputFiles::instance(handle), bool(held));
+  });
+});
 
 }  // namespace tensorswitch
 
 extern "C" __attribute__((visibility("default"))) int eps_entropy_input_checkpoint_version() {
-  return 2;
+  return 3;
 }

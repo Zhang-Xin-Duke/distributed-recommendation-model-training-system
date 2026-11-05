@@ -9,9 +9,11 @@ import functools
 import hashlib
 import json
 import os
+import pathlib
 import posixpath
 import re
 import threading
+import tempfile
 import uuid
 
 from entropy_configuration import sparse_table_definition
@@ -40,7 +42,8 @@ def _integer(value, name, minimum, maximum):
 class JobConfiguration:
     def __init__(self, values):
         allowed={'schema_version','run','endpoints','partition_epoch','tables',
-                 'learner_id_stride','cache_agents','coalesce_gather','max_live_batches','backend','native','training'}
+                 'learner_id_stride','cache_agents','coalesce_gather','max_live_batches','backend','native','training',
+                 'input_checkpoint'}
         if not isinstance(values,dict) or set(values)-allowed:
             raise ValueError('unknown parameter-service job option')
         if type(values.get('schema_version')) is not int or values['schema_version'] != 1:
@@ -65,6 +68,16 @@ class JobConfiguration:
                     or not isinstance(t.get('coordinator'),str) or not t['coordinator']):
                 raise ValueError('training progress requires a native backend and coordinator')
             _integer(t.setdefault('start_iteration',0),'initial training iteration',0,UINT64_MAX-1)
+        self.input_checkpoint=copy.deepcopy(values.get('input_checkpoint'))
+        if self.input_checkpoint is not None:
+            option=self.input_checkpoint
+            if (self.training is None or not isinstance(option,dict) or
+                    set(option)-{'planner','restore','max_retries'} or
+                    not isinstance(option.get('planner'),str) or not option['planner']):
+                raise ValueError('input checkpoint requires native training progress and its planner path')
+            if type(option.setdefault('restore',False)) is not bool:
+                raise ValueError('input checkpoint restore must be boolean')
+            _integer(option.setdefault('max_retries',20),'input serialization retries',1,1000)
         self.native=copy.deepcopy(values.get('native',{}))
         if not isinstance(self.native,dict) or set(self.native)-{'device','cuda','op_library','runtime_library'}:
             raise ValueError('unknown native backend option')
@@ -152,6 +165,7 @@ class Installation:
         self._local=threading.local()
         self._owner_key='eps-worker-'+uuid.uuid4().hex
         self._native_owner=None
+        self._input=None
         self.closed=False
         replacements={
             '_create_table':self._create_table,
@@ -191,6 +205,9 @@ class Installation:
                 from native_worker_owner import NativeWorkerOwner
                 self._native_owner=NativeWorkerOwner(self._native_configuration(0),
                     runtime_library=self.config.native.get('runtime_library'))
+            if self.config.input_checkpoint is not None:
+                from entropy_input import InputManager
+                self._input=InputManager(self)
             self._install_controller()
             self._install_training()
         except BaseException:
@@ -297,6 +314,8 @@ class Installation:
         descriptor=verify_restored(backend,os.fspath(path),run=self.config.run,epoch=self.config.epoch,
             shard_count=len(self.config.endpoints),filesystem=tf.io.gfile,checkpoint_id=os.fspath(checkpoint_id))
         progress=descriptor['training_progress']
+        if (descriptor.get('input_group') is None)!=(self._input is None):
+            raise ValueError('committed input state and configured input checkpoint must match')
         if (progress is None)!=(self.config.training is None):
             raise ValueError('checkpoint training progress and configured coordinator must match')
         if progress is not None:
@@ -490,6 +509,7 @@ class Installation:
                     return _original(instance,*args,**kwargs)
                 _,identifier=self._context()
                 backend=self._backend(identifier)
+                if self._input is not None:self._input.require_training_ready(instance)
                 backend.arm_training()
                 try:
                     result=_original(instance,*args,**kwargs)
@@ -563,6 +583,12 @@ class Installation:
                         transaction['progress_sha256']=_publish_json(tf.io.gfile,
                             posixpath.join(root,'external_parameters','training-progress.json'),transaction['progress'])
                 barrier('EXPORTED')
+                if self._input is not None:
+                    self._input.save_local(instance,root,tf.io.gfile)
+                    barrier('INPUT_SAVED')
+                    if leader:
+                        transaction['input_sha256']=self._input.save_group(root,transaction['progress'],tf.io.gfile)
+                    barrier('INPUT_BOUND')
                 self._local.checkpoint=transaction
                 original_checkpoint(instance,path,checkpoint_id,purge_countdown)
                 barrier('ORIGINAL_COMPLETE')
@@ -573,6 +599,7 @@ class Installation:
                         parameter_manifest_sha256=hashlib.sha256(
                             (json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()).hexdigest())
                     if self.config.training is not None:commit['training_progress_sha256']=transaction['progress_sha256']
+                    if self._input is not None:commit['input_manifest_sha256']=transaction['input_sha256']
                     target=posixpath.join(root,'external_parameters','committed.json')
                     _publish_json(tf.io.gfile,target,commit)
                     backend.resume(transaction['snapshot'])
@@ -601,16 +628,33 @@ class Installation:
                 self._restore_options(reshard,getattr(self.train.ts.config,'restore_need_migrate',False),
                                       from_serving,delta,delta_id,delta_ckpt_paths)
                 if not restore_sparse:raise ValueError('external joint restore requires sparse state verification')
-                self._verify_restore(posixpath.join(os.fspath(path),os.fspath(checkpoint_id)),checkpoint_id)
-                self.train.env.barrier('::EPS_RESTORE_VERIFIED::',cluster='all')
-                result=original_restore(instance,model,path,checkpoint_id,restore_sparse,restore_dense,
-                                        reshard,ckpt_cache_path,from_serving,delta,delta_id,delta_ckpt_paths)
-                if self.config.training is not None:
-                    self.train.env.barrier('::EPS_MODEL_RESTORE_COMPLETE::',cluster='all')
-                    if self.train.env.peer_id()==0 and self.train.MultiThreadingLearner.is_chief('worker'):
-                        next(iter(self._backends.values())).resume_training()
-                    self.train.env.barrier('::EPS_TRAINING_RESTORE_RESUMED::',cluster='all')
-                return result
+                import tensorflow as tf
+                with tempfile.TemporaryDirectory(prefix='eps-original-input-restore-') as temporary:
+                    directory=pathlib.Path(temporary)
+                    descriptor=self._verify_restore(posixpath.join(os.fspath(path),os.fspath(checkpoint_id)),checkpoint_id)
+                    leader=self.train.env.peer_id()==0 and self.train.MultiThreadingLearner.is_chief('worker')
+                    staged=None
+                    if self._input is not None:
+                        staged=self._input.stage_restore(instance,descriptor['input_group'],tf.io.gfile,directory)
+                        if leader:self._input.stage_sources(descriptor['input_group'],tf.io.gfile,directory)
+                    self.train.env.barrier('::EPS_RESTORE_VERIFIED::',cluster='all')
+                    if self._input is not None:
+                        self._input.initialize_saved_shot(instance,staged)
+                        self.train.env.barrier('::EPS_INPUT_SHOT_INITIALIZED::',cluster='all')
+                    result=original_restore(instance,model,path,checkpoint_id,restore_sparse,restore_dense,
+                                            reshard,ckpt_cache_path,from_serving,delta,delta_id,delta_ckpt_paths)
+                    if self._input is not None:
+                        if leader:self._input.restore_sources(descriptor['input_group'],directory)
+                        self.train.env.barrier('::EPS_INPUT_SOURCES_RESTORED::',cluster='all')
+                        self._input.release_sources(descriptor['input_group'])
+                        self.train.env.barrier('::EPS_INPUT_SOURCES_RELEASED::',cluster='all')
+                        self._input.restore_iterator(instance,staged)
+                        self.train.env.barrier('::EPS_INPUT_ITERATORS_RESTORED::',cluster='all')
+                    if self.config.training is not None:
+                        self.train.env.barrier('::EPS_MODEL_RESTORE_COMPLETE::',cluster='all')
+                        if leader:next(iter(self._backends.values())).resume_training()
+                        self.train.env.barrier('::EPS_TRAINING_RESTORE_RESUMED::',cluster='all')
+                    return result
             self._patch_controller(runner,'restore',restore)
 
     def _table_checkpoint(self,table,table_id,path,checkpoint_id,delta=False):
