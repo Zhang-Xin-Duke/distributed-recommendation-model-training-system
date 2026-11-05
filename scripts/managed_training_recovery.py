@@ -33,6 +33,9 @@ from physical_roles import PhysicalRoles,storage_node
 def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, export_checkpoint=False):
     nodes=copy.deepcopy(fleet['nodes']);manager=copy.deepcopy(fleet['manager']);count=len(nodes)
     placed='role_placement' in fleet
+    expected_gpus=fleet.get('expected_physical_gpus',count)
+    if type(expected_gpus) is not int or not 1<=expected_gpus<=count:
+        raise ValueError('invalid expected physical GPU count')
     if export_checkpoint and (fault is not None or placed):
         raise ValueError('source export currently requires an uninterrupted, fixed-placement generation')
     if export_checkpoint:
@@ -146,8 +149,8 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
     with client as roles:
         def inspect_hardware():
             result=[roles.call(h,'hardware',f'worker-{h}-g0',gpu=n.get('gpu',False)) for h,n in enumerate(nodes)]
-            if all(n.get('gpu') for n in nodes) and len({r['gpu']['uuid'] for r in result})!=count:
-                raise ValueError('managed GPU nodes do not expose distinct physical devices')
+            if all(n.get('gpu') for n in nodes) and len({r['gpu']['uuid'] for r in result})!=expected_gpus:
+                raise ValueError('managed GPU placement differs from the expected physical device count')
             return result
         hardware=step('hardware',inspect_hardware)
         # Register deterministic names even when a saved phase skips its action.
@@ -201,6 +204,9 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                     if time.monotonic()>=deadline:raise TimeoutError('training observation expired; retain all role handles')
                     time.sleep(.1)
             observed=step('observation',observe_fault)
+            if export_checkpoint and observed['recovery']:
+                terminal=True
+                raise RuntimeError('source export requires an uninterrupted initial generation; source logs are retained')
             active_workers=workers;generation=0
             if observed['recovery']:
                 def stop_generation():

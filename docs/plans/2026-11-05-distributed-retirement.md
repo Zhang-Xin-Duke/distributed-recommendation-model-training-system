@@ -53,14 +53,20 @@ participants plus an immutable-checkpoint controller. Two round-4/8 rotations
 and later round-10 process loss recover to round 12 with all 32 full parameter/
 Adam rows and loss trajectories matching uninterrupted training exactly.
 
-These tests use separate participant processes on one physical host. The SSH
-transport path is implemented; actual physical-host execution remains a gate,
-followed by fixed-workload physical multi-GPU scaling within the standing budget.
+These initial tests use separate participant processes on one physical host.
+The subsequent L40/controller trial described below verifies the SSH path.
 
 The managed training entry now exports a joint source checkpoint, exact per-node
 storage ownership and stopped-process handles after an uninterrupted generation.
 The native TensorFlow source-export test verifies checkpoint publication/reentry,
 adoption, input-progress mismatch rejection and retained participant payloads.
 This prepares real-host retirement without copying the remote training logs into
-a controller-local fixture. The physical SSH deployment and same-workload scaling
-checks remain outstanding.
+a controller-local fixture.
+
+The rented L40 and controller now execute a two-host source generation with one
+Worker/shard per host and opposite-host gradient/parameter replicas. The exported
+checkpoint starts an independent controller replacement, source participants
+retire over actual SSH, a lost commit response is replayed, and training reaches
+round 8. All 32 full-state rows and losses match the uninterrupted reference
+within 2.98e-8 and 5.96e-8. The instance was deleted and provider absence verified.
+The separate same-workload physical multi-GPU scaling check remains outstanding.

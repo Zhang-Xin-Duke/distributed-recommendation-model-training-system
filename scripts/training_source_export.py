@@ -85,7 +85,7 @@ def publish_source(directory,run,nodes,manager,workers,primaries,replicas,mirror
         job=dict(manifest=str(manifest),workers=workers,shards=primaries,
                  source_replicas=replicas,source_mirrors=mirrors),
         deployment=dict(nodes=[dict(node_id=i,bin_dir=n['bin_dir'],
-            retirement_directory=str(pathlib.PurePath(n['root'])/'results'/run/'retirement'))
+            retirement_directory=str(pathlib.PurePath(n['root'])/'results'/run/'retirement'/i))
             for i,n in zip(ids,nodes)]+[dict(node_id='checkpoint-controller',bin_dir=manager['bin_dir'],
                 retirement_directory=str(directory/'retirement'))],
             resource_nodes=assignments,handles=handles))

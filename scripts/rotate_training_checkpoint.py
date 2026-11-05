@@ -27,7 +27,9 @@ def command(build, binary, config, action):
     with tempfile.TemporaryDirectory(prefix='eps-rollover-control-') as tmp:
         path=pathlib.Path(tmp)/'config.json'
         path.write_bytes(canonical(config))
-        result=subprocess.run([str(pathlib.Path(build)/binary),'--config',str(path),'--action',action],
+        argv=[str(pathlib.Path(build)/binary),'--config',str(path)]
+        if action is not None:argv+=['--action',action]
+        result=subprocess.run(argv,
                               capture_output=True,text=True,timeout=120)
         if result.returncode:
             raise RuntimeError(result.stderr.strip()[-4000:])

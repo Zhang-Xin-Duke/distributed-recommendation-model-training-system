@@ -84,6 +84,11 @@ assigns old storage to its owning nodes, seals every participant before the
 manager commits deletion, and resumes interrupted cleanup from durable receipts.
 Separate-node-process model checks preserve the complete training trajectory
 through two rotations and subsequent process loss.
+An additional two-host trial runs a GPU Worker/shard on a rented L40 and a CPU
+Worker/shard on the controller with cross-host parameter and gradient replicas.
+After a joint checkpoint, the controller restores the model, retires the former
+storage over SSH and continues training; every inspected model/Adam row and loss
+matches the uninterrupted reference within measured error below `6e-8`.
 
 [Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
 parameters, Adam state and request progress on an independent disk-backed replica

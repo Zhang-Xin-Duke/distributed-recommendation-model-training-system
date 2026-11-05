@@ -126,6 +126,48 @@ python scripts/distributed_retirement.py \
 The host-local `rotate_training_checkpoint.py --action retire` entry remains
 available and shares the same storage inspector.
 
+## Continue training after retiring a remote source
+
+`continue_training_generation.py` accepts the exported source and original
+private fleet. It stages an independent checkpoint on the controller, starts
+replacement primaries, replicas, owners, gradient mirrors and coordinator,
+rehydrates the parameter owners, and verifies readiness before retiring source
+payloads. Workers resume from the saved input cursor and journal baseline.
+The replacement currently executes on the controller CPU; the source can use
+remote GPU owners and model Workers.
+
+```sh
+python scripts/continue_training_generation.py \
+  --source /controller/training-prefix/source-generation/source.json \
+  --fleet /private/training-fleet.json --build /controller/eps-build \
+  --out /controller/continued-generation --run training-continued \
+  --end-round 8 --lose-commit-reply
+```
+
+The optional fault drops successful responses from one participant's commit
+request until the retirement manager exhausts its transport retries. Reentry
+uses the persisted group decision and node receipts, then training resumes.
+Each source participant has its own state directory even when two logical
+Workers share a storage host. SSH keys stay on the controller.
+
+The end-to-end comparison command runs an uninterrupted reference and a split
+training job, then compares every small-model row's weights, Adam moments,
+update counts, loss trajectory and final input cursors:
+
+```sh
+python tests/training_generation_continuation.py \
+  --fleet /private/training-fleet.json --build /controller/eps-build \
+  --work /controller/continuation-trial --out /controller/continuation.json \
+  --run continuation-trial --tolerance 0.00001
+```
+
+Omit `--fleet` to execute the local process regression with zero tolerance.
+The output records source host identities, GPU UUIDs, SSH participant count and
+the number of distinct hosts that actually acknowledge retirement. The
+zero-tolerance CPU regression passes at clocks `[8, 8]`, with all 32 rows and
+losses matching the continuous reference exactly. Remote GPU/CPU comparisons
+record their explicit numerical tolerance.
+
 ## Executed verification
 
 The full CPU TensorFlow model regression uses two parameter shards, two Workers,
@@ -159,9 +201,36 @@ ctest --test-dir build/tensorflow --output-on-failure \
   -R '^(distributed_retirement_protocol|tensorflow_distributed_retirement|tensorflow_distributed_retirement_recovery)$'
 ```
 
-These executions use independent participant processes on one physical host.
-Actual SSH-host execution and the same-workload physical multi-GPU scaling
-comparison remain separate project acceptance gates.
+The checks above use independent participant processes on one physical host.
+
+## Actual SSH-host model execution
+
+A rented NVIDIA L40 and the controller execute two source placements. Both use
+two logical Workers, two parameter shards, cross-owner gradient/parameter
+replicas, 32 complete parameter rows and eight training rounds. A joint round-4
+checkpoint starts an independent controller CPU replacement; the former hosts
+retire certified payloads over SSH before the model continues. One successful
+commit response is deliberately lost through all manager retries, then replayed
+from durable receipts. All final input cursors and per-row update counts match
+the uninterrupted reference.
+
+| Source placement | Training hosts | Physical GPUs | Maximum weight/Adam error | Maximum loss error |
+| --- | ---: | ---: | ---: | ---: |
+| Two Workers/shards on rented L40 host | 1 | 1 | 2.98e-8 | 5.96e-8 |
+| L40 Worker/shard plus controller CPU Worker/shard | 2 | 1 | 2.98e-8 | 5.96e-8 |
+
+Retirement receipts come from two actual hosts in both cases. Each removes 43
+certified old payload paths while preserving the staged replacement baseline.
+The floating-point acceptance tolerance is 1e-5. These are correctness and
+continuation trials; fixed-workload physical multi-GPU scaling remains a separate
+acceptance item. The second L40 rental request was rejected for unavailable
+inventory, and the first instance was deleted after both successful trials.
+
+The Linux Python client also passes direct TensorFlow/native co-loading in both
+import orders after localizing its static BRPC/protobuf symbols. The normal
+training adapter continues to isolate its native client in a dedicated process.
+
+[Cross-host execution, native-runtime evidence and cleanup](validation/2026-11-05-cross-host-training-continuation.json).
 
 [Commands, source hashes and measured results](validation/2026-11-05-distributed-training-retirement.json).
 

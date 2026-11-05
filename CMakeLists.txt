@@ -236,6 +236,11 @@ if(EPS_BUILD_BRPC)
     target_link_libraries(_eps_native PRIVATE eps_brpc nlohmann_json::nlohmann_json)
     target_include_directories(_eps_native PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
     set_target_properties(_eps_native PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/python")
+    if(UNIX AND NOT APPLE)
+      # TensorFlow embeds another protobuf runtime. Keep the client's static
+      # BRPC/protobuf symbols local regardless of which Python module loads first.
+      target_link_options(_eps_native PRIVATE "-Wl,-Bsymbolic" "-Wl,--exclude-libs,ALL")
+    endif()
   endif()
   add_executable(eps_server src/server/main.cpp)
   target_link_libraries(eps_server PRIVATE eps_brpc nlohmann_json::nlohmann_json)
@@ -412,6 +417,13 @@ if(EPS_BUILD_BRPC)
       execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import importlib.util; assert importlib.util.find_spec('tensorflow')"
         RESULT_VARIABLE eps_tensorflow_available OUTPUT_QUIET ERROR_QUIET)
       if(eps_tensorflow_available EQUAL 0)
+        if(UNIX AND NOT APPLE)
+          add_test(NAME tensorflow_native_coload
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/tensorflow_native_coload.py"
+              --out "${CMAKE_CURRENT_BINARY_DIR}/tensorflow-native-coload.json")
+          set_tests_properties(tensorflow_native_coload PROPERTIES TIMEOUT 100
+            ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        endif()
         add_test(NAME entropy_original_table_external_shards
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/entropy_hooks_processes.py" $<TARGET_FILE:eps_server>)
         add_test(NAME entropy_original_table_cache
@@ -551,6 +563,11 @@ if(EPS_BUILD_BRPC)
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/training_source_export.py"
             --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/training-source-export.json")
         set_tests_properties(managed_training_source_export PROPERTIES TIMEOUT 180
+          ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
+        add_test(NAME training_generation_continuation
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/training_generation_continuation.py"
+            --build "${CMAKE_CURRENT_BINARY_DIR}" --out "${CMAKE_CURRENT_BINARY_DIR}/training-generation-continuation.json")
+        set_tests_properties(training_generation_continuation PROPERTIES TIMEOUT 180
           ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/python:${CMAKE_CURRENT_SOURCE_DIR}/adapters/entropy")
         add_test(NAME managed_physical_node_scope_recovery
           COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/physical_training_recovery.py"

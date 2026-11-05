@@ -1,0 +1,317 @@
+{
+  "kind": "eps-cross-host-training-continuation-validation-v1",
+  "date": "2026-11-05",
+  "base_commit": "2ae52165e775dbc4f2a9792e593e366d44708448",
+  "controller_current_source_sha256": {
+    "CMakeLists.txt": "4535a87b4a521285438da97bde7471db9b6779757be092e3c5120effcc4b805f",
+    "scripts/continue_training_generation.py": "c8c0ff72e1dc11aecc1db37120744cc61d15fb0165acb94f56026efbbedaabb7",
+    "scripts/managed_training_recovery.py": "b6118a65c2f5a73f7ea5101922b499aaf92b55c08fb586c5a8fef7414518fd0b",
+    "scripts/rotate_training_checkpoint.py": "9df3bea2eb5ed4b0ac9ec1e230f44514eb30958f61c8896674043cfce922dc87",
+    "scripts/training_source_export.py": "e3f127f223abc6d812c1b2f7ded3c809d16cd84e6ec214a04fb1792d10ebd474",
+    "tests/training_generation_continuation.py": "8a2f6357d7f0b4939d19354f491b0b224874281be8bcccec01642a7dc467ac70",
+    "tests/tensorflow_native_coload.py": "f2f5be81f23dde2a38488df3a1804e08aae33deb841be54cfcff01e6fecdf6df"
+  },
+  "native_sources_verified": 104,
+  "linux_runtime": {
+    "ready": {
+      "ready": true,
+      "base": "/gpu-node/project",
+      "source_archive_sha256": "800035debcda58bd2e0ffa2627b1cc66fafa4e248d9eb48be29134c4726b11cc",
+      "source_overrides_sha256": {
+        "CMakeLists.txt": "19f2b891679dc7b0b2fd8c059fb67784917d91975aec30ddc4d928c2526d96b5",
+        "tests/tensorflow_native_coload.py": "f2f5be81f23dde2a38488df3a1804e08aae33deb841be54cfcff01e6fecdf6df"
+      },
+      "gpu": "gpu-device-0, NVIDIA L40, 46068 MiB, 8.9\n",
+      "binary_sha256": {
+        "eps_server": "cf8d8cf643e1d97eaaddb4fdba6f068cfa2bbc1e9ef37a3984af9889380f26b9",
+        "eps_training_coordinator": "5dc190f639c158ba57970b2eeb3f7b3df2c0529ed2b4e60b82e3e5768782c484",
+        "eps_replica_control": "c4288081184440633f4fa93ec22b2aa05aa9fc77072d7ac2113b5b063edf8337",
+        "eps_replica": "50dcf54e20a9a5713f7c2428424b9c657e03e6bcb61832ab1c755bc25359bb59",
+        "eps_training_prepare": "2a0541a363514261b77b662ece7500aaec3587f5226e883307d18d800ba30e6e",
+        "eps_cache_agent": "5aa20da0f70f3610bb5c2e7554caea4350a44ed14b02a376962a26e5a2d5c825",
+        "eps_training_control": "05fec7cd062441b49b5d05e52f2078589e323c683a635786a7253a115fe9c0cb"
+      },
+      "native_module_sha256": "2c7ce6b5cc3f1c76f520d1db8d4a6bc2412adfedb76856bed7d483b3040b59e5"
+    },
+    "coload": {
+      "test": "tensorflow_native_coload",
+      "require_gpu": true,
+      "records": [
+        {
+          "order": "tensorflow-first",
+          "exit_code": 0,
+          "result": {
+            "gpu_devices": [
+              "/physical_device:GPU:0"
+            ],
+            "native_loaded": true,
+            "tensorflow": "2.20.0"
+          }
+        },
+        {
+          "order": "native-first",
+          "exit_code": 0,
+          "result": {
+            "gpu_devices": [
+              "/physical_device:GPU:0"
+            ],
+            "native_loaded": true,
+            "tensorflow": "2.20.0"
+          }
+        }
+      ]
+    },
+    "source_sha256": {
+      "include/eps/access_planner.hpp": "48e2c16c5f10133e918359671c69d5205f1f27679efb78e981307a7b2af3bea7",
+      "include/eps/agent_admission.hpp": "daddbb057a7eb16be6a56a33517afb6a9ab18548802e77adcbedd9e7d5c592ec",
+      "include/eps/agent_runtime.hpp": "400645c7305b154542bb52f3d6b0225bbc2d6e1e49d4fac2d27358f981d911be",
+      "include/eps/brpc_cache_backend.hpp": "a10b91eeac2619ec950234829d4c411c098974202409b5bf82ebe2353274aec4",
+      "include/eps/brpc_client.hpp": "b819516455a438bfc05f765f0306be54c513e5a71c81d30db614c2e43e8e0222",
+      "include/eps/brpc_replica.hpp": "c34e3d41c87577a4217b7ec7f735f1280434d85a82947296c7699f131d28d433",
+      "include/eps/brpc_synchronous_gradients.hpp": "8f7e522565439276ff2d9c7d1dd1d83b38627c529fd020f3b8fe9047ed90c479",
+      "include/eps/brpc_training.hpp": "58c68df0e3c784fa63359d4d0d1678f3c275f0264c92ea52829164005546da0a",
+      "include/eps/cache_agent.hpp": "cbd6f949597f71dcd39c60b2f424916f392199a0c6eaf312be5b262fd01c0d04",
+      "include/eps/cache_backend.hpp": "f324423d9e31a621bf470a858e3d3b1fb2f583292af47ff2ca486c5f49e04ccf",
+      "include/eps/cache_policy.hpp": "280bfe70e26854b508caba42d361fbe45832d9b3c41360bbff79f476ecfc0530",
+      "include/eps/cache_resolver.hpp": "1af350c7f21e06156ae536f9badf21a03063f570d3249f64500ac58af0bd901a",
+      "include/eps/compact_gradients.hpp": "c6f9302fde994f905238832e083e8b4dfce61523bdfcd455f351503411ca8a93",
+      "include/eps/cost_planner.hpp": "e9f174170b2a63cec05b07c694addb6dd601fb69eb94fc4bf8d7e4c7be6830fd",
+      "include/eps/cuda_cache_backend.hpp": "80480a8d7cacfae11e415d426ae5906dd0c43497567c1e08a45f0cf8c74845e2",
+      "include/eps/device_features.hpp": "78f2fe952765a537cfef3860558319c201fd32bdc36ba62eaefd10b509647328",
+      "include/eps/distributed_client.hpp": "b608680085c95c200a559dfd49948428a91090895c721daf9a05977b0278d4e1",
+      "include/eps/entropy_adapter.hpp": "70efaf2ab1eb1dbbd24c2b8a8920577b8d948cd7968d81e9566991e8196718bb",
+      "include/eps/gradient_layout_cache.hpp": "f70ece59996c1a54c86899a028146b1b10f11157464bebd7bd4eb71a59c3a1fe",
+      "include/eps/lookup_layout_cache.hpp": "47f821eeeaf9cdb4896e400b68be542e5b8760af6082de88022758f0455fae55",
+      "include/eps/parameter_service.hpp": "5ffd5c2af952d96bd38e9436beb176aed947d2b201ceda921f9bc4af4becfc3a",
+      "include/eps/prepared_lookup.hpp": "98932bc8612a63842613fcadd6eed4e1b6ba7520b5e158f12365313184ea0645",
+      "include/eps/replica_log.hpp": "9cd5f36226b29f478181dcde43001dbecb7f1bfe3a13b34cf83c278ccca52bf3",
+      "include/eps/runtime.hpp": "95153a8afa8381e408f74f73bc0ce7e43311017cfcada2dc01d6447249042aa8",
+      "include/eps/runtime_c.h": "1d89e060f731dd822a40763b0e02e880b379c1bc173a1689465c12ae48de5c6a",
+      "include/eps/synchronous_gradients.hpp": "c306884723014f1e2c0aacb4659137692a214cda6948446993ff4764692d5e22",
+      "include/eps/training_progress.hpp": "599dd2d6c2ca89d16dfcb5e31c9dec21f5d8b4d32d92a14ddce79104b0cf9f9d",
+      "include/eps/types.hpp": "8f65bbbf1769125814af779a78627ec82f908b7195dcc480f9b113ed26a633ef",
+      "include/eps/worker_cache_agent.hpp": "dc6c8123089a9087094a216962493101933017e9fd2cada58c4983bdf504afeb",
+      "proto/embedding_service.proto": "8cae5ce88717ea6c9a10fd5143b510906b35a2020bff6a9c830780c299d6237d",
+      "src/access/batch_access.cpp": "2b9e8cac5fd4efb8faac4251498ee587bf8478e885e2aea937a6d0507c916ac7",
+      "src/access/batch_access.hpp": "7c6a2f079ce43a6539a2b3ef78a2b20510ffda986f570f7f1350c8853de649ae",
+      "src/access/compact_gradients.cpp": "637aefc41a5a8ccb5ac8560c0c26089979b3be328eb960dd2a37de3cd8eb029c",
+      "src/access/gradient_layout_cache.cpp": "99556ef4e7fc3aba6a2263f77d6051dc6ca1e5c793b0ae3b1fd9174bd3663e1c",
+      "src/access/lookup_layout_cache.cpp": "31365a0e7d4e983ee0f02a6dfd3530bb8d102e92e5d0841ec146dc650883b49c",
+      "src/access/prepare_queue.cpp": "36f5054b44bec29b780f407f86125308bf28d9d51582afd62ae65537473305f5",
+      "src/access/prepare_queue.hpp": "6f07dcd747ac663b9d3d06a6b6c4b2e62bcaedc565073ae8f2226cf6125c8da0",
+      "src/access/prepared_lookup.cpp": "97bbc8ffab46692a1a42a854c11d0b8f2073a86b2e84c0f23e8b577fbcfb1d54",
+      "src/cache/access_cost_model.cpp": "c8180658225960497671dc56dac5c608e822e588d6b5fa3ea2cd807933d4a11e",
+      "src/cache/agent_runtime.cpp": "ae4b1159d478ffca3fb80d1ee2a2bfa4e09cb748e387cd5d786bdeaacdab951d",
+      "src/cache/host_backend.cpp": "7d3dc2d525c3c41fa1ca67fe45ec7cf628dd43678142cc8c658caead3da33e66",
+      "src/cache/reuse_policy.cpp": "2314af79d2973a9f061ad001c30bfd55b4bd7227aa66ebb4e06eb9ab1e5b34ae",
+      "src/cache/reuse_policy.hpp": "3501ef1f4faf72854d10c09622a4ed745315eef45a08b0d51229aa43250f8536",
+      "src/client/cache_resolver.cpp": "b4e930a8f1643b9c66dd2e8210d27a67c1c48b998313e146634a3111c93a2381",
+      "src/client/distributed_client.cpp": "b6316362939ca55fb6c1c67606b1839941891a802224a3ef0110b519db96ab6c",
+      "src/common/actor_task.hpp": "17f37d38bc7f97fb7c82ee872f8719fbf1a32474468077547dfa28bc1344eaef",
+      "src/common/agent_admission.hpp": "db1816d7df2955aa5c585f57268102fd2a67ac3ef8d2bd9b5418ec6ae3c52691",
+      "src/common/error.hpp": "92682f1e7e16baef5f456c91aa4c8020936ae982ecac3532507ae53a0afd7ad8",
+      "src/common/executor.hpp": "81b0a16cfbbb33e134a0d2638069fe26fe7ab9031feafd11934a207b362c695c",
+      "src/common/immutable_metadata_cache.hpp": "f7dc7a0347076e3dacecc9a918f9314abfcc3a222fa55fcb431afe606fe37896",
+      "src/common/optimizer_bounds.hpp": "d1ae8ef0b7e8f297f1b2998eb2e7d8c8b6d88076a2bae4a45ec0349720802810",
+      "src/common/phase_timer.hpp": "99b9b16c11c355e633ba84c57a639aa99786762811481e88e04e18f48ded3795",
+      "src/common/resumable_actor.hpp": "9b4b7e6707d51cd1f3c34c2a77dd677acb49dee9959406d7f1279502e45ca28c",
+      "src/cuda/cache_backend.cu": "6817003e1a8b6c11c3f1abb3371fc7ec6e6d6a716a79b8a20c2d8bd072095d63",
+      "src/input/checkpoint_main.cpp": "68bbef2f92c4f98e1d98cfc2a32c5b53318190f407f6db322581542fc2c1827d",
+      "src/replication/configuration.hpp": "7554e7fbdba71cf2fe40e3b193013312fd152e9f063ebe1454486313da23b433",
+      "src/replication/control_main.cpp": "14dad2f14229e67de8d2c5210cd2918c97871d38d20aab13fb50a60d59b7b57c",
+      "src/replication/log.cpp": "7fb4b3b66f85675d1db6ea4e61efff3ad58def364ceaacedcded0ee5f3b9a7f7",
+      "src/replication/owner_identity.hpp": "4a2e901ac9e2b2a3cc054f4cd366e61349efc48fa2e222232c3ad0dd676e7ea2",
+      "src/replication/record.cpp": "0c5c1067925d8c8e041cb7e2873c8ed2c88a4b68592cbb62900e9c40e11ad03a",
+      "src/server/agent_main.cpp": "f54bb65bd3c0cd7a16675366fcc670173a0d6c6fec79c406f0802bccbffccd02",
+      "src/server/main.cpp": "ec142b4d89c2cadb0bcacbd3533f8492d621b0e6c93dd9c70799f154f7428886",
+      "src/server/replica_main.cpp": "53c9b693cb06aac40338c197068459cd7596dbec37011a34929e6d13b57bce71",
+      "src/server/request_tracker.hpp": "d4070c5aa7f4b4853b4d8fa369521cd9bf557d739f5e1ba367f20ceab85c3483",
+      "src/server/service.cpp": "ddbd41cdb6f1598c1175bdae878becf448a2520d8a321aeb8c0c66679a47d304",
+      "src/server/training_main.cpp": "e22f1a401500cbd3ab5f874d2e462a7cf588d8b959465717772afee129f2bc1d",
+      "src/store/shard_store.cpp": "211c0de9f48b322bf16f5f51c7ee5f6b91e023d96ea566deb0d3df0d0b7d8cee",
+      "src/store/shard_store.hpp": "8be8fef916a0f4f02b96edf9b7fa2abd3638777d6f2d3a0f9a476a2686364b3c",
+      "src/store/snapshot.cpp": "586a90bd4c6839a47c1e74428f0ea3f3e8c1cc8a4797fc0c235da964a4eafdd2",
+      "src/store/snapshot.hpp": "17fbd6225d967ef4a2350e91d798517a0309b456dcb3bce076bd008cfb9b1f07",
+      "src/training/checkpoint_json.hpp": "cce093bdc489e068997ddd47ec1a49d4cdac3053390b228742a6d85b4f0056d4",
+      "src/training/control_main.cpp": "b8b93915add45e250d977fdd49b90b7d8d9edf805bd3250c576de5ec3e0e4136",
+      "src/training/job_checkpoint.cpp": "6386310a195b4a08e0e1309c457f8c48776fddd5078d8ebb9a38cf4c1bf0e774",
+      "src/training/job_checkpoint.hpp": "770afeca5bf7f092f639826526abe051d94862281cc3f7789f1d452548e199d0",
+      "src/training/prepare_main.cpp": "7604fd5f4370d62391f4b4610ce5cc39e8ef3f8a65f6bd665cfec00d7a3316da",
+      "src/training/synchronous_gradients.cpp": "f1a4e5c6f2f3190878b9cc75cb34fec1e47fe1afe39ded417741cd1ae2ac1986",
+      "src/training/training_progress.cpp": "0d98097a84fe0a6c5bd8a75261814dd84acd89c8e2a749237fa6519cfd2674f6",
+      "src/transport/agent_dispatch.hpp": "f1dfb0b1f99323cd63362c75be7b2977c8e542f0b0a70516eb57eb4d734fa31e",
+      "src/transport/brpc_agent_server.cpp": "dbedfbd3a02877c8e7b1663be75c0000ab3bd98b7cbf7a6d162a542ce7e332f0",
+      "src/transport/brpc_agent_server.hpp": "7f6e8a7408b8a88b42e4b7c0667c5878f52c68d35fc52bf02569486e0ea6351d",
+      "src/transport/brpc_cache_client.cpp": "aab08996ba81e6ba03cdca42dacaf967f3bec7172d3ad1b9444d9ceafdc59795",
+      "src/transport/brpc_client.cpp": "b9473318147f9fa702d9bf8e83377a1aa3083fe8d93a910b3024b161318fc535",
+      "src/transport/brpc_replica_client.cpp": "391289971df3d3ede6056252063f427cd9945e886ab9737dd1788e3c75d4c39a",
+      "src/transport/brpc_replica_server.cpp": "e57ea6621a60c17a2f2feabe03af35fb41c3f11113a0c157b09d578edf43ea65",
+      "src/transport/brpc_replica_server.hpp": "6cac6cfd8d3b7bf4ae5a2291a3b48710ba7c02cf590ecf57036205276d15c3f7",
+      "src/transport/brpc_server.cpp": "9f24c4554d5390dfeef951b4dcdd398d623391b268bdec50fb6e3ea346ce94fc",
+      "src/transport/brpc_server.hpp": "339c7465bc1130d5a6a6e3e7218db585bafa34a2dc45ec8d1317289bcc00b847",
+      "src/transport/brpc_synchronous_client.cpp": "5ec77e5f997d78225049d457327a0334d1c0fa537f741d866c217aaf680586b1",
+      "src/transport/brpc_synchronous_server.cpp": "fb094515f39e4cb054b24ab8ad4433df5682b6179345a73e9af61782d6043e49",
+      "src/transport/brpc_synchronous_server.hpp": "9b8e98e561e5f090efea7365062ecc42a7e2cab4238ca72997922045a0a09c07",
+      "src/transport/brpc_training_client.cpp": "83785d46be920fd111c044fb85f16884e1485fe0d8d045964808589d5405bc9e",
+      "src/transport/brpc_training_server.cpp": "9137838d042f053c2137b537b1abee1ff9327d7b60c8d8d9042d374b4c4d3543",
+      "src/transport/brpc_training_server.hpp": "5dc575da838d39f85e5661c286283d19beeb982138fc2e6caed0321717497161",
+      "src/transport/codec.hpp": "7215690b51decdabb6159288dc7b9a636165f42a8a1de0b7409f72899fe9a961",
+      "src/transport/completion_executor.hpp": "8d56bd19d5d26892f2ec5875de0a4a4fa096aa963adadfc41c93eefbbfbfde64",
+      "src/transport/local_agent_dispatch.hpp": "ca26126cf2512999c4a1de86ba9b46418b53f5a4670b0f09d0be66610abbd7d5",
+      "src/transport/replica_codec.hpp": "ee1d8d8db157e0dda266f0d3078cab96b26b416f96613e230de292098020692d",
+      "src/transport/replicated_rounds.cpp": "32fb20798c7c6df1809314eba6751994a7301d4a784b371f3b52d01975b4fac3",
+      "src/transport/replicated_rounds.hpp": "2351e0c6ec5a4bf0dedf6d5a9b9ffe3c61ea6dd9f07a8969fbfa8ad76f868800",
+      "src/transport/rpc_call.hpp": "eb3802e7c4a20e01d9b84a572b449082bbd2be15a10afda3641a7446ef330f41",
+      "src/transport/rpc_dispatch.hpp": "69af6b9242fb18a47551a363ab7a3e1588394f67452b93a22190394380dacde7",
+      "src/transport/worker_cache_agent.cpp": "3470f8727202e87626951d8532dc86c9a632198a398c41bd4bbad45686ea1a56",
+      "src/update/lazy_adam.cpp": "7bde6a87364d21fd6e5ff62959cb7f20cbedcd1bf12bbf78155ba9b9758698e5",
+      "src/update/lazy_adam.hpp": "0246c133dd3230aedb444cdf09db6a74a8ef39366961e8818b64a1762f07825a"
+    },
+    "packages": {
+      "tensorflow": "2.20.0",
+      "numpy": "2.4.6",
+      "pybind11": "3.0.1",
+      "protobuf": "7.36.2"
+    }
+  },
+  "cuda_baseline": {
+    "real_cuda_test_passed": true,
+    "source": "cached CUDA runtime real multi-table gather/Adam/rejection/slot-reuse test on rented L40"
+  },
+  "cases": [
+    {
+      "test": "training_generation_continuation",
+      "source_physical_hosts": 1,
+      "source_physical_gpus": 1,
+      "source_hosts": [
+        "gpu-node"
+      ],
+      "retirement_physical_hosts": 2,
+      "source_ssh_participants": 2,
+      "transport": "BRPC and gradient replication over scoped SSH relays through controller; 1 physical GPU(s), two logical Workers",
+      "replacement_physical_hosts": 1,
+      "replacement_device": "CPU",
+      "model": "embedding_tanh_mlp",
+      "workers": 2,
+      "shards": 2,
+      "rounds": 8,
+      "split_round": 4,
+      "comparison": {
+        "max_state_absolute_error": 2.9802322387695312e-08,
+        "max_loss_absolute_error": 5.960464477539063e-08,
+        "tolerance": 1e-05,
+        "all_rows": 32,
+        "completed": [
+          8,
+          8
+        ],
+        "input_cursors_match": true,
+        "optimizer_update_counts_match": true
+      },
+      "lost_successful_commit_response_verified": true,
+      "completed_retirement_replay": true,
+      "cleanup_verified": true,
+      "retired_paths": 43
+    },
+    {
+      "test": "training_generation_continuation",
+      "source_physical_hosts": 2,
+      "source_physical_gpus": 1,
+      "source_hosts": [
+        "controller",
+        "gpu-node"
+      ],
+      "retirement_physical_hosts": 2,
+      "source_ssh_participants": 1,
+      "transport": "BRPC and gradient replication over scoped SSH relays through controller; one L40 Worker and one controller CPU Worker on two hosts",
+      "replacement_physical_hosts": 1,
+      "replacement_device": "CPU",
+      "model": "embedding_tanh_mlp",
+      "workers": 2,
+      "shards": 2,
+      "rounds": 8,
+      "split_round": 4,
+      "comparison": {
+        "max_state_absolute_error": 2.9802322387695312e-08,
+        "max_loss_absolute_error": 5.960464477539063e-08,
+        "tolerance": 1e-05,
+        "all_rows": 32,
+        "completed": [
+          8,
+          8
+        ],
+        "input_cursors_match": true,
+        "optimizer_update_counts_match": true
+      },
+      "lost_successful_commit_response_verified": true,
+      "completed_retirement_replay": true,
+      "cleanup_verified": true,
+      "retired_paths": 43
+    }
+  ],
+  "final_local_regression": {
+    "command": "ctest --test-dir build/tensorflow --output-on-failure -j2 -R '^(training_generation_continuation|managed_training_source_export)$'",
+    "passed": 2,
+    "total": 2,
+    "elapsed_seconds": 28.02
+  },
+  "archived_numerical_results_rechecked": {
+    "reports": [
+      {
+        "case": "cross-host-model",
+        "comparison": {
+          "max_state_absolute_error": 2.9802322387695312e-08,
+          "max_loss_absolute_error": 5.960464477539063e-08,
+          "tolerance": 1e-05,
+          "all_rows": 32,
+          "completed": [
+            8,
+            8
+          ],
+          "input_cursors_match": true,
+          "optimizer_update_counts_match": true
+        }
+      },
+      {
+        "case": "mixed-model-v2",
+        "comparison": {
+          "max_state_absolute_error": 2.9802322387695312e-08,
+          "max_loss_absolute_error": 5.960464477539063e-08,
+          "tolerance": 1e-05,
+          "all_rows": 32,
+          "completed": [
+            8,
+            8
+          ],
+          "input_cursors_match": true,
+          "optimizer_update_counts_match": true
+        }
+      }
+    ],
+    "nonfinite_rejected": true
+  },
+  "cleanup": {
+    "owned_uuid": "rented-instance",
+    "provider_inventory_absent": true,
+    "owned_instances_remaining": 0,
+    "all_account_instances_remaining": 0,
+    "rental_seconds": 878.2076170444489,
+    "estimated_base_cost_usd": 0.1927177826291985,
+    "relays_stop_requested": true
+  },
+  "second_gpu_request": {
+    "allocated": false,
+    "reason": "GPU configuration l40 x1 is currently unavailable"
+  },
+  "remaining_acceptance": [
+    "fixed-workload one-versus-multiple physical GPU model scaling"
+  ],
+  "scope": "32-row full-state model correctness and two-host continuation; no throughput or scaling claim",
+  "artifact": {
+    "path": "docs/validation/artifacts/2026-11-05-cross-host-training-continuation.json.gz",
+    "sha256": "e2b039677f59b85369ed61e84efd78f29625732269bd5d09e101a18e05103791",
+    "uncompressed_sha256": "0b7c07d35a79b3722c7edd042c85f89ce5f0e29e535f126dcdfe75d0b764913b",
+    "unredacted_private_bundle_sha256": "5dd933b3d58205d9403c52970a53165f879b331e2879eecbb82912e7e75e0901",
+    "redaction": "Machine names, local paths, instance/GPU UUIDs replaced by stable aliases; numerical model state and metrics unchanged"
+  }
+}
