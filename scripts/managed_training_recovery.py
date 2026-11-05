@@ -33,6 +33,9 @@ from physical_roles import PhysicalRoles,storage_node
 def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, export_checkpoint=False):
     nodes=copy.deepcopy(fleet['nodes']);manager=copy.deepcopy(fleet['manager']);count=len(nodes)
     placed='role_placement' in fleet
+    measurement=fleet.get('training_measurement',False)
+    if type(measurement) is not bool or (measurement and (fault is not None or placed)):
+        raise ValueError('training measurement requires an uninterrupted fixed-placement run')
     expected_gpus=fleet.get('expected_physical_gpus',count)
     if type(expected_gpus) is not int or not 1<=expected_gpus<=count:
         raise ValueError('invalid expected physical GPU count')
@@ -60,7 +63,9 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
     recovery_generation=saved.get('recovery_generation',1)
     def step(name,action):
         if name not in saved['steps']:
-            saved['steps'][name]=action();write(state_path,saved)
+            started=time.monotonic();saved['steps'][name]=action()
+            saved.setdefault('phase_seconds',{})[name]=time.monotonic()-started
+            write(state_path,saved)
             print(json.dumps(dict(phase=name,run=run)),flush=True)
             if on_checkpoint:on_checkpoint(name)
         return copy.deepcopy(saved['steps'][name])
@@ -69,6 +74,13 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
     table=dict(id=1,dimension=8,dtype='float32',optimizer=dict(kind='sparse_lazy_adam',learning_rate=.02,beta1=.9,beta2=.999,epsilon=1e-8,initial_beta1_power=.9,initial_beta2_power=.999),initialization=dict(min=-.1,max=.1,seed=42))
     batches=[[[dict(keys=[7,8,7],label=0.),dict(keys=[9],label=1.)],[dict(keys=[10],label=1.)],[dict(keys=[11,12],label=0.),dict(keys=[9],label=1.)]],[[dict(keys=[9,10],label=1.)],[dict(keys=[11],label=0.),dict(keys=[12,9],label=1.)],[dict(keys=[7,12],label=0.)]]]
     workload=fleet.get('workload',{})
+    preparation_batch=workload.get('preparation_batch_rows',256)
+    control_timeout=workload.get('control_timeout_seconds',30)
+    observation_timeout=workload.get('observation_timeout_seconds',180)
+    if (type(preparation_batch) is not int or not 1<=preparation_batch<=65536
+            or type(control_timeout) is not int or not 1<=control_timeout<=1800
+            or type(observation_timeout) is not int or not 1<=observation_timeout<=3600):
+        raise ValueError('invalid preparation/control bounds')
     table=copy.deepcopy(workload.get('table',table))
     dimension=table['dimension'];hidden=workload.get('hidden',4)
     rounds=workload.get('rounds',8)
@@ -92,7 +104,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
         env['PYTHONPATH']=manager['module_dir']+':'+str(ROOT/'adapters/entropy')
         argv=[str(pathlib.Path(manager['bin_dir'])/name),'--config',str(p)]
         if action:argv+=['--action',action]
-        r=subprocess.run(argv,env=env,capture_output=True,text=True,timeout=30)
+        r=subprocess.run(argv,env=env,capture_output=True,text=True,timeout=control_timeout)
         if r.returncode:raise RuntimeError(r.stderr[-2000:])
         return json.loads(r.stdout)
     settings=dict(run=run,epoch=1,coordinator=manager['coordinator'],shards=manager['shards'],keys=inspect_keys,synchronous=True)
@@ -137,6 +149,8 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
         cfg=dict(run=run,epoch=1,shards=n['shards'],coordinator=n['coordinator'],worker=w,dimension=dimension,hidden=hidden,iterations=rounds,batches=batches[w],table=table,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(n['agents'])],device='/GPU:0' if n.get('gpu') else '/CPU:0',journal_directory=str(path(w,f'worker-{w}-g0')/'journal'),journal_workers=count)
         if w==0 and fault in ['after_pull','after_update']:cfg['test_pause']=dict(stage=fault,iteration=target,path=str(path(w,'worker-0-g0')/'gate'))
         if mirror_enabled:cfg['journal_mirror']=dict(endpoint=n['journal_mirrors'][w],generation=1,writer=f'worker-{w}-g0')
+        if measurement:cfg.update(start_gate=str(path(w,f'worker-{w}-g0')/'training-start'),record_stage_times=True,
+                                  deterministic_model=workload.get('deterministic_model',False))
         workers.append(cfg)
     def mirror_role(roles,worker,generation):
         host=(worker+1)%count;name=f'journal-mirror-{worker}-g{generation}'
@@ -165,7 +179,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
             def initial():
                 for h in range(count):role_owner(roles,h,0);role_replica(roles,h,0);grant(h,0)
                 for h in range(count):roles.ensure(h,f'primary-{h}-g0',[binary(h,'eps_server')],primary_cfg(h,0));roles.ready(h,f'primary-{h}-g0')
-                command('eps_training_prepare',dict(run=run,shards=manager['shards'],rows=rows,dimension=dimension,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(manager['agents'])]))
+                command('eps_training_prepare',dict(run=run,shards=manager['shards'],rows=rows,dimension=dimension,batch_rows=preparation_batch,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(manager['agents'])]))
                 roles.ensure(0,'coordinator-g0',[binary(0,'eps_training_coordinator')],dict(schema_version=1,run=run,listen=nodes[0]['coordinator_listen'],workers=count,consistency='sequential',max_delay=0));roles.ready(0,'coordinator-g0')
                 return dict(ready=True)
             step('initial_roles',initial)
@@ -174,8 +188,18 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                 for w,cfg in enumerate(configs):roles.ensure(w,f'worker-{w}-g{generation}',[nodes[w]['python'],str(pathlib.PurePath(nodes[w]['source'])/'examples/tensorflow_training_worker.py')],cfg,dict(CUDA_VISIBLE_DEVICES='0' if nodes[w].get('gpu') else ''))
                 return dict(started=True)
             step('initial_workers',lambda:start_workers(workers,0))
+            if measurement:
+                def warm_workers():
+                    deadline=time.monotonic()+50
+                    while True:
+                        states=[roles.call(w,'training_gate',f'worker-{w}-g0') for w in range(count)]
+                        if all(s['warmed_model'] for s in states):return states
+                        if time.monotonic()>=deadline:raise TimeoutError('Worker warmup observation expired; retain its existing handle')
+                        time.sleep(.05)
+                step('measurement_workers_ready',warm_workers)
+                step('measurement_gates_released',lambda:[roles.call(w,'training_gate',f'worker-{w}-g0',release=True) for w in range(count)])
             def observe_fault():
-                deadline=time.monotonic()+180
+                deadline=time.monotonic()+observation_timeout
                 injected=None
                 while True:
                     states=[roles.status(w,f'worker-{w}-g0') for w in range(count)]
@@ -204,9 +228,9 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                     if time.monotonic()>=deadline:raise TimeoutError('training observation expired; retain all role handles')
                     time.sleep(.1)
             observed=step('observation',observe_fault)
-            if export_checkpoint and observed['recovery']:
+            if (export_checkpoint or measurement) and observed['recovery']:
                 terminal=True
-                raise RuntimeError('source export requires an uninterrupted initial generation; source logs are retained')
+                raise RuntimeError('source export/measurement requires an uninterrupted initial generation; source logs are retained')
             active_workers=workers;generation=0
             if observed['recovery']:
                 def stop_generation():
@@ -305,6 +329,21 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                 if final['completed']!=[rounds]*count or final['failed'] or final['active'] or final['waiting']:raise RuntimeError('managed training did not complete')
                 if any(s['live_tickets'] or s['synchronous']['next_round']!=rounds or s['cached_rows']!=(rows+count-1-h)//count for h,s in enumerate(final['shard_stats'])):raise RuntimeError('managed parameters did not drain or retain residency')
                 histories=[];receipts=[]
+                if measurement:
+                    mirror_states=[]
+                    for w in range(count):
+                        receipt=roles.call(w,'journal_report',f'worker-{w}-g{generation}')
+                        if (receipt['run']!=run or receipt['worker']!=w or receipt['rounds']!=list(range(rounds))
+                                or receipt['loss_history']!=outputs[w]['losses']):
+                            raise RuntimeError('completed Worker journal differs from its model output')
+                        receipts.append(receipt);histories.append(receipt['loss_history'])
+                        if mirror_enabled:
+                            peer=receipt['gradient_replica']
+                            if peer['next_round']!=rounds or peer['records']!=rounds:
+                                raise RuntimeError('gradient replica history did not complete')
+                            mirror_states.append(peer)
+                    return dict(workers=outputs,state=final,loss_history=histories,final_journal_receipts=receipts,
+                        gradient_replicas=mirror_states,journal_verification='owner-local full payload verification; only hashes/progress/losses transferred')
                 for w,cfg in enumerate(active_workers):
                     receipt=transfer(cfg,nodes[w],manager_node,out/f'completed-worker-{w}','complete-'+run)
                     receipts.append(receipt)
@@ -329,7 +368,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                     return save_checkpoint(command,settings,workers,final['workers'],out/'source-generation'/'checkpoint')
                 step('source_checkpoint',export)
             terminal=True
-            result=dict(run=run,fault=fault,recovered=observed['recovery'],generation=generation,model=final,steps=saved['steps'],hardware=hardware,mirror_worker_journals=mirror_enabled,workload=dict(rows=rows,dimension=dimension,rounds=rounds,hidden=hidden,inspected_rows=len(inspect_keys)))
+            result=dict(run=run,fault=fault,recovered=observed['recovery'],generation=generation,model=final,steps=saved['steps'],phase_seconds=saved.get('phase_seconds',{}),hardware=hardware,mirror_worker_journals=mirror_enabled,workload=dict(rows=rows,dimension=dimension,rounds=rounds,hidden=hidden,inspected_rows=len(inspect_keys)))
         finally:
             if terminal:
                 cleanup=roles.cleanup()

@@ -62,6 +62,31 @@ def main():
             checked += ['orphan_child_cleanup','repeated_stop']
         finally:
             call('stop','long-lived')
+        path=root/'results/roles-check/roles/gated-worker';path.mkdir(parents=True,exist_ok=True)
+        gate=path/'training-start';trigger=root/'allow-warmup'
+        script="import json,pathlib,sys,time; c=json.loads(pathlib.Path(sys.argv[2]).read_text()); p=pathlib.Path(c['start_gate']); t=pathlib.Path(c['trigger']);\nwhile not t.exists(): time.sleep(.01)\np.with_name(p.name+'.worker-0.ready').write_text(json.dumps(dict(run=c['run'],worker=0,warmed_model=True)))\nwhile True: time.sleep(.1)"
+        config=dict(run='roles-check',worker=0,start_gate=str(gate),trigger=str(trigger))
+        try:
+            call('ensure','gated-worker',spec=dict(command=[sys.executable,'-u','-c',script],config=config))
+            try:call('training_gate','gated-worker',release=True)
+            except ValueError:pass
+            else:raise AssertionError('gate released before model warmup')
+            trigger.touch();deadline=time.monotonic()+5
+            while not call('training_gate','gated-worker')['warmed_model']:
+                assert time.monotonic()<deadline;time.sleep(.02)
+            released=call('training_gate','gated-worker',release=True)
+            assert released['released'] and call('training_gate','gated-worker',release=True)==released
+            checked+=['warmup_required_before_gate_release','gate_release_response_replay']
+            marker=path/'training-start.worker-0.ready';marker.write_text(json.dumps(dict(run='another-run',worker=0,warmed_model=True)))
+            try:call('training_gate','gated-worker')
+            except ValueError:pass
+            else:raise AssertionError('changed Worker readiness identity accepted')
+            checked.append('gate_readiness_identity_checked')
+        finally:assert call('stop','gated-worker')['owned_processes_gone']
+        try:call('training_gate','gated-worker',release=True)
+        except ValueError:pass
+        else:raise AssertionError('stopped role gate accepted')
+        checked.append('stopped_role_gate_rejected')
     result=dict(test='role_node_processes',success=True,checks=checked)
     if len(sys.argv)>1:pathlib.Path(sys.argv[1]).write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result))

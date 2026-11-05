@@ -37,6 +37,8 @@ def main():
         raise RuntimeError("requested model GPU is unavailable")
     if gpu:
         tf.config.experimental.enable_tensor_float_32_execution(False)
+    if config.get('deterministic_model',False):
+        tf.config.experimental.enable_op_determinism()
     dimension = int(config["dimension"])
     hidden = int(config.get("hidden", 8))
     iterations = int(config["iterations"])
@@ -116,6 +118,8 @@ def main():
     backend = Backend(config["shards"], config["run"], config["worker"], config.get("epoch", 1))
     losses, observed_devices, first_gradients, times = [], {}, None, []
     journal, mirror, replayed = None, None, []
+    stage_times={name:[] for name in ('admission','controlled_delay','parameter_pull',
+        'model_and_gradient_staging','journal_io','gradient_replication','synchronous_update','task_completion')} if config.get('record_stage_times',False) else None
     read_retries=0
     admission_wait, max_lead = [], 0
     read_retry_ms=int(config.get('read_retry_ms',2000))
@@ -148,7 +152,9 @@ def main():
         if 'read_sequence' in config:
             backend.restore_read_frontier(config['read_sequence'])
         batch_sizes = []
+        model_warmup_seconds=None
         if config.get('start_gate'):
+            warmup_started=time.monotonic()
             gate = pathlib.Path(config['start_gate'])
             warm = prepared[start_iteration % len(prepared)]
             token, arrays = backend.pull(warm[1], True)
@@ -159,8 +165,11 @@ def main():
             for tensor in result:
                 if not np.isfinite(tensor.numpy()).all():
                     raise RuntimeError('non-finite model warmup')
-            pathlib.Path(str(gate)+f'.worker-{config["worker"]}.ready').write_text(
-                json.dumps(dict(run=config['run'], worker=config['worker'], warmed_model=True)))
+            model_warmup_seconds=time.monotonic()-warmup_started
+            ready_path=pathlib.Path(str(gate)+f'.worker-{config["worker"]}.ready')
+            pending=ready_path.with_suffix('.pending-'+str(os.getpid()))
+            pending.write_text(json.dumps(dict(run=config['run'],worker=config['worker'],warmed_model=True)))
+            pending.replace(ready_path)
             deadline = time.monotonic()+60
             while not gate.exists():
                 if time.monotonic() > deadline:
@@ -169,20 +178,27 @@ def main():
         for iteration in range(start_iteration, start_iteration + iterations):
             samples, features, unique_keys, inverse, segment_ids, labels = prepared[iteration % len(prepared)]
             started = time.monotonic()
+            stages={name:0. for name in stage_times} if stage_times is not None else None
             floor = backend.begin_training(iteration)
             admission_wait.append(time.monotonic()-started)
+            if stages is not None:stages['admission']=admission_wait[-1]
             if floor > iteration:
                 raise RuntimeError("training permit floor exceeds current iteration")
             max_lead = max(max_lead, iteration-floor)
             if delay_ms and iteration % delay_every == 0:
+                stamp=time.monotonic()
                 time.sleep(delay_ms/1000)
+                if stages is not None:stages['controlled_delay']=time.monotonic()-stamp
+            stamp=time.monotonic()
             saved=journal.get(iteration) if journal else None
+            if stages is not None:stages['journal_io']+=time.monotonic()-stamp
             if saved:
                 if saved['sample_count']!=len(samples) or saved['completed_reads']!=backend.completed_read_frontier():
                     raise ValueError('retained gradient sample/read cursor mismatch')
                 value=saved['loss'];tables=saved['tables'];replayed.append(iteration)
                 unique_keys,values=tables[0]['keys'],tables[0]['values']
             else:
+                stamp=time.monotonic()
                 retry_deadline=None
                 while True:
                     try:
@@ -197,6 +213,8 @@ def main():
                 test_gate('after_pull',iteration)
                 if synchronous:
                     backend.release(handle)
+                if stages is not None:stages['parameter_pull']=time.monotonic()-stamp
+                stamp=time.monotonic()
                 with tf.device(device):
                     embedding = tf.convert_to_tensor(arrays[0], dtype=tf.float32)
                     dense = tf.convert_to_tensor(arrays[1], dtype=tf.float32)
@@ -213,18 +231,29 @@ def main():
                 if not np.isfinite(value) or not np.isfinite(values).all() or not np.isfinite(logits.numpy()).all():
                     raise RuntimeError("non-finite model output or gradient")
                 tables=[dict(table=1,keys=unique_keys,values=values)]
+                if stages is not None:stages['model_and_gradient_staging']=time.monotonic()-stamp
                 if journal:
+                    stamp=time.monotonic()
                     journal.put(iteration,len(samples),backend.completed_read_frontier(),value,tables)
-            if mirror:mirror.ensure(iteration)
+                    if stages is not None:stages['journal_io']+=time.monotonic()-stamp
+            if mirror:
+                stamp=time.monotonic();mirror.ensure(iteration)
+                if stages is not None:stages['gradient_replication']=time.monotonic()-stamp
             test_gate('after_journal',iteration)
             if iteration == start_iteration and config.get("record_gradients", False):
                 first_gradients = {"keys": unique_keys.tolist(), "values": values.tolist()}
+            stamp=time.monotonic()
             if synchronous:
                 backend.submit_synchronous(iteration, len(samples),tables)
             else:
                 backend.push(handle, [0, 1], [g_embedding.numpy(), g_dense.numpy()])
+            if stages is not None:stages['synchronous_update']=time.monotonic()-stamp
             test_gate('after_update',iteration)
+            stamp=time.monotonic()
             backend.complete_training(iteration)
+            if stages is not None:
+                stages['task_completion']=time.monotonic()-stamp
+                for name in stage_times:stage_times[name].append(stages[name])
             batch_sizes.append(len(samples))
             losses.append(value)
             times.append(time.monotonic() - started)
@@ -239,6 +268,9 @@ def main():
                           "admission_wait_seconds": admission_wait,
                           "max_admission_lead": max_lead,
                           "training_finished_monotonic": training_finished if config.get('start_gate') else None,
+                          "model_warmup_seconds": model_warmup_seconds,
+                          "deterministic_model": bool(config.get('deterministic_model',False)),
+                          "stage_seconds": stage_times,
                           "local_samples": len(samples), "packed_mlp_rows": dense_rows,
                           "losses": losses, "step_seconds": times, "devices": observed_devices,
                           "first_row_gradients": first_gradients,

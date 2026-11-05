@@ -90,6 +90,11 @@ After a joint checkpoint, the controller restores the model, retires the former
 storage over SSH and continues training; every inspected model/Adam row and loss
 matches the uninterrupted reference within measured error below `6e-8`.
 
+[Fixed-workload model measurement](docs/MODEL_SCALING.md) keeps two logical
+Workers/shards and the model/data constant across physical GPU placements.
+Worker warmup gates, per-stage timings and owner-local journal verification
+separate training throughput from initialization and result collection.
+
 [Replicated training updates](docs/REPLICATED_TRAINING.md) persist exact updated
 parameters, Adam state and request progress on an independent disk-backed replica
 before acknowledging a synchronous round. A replacement primary restores that

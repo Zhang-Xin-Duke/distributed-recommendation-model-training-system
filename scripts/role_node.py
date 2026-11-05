@@ -209,8 +209,62 @@ def hardware(root, run, role, gpu=False):
     return inspect(gpu)
 
 
+def training_gate(root,run,role,release=False):
+    path=directory(root,run,role)
+    if type(release) is not bool:raise ValueError('invalid gate release request')
+    with locked(path):
+        state=snapshot(path)
+        if not state['live_child']:raise ValueError('training gate requires a live owned Worker')
+        cfg=json.loads((path/'config.json').read_text())
+        gate=path/'training-start';worker=cfg.get('worker')
+        if (cfg.get('run')!=run or type(worker) is not int or worker<0
+                or pathlib.Path(cfg.get('start_gate','')).absolute()!=gate.absolute()):
+            raise ValueError('Worker gate identity/path differs from its owned role')
+        marker=path/('training-start.worker-'+str(worker)+'.ready')
+        ready=json.loads(marker.read_text()) if marker.exists() else None
+        expected=dict(run=run,worker=worker,warmed_model=True)
+        if ready is not None and ready!=expected:raise ValueError('Worker warmup readiness identity differs')
+        if release:
+            if ready is None:raise ValueError('Worker model warmup is not ready')
+            publish(gate,dict(run=run,role=role,worker=worker))
+        released=gate.exists()
+        if released and json.loads(gate.read_text())!=dict(run=run,role=role,worker=worker):
+            raise ValueError('Worker gate release identity differs')
+        return dict(run=run,worker=worker,warmed_model=ready is not None,released=released)
+
+
+def journal_report(root,run,role):
+    """Validate completed Worker payloads on their owner; return bounded metadata."""
+    from training_journal import WorkerJournal,identity
+    from gradient_replica import ReplicaClient
+    path=directory(root,run,role)
+    with locked(path):
+        state=snapshot(path)
+        if state['live_child'] or state.get('result',{}).get('exit_code')!=0:
+            raise ValueError('journal report requires a successfully completed owned Worker')
+        cfg=json.loads((path/'config.json').read_text())
+        if cfg.get('run')!=run or pathlib.Path(cfg.get('journal_directory','')).absolute()!=(path/'journal').absolute():
+            raise ValueError('Worker journal identity/path differs from its owned role')
+        with WorkerJournal(cfg['journal_directory'],identity(cfg),cfg.get('journal_record_bytes',32<<20),
+                cfg.get('journal_disk_bytes',1<<30)) as journal:
+            rounds=journal.rounds();losses=[];digests=[]
+            if len(rounds)>10000:raise ValueError('journal report exceeds the round metadata bound')
+            for iteration in rounds:
+                losses.append(journal.get(iteration)['loss'])
+                raw=(journal.root/f'round-{iteration}.epsw').read_bytes()
+                digests.append(dict(iteration=iteration,sha256=hashlib.sha256(raw).hexdigest()))
+            mirror=None
+            if cfg.get('journal_mirror'):
+                peer=ReplicaClient(cfg['journal_mirror'],journal)
+                try:mirror=peer.call('status')
+                finally:peer.close()
+            return dict(kind='eps-node-worker-journal-v1',run=run,worker=cfg['worker'],
+                identity_sha256=journal.digest,base_round=journal.identity['base_round'],rounds=rounds,
+                loss_history=losses,record_sha256=digests,gradient_replica=mirror)
+
+
 def dispatch(request):
-    handlers=dict(ensure=ensure,status=status,stop=stop,read=read,hardware=hardware)
+    handlers=dict(ensure=ensure,status=status,stop=stop,read=read,hardware=hardware,training_gate=training_gate,journal_report=journal_report)
     op=request['op']
     if op not in handlers:raise ValueError('unknown role node operation')
     return handlers[op](**{k:v for k,v in request.items() if k!='op'})

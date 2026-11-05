@@ -1,0 +1,45 @@
+{
+  "kind": "eps-fixed-workload-measurement-protocol-validation-v1",
+  "date": "2026-11-05",
+  "physical_gpus": 0,
+  "physical_hosts": 1,
+  "checks": {
+    "test": "fixed_workload_model_measurement",
+    "physical_hosts": 1,
+    "physical_gpus": 0,
+    "workers": 2,
+    "shards": 2,
+    "rounds": 6,
+    "warmup_rounds": 2,
+    "trials": 5,
+    "cleanup_verified": true,
+    "alternating_placement_order_verified": true,
+    "observation_timeout_retains_live_handles": true,
+    "reentry_uses_same_worker_processes": true,
+    "warmup_gates_verified": true,
+    "stage_closure_verified": true,
+    "workload_identity_verified": true,
+    "owner_local_payload_verification": true,
+    "owner_local_corruption_rejected": true,
+    "invalid_timings_rejected": true,
+    "recovered_work_rejected": true,
+    "no_gpu_scaling_claim": true
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "4888da7360e7960a969ee9689efd9bf1e8ecf05c41434a26ba9a0ad59b626825",
+    "scripts/benchmark_model_scaling.py": "f6757f8443c0f34bb486f84195a0d9e15f6c94e7eba2d0f9f361b9e5ebb6e05d",
+    "scripts/managed_training_recovery.py": "944e025133bfbd2ef5b2c469c9fafad8d3f1608995fada93f0b84869434b4ed9",
+    "scripts/role_node.py": "e4226e54e029d6b29a3f705abe23310c0970094415a0f13d7175001c8c8b4fb8",
+    "examples/tensorflow_training_worker.py": "60159d050865eb9724da40e37c91f6b286b230de773bbc8217664b79ab440e3f",
+    "tests/model_scaling_benchmark.py": "d5529375c7a74d284fdd060b3d4a23cec3cde41c7c8caf429261fb9c5408b1c0",
+    "tests/role_node_tests.py": "71126aa428bcff8ab3553ed781e9ab6a6f8015bd8e0bf8109d7a3f0410f30df0"
+  },
+  "commands": [
+    {
+      "command": "ctest --test-dir build/tensorflow --output-on-failure -R '^fixed_workload_model_measurement$'",
+      "passed": 1,
+      "elapsed_seconds": 38.61
+    }
+  ],
+  "scope": "CPU native service/TensorFlow protocol, timing and live-handle reentry checks; no GPU scaling result"
+}
