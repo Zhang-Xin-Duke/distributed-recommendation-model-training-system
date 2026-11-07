@@ -36,15 +36,23 @@ def model_loss(state, samples, dimension, hidden):
     return loss / len(samples)
 
 
-def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0'):
+def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0',
+          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1):
     dimension, hidden, count = 8, 4, 16
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
     rng = random.Random(20261104)
     samples = [[{'keys': [packed + 32 * (s % 2) + rng.randrange(32) for _ in range(8)],
                  'label': float(s % 2)} for s in range(count)] for _ in range(workers)]
-    all_samples = [s for group in samples for s in group]
-    keys = sorted(set(range(packed)) | {k for s in all_samples for k in s['keys']})
-    run = f'mlp-{policy}-{iterations}-{repeat}'
+    batches = [[group] for group in samples]
+    validation = [example for group in samples for example in group]
+    if workload is not None:
+        batches = workload['batches']
+        validation = workload['validation']
+    training = [example for sequence in batches for batch in sequence for example in batch]
+    keys = sorted(set(range(packed)) | {k for s in training + validation for k in s['keys']})
+    synchronous = update_mode == 'synchronous'
+    admission_delay = max_delay if policy == 'bounded_delay' else 0
+    run = f'mlp-{update_mode}-{policy}-{iterations}-{repeat}'
     home = root / run
     home.mkdir()
     env = os.environ.copy()
@@ -72,15 +80,27 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
     try:
         shards = []
         for shard in range(2):
-            shards.append(ready(launch([build/'eps_server'], f'shard-{shard}', {
+            shard_config = {
                 'schema_version': 1, 'run_id': run, 'listen': '127.0.0.1:0',
                 'partition': {'shard_id': shard, 'shard_count': 2, 'epoch': 1},
                 'tables': [table], 'cache': {'enabled': False},
-                'snapshot_directory': str(home/'snapshots')})))
+                'snapshot_directory': str(home/'snapshots')}
+            if synchronous:
+                shard_config['synchronous_training'] = {
+                    'workers': workers, 'reduction': 'sample_mean', 'round_timeout_ms': 20000}
+            shards.append(ready(launch([build/'eps_server'], f'shard-{shard}', shard_config)))
         coordinator = ready(launch([build/'eps_training_coordinator'], 'coordinator', {
             'schema_version': 1, 'run': run, 'workers': workers, 'epoch': 1,
-            'consistency': policy, 'max_delay': 2 if policy == 'bounded_delay' else 0}))
-        settings = {'run': run, 'shards': shards, 'coordinator': coordinator, 'epoch': 1, 'keys': keys}
+            'consistency': policy, 'max_delay': admission_delay}))
+        settings = {'run': run, 'shards': shards, 'coordinator': coordinator, 'epoch': 1, 'keys': keys,
+                    'synchronous': synchronous}
+        if workload is not None:
+            prepared = launch([build/'eps_training_prepare'], 'prepare', {
+                **settings, 'rows': max(keys) + 1, 'dimension': dimension,
+                'resident': False, 'workers': workers})
+            prepared.communicate(timeout=60)
+            if prepared.returncode:
+                raise RuntimeError('parameter initialization failed')
         admin = home/'admin.json'
         admin.write_text(json.dumps(settings))
 
@@ -93,9 +113,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
         gate = home/'start'
         children = [launch([sys.executable, source/'examples/tensorflow_training_worker.py'],
             f'worker-{w}', {**settings, 'table': table, 'worker': w, 'dimension': dimension,
-                'hidden': hidden, 'iterations': iterations, 'samples': samples[w],
-                'update_mode': 'per_worker', 'start_gate': str(gate),
-                'delay_ms': delay_ms if w == workers-1 else 0, 'device': device})
+                'hidden': hidden, 'iterations': iterations, 'batches': batches[w],
+                'update_mode': update_mode, 'start_gate': str(gate),
+                'delay_ms': delay_ms if w == workers-1 else 0, 'delay_every': delay_every,
+                'record_stage_times': workload is not None, 'device': device})
                     for w in range(workers)]
         deadline = time.monotonic()+60
         for w, child in enumerate(children):
@@ -109,14 +130,14 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
             assert json.loads(marker.read_text()) == dict(run=run, worker=w, warmed_model=True)
         initial = inspect()
         assert initial['completed'] == [0]*workers and not initial['active'], initial
-        initial_loss = model_loss(initial, all_samples, dimension, hidden)
+        initial_loss = model_loss(initial, validation, dimension, hidden)
         started = time.monotonic()
         temporary = gate.with_suffix('.tmp')
         temporary.write_text('start')
         temporary.replace(gate)
         outputs = []
         for child in children:
-            stdout, _ = child.communicate(timeout=120)
+            stdout, _ = child.communicate(timeout=120 + 2 * iterations * delay_ms / (1000 * delay_every))
             if child.returncode:
                 raise RuntimeError(f'model Worker failed: {child.returncode}')
             outputs.append(json.loads(stdout))
@@ -128,29 +149,46 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
         assert final['completed_tasks'] == final['granted_tasks'] == iterations*workers, final
         assert not final['active'] and not final['waiting'] and not final['failed'], final
         assert all(s['live_tickets'] == 0 for s in final['shard_stats']), final
+        optimizer_steps = iterations if synchronous else iterations * workers
+        if synchronous:
+            for shard in final['shard_stats']:
+                progress = shard['synchronous']
+                assert progress['next_round'] == iterations and not progress['failed'], progress
+                assert progress['received_workers'] == progress['retained_bytes'] == 0, progress
         for row in final['rows']:
             if row['key'] < packed:
-                assert row['row_updates'] == iterations*workers, row
+                assert row['row_updates'] == optimizer_steps, row
             assert all(math.isfinite(v) for f in ('weights', 'first_moment', 'second_moment') for v in row[f])
         for output in outputs:
-            assert output['update_mode'] == 'per_worker' and output['completed'] == iterations
+            assert output['update_mode'] == update_mode and output['completed'] == iterations
             if device=='/GPU:0':
                 assert output['devices'] and all('GPU:' in value.upper() for value in output['devices'].values()),output
             if policy != 'eventual':
-                assert output['max_admission_lead'] <= (2 if policy == 'bounded_delay' else 0), output
-        loss = model_loss(final, all_samples, dimension, hidden)
-        assert math.isfinite(loss) and loss < initial_loss, (loss, initial_loss)
+                assert output['max_admission_lead'] <= admission_delay, output
+        loss = model_loss(final, validation, dimension, hidden)
+        assert math.isfinite(loss), loss
+        if workload is None:
+            assert loss < initial_loss, (loss, initial_loss)
+        committed_samples = sum(sum(w['batch_sizes']) for w in outputs)
         return {'policy': policy, 'iterations_per_worker': iterations, 'repeat': repeat,
                 'workers': workers, 'parameter_shards': 2, 'model': 'embedding_tanh_mlp',
                 'dimension': dimension, 'hidden': hidden, 'table': table,
-                'worker_inputs': samples,
-                'optimizer_step': 'one_local_batch_mean_update_per_worker',
-                'warmup_excluded_seconds': elapsed, 'initial_training_loss': initial_loss,
+                'worker_inputs': samples if workload is None else batches,
+                'optimizer_step': ('one_sample_weighted_update_per_round' if synchronous
+                                   else 'one_local_batch_mean_update_per_worker'),
+                'optimizer_steps': optimizer_steps, 'committed_samples': committed_samples,
+                'samples_per_second': committed_samples/elapsed,
+                'update_mode': update_mode, 'max_delay': admission_delay,
+                'delay_every': delay_every, 'loss_split': 'training' if workload is None else 'validation',
+                'initial_loss': initial_loss, 'final_loss': loss,
+                'warmup_excluded_seconds': elapsed,
+                **({'initial_training_loss': initial_loss, 'final_training_loss': loss}
+                   if workload is None else {}),
                 'process_exit_seconds': process_elapsed,
-                'final_training_loss': loss, 'controlled_slow_worker_delay_ms': delay_ms,
+                'controlled_slow_worker_delay_ms': delay_ms,
                 'admission_wait_worker_seconds': sum(sum(w['admission_wait_seconds']) for w in outputs),
                 'max_admission_lead': max(w['max_admission_lead'] for w in outputs),
-                'updates_per_second': iterations*workers/elapsed,
+                'updates_per_second': optimizer_steps/elapsed,
                 'workers_report': outputs, 'initial_state': initial, 'final_state': final}
     except Exception:
         for log in logs:

@@ -58,9 +58,9 @@ A、B 是主比较，包含两个系统实际采用的更新规则。D、B、C �
 
 现有逐 Worker 训练入口在分片确认后才报告本轮完成。仅加一个计数器会让窗口 10 实际仍停在 1。接入时需要让发送器在同一训练进程里真正存在多个未完成的 batch Push，并记录下一批参数读取与前一批回调的先后关系。先用受控回调延迟证明上限 1 和 10 都会实际触发，再开展无注入的收敛对照。窗口可能改变读参数和应用更新的交错顺序，这是该对照要观察的行为。两组使用同样的训练和评估流程，报告固定样本量的验证 loss、达标耗时、吞吐及全部 Push 排空时间。
 
-## 5090 接入后立即执行
+## 单卡 GPU 环境预检
 
-以下命令从仓库根目录执行，假设 Linux 环境已经安装 [BRPC 构建依赖](../RUNNING.md)，当前 Python 环境有 `pybind11`、NumPy 和可在这台机器上执行 GPU 算子的 TensorFlow。参数分片在 CPU 上运行，所以这里编译的是 CPU 参数服务与 Python 适配器。GPU 模型计算由当前 TensorFlow 环境提供。
+以下命令适用于 RTX 5090 或 RTX A6000 等单卡 Linux 主机。从仓库根目录执行，假设 Linux 环境已经安装 [BRPC 构建依赖](../RUNNING.md)，当前 Python 环境有 `pybind11`、NumPy 和可在这台机器上执行 GPU 算子的 TensorFlow。参数分片在 CPU 上运行，所以这里编译的是 CPU 参数服务与 Python 适配器。GPU 模型计算由当前 TensorFlow 环境提供。
 
 ```sh
 git rev-parse HEAD
@@ -110,4 +110,18 @@ done
 2. 统一端点记录和验收。在同步组按全局轮次检查 Adam 更新数，在逐 Worker 组按已提交的 Worker 任务检查。验证集由独立、固定的样本生成规则产生，确保评估用的键可读取，并保留训练与评估样本的清单。先短跑两种策略，确认更新数、最终状态、GPU 设备和输出指标，再启动配对重复。结果写入 `build/5090/results/sync-vs-async/`。
 3. 在相同异步配置上接入批级 Push 窗口，比较 1 与 10。先验收实际在途深度和排空行为，再测训练效果，结果写入 `build/5090/results/push-window/`。若窗口 10 的运行仍只有 1 个在途 batch，将该轮标记为窗口未生效。
 
-预检与逐 Worker 对照使用仓库现有脚本。完整的 A/B 同脚本比较和 Push 窗口对照需要按上述步骤接入，实验结果尚未生成。
+### 运行策略对照
+
+在项目根目录使用已安装 TensorFlow 的 Python 环境。先运行四组短测，检查 GPU 设备、Worker 进度和提交样本数。
+
+```bash
+python tests/tensorflow_strategy_workloads.py --build build/5090 --device /GPU:0 \
+  --patterns balanced --overlap shared --iterations 4 --repeats 1 \
+  --out build/5090/results/strategy-smoke.json
+```
+
+默认矩阵包含 3 种 Worker 延迟、2 种键重叠、4 种策略、3 个样本预算端点和 5 次配对重复，共 360 次独立运行。预跑后固定验证门槛，再用 `--target-loss` 指定。省略 `--patterns`、`--overlap`、`--iterations` 和 `--repeats` 即运行默认矩阵。CPU 冒烟可指定 `--device /CPU:0`。结果 JSON 包含逐次记录、各策略达标率和配对比较，达标时间按首个通过的实测端点报告。
+
+`--dataset` 接收 JSON，其中 `batches[worker][batch][example]` 为两个 Worker 的等大小 batch 流，`validation[example]` 为独立验证集。每条样本形如 `{"keys":[11,12],"label":1}`，键需重映射至 `[11, 32768)`。复核公开数据时，另存数据来源与切分清单。
+
+此入口在单机启动两个 Worker、协调器及参数分片，两个 Worker 使用同一指定设备。跨机启动及 Push 窗口对照需要独立接入。
