@@ -202,6 +202,10 @@ make that access pattern explicit.
 
 ## Verified experiments
 
+[RTX 5090 experiment plan](docs/plans/2026-11-07-5090-sync-async-design.md)
+contains setup and baseline commands for comparing synchronous and asynchronous
+training on one GPU.
+
 The following are **separate experiments**, each with its own workload and source
 record. GPU count, training-state capacity, model correctness, and throughput
 measure different properties.
