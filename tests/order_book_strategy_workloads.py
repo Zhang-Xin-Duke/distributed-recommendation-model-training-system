@@ -121,6 +121,8 @@ def main():
     parser.add_argument('--reference', action='store_true')
     parser.add_argument('--sync-pilot', action='store_true',
                         help='run only synchronous trials to calibrate a quality target')
+    parser.add_argument('--retry-failed-trials', type=int, default=0,
+                        help='record every failed attempt, retry it and continue the matrix')
     parser.add_argument('--remote-worker', nargs=4, action='append', default=[])
     args = parser.parse_args()
     if args.prepare:
@@ -136,6 +138,8 @@ def main():
     if (not np.isfinite(args.learning_rate) or args.learning_rate <= 0 or
             (args.shuffle_seed is not None and args.shuffle_seed < 0)):
         parser.error('learning rate must be positive and shuffle seed must be non-negative')
+    if args.retry_failed_trials < 0:
+        parser.error('retry count must be non-negative')
     hosts = [spec[0] for spec in args.remote_worker]
     if len(set(hosts)) != len(hosts) or len(hosts) > 5:
         parser.error('use at most five distinct remote Worker hosts')
@@ -161,7 +165,8 @@ def main():
                   shuffle_seed=args.shuffle_seed, learning_rate=args.learning_rate,
                   data_sha256=digest, target_loss=args.target_loss,
                   timing='start gate to worker process exit for remote runs',
-                  remote_hosts={spec[0]: probe_remote(*spec) for spec in args.remote_worker}, trials=[])
+                  remote_hosts={spec[0]: probe_remote(*spec) for spec in args.remote_worker},
+                  trials=[], failed_attempts=[])
     import subprocess
     source = Path(__file__).resolve().parents[1]
     report['git_commit'] = subprocess.check_output(
@@ -178,11 +183,26 @@ def main():
             for iterations in sorted(set(args.iterations)):
                 for name in names[shift:] + names[:shift]:
                     policy, mode = STRATEGIES[name]
-                    root = Path(temp) / str(len(report['trials']))
-                    root.mkdir()
-                    result = trial(args.build.resolve(), root, policy, iterations, repeat, workers,
-                                   0 if args.reference else args.delay_ms, args.device, update_mode=mode,
-                                   remote=args.remote_worker, slow_worker=(workers-1+repeat)%workers, order_book=spec)
+                    for attempt in range(1 + args.retry_failed_trials):
+                        root = Path(temp) / f'{repeat}-{iterations}-{name}-{attempt}'
+                        root.mkdir()
+                        try:
+                            result = trial(args.build.resolve(), root, policy, iterations, repeat, workers,
+                                           0 if args.reference else args.delay_ms, args.device, update_mode=mode,
+                                           remote=args.remote_worker, slow_worker=(workers-1+repeat)%workers,
+                                           order_book=spec)
+                            break
+                        except Exception as error:
+                            failure = dict(strategy=name, iterations=iterations, repeat=repeat,
+                                           attempt=attempt, error=f'{type(error).__name__}: {error}')
+                            report['failed_attempts'].append(failure)
+                            write_report(args.out, report)
+                            print(json.dumps(failure), file=sys.stderr, flush=True)
+                            if not args.retry_failed_trials:
+                                raise
+                    else:
+                        continue
+                    result['attempt'] = attempt
                     if args.reference:
                         result['reference_max_absolute_error'] = reference(result, path, args.batch_size, workers, args.device)
                     if hosts and args.device == '/GPU:0':
@@ -199,9 +219,11 @@ def main():
                     print(json.dumps(dict(strategy=name, repeat=repeat, loss=result['final_loss'],
                                           elapsed=result['warmup_excluded_seconds'],
                                           reference=result.get('reference_max_absolute_error'))), flush=True)
-    if not args.reference and not args.sync_pilot:
+    expected = args.repeats * len(set(args.iterations)) * len(names)
+    if not args.reference and not args.sync_pilot and len(report['trials']) == expected:
         report['summary'] = summarize(report['trials'], args.repeats, args.target_loss, .05)
     report['complete'] = True
+    report['matrix_complete'] = len(report['trials']) == expected
     write_report(args.out, report)
 
 
