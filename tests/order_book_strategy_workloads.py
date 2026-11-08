@@ -115,7 +115,12 @@ def main():
     parser.add_argument('--target-loss', type=float, default=.95)
     parser.add_argument('--repeats', type=int, default=5)
     parser.add_argument('--delay-ms', type=int, default=20)
+    parser.add_argument('--learning-rate', type=float, default=.02)
+    parser.add_argument('--shuffle-seed', type=int,
+                        help='shuffle training windows within each epoch; permits repeated epochs')
     parser.add_argument('--reference', action='store_true')
+    parser.add_argument('--sync-pilot', action='store_true',
+                        help='run only synchronous trials to calibrate a quality target')
     parser.add_argument('--remote-worker', nargs=4, action='append', default=[])
     args = parser.parse_args()
     if args.prepare:
@@ -126,6 +131,11 @@ def main():
         parser.error('--build and --out are required for training')
     if args.reference and args.iterations != [1]:
         parser.error('--reference requires --iterations 1')
+    if args.reference and (args.shuffle_seed is not None or args.learning_rate != .02):
+        parser.error('--reference requires the default chronological batch and learning rate')
+    if (not np.isfinite(args.learning_rate) or args.learning_rate <= 0 or
+            (args.shuffle_seed is not None and args.shuffle_seed < 0)):
+        parser.error('learning rate must be positive and shuffle seed must be non-negative')
     hosts = [spec[0] for spec in args.remote_worker]
     if len(set(hosts)) != len(hosts) or len(hosts) > 5:
         parser.error('use at most five distinct remote Worker hosts')
@@ -139,13 +149,16 @@ def main():
         tf.config.experimental.enable_tensor_float_32_execution(False)
     path = args.data.resolve()
     with np.load(path) as data:
-        if 99 + max(args.iterations) * workers * args.batch_size > len(data['train_y']):
+        rows = len(data['train_y'])
+        if rows < 100 or (args.shuffle_seed is None and
+                          99 + max(args.iterations) * workers * args.batch_size > rows):
             parser.error('training data does not cover the requested sample budget')
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with path.open('rb') as source:
         digest = hashlib.file_digest(source, 'sha256').hexdigest()
     report = dict(complete=False, model='deeplob_style', workers=workers,
                   batch_size=args.batch_size, iterations=args.iterations, repeats=args.repeats,
+                  shuffle_seed=args.shuffle_seed, learning_rate=args.learning_rate,
                   data_sha256=digest, target_loss=args.target_loss,
                   timing='start gate to worker process exit for remote runs',
                   remote_hosts={spec[0]: probe_remote(*spec) for spec in args.remote_worker}, trials=[])
@@ -156,10 +169,11 @@ def main():
     if any(remote['git_commit'] != report['git_commit'] for remote in report['remote_hosts'].values()):
         raise RuntimeError('a remote checkout differs from the controller')
     write_report(args.out, report)
-    spec = dict(path=str(path), batch_size=args.batch_size, workers=workers, sha256=digest)
+    spec = dict(path=str(path), batch_size=args.batch_size, workers=workers, sha256=digest,
+                shuffle_seed=args.shuffle_seed, learning_rate=args.learning_rate)
     with tempfile.TemporaryDirectory(prefix='eps-deeplob-') as temp:
         for repeat in range(args.repeats):
-            names = ['sync'] if args.reference else list(STRATEGIES)
+            names = ['sync'] if args.reference or args.sync_pilot else list(STRATEGIES)
             shift = repeat % len(names)
             for iterations in sorted(set(args.iterations)):
                 for name in names[shift:] + names[:shift]:
@@ -185,7 +199,7 @@ def main():
                     print(json.dumps(dict(strategy=name, repeat=repeat, loss=result['final_loss'],
                                           elapsed=result['warmup_excluded_seconds'],
                                           reference=result.get('reference_max_absolute_error'))), flush=True)
-    if not args.reference:
+    if not args.reference and not args.sync_pilot:
         report['summary'] = summarize(report['trials'], args.repeats, args.target_loss, .05)
     report['complete'] = True
     write_report(args.out, report)

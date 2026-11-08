@@ -15,7 +15,10 @@ from financial_order_book_model import build_order_book_model, flat_order_book_s
 
 
 def batch(features, labels, start, size):
-    ends = np.arange(start, start + size)
+    return batch_at(features, labels, np.arange(start, start + size))
+
+
+def batch_at(features, labels, ends):
     windows = ends[:, None] + np.arange(-99, 1)
     return features[windows, :, None], labels[ends]
 
@@ -32,6 +35,13 @@ def main():
             raise RuntimeError('FI-2010 input hash differs from the controller')
     with np.load(spec['path']) as data:
         features, labels = data['train_x'], data['train_y']
+    schedule = None
+    if spec.get('shuffle_seed') is not None:
+        rng = np.random.default_rng(spec['shuffle_seed'])
+        total = cfg['iterations'] * spec['workers'] * size
+        available = len(labels) - 99
+        schedule = np.concatenate([rng.permutation(available) + 99
+                                   for _ in range((total + available - 1) // available)])
     gpu = cfg['device'].startswith('/GPU')
     tf.config.set_soft_device_placement(False)
     tf.config.threading.set_intra_op_parallelism_threads(2)
@@ -59,7 +69,8 @@ def main():
 
             def compute(iteration, values):
                 start = 99 + (iteration * spec['workers'] + worker) * size
-                x, y = batch(features, labels, start, size)
+                x, y = (batch(features, labels, start, size) if schedule is None
+                        else batch_at(features, labels, schedule[start-99:start-99+size]))
                 with tf.device(cfg['device']):
                     weights = tf.convert_to_tensor(values.reshape(-1)[:count])
                     return step(weights, tf.convert_to_tensor(x), tf.convert_to_tensor(y))

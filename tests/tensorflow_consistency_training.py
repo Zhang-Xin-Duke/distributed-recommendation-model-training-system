@@ -69,7 +69,8 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                                         env.get('PYTHONPATH', '')])
     env.update(CUDA_VISIBLE_DEVICES='0' if device=='/GPU:0' else '', TF_CPP_MIN_LOG_LEVEL='2')
     table = {'id': 1, 'dimension': dimension, 'dtype': 'float32',
-             'optimizer': {'kind': 'sparse_lazy_adam', 'learning_rate': .02,
+             'optimizer': {'kind': 'sparse_lazy_adam',
+                           'learning_rate': .02 if order_book is None else order_book.get('learning_rate', .02),
                            'beta1': .9, 'beta2': .999, 'epsilon': 1e-8,
                            'initial_beta1_power': .9, 'initial_beta2_power': .999},
              'initialization': {'min': -.1, 'max': .1, 'seed': 42}}
