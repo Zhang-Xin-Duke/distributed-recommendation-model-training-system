@@ -72,18 +72,24 @@ def validate_order_book(state, path):
     return dict(loss=float(np.mean(losses)), macro_f1=float(np.mean(f1)), confusion=counts.tolist())
 
 
-def reference(record, path, size, workers):
+def reference(record, path, size, workers, device):
     import tensorflow as tf
 
     with np.load(path) as data:
         x, y = batch(data['train_x'], data['train_y'], 99, workers * size)
-    with tf.device('/CPU:0'):
+    with tf.device(device):
         initial, step = flat_order_book_step(build_order_book_model())
         count = int(initial.shape[0])
         before = weights(record['initial_state'])
-        _, _, grad = step(tf.constant(before[:count]), tf.constant(x), tf.constant(y))
-    gradient = np.zeros_like(before)
-    gradient[:count] = grad.numpy()
+        weights_tensor = tf.constant(before[:count])
+        gradients = []
+        for worker in range(workers):
+            start = worker * size
+            _, _, gradient = step(weights_tensor, tf.constant(x[start:start+size]),
+                                  tf.constant(y[start:start+size]))
+            gradients.append(gradient)
+        gradient = np.zeros_like(before)
+        gradient[:count] = (tf.add_n(gradients) / workers).numpy()
     # SparseLazyAdam puts epsilon outside sqrt of the uncorrected second moment.
     m, v = .1 * gradient, .001 * gradient**2
     expected = before - (.02 * np.sqrt(.001) / .1) * m / (np.sqrt(v) + 1e-8)
@@ -126,6 +132,11 @@ def main():
     workers = 1 + len(hosts) if hosts else 2
     if min(args.batch_size, *args.iterations, args.repeats) < 1 or not np.isfinite(args.target_loss) or args.target_loss <= 0:
         parser.error('batch size, iterations and repeats must be positive')
+    if args.device == '/GPU:0':
+        import tensorflow as tf
+        for gpu in tf.config.list_physical_devices('GPU'):
+            tf.config.experimental.set_memory_growth(gpu, True)
+        tf.config.experimental.enable_tensor_float_32_execution(False)
     path = args.data.resolve()
     with np.load(path) as data:
         if 99 + max(args.iterations) * workers * args.batch_size > len(data['train_y']):
@@ -159,7 +170,7 @@ def main():
                                    0 if args.reference else args.delay_ms, args.device, update_mode=mode,
                                    remote=args.remote_worker, slow_worker=(workers-1+repeat)%workers, order_book=spec)
                     if args.reference:
-                        result['reference_max_absolute_error'] = reference(result, path, args.batch_size, workers)
+                        result['reference_max_absolute_error'] = reference(result, path, args.batch_size, workers, args.device)
                     if hosts and args.device == '/GPU:0':
                         uuids = {w['gpu_identity'].split(',')[0] for w in result['workers_report']}
                         if len(uuids) != workers:
