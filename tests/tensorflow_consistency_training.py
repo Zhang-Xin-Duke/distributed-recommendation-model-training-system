@@ -38,7 +38,7 @@ def model_loss(state, samples, dimension, hidden):
 
 
 def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0',
-          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=(), slow_worker=None):
+          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=(), slow_worker=None, order_book=None):
     slow_worker = workers - 1 if slow_worker is None else slow_worker
     dimension, hidden, count = 8, 4, 16
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
@@ -50,6 +50,12 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
     if workload is not None:
         batches = workload['batches']
         validation = workload['validation']
+    if order_book is not None:
+        from order_book_strategy_workloads import validate_order_book
+        dimension, packed = 256, (142435 + 255) // 256
+        evaluate = lambda state: validate_order_book(state, order_book['path'])
+    else:
+        evaluate = lambda state: model_loss(state, validation, dimension, hidden)
     training = [example for sequence in batches for batch in sequence for example in batch]
     keys = sorted(set(range(packed)) | {k for s in training + validation for k in s['keys']})
     synchronous = update_mode == 'synchronous'
@@ -96,7 +102,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
             'consistency': policy, 'max_delay': admission_delay}))
         settings = {'run': run, 'shards': shards, 'coordinator': coordinator, 'epoch': 1, 'keys': keys,
                     'synchronous': synchronous}
-        if workload is not None:
+        if workload is not None or order_book is not None:
             prepared = launch([build/'eps_training_prepare'], 'prepare', {
                 **settings, 'rows': max(keys) + 1, 'dimension': dimension,
                 'resident': False, 'workers': workers})
@@ -119,6 +125,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                     'delay_ms': delay_ms if w == slow_worker else 0, 'delay_every': delay_every,
                     'record_stage_times': workload is not None, 'device': device}
                    for w in range(workers)]
+        if order_book is not None:
+            for config in configs:
+                config['order_book'] = order_book
+        entry = 'order_book_training_worker.py' if order_book is not None else 'tensorflow_training_worker.py'
         children = []
         for w, config in enumerate(configs):
             if 1 <= w <= len(remote):
@@ -131,7 +141,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                 child.stdin.write(json.dumps(config) + '\n')
                 child.stdin.flush()
             else:
-                child = launch([sys.executable, source/'examples/tensorflow_training_worker.py'],
+                child = launch([sys.executable, source/'examples'/entry],
                                f'worker-{w}', config)
             children.append(child)
         deadline = time.monotonic()+60
@@ -149,7 +159,8 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
             assert json.loads(marker.read_text()) == dict(run=run, worker=w, warmed_model=True)
         initial = inspect()
         assert initial['completed'] == [0]*workers and not initial['active'], initial
-        initial_loss = model_loss(initial, validation, dimension, hidden)
+        initial_evaluation = evaluate(initial)
+        initial_loss = initial_evaluation['loss'] if order_book is not None else initial_evaluation
         started = time.monotonic()
         temporary = gate.with_suffix('.tmp')
         temporary.write_text('start')
@@ -189,9 +200,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                 assert output['devices'] and all('GPU:' in value.upper() for value in output['devices'].values()),output
             if policy != 'eventual':
                 assert output['max_admission_lead'] <= admission_delay, output
-        loss = model_loss(final, validation, dimension, hidden)
+        evaluation = evaluate(final)
+        loss = evaluation['loss'] if order_book is not None else evaluation
         assert math.isfinite(loss), loss
-        if workload is None:
+        if workload is None and order_book is None:
             assert loss < initial_loss, (loss, initial_loss)
         committed_samples = sum(sum(w['batch_sizes']) for w in outputs)
         return {'policy': policy, 'iterations_per_worker': iterations, 'repeat': repeat,
@@ -203,17 +215,19 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                 'optimizer_steps': optimizer_steps, 'committed_samples': committed_samples,
                 'samples_per_second': committed_samples/elapsed,
                 'update_mode': update_mode, 'max_delay': admission_delay,
-                'delay_every': delay_every, 'loss_split': 'training' if workload is None else 'validation',
+                'delay_every': delay_every, 'loss_split': 'training' if workload is None and order_book is None else 'validation',
                 'initial_loss': initial_loss, 'final_loss': loss,
                 'warmup_excluded_seconds': elapsed,
                 **({'initial_training_loss': initial_loss, 'final_training_loss': loss}
-                   if workload is None else {}),
+                   if workload is None and order_book is None else {}),
                 'process_exit_seconds': process_elapsed,
                 'controlled_slow_worker_delay_ms': delay_ms,
                 'admission_wait_worker_seconds': sum(sum(w['admission_wait_seconds']) for w in outputs),
                 'max_admission_lead': max(w['max_admission_lead'] for w in outputs),
                 'updates_per_second': optimizer_steps/elapsed,
-                'workers_report': outputs, 'initial_state': initial, 'final_state': final}
+                'workers_report': outputs, 'initial_state': initial, 'final_state': final,
+                **({'initial_validation': initial_evaluation, 'validation': evaluation}
+                   if order_book is not None else {})}
     except Exception:
         for log in logs:
             log.flush(); log.seek(0)

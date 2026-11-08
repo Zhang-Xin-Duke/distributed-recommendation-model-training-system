@@ -74,7 +74,8 @@ def main():
         path = gate.with_suffix('.json')
         path.write_text(json.dumps(config))
         marker = Path(f'{gate}.worker-{config["worker"]}.ready')
-        worker = subprocess.Popen([sys.executable, str(checkout / 'examples/tensorflow_training_worker.py'),
+        entry = 'order_book_training_worker.py' if 'order_book' in config else 'tensorflow_training_worker.py'
+        worker = subprocess.Popen([sys.executable, str(checkout / 'examples' / entry),
                                    '--config', str(path)], env=env, stdin=subprocess.DEVNULL)
         try:
             deadline = time.monotonic() + 60
