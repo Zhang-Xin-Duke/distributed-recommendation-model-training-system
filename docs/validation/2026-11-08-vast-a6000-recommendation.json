@@ -1,0 +1,208 @@
+{
+  "source_revision": "3f09dce3cc305aa789a2efe74202413bf2c3b08b",
+  "provider": "Vast.ai",
+  "environment": "x86_64 Linux containers",
+  "budget_usd": 0.95,
+  "instances": [
+    {
+      "instance_id": 59786681,
+      "offer_id": 59003618,
+      "gpu": "NVIDIA RTX A6000",
+      "driver": "580.178.04",
+      "compute_capability": "8.6",
+      "gpu_uuid": "GPU-9caf4d1a-aa9d-7618-3322-7dff3594f139",
+      "install_checks": "passed"
+    },
+    {
+      "instance_id": 59786691,
+      "offer_id": 30565038,
+      "gpu": "NVIDIA RTX A6000",
+      "driver": "610.57.04",
+      "compute_capability": "8.6",
+      "gpu_uuid": "GPU-85aabaef-553e-d1ea-0ad6-8b001d7f5525",
+      "install_checks": "passed"
+    },
+    {
+      "instance_id": 59786700,
+      "offer_id": 58196415,
+      "gpu": "NVIDIA RTX A6000",
+      "driver": "580.178.04",
+      "compute_capability": "8.6",
+      "gpu_uuid": "GPU-d9a669af-9c96-1574-7d65-f94311f03d17",
+      "install_checks": "passed after one retry"
+    }
+  ],
+  "network": "private loopback endpoints over authenticated SSH TCP forwarding",
+  "forwarded_directions_verified": 6,
+  "full_source_builds": true,
+  "release_scope": "small synchronous recommendation workloads on three physical GPU hosts",
+  "checkpoint_distribution": "immutable checkpoint files were copied over SSH to the same absolute paths",
+  "workloads": {
+    "movielens": {
+      "dataset_version": "2b64b270ac26a44b5c87ce147a839086e41e271acc2e1c76fa29db5259cbf326",
+      "train_rows": 79999,
+      "validation_rows": 20001,
+      "batch_size": 128,
+      "completed_rounds": 8,
+      "worker_device_placements": [
+        {
+          "embedding": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "embedding_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "loss": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "mlp_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "packed_mlp": "/job:localhost/replica:0/task:0/device:GPU:0"
+        },
+        {
+          "embedding": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "embedding_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "loss": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "mlp_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "packed_mlp": "/job:localhost/replica:0/task:0/device:GPU:0"
+        }
+      ],
+      "workers": [
+        {
+          "validation": {
+            "accuracy": 0.42945705429457054,
+            "loss": 0.6954669415050835,
+            "samples": 10001
+          },
+          "samples_per_second": 56.74218252132272,
+          "gpu_uuid": "GPU-85aabaef-553e-d1ea-0ad6-8b001d7f5525"
+        },
+        {
+          "validation": {
+            "accuracy": 0.4403,
+            "loss": 0.6951422452688217,
+            "samples": 10000
+          },
+          "samples_per_second": 56.59495366883916,
+          "gpu_uuid": "GPU-9caf4d1a-aa9d-7618-3322-7dff3594f139"
+        }
+      ],
+      "cuda_owners": [
+        59786681,
+        59786691
+      ]
+    },
+    "csv-alternate": {
+      "dataset_version": "1f58f3828e5daa8603a64ac10b7032d6be33d989f0c84bace85f4958b3d7be21",
+      "train_rows": 192,
+      "validation_rows": 48,
+      "batch_size": 8,
+      "completed_rounds": 8,
+      "worker_device_placements": [
+        {
+          "embedding": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "embedding_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "loss": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "mlp_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "packed_mlp": "/job:localhost/replica:0/task:0/device:GPU:0"
+        },
+        {
+          "embedding": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "embedding_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "loss": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "mlp_gradient": "/job:localhost/replica:0/task:0/device:GPU:0",
+          "packed_mlp": "/job:localhost/replica:0/task:0/device:GPU:0"
+        }
+      ],
+      "workers": [
+        {
+          "validation": {
+            "accuracy": 0.5833333333333334,
+            "loss": 0.6902355353037516,
+            "samples": 24
+          },
+          "samples_per_second": 3.9826909203198446,
+          "gpu_uuid": "GPU-85aabaef-553e-d1ea-0ad6-8b001d7f5525"
+        },
+        {
+          "validation": {
+            "accuracy": 0.625,
+            "loss": 0.6886808673540751,
+            "samples": 24
+          },
+          "samples_per_second": 3.990911752089638,
+          "gpu_uuid": "GPU-9caf4d1a-aa9d-7618-3322-7dff3594f139"
+        }
+      ]
+    }
+  },
+  "operations": {
+    "gpu_exclusion": true,
+    "controller_reentry": true,
+    "cancel_released_gpu": true
+  },
+  "physical_node_loss": {
+    "provider_receipt": {
+      "node_id": "gpu-2",
+      "kind": "provider_instance_deleted",
+      "uuid": "59786691",
+      "previously_owned": true,
+      "inventory_absent": true,
+      "observed_epoch": 1794174606.938854
+    },
+    "partial_round_gate": {
+      "frontiers": [
+        4,
+        3
+      ],
+      "completed": [
+        3,
+        3
+      ]
+    },
+    "comparison": {
+      "state_max_abs_error": 0.0,
+      "loss_max_abs_error": 0.0,
+      "tolerance": 3e-06
+    },
+    "recovered_authorities": [
+      {
+        "shard": 0,
+        "parameter_source": "replica",
+        "parameter_node": "gpu-1",
+        "gradient_source": "journal-mirror",
+        "gradient_node": "gpu-1"
+      },
+      {
+        "shard": 1,
+        "parameter_source": "primary",
+        "parameter_node": "gpu-1",
+        "gradient_source": "worker",
+        "gradient_node": "gpu-1"
+      }
+    ],
+    "replacement_worker_nodes": [
+      "gpu-3",
+      "gpu-1"
+    ],
+    "final_worker_gpu_uuids": [
+      "GPU-d9a669af-9c96-1574-7d65-f94311f03d17",
+      "GPU-9caf4d1a-aa9d-7618-3322-7dff3594f139"
+    ],
+    "completed_worker_rounds": [
+      8,
+      8
+    ]
+  },
+  "checkpoint_continuation": {
+    "state_max_abs_error": 0.0,
+    "loss_max_abs_error": 0.0,
+    "tolerance": 3e-06
+  },
+  "invalid_inputs": {
+    "wrong_data_rejected": true,
+    "corrupt_checkpoint_rejected": true,
+    "checkpoint_error": "eps_training_control: parameter snapshot native checksum mismatch"
+  },
+  "all_gpu_instances_released": true,
+  "billing": {
+    "initial_displayed_credit_usd": 0.95,
+    "displayed_credit_after_cleanup_usd": 0.12,
+    "approximate_credit_used_usd": 0.83,
+    "includes_rtx_3060_and_rtx_a6000_usage": true
+  },
+  "temporary_vast_api_key_revoked": true
+}

@@ -31,6 +31,10 @@ resume from a checkpoint. The standalone job uses the repository's TensorFlow
 model and supports CSV input, configurable embeddings and MLP, and held-out
 evaluation. The original Entropy application adapter is optional.
 
+The [three-node RTX A6000 validation record](docs/validation/2026-11-08-vast-a6000-recommendation.json)
+captures GPU placement, MovieLens training, checkpoint continuation, and
+recovery after the loss of one training host.
+
 ## System architecture
 
 ![Distributed training architecture: control, parameter execution, and durable recovery state](docs/assets/distributed-training-architecture.png)
