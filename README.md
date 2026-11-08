@@ -225,6 +225,7 @@ Reports and machine-readable records:
 - [Original application replay](docs/ORIGINAL_INPUT_CHECKPOINT.md) · [replay manifest](docs/validation/2026-11-05-original-executor-uncommitted-replay.json)
 - [Policy comparison](docs/MODEL_CONSISTENCY_POLICIES.md) · [GPU-policy manifest](docs/validation/2026-11-05-gpu-model-consistency-policies.json)
 - [DeepLOB / FI-2010 two-host results](docs/DEEPLOB_FI2010_RESULTS.md) · [experiment protocol](docs/plans/2026-11-08-order-book-quality-baseline.md) · [runnable benchmark](tests/order_book_strategy_workloads.py)
+- [Automatic training policy selection](docs/AUTO_TRAINING_POLICY.md)
 
 ### Parameter-runtime performance
 
