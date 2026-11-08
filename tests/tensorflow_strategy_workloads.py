@@ -1,5 +1,6 @@
 """Compare synchronous and asynchronous training on paired workload endpoints."""
 import argparse
+from itertools import combinations
 import hashlib
 import json
 import math
@@ -21,7 +22,7 @@ STRATEGIES = {
 DELAY_PATTERNS = ('balanced', 'persistent', 'bursty')
 
 
-def synthetic_workload(seed, overlap, batch_size, bag_size, batch_count, key_pool):
+def synthetic_workload(seed, overlap, batch_size, bag_size, batch_count, key_pool, workers=2):
     """Use identical local frequency distributions for shared and disjoint IDs."""
     def batch(rng, worker, size):
         offset = 11 + (2 * key_pool * worker if overlap == 'disjoint' else 0)
@@ -36,27 +37,27 @@ def synthetic_workload(seed, overlap, batch_size, bag_size, batch_count, key_poo
 
     streams = []
     validation = []
-    for worker in range(2):
-        rng = random.Random(seed * 4 + worker)
+    for worker in range(workers):
+        rng = random.Random(seed * 2 * workers + worker)
         streams.append([batch(rng, worker, batch_size) for _ in range(batch_count)])
-        validation.extend(batch(random.Random(seed * 4 + worker + 2), worker, 128))
+        validation.extend(batch(random.Random(seed * 2 * workers + worker + workers), worker, 128))
     return {'batches': streams, 'validation': validation}
 
 
-def validate_workload(data):
+def validate_workload(data, workers=2):
     batches, validation = data['batches'], data['validation']
     all_samples = [s for worker in batches for batch in worker for s in batch] + validation
     if any(not s['keys'] or any(type(k) is not int or not 11 <= k < 32768 for k in s['keys'])
            or not isinstance(s['label'], (int, float)) or not 0 <= s['label'] <= 1
            for s in all_samples):
         raise ValueError('examples require remapped integer keys in [11, 32768) and labels in [0, 1]')
-    if len(batches) != 2 or not validation or any(not worker for worker in batches):
-        raise ValueError('expected two nonempty Worker streams and a nonempty validation set')
+    if len(batches) != workers or not validation or any(not worker for worker in batches):
+        raise ValueError(f'expected {workers} nonempty Worker streams and a nonempty validation set')
     if any(not batch for worker in batches for batch in worker):
         raise ValueError('Worker batches cannot be empty')
     sizes = {len(batch) for worker in batches for batch in worker}
     if len(sizes) != 1:
-        raise ValueError('use the same local batch size in both Worker streams')
+        raise ValueError('use the same local batch size in all Worker streams')
     training_keys = []
     training_examples = set()
     for worker in batches:
@@ -68,10 +69,9 @@ def validate_workload(data):
         training_keys.append(keys)
     matching_examples = sum((tuple(sample['keys']), sample['label']) in training_examples
                             for sample in validation)
-    union = training_keys[0] | training_keys[1]
-    if not union:
-        raise ValueError('expected embedding keys')
-    return {'embedding_key_jaccard': len(training_keys[0] & training_keys[1]) / len(union),
+    jaccard = statistics.mean(len(left & right) / len(left | right)
+                             for left, right in combinations(training_keys, 2))
+    return {'embedding_key_jaccard': jaccard,
             'local_batch_size': sizes.pop(), 'validation_samples': len(validation),
             'validation_examples_matching_training': matching_examples}
 
@@ -162,11 +162,15 @@ def main():
     parser.add_argument('--key-pool', type=int, default=64)
     parser.add_argument('--batch-count', type=int, default=16)
     parser.add_argument('--dataset', type=Path, help='JSON with batches[worker][batch][example] and validation')
-    parser.add_argument('--remote-worker', nargs=4, metavar=('SSH_HOST', 'CHECKOUT', 'PYTHON', 'BUILD'),
-                        help='run Worker 1 on a second host via reverse SSH port forwarding')
+    parser.add_argument('--remote-worker', nargs=4, action='append', default=[], metavar=('SSH_HOST', 'CHECKOUT', 'PYTHON', 'BUILD'),
+                        help='repeat for each additional Worker host using reverse SSH forwarding')
     args = parser.parse_args()
-    if args.remote_worker and any(not Path(p).is_absolute() for p in args.remote_worker[1:]):
+    if any(not Path(p).is_absolute() for remote in args.remote_worker for p in remote[1:]):
         parser.error('remote checkout, Python and build paths must be absolute')
+    hosts = [remote[0] for remote in args.remote_worker]
+    workers = 1 + len(hosts) if hosts else 2
+    if len(set(hosts)) != len(hosts) or workers > 6:
+        parser.error('use up to five distinct remote SSH hosts')
     if (not 2 <= args.batch_size <= 1024 or args.batch_size % 2
             or not 1 <= args.bag_size <= 128 or not 2 <= args.key_pool <= 2048
             or not 1 <= args.batch_count <= 128 or not 1 <= args.repeats <= 20
@@ -184,7 +188,7 @@ def main():
             parser.error(f'missing {build / binary}')
     external = json.loads(args.dataset.read_text()) if args.dataset else None
     if external is not None:
-        validate_workload(external)
+        validate_workload(external, workers)
         overlaps = ('provided',)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     settings = vars(args).copy()
@@ -208,8 +212,8 @@ def main():
             for overlap in overlaps:
                 workload = external if external is not None else synthetic_workload(
                     args.seed + repeat, overlap, args.batch_size, args.bag_size,
-                    args.batch_count, args.key_pool)
-                metadata = validate_workload(workload)
+                    args.batch_count, args.key_pool, workers)
+                metadata = validate_workload(workload, workers)
                 metadata['dataset_sha256'] = hashlib.sha256(
                     json.dumps(workload, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
                 initial_state = None
@@ -223,11 +227,16 @@ def main():
                             # A separate directory prevents a failed trial's artifacts from being reused.
                             root = Path(temp) / str(len(report['trials']))
                             root.mkdir()
-                            record = trial(build, root, policy, iterations, repeat, 2, delay, args.device,
+                            record = trial(build, root, policy, iterations, repeat, workers, delay, args.device,
                                            workload=workload, update_mode=mode, max_delay=args.max_delay,
                                            delay_every=every, remote=args.remote_worker)
-                            if record['committed_samples'] != iterations * 2 * metadata['local_batch_size']:
+                            if record['committed_samples'] != iterations * workers * metadata['local_batch_size']:
                                 raise RuntimeError('trial did not reach the requested sample budget')
+                            if hosts and args.device == '/GPU:0':
+                                gpu_ids = {worker['runtime']['gpu']['uuid']
+                                           for worker in record['workers_report']}
+                                if len(gpu_ids) != workers:
+                                    raise RuntimeError('expected one distinct GPU per Worker host')
                             initial = record.pop('initial_state')
                             fingerprint = hashlib.sha256(
                                 json.dumps(initial['rows'], sort_keys=True).encode()).hexdigest()

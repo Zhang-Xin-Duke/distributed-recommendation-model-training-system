@@ -136,3 +136,9 @@ python tests/tensorflow_strategy_workloads.py --build build/5090 --device /GPU:0
 ```
 
 远端四个参数依次为 A 上可用的 SSH 主机名、B 上的仓库绝对路径、Python 绝对路径和构建目录绝对路径。双机时由 A 的单一时钟计时，从放行到两个 Worker 进程退出，包含 SSH 与退出开销。保留节点、网络和 GPU 信息，并在同一拓扑上比较策略。单机和双机计时范围分别记录。Push 窗口 1 与 10 的对照仍需独立接入。
+
+### 六台主机
+
+沿用上述命令，为另外四台主机各追加一次 `--remote-worker`。五个 SSH 目标使用不同宿主机，每台仅运行一个 GPU Worker。控制节点同样运行一个 GPU Worker，参数分片和协调器留在该节点。持续慢和周期突发负载均在最后一个 Worker 注入延迟。
+
+正式运行省略示例中的 `--patterns`、`--overlap`、`--iterations`、`--repeats` 参数。默认样本端点为 1536、6144、24576。结果记录各 Worker 的主机名、TensorFlow 版本、GPU UUID、驱动、显存、运行阶段耗时和传输计数。脚本要求跨机 GPU 运行中所有 Worker 的 GPU UUID 各不相同。另保存租赁宿主机 ID、地区、部署版本和网络 RTT，便于解释跨区域运行的结果。

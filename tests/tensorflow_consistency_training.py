@@ -38,7 +38,7 @@ def model_loss(state, samples, dimension, hidden):
 
 
 def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0',
-          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=None):
+          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=()):
     dimension, hidden, count = 8, 4, 16
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
     rng = random.Random(20261104)
@@ -120,10 +120,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                    for w in range(workers)]
         children = []
         for w, config in enumerate(configs):
-            if remote is not None and w == 1:
-                log = open(home/'worker-1.log', 'w+')
+            if 1 <= w <= len(remote):
+                log = open(home/f'worker-{w}.log', 'w+')
                 logs.append(log)
-                child = subprocess.Popen(worker_command(*remote, [*shards, coordinator]),
+                child = subprocess.Popen(worker_command(*remote[w - 1], [*shards, coordinator]),
                                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                          stderr=log, text=True)
                 processes.append(child)
@@ -135,7 +135,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
             children.append(child)
         deadline = time.monotonic()+60
         for w, child in enumerate(children):
-            if remote is not None and w == 1:
+            if 1 <= w <= len(remote):
                 assert json.loads(ready(child, timeout=60)) == dict(run=run, worker=w, warmed_model=True)
                 continue
             marker = pathlib.Path(str(gate)+f'.worker-{w}.ready')
@@ -153,10 +153,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
         temporary = gate.with_suffix('.tmp')
         temporary.write_text('start')
         temporary.replace(gate)
-        if remote is not None:
-            children[1].stdin.write('start\n')
-            children[1].stdin.close()
-            children[1].stdin = None
+        for child in children[1:1 + len(remote)]:
+            child.stdin.write('start\n')
+            child.stdin.close()
+            child.stdin = None
         outputs = []
         for child in children:
             stdout, _ = child.communicate(timeout=120 + 2 * iterations * delay_ms / (1000 * delay_every))
@@ -164,7 +164,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                 raise RuntimeError(f'model Worker failed: {child.returncode}')
             outputs.append(json.loads(stdout))
         process_elapsed = time.monotonic()-started
-        elapsed = (process_elapsed if remote is not None
+        elapsed = (process_elapsed if remote
                    else max(w['training_finished_monotonic'] for w in outputs)-started)
         assert 0 < elapsed <= process_elapsed
         final = inspect()

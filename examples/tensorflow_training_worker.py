@@ -10,6 +10,8 @@ import hashlib
 import json
 import os
 import pathlib
+import socket
+import subprocess
 import time
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
@@ -152,6 +154,15 @@ def main():
         if 'read_sequence' in config:
             backend.restore_read_frontier(config['read_sequence'])
         batch_sizes = []
+        runtime = None
+        if config.get('record_stage_times'):
+            runtime = {'hostname': socket.gethostname(), 'tensorflow': tf.__version__}
+            if gpu:
+                info = subprocess.check_output(
+                    ['nvidia-smi', '--id=0', '--query-gpu=uuid,name,driver_version,memory.total',
+                     '--format=csv,noheader,nounits'], text=True, timeout=10)
+                uuid, name, driver, memory = (value.strip() for value in info.strip().split(','))
+                runtime['gpu'] = {'uuid': uuid, 'name': name, 'driver': driver, 'memory_mib': int(memory)}
         model_warmup_seconds=None
         if config.get('start_gate'):
             warmup_started=time.monotonic()
@@ -271,6 +282,7 @@ def main():
                           "model_warmup_seconds": model_warmup_seconds,
                           "deterministic_model": bool(config.get('deterministic_model',False)),
                           "stage_seconds": stage_times,
+                          **({"runtime": runtime} if runtime is not None else {}),
                           "local_samples": len(samples), "packed_mlp_rows": dense_rows,
                           "losses": losses, "step_seconds": times, "devices": observed_devices,
                           "first_row_gradients": first_gradients,
