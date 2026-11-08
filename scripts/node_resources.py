@@ -86,7 +86,8 @@ def available(snapshot, active, limits):
     return result
 
 
-def operation(root, run, role, action, token=None, request=None, gpu=False, limits=None):
+def operation(root, run, role, action, token=None, request=None, gpu=False, limits=None,
+              bind_host='0.0.0.0'):
     from role_node import locked, write, snapshot as role_snapshot
     path = store(root)
     with locked(path):
@@ -122,7 +123,7 @@ def operation(root, run, role, action, token=None, request=None, gpu=False, limi
             with contextlib.ExitStack() as sockets:
                 for port in wanted['ports']:
                     s = sockets.enter_context(socket.socket())
-                    s.bind(('0.0.0.0', port))
+                    s.bind((bind_host, port))
             value = dict(intent, token=token, state='reserved', roles=[], created_epoch=time.time())
             write(target, value)
             return value

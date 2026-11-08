@@ -146,7 +146,8 @@ class Controller:
             raise ValueError('inventory requires 2–8 distinct stable nodes')
         # A node's root is its durable reservation authority; aliases cannot
         # advertise the same authority twice and double its capacity.
-        authorities = [(n.get('host', 'local'), str(pathlib.PurePath(n['root']))) for n in nodes]
+        authorities = [((None, None) if n.get('local') else (n['host'], int(n.get('port', 22))),
+                        pathlib.PurePath(n['root'])) for n in nodes]
         if len(set(authorities)) != len(nodes):
             raise ValueError('inventory repeats a node resource authority')
         for key in ('source','python','bin_dir','module_dir'):
@@ -172,6 +173,8 @@ class Controller:
 
     def node_call(self, node_id, action, run='controller-probe', **kwargs):
         node = self.nodes[node_id]
+        if action == 'reserve':
+            kwargs['bind_host'] = '127.0.0.1' if node.get('local') else node.get('bind_host', '0.0.0.0')
         return self.sessions.invoke(node, dict(op='resources', root=node['root'], run=run,
             role='allocation', action=action, limits=node.get('capacity', {}), **kwargs))
 
