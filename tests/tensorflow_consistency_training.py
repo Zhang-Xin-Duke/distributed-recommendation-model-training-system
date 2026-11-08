@@ -53,7 +53,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
     if order_book is not None:
         from order_book_strategy_workloads import validate_order_book
         dimension, packed = 256, (142435 + 255) // 256
-        evaluate = lambda state: validate_order_book(state, order_book['path'])
+        evaluate = lambda state: validate_order_book(state, order_book['path'], order_book)
     else:
         evaluate = lambda state: model_loss(state, validation, dimension, hidden)
     training = [example for sequence in batches for batch in sequence for example in batch]
@@ -74,6 +74,9 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                            'beta1': .9, 'beta2': .999, 'epsilon': 1e-8,
                            'initial_beta1_power': .9, 'initial_beta2_power': .999},
              'initialization': {'min': -.1, 'max': .1, 'seed': 42}}
+    if order_book is not None and order_book.get('initial_weights'):
+        # Store trainable deltas; all Workers add the identical immutable initial weights.
+        table['initialization'] = {'min': 0., 'max': 0., 'seed': 42}
     processes, logs = [], []
 
     def launch(command, name, config):
@@ -172,7 +175,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
             child.stdin = None
         outputs = []
         for child in children:
-            stdout, _ = child.communicate(timeout=120 + 2 * iterations * delay_ms / (1000 * delay_every))
+            budget = 120 + 2 * iterations * delay_ms / (1000 * delay_every)
+            if order_book is not None:
+                budget = max(budget, min(1500, iterations*3))
+            stdout, _ = child.communicate(timeout=budget)
             if child.returncode:
                 raise RuntimeError(f'model Worker failed: {child.returncode}')
             outputs.append(json.loads(stdout))

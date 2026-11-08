@@ -15,7 +15,7 @@ from tensorflow_consistency_training import trial
 from tensorflow_strategy_workloads import STRATEGIES, summarize, write_report
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'examples'))
-from order_book_training_worker import batch
+from order_book_training_worker import batch, batch_at
 from financial_order_book_model import build_order_book_model, flat_order_book_step
 
 
@@ -48,7 +48,7 @@ def weights(state, name='weights'):
                       dtype=np.float32).reshape(-1)
 
 
-def validate_order_book(state, path):
+def validate_order_book(state, path, spec=None):
     import tensorflow as tf
 
     with np.load(path) as data:
@@ -57,31 +57,37 @@ def validate_order_book(state, path):
         model = build_order_book_model()
         sizes = [int(np.prod(v.shape)) for v in model.trainable_variables]
         values = weights(state)[:sum(sizes)]
+        if spec and spec.get('initial_weights'):
+            values += np.load(spec['initial_weights'], allow_pickle=False)
         for variable, value in zip(model.trainable_variables, np.split(values, np.cumsum(sizes)[:-1])):
             variable.assign(value.reshape(variable.shape))
         losses, predictions = [], []
-        for start in range(99, len(labels), 32):
-            x, y = batch(features, labels, start, min(32, len(labels)-start))
+        count = min(len(labels)-99, (spec or {}).get('val_windows') or len(labels))
+        ends = np.linspace(99, len(labels)-1, count, dtype=np.int32)
+        for start in range(0, len(ends), 32):
+            x, y = batch_at(features, labels, ends[start:start+32])
             logits = model(x, training=False)
             losses.extend(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits).numpy())
             predictions.extend(tf.argmax(logits, axis=1).numpy())
     counts = np.zeros((3, 3), dtype=int)
-    np.add.at(counts, (labels[99:], predictions), 1)
+    np.add.at(counts, (labels[ends], predictions), 1)
     denom = counts.sum(0) + counts.sum(1)
     f1 = np.divide(2 * counts.diagonal(), denom, out=np.zeros(3), where=denom != 0)
-    return dict(loss=float(np.mean(losses)), macro_f1=float(np.mean(f1)), confusion=counts.tolist())
+    return dict(loss=float(np.mean(losses)), macro_f1=float(np.mean(f1)),
+                recall=(counts.diagonal()/np.maximum(counts.sum(1),1)).tolist(), confusion=counts.tolist())
 
 
-def reference(record, path, size, workers, device):
+def reference(record, path, size, workers, device, spec):
     import tensorflow as tf
 
     with np.load(path) as data:
         x, y = batch(data['train_x'], data['train_y'], 99, workers * size)
     with tf.device(device):
-        initial, step = flat_order_book_step(build_order_book_model())
+        initial, step = flat_order_book_step(build_order_book_model(), spec['class_weights'])
         count = int(initial.shape[0])
         before = weights(record['initial_state'])
-        weights_tensor = tf.constant(before[:count])
+        base = np.load(spec['initial_weights'], allow_pickle=False) if spec['initial_weights'] else 0
+        weights_tensor = tf.constant(before[:count]+base)
         gradients = []
         for worker in range(workers):
             start = worker * size
@@ -92,7 +98,7 @@ def reference(record, path, size, workers, device):
         gradient[:count] = (tf.add_n(gradients) / workers).numpy()
     # SparseLazyAdam puts epsilon outside sqrt of the uncorrected second moment.
     m, v = .1 * gradient, .001 * gradient**2
-    expected = before - (.02 * np.sqrt(.001) / .1) * m / (np.sqrt(v) + 1e-8)
+    expected = before - (spec['learning_rate'] * np.sqrt(.001) / .1) * m / (np.sqrt(v) + 1e-8)
     errors = {}
     for name, target in (('weights', expected), ('first_moment', m), ('second_moment', v)):
         actual = weights(record['final_state'], name)
@@ -113,6 +119,12 @@ def main():
     parser.add_argument('--batch-size', type=int, default=512)
     parser.add_argument('--iterations', type=int, nargs='+', default=[8, 24])
     parser.add_argument('--target-loss', type=float, default=.95)
+    parser.add_argument('--target-macro-f1', type=float)
+    parser.add_argument('--target-min-recall', type=float, default=.1)
+    parser.add_argument('--val-windows', type=int)
+    parser.add_argument('--initial-weights', type=Path)
+    parser.add_argument('--balance', action='store_true')
+    parser.add_argument('--strategies', choices=list(STRATEGIES), nargs='+')
     parser.add_argument('--repeats', type=int, default=5)
     parser.add_argument('--delay-ms', type=int, default=20)
     parser.add_argument('--learning-rate', type=float, default=.02)
@@ -133,8 +145,8 @@ def main():
         parser.error('--build and --out are required for training')
     if args.reference and args.iterations != [1]:
         parser.error('--reference requires --iterations 1')
-    if args.reference and (args.shuffle_seed is not None or args.learning_rate != .02):
-        parser.error('--reference requires the default chronological batch and learning rate')
+    if args.reference and args.shuffle_seed is not None:
+        parser.error('--reference requires a chronological batch')
     if (not np.isfinite(args.learning_rate) or args.learning_rate <= 0 or
             (args.shuffle_seed is not None and args.shuffle_seed < 0)):
         parser.error('learning rate must be positive and shuffle seed must be non-negative')
@@ -154,16 +166,33 @@ def main():
     path = args.data.resolve()
     with np.load(path) as data:
         rows = len(data['train_y'])
+        counts = np.bincount(data['train_y'][99:], minlength=3)
         if rows < 100 or (args.shuffle_seed is None and
                           99 + max(args.iterations) * workers * args.batch_size > rows):
             parser.error('training data does not cover the requested sample budget')
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with path.open('rb') as source:
         digest = hashlib.file_digest(source, 'sha256').hexdigest()
+    if args.val_windows is not None and args.val_windows < 1:
+        parser.error('validation window count must be positive')
+    class_weights = (counts.sum()/(3*counts) if args.balance else np.ones(3)).astype(np.float32).tolist()
+    initial_weights_sha256 = None
+    if args.initial_weights:
+        args.initial_weights = args.initial_weights.resolve()
+        with args.initial_weights.open('rb') as source:
+            initial_weights_sha256 = hashlib.file_digest(source, 'sha256').hexdigest()
+            source.seek(0)
+            initial = np.load(source, allow_pickle=False)
+        if initial.shape != (142435,) or initial.dtype != np.float32 or not np.isfinite(initial).all():
+            parser.error('expected finite flat FP32 weights for the DeepLOB model')
+    names = ['sync'] if args.reference or args.sync_pilot else list(dict.fromkeys(args.strategies or STRATEGIES))
     report = dict(complete=False, model='deeplob_style', workers=workers,
                   batch_size=args.batch_size, iterations=args.iterations, repeats=args.repeats,
                   shuffle_seed=args.shuffle_seed, learning_rate=args.learning_rate,
                   data_sha256=digest, target_loss=args.target_loss,
+                  target_macro_f1=args.target_macro_f1, target_min_recall=args.target_min_recall,
+                  val_windows=args.val_windows, initial_weights_sha256=initial_weights_sha256,
+                  class_weights=class_weights, strategies=names,
                   timing='start gate to worker process exit for remote runs',
                   remote_hosts={spec[0]: probe_remote(*spec) for spec in args.remote_worker},
                   trials=[], failed_attempts=[])
@@ -175,10 +204,12 @@ def main():
         raise RuntimeError('a remote checkout differs from the controller')
     write_report(args.out, report)
     spec = dict(path=str(path), batch_size=args.batch_size, workers=workers, sha256=digest,
-                shuffle_seed=args.shuffle_seed, learning_rate=args.learning_rate)
+                shuffle_seed=args.shuffle_seed, learning_rate=args.learning_rate,
+                initial_weights=str(args.initial_weights) if args.initial_weights else None,
+                initial_weights_sha256=initial_weights_sha256, class_weights=class_weights,
+                val_windows=args.val_windows)
     with tempfile.TemporaryDirectory(prefix='eps-deeplob-') as temp:
         for repeat in range(args.repeats):
-            names = ['sync'] if args.reference or args.sync_pilot else list(STRATEGIES)
             shift = repeat % len(names)
             for iterations in sorted(set(args.iterations)):
                 for name in names[shift:] + names[:shift]:
@@ -204,7 +235,8 @@ def main():
                         continue
                     result['attempt'] = attempt
                     if args.reference:
-                        result['reference_max_absolute_error'] = reference(result, path, args.batch_size, workers, args.device)
+                        result['reference_max_absolute_error'] = reference(
+                            result, path, args.batch_size, workers, args.device, spec)
                     if hosts and args.device == '/GPU:0':
                         uuids = {w['gpu_identity'].split(',')[0] for w in result['workers_report']}
                         if len(uuids) != workers:
@@ -214,13 +246,29 @@ def main():
                     result['model'] = 'deeplob_style'
                     result['strategy'] = name
                     result['workload'] = 'fi2010'
+                    quality = result['validation']
+                    result['quality_passed'] = quality['loss'] <= args.target_loss and (
+                        args.target_macro_f1 is None or
+                        (quality['macro_f1'] >= args.target_macro_f1 and
+                         min(quality['recall']) >= args.target_min_recall))
                     report['trials'].append(result)
                     write_report(args.out, report)
                     print(json.dumps(dict(strategy=name, repeat=repeat, loss=result['final_loss'],
                                           elapsed=result['warmup_excluded_seconds'],
                                           reference=result.get('reference_max_absolute_error'))), flush=True)
     expected = args.repeats * len(set(args.iterations)) * len(names)
-    if not args.reference and not args.sync_pilot and len(report['trials']) == expected:
+    if args.target_macro_f1 is not None:
+        report['passing_endpoints'] = {}
+        for name in names:
+            for repeat in range(args.repeats):
+                candidates = [t for t in report['trials'] if t['strategy']==name and t['repeat']==repeat
+                              and t['quality_passed']]
+                if candidates:
+                    best = min(candidates, key=lambda t: t['committed_samples'])
+                    report['passing_endpoints'].setdefault(name, {})[repeat] = {
+                        k: best[k] for k in ('iterations_per_worker','committed_samples',
+                                             'warmup_excluded_seconds','validation')}
+    elif not args.reference and not args.sync_pilot and names == list(STRATEGIES) and len(report['trials']) == expected:
         report['summary'] = summarize(report['trials'], args.repeats, args.target_loss, .05)
     report['complete'] = True
     report['matrix_complete'] = len(report['trials']) == expected

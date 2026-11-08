@@ -50,8 +50,17 @@ def main():
         tf.config.experimental.set_memory_growth(device, True)
     tf.config.experimental.enable_tensor_float_32_execution(False)
     width = cfg['dimension']
+    base = None
+    if spec.get('initial_weights'):
+        with open(spec['initial_weights'], 'rb') as source:
+            if hashlib.file_digest(source, 'sha256').hexdigest() != spec['initial_weights_sha256']:
+                raise RuntimeError('initial weights differ from the controller')
+            source.seek(0)
+            base = np.load(source, allow_pickle=False)
     with tf.device(cfg['device']):
-        initial, step = flat_order_book_step(build_order_book_model())
+        initial, step = flat_order_book_step(build_order_book_model(), spec.get('class_weights', (1.,1.,1.)))
+        if base is not None:
+            base = tf.constant(base, dtype=tf.float32)
     count = int(initial.shape[0])
     keys = np.arange((count + width - 1) // width, dtype=np.uint64)
     feature = dict(table=1, feature=0, pooling='sequence', keys=keys,
@@ -73,6 +82,8 @@ def main():
                         else batch_at(features, labels, schedule[start-99:start-99+size]))
                 with tf.device(cfg['device']):
                     weights = tf.convert_to_tensor(values.reshape(-1)[:count])
+                    if base is not None:
+                        weights = weights + base
                     return step(weights, tf.convert_to_tensor(x), tf.convert_to_tensor(y))
 
             token, values = backend.pull([feature], True)
