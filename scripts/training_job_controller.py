@@ -8,8 +8,10 @@ import contextlib
 import copy
 import fcntl
 import json
+import hashlib
 import pathlib
 import sqlite3
+import subprocess
 import sys
 import time
 
@@ -77,6 +79,39 @@ class JobStore:
             raise ValueError('unknown job')
         value = dict(row)
         value['spec'] = json.loads(value['spec']); value['detail'] = json.loads(value['detail'])
+        return value
+
+    def resume(self, source, new_id, extra_rounds):
+        if type(extra_rounds) is not int or extra_rounds < 1:
+            raise ValueError('extra rounds must be positive')
+        previous = self.get(source)
+        spec = copy.deepcopy(previous['spec'])
+        workload = spec['workload']
+        if 'datasets' not in workload:
+            raise ValueError('resume requires a standalone recommendation job')
+        manifest = pathlib.Path(workload['checkpoint_root']) / source / 'manifest.json'
+        raw = manifest.read_bytes()
+        checkpoint = json.loads(raw)
+        boundary = checkpoint['progress']['completed'][0]
+        if checkpoint['source_run'] != source or boundary != workload['rounds']:
+            raise ValueError('checkpoint belongs to another job or round')
+        spec['id'] = new_id
+        workload.update(rounds=boundary + extra_rounds,
+                        resume_checkpoint=dict(manifest=str(manifest), sha256=hashlib.sha256(raw).hexdigest()))
+        return self.submit(spec)
+
+    def status(self, job):
+        value = self.get(job)
+        runtime = self.root / 'jobs' / job / 'training'
+        progress = runtime / 'progress.json'
+        summary = runtime / 'summary.json'
+        if progress.is_file():
+            value['progress'] = json.loads(progress.read_text())
+        if summary.is_file():
+            result = json.loads(summary.read_text())
+            value['training'] = dict(checkpoint=result['steps'].get('job_checkpoint'),
+                workers=[{key: w.get(key) for key in ('worker','input_state','validation','samples_per_second','runtime')}
+                         for w in result['model']['workers']])
         return value
 
     def jobs(self):
@@ -194,6 +229,22 @@ class Controller:
         self.store.update(job['id'], 'RUNNING', executor_role=name, executor_serial=serial,
                           started_epoch=detail.get('started_epoch', time.time()), executor_handle=state)
 
+    def preflight(self, spec, plan):
+        workload = spec['workload']
+        if 'datasets' not in workload or spec['device'] != 'gpu':
+            return
+        revision = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
+        for allocation in plan['allocations']:
+            name = allocation['node_id']
+            node = self.nodes[name]
+            workers = [workload['datasets'][w] for w, host in enumerate(plan['groups']) if host == name]
+            try:
+                self.sessions.invoke(node, dict(op='training_preflight', revision=revision, gpu=bool(workers),
+                    datasets=workers, checkpoint_root=workload['checkpoint_root'],
+                    **{key: node[key] for key in ('root','source','bin_dir','module_dir')}))
+            except (OSError, RuntimeError, ValueError) as error:
+                raise ValueError(f'preflight failed on {name}: {error}') from error
+
     def _reserve(self, job):
         detail = job['detail']; spec = job['spec']; plan = detail['placement']
         tokens = detail['tokens']; directory = self._runtime(job['id'])
@@ -202,6 +253,7 @@ class Controller:
         if spec.get('_test_fault'):
             if not self.inventory.get('allow_test_loss'):raise ValueError('test fault requires a test inventory')
             fleet['controller_test_fault']=spec['_test_fault']
+        self.preflight(spec, plan)
         # Persist complete intent before issuing any node-side reservation.
         write(directory / 'fleet.json', fleet); (directory / 'fleet.json').chmod(0o600)
         for item in plan['allocations']:
@@ -235,7 +287,9 @@ class Controller:
                     if not roles.stop(0, f'coordinator-g{generation}')['owned_processes_gone']:
                         raise RuntimeError('coordinator remains live')
         lost={r[0] for r in self.store.db.execute('SELECT id FROM node_losses')}
-        for allocation in [*detail.get('reservation_history',[]),detail.get('tokens',{})]:
+        intent_path = directory / 'recovery-intent.json'
+        pending_tokens = json.loads(intent_path.read_text())['tokens'] if intent_path.exists() else {}
+        for allocation in [*detail.get('reservation_history',[]),detail.get('tokens',{}),pending_tokens]:
             for name,token in allocation.items():
                 if name not in lost:self.node_call(name,'release',run=job['id'],token=token)
         target = 'CANCELLED' if job['desired'] == 'CANCEL' else detail.get('terminal_target', 'FAILED')
@@ -263,7 +317,12 @@ class Controller:
                     self._start_executor(job)
                 elif job['state'] in ('RECOVERING','WAITING_RECOVERY_RESOURCES'):
                     from job_recovery import prepare
-                    prepare(self,job)
+                    try:
+                        prepare(self, job)
+                    except ValueError as error:
+                        if 'datasets' not in job['spec']['workload']:
+                            raise
+                        self.store.update(job['id'], 'CLEANUP_PENDING', terminal_target='FAILED', error=str(error))
                 elif job['state'] == 'RUNNING':
                     lost={r[0] for r in self.store.db.execute('SELECT id FROM node_losses')}
                     assigned={a['node_id'] for a in job['detail']['placement']['allocations']}
@@ -296,7 +355,10 @@ class Controller:
         for job in queued:
             plan = self.plan(job['spec'])
             if not plan['feasible']:
-                self.store.update(job['id'], 'WAITING_RESOURCES', waiting_reason=plan['reason'])
+                if 'datasets' in job['spec']['workload'] and job['spec']['device'] == 'gpu' and plan['reason'] == 'insufficient_healthy_nodes':
+                    self.store.update(job['id'], 'FAILED', error='fewer than two reachable GPU-capable nodes')
+                else:
+                    self.store.update(job['id'], 'WAITING_RESOURCES', waiting_reason=plan['reason'])
                 continue
             attempt = job['detail'].get('allocation_attempt', 0)
             tokens = {a['node_id']: job['id'] + '-a' + str(attempt) for a in plan['allocations']}
@@ -324,6 +386,10 @@ def main():
         jobs.add_parser(name).add_argument('spec', type=pathlib.Path)
     jobs.add_parser('status').add_argument('id', nargs='?')
     jobs.add_parser('cancel').add_argument('id')
+    resume = jobs.add_parser('resume')
+    resume.add_argument('source')
+    resume.add_argument('id')
+    resume.add_argument('--extra-rounds', required=True, type=int)
     nodes = commands.add_parser('node').add_subparsers(dest='action', required=True)
     nodes.add_parser('list'); nodes.add_parser('probe')
     drain = nodes.add_parser('drain'); drain.add_argument('id'); drain.add_argument('--off', action='store_true')
@@ -336,7 +402,9 @@ def main():
         elif a.kind == 'job' and a.action == 'cancel':
             value = store.cancel(a.id)
         elif a.kind == 'job' and a.action == 'status':
-            value = store.get(a.id) if a.id else store.jobs()
+            value = store.status(a.id) if a.id else store.jobs()
+        elif a.kind == 'job' and a.action == 'resume':
+            value = store.resume(a.source, a.id, a.extra_rounds)
         elif a.kind == 'node' and a.action == 'drain':
             store.drain(a.id, not a.off); value = dict(node=a.id, draining=not a.off)
         else:

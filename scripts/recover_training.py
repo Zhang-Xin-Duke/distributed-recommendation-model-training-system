@@ -159,7 +159,8 @@ def recover(job, build, apply=False):
             rounds = journal.rounds()
             for iteration in rounds:
                 sequences[w] = max(sequences[w], journal.get(iteration)['completed_reads'])
-            batches = json.loads(journal.identity['dataset_json'])
+            from recommendation_input import input_state
+            descriptor = json.loads(journal.identity['dataset_json'])
             item = dict(cfg, start_iteration=target, iterations=job['end_round'] - target,
                         read_sequence=sequences[w], coordinator=job['coordinator_endpoint'])
             item.pop('test_pause', None)
@@ -167,9 +168,7 @@ def recover(job, build, apply=False):
                 item['agents'] = [a for a in owners if a is not None]
             if item['iterations'] < 0:
                 raise ValueError('recovery round exceeds requested training end')
-            item['input_state'] = dict(kind='cyclic-json-batches-v1', dataset_json=journal.identity['dataset_json'],
-                dataset_sha256=journal.identity['dataset_sha256'], next_iteration=target,
-                next_batch=target % len(batches), model=journal.identity['model'])
+            item['input_state'] = input_state(descriptor, journal.identity['model'], target)
             resumed.append(item)
         return dict(kind='eps-worker-recovery-v1', run=run, epoch=epoch, next_round=target,
                     complete=target==job['end_round'],

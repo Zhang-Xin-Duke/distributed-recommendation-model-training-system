@@ -90,10 +90,13 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
     dimension=table['dimension'];hidden=workload.get('hidden',4)
     rounds=workload.get('rounds',8)
     target,rows=workload.get('fault_round',min(3,rounds-1)),workload.get('rows',64)
-    if not 1<=dimension<=4096 or not 1<=hidden<=256 or not 1<=rounds<=10000 or not 0<=target<rounds or rows<16:
+    if not 1<=dimension<=4096 or not 1<=hidden<=256 or not 1<=rounds<=(100000 if "datasets" in workload else 10000) or not 0<=target<rounds or rows<(8 if "datasets" in workload else 16):
         raise ValueError('invalid managed training workload')
     packed=(dimension*hidden+2*hidden+1+dimension-1)//dimension
     if rows<=packed+6:raise ValueError('managed parameter table cannot hold its model and default sparse inputs')
+    datasets = workload.get('datasets')
+    if datasets is not None and len(datasets) != count:
+        raise ValueError('dataset partition count differs from fleet')
     if 'batches' in workload:batches=workload['batches']
     else:
         for worker_batches in batches:
@@ -113,6 +116,26 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
         if r.returncode:raise RuntimeError(r.stderr[-2000:])
         return json.loads(r.stdout)
     settings=dict(run=run,epoch=1,coordinator=manager['coordinator'],shards=manager['shards'],keys=inspect_keys,synchronous=True)
+    checkpoint = workload.get('resume_checkpoint')
+    restored = None
+    base_round = 0
+    if checkpoint:
+        from recommendation_input import input_identity, input_state
+        manifest_path = pathlib.Path(checkpoint['manifest'])
+        raw = manifest_path.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != checkpoint['sha256']:
+            raise ValueError('resume checkpoint changed after submission')
+        manifest = json.loads(raw)
+        model = dict(kind='embedding_tanh_mlp', dimension=dimension, hidden=hidden)
+        base_round = manifest['progress']['completed'][0]
+        if (manifest['model'] != model or manifest['tables'] != [table]
+                or not 0 < base_round < rounds or len(manifest['workers']) != count):
+            raise ValueError('resume model, table or training boundary mismatch')
+        for worker, record in enumerate(manifest['workers']):
+            expected = input_state(input_identity(dict(dataset=datasets[worker])), model, base_round)
+            if record != dict(worker=worker, input_state=expected):
+                raise ValueError('resume dataset or worker input cursor mismatch')
+        restored = command('eps_training_control', dict(run=run, manifest=str(manifest_path)), 'restore-config')
     replica_hosts=fleet.get('replica_hosts',[(h+1)%count for h in range(count)])
     mirror_hosts=fleet.get('mirror_hosts',[(h+1)%count for h in range(count)])
     if any(len(v)!=count or any(type(i) is not int or not 0<=i<count for i in v) for v in (replica_hosts,mirror_hosts)):
@@ -121,7 +144,12 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
     def primary_cfg(home,generation):
         n=nodes[home];primary=f'primary-{home}-g{generation}';term=generation+1
         agent=dict(id=home,endpoint=n['agents'][home]['endpoint'],owner_run=owner_run(run,1,home,term,primary))
-        return dict(schema_version=1,run_id=run,listen=n['ps_listen'],partition=dict(shard_id=home,shard_count=count,epoch=1),tables=[table],cache=dict(enabled=True),agents=[agent],replica_table_rows={'1':rows},snapshot_directory=str(path(home,f'primary-{home}-g{generation}')/'snapshots'),synchronous_training=dict(workers=count,reduction='sample_mean',round_timeout_ms=25000,replica=dict(endpoint=n['replicas'][home],primary=primary,term=term,local_directory=str(path(home,f'primary-{home}-g{generation}')/'primary-log'),recover=bool(generation),start_paused=bool(generation))))
+        cfg = dict(schema_version=1,run_id=run,listen=n['ps_listen'],partition=dict(shard_id=home,shard_count=count,epoch=1),tables=[table],cache=dict(enabled=True),agents=[agent],replica_table_rows={'1':rows},snapshot_directory=str(path(home,f'primary-{home}-g{generation}')/'snapshots'),synchronous_training=dict(workers=count,reduction='sample_mean',round_timeout_ms=25000,replica=dict(endpoint=n['replicas'][home],primary=primary,term=term,local_directory=str(path(home,f'primary-{home}-g{generation}')/'primary-log'),recover=bool(generation),start_paused=bool(generation))))
+        if restored:
+            cfg['replica_base_round'] = base_round
+            if generation == 0:
+                cfg['synchronous_training']['restore'] = restored['shards'][home]['synchronous_training']['restore']
+        return cfg
     def manager_cfg(home,generation):
         cfg=primary_cfg(home,generation)
         cfg['agents'][0]['endpoint']=manager['agents'][home]['endpoint']
@@ -133,6 +161,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
         cfg.update(listen=listener('replica',home,nodes[host]['replica_listen']),replica_directory=str(path(host,f'replica-{home}-g{generation if fleet.get("controller_managed") and generation else 0}')/'storage'))
         if placed:cfg['snapshot_directory']=str(path(host,f'replica-{home}-g0')/'snapshots')
         cfg['synchronous_training'].pop('replica')
+        cfg['synchronous_training'].pop('restore', None)
         cfg.pop('cache');cfg.pop('agents')
         return cfg
     def role_owner(roles,home,generation):
@@ -157,6 +186,13 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
     workers=[]
     for w,n in enumerate(nodes):
         cfg=dict(run=run,epoch=1,shards=n['shards'],coordinator=n['coordinator'],worker=w,dimension=dimension,hidden=hidden,iterations=rounds,batches=batches[w],table=table,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(n['agents'])],device='/GPU:0' if n.get('gpu') else '/CPU:0',journal_directory=str(path(w,f'worker-{w}-g0')/'journal'),journal_workers=count)
+        if datasets is not None:
+            cfg.pop('batches')
+            cfg['dataset'] = datasets[w]
+            cfg['progress_file'] = str(path(w, f'worker-{w}-g0') / 'progress.json')
+        if restored:
+            cfg.update(start_iteration=base_round, iterations=rounds-base_round,
+                       journal_base_round=base_round, input_state=restored['workers'][w]['input_state'])
         if w==0 and fault in ['after_pull','after_update']:cfg['test_pause']=dict(stage=fault,iteration=target,path=str(path(w,'worker-0-g0')/'gate'))
         if mirror_enabled:cfg['journal_mirror']=dict(endpoint=n['journal_mirrors'][w],generation=1,writer=f'worker-{w}-g0')
         if measurement or fleet.get('coordinated_start'):cfg.update(start_gate=str(path(w,f'worker-{w}-g0')/'training-start'),record_stage_times=True,
@@ -188,9 +224,24 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
         try:
             def initial():
                 for h in range(count):role_owner(roles,h,0);role_replica(roles,h,0);grant(h,0)
-                for h in range(count):roles.ensure(h,f'primary-{h}-g0',[binary(h,'eps_server')],primary_cfg(h,0));roles.ready(h,f'primary-{h}-g0')
-                command('eps_training_prepare',dict(run=run,shards=manager['shards'],rows=rows,dimension=dimension,batch_rows=preparation_batch,agents=[dict(a,owner_run=owner_run(run,1,h,1,f'primary-{h}-g0')) for h,a in enumerate(manager['agents'])]))
-                roles.ensure(0,'coordinator-g0',[binary(0,'eps_training_coordinator')],dict(schema_version=1,run=run,listen=nodes[0]['coordinator_listen'],workers=count,consistency='sequential',max_delay=0));roles.ready(0,'coordinator-g0')
+                for h in range(count):
+                    argv = [binary(h, 'eps_server')]
+                    if restored:
+                        argv += ['--restore', restored['shards'][h]['restore_file']]
+                    roles.ensure(h, f'primary-{h}-g0', argv, primary_cfg(h, 0))
+                    roles.ready(h, f'primary-{h}-g0')
+                command('eps_training_prepare', dict(run=run, shards=manager['shards'], rows=rows,
+                    dimension=dimension, batch_rows=preparation_batch, restore_existing=bool(restored),
+                    agents=[dict(a, owner_run=owner_run(run,1,h,1,f'primary-{h}-g0'))
+                            for h,a in enumerate(manager['agents'])]))
+                coordinator = dict(schema_version=1, run=run, listen=nodes[0]['coordinator_listen'],
+                                   workers=count, consistency='sequential', max_delay=0)
+                if restored:
+                    coordinator.update(restored['coordinator'], listen=nodes[0]['coordinator_listen'])
+                roles.ensure(0, 'coordinator-g0', [binary(0,'eps_training_coordinator')], coordinator)
+                roles.ready(0, 'coordinator-g0')
+                if restored:
+                    command('eps_training_control', dict(settings, manifest=checkpoint['manifest']), 'resume-job')
                 return dict(ready=True)
             step('initial_roles',initial)
             if mirror_enabled:step('initial_gradient_replicas',lambda:[mirror_role(roles,w,0) for w in range(count)])
@@ -235,6 +286,12 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                             else:roles.stop(0,'primary-0-g0')
                             injected=state
                             continue
+                    if datasets is not None:
+                        progress = [state.get('training_progress') for state in states]
+                        if progress != saved.get('observed_progress') and any(progress):
+                            saved['observed_progress'] = progress
+                            write(out / 'progress.json', dict(run=run, workers=progress))
+                            deadline = time.monotonic() + observation_timeout
                     if time.monotonic()>=deadline:raise TimeoutError('training observation expired; retain all role handles')
                     time.sleep(.1)
             observed=step('observation',observe_fault)
@@ -332,6 +389,8 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                         # process generation. Recovery admission is released by
                         # the reconciled coordinator, not that startup gate.
                         result['config'].pop('start_gate', None)
+                        if datasets is not None:
+                            result['config']['progress_file'] = str(path(w, f'worker-{w}-g{recovery_generation}') / 'progress.json')
                         staged.append(result)
                         if mirror_enabled:
                             host=mirror_hosts[w]
@@ -349,7 +408,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                 active_workers=[x['config'] for x in staged];generation=recovery_generation
                 step('replacement_workers',lambda:start_workers(active_workers,recovery_generation))
             def finish():
-                outputs=[json.loads(roles.wait(w,f'worker-{w}-g{generation}')) for w in range(count)]
+                outputs=[json.loads(roles.wait(w,f'worker-{w}-g{generation}', timeout=observation_timeout)) for w in range(count)]
                 final=command('eps_training_control',settings,'inspect')
                 if final['completed']!=[rounds]*count or final['failed'] or final['active'] or final['waiting']:raise RuntimeError('managed training did not complete')
                 if any(s['live_tickets'] or s['synchronous']['next_round']!=rounds or s['cached_rows']!=(rows+count-1-h)//count for h,s in enumerate(final['shard_stats'])):raise RuntimeError('managed parameters did not drain or retain residency')
@@ -358,13 +417,13 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                     mirror_states=[]
                     for w in range(count):
                         receipt=roles.call(w,'journal_report',f'worker-{w}-g{generation}')
-                        if (receipt['run']!=run or receipt['worker']!=w or receipt['rounds']!=list(range(rounds))
+                        if (receipt['run']!=run or receipt['worker']!=w or receipt['rounds']!=list(range(base_round, rounds))
                                 or receipt['loss_history']!=outputs[w]['losses']):
                             raise RuntimeError('completed Worker journal differs from its model output')
                         receipts.append(receipt);histories.append(receipt['loss_history'])
                         if mirror_enabled:
                             peer=receipt['gradient_replica']
-                            if peer['next_round']!=rounds or peer['records']!=rounds:
+                            if peer['next_round']!=rounds or peer['records']!=rounds-base_round:
                                 raise RuntimeError('gradient replica history did not complete')
                             mirror_states.append(peer)
                     return dict(workers=outputs,state=final,loss_history=histories,final_journal_receipts=receipts,
@@ -373,8 +432,8 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                     receipt=transfer(cfg,nodes[w],manager_node,out/f'completed-worker-{w}','complete-'+run)
                     receipts.append(receipt)
                     with WorkerJournal(receipt['config']['journal_directory'],journal_identity(receipt['config'])) as journal:
-                        if journal.rounds()!=list(range(rounds)):raise RuntimeError('completed worker journal has incomplete round history')
-                        histories.append([journal.get(t)['loss'] for t in range(rounds)])
+                        if journal.rounds()!=list(range(base_round, rounds)):raise RuntimeError('completed worker journal has incomplete round history')
+                        histories.append([journal.get(t)['loss'] for t in range(base_round, rounds)])
                 mirror_states=[]
                 if mirror_enabled:
                     from gradient_replica import ReplicaClient
@@ -383,7 +442,7 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                             peer=ReplicaClient(dict(endpoint=manager['journal_mirrors'][w],generation=generation+1,writer=f'worker-{w}-g{generation}'),journal)
                             try:mirror_state=peer.call('status')
                             finally:peer.close()
-                        if mirror_state['next_round']!=rounds or mirror_state['records']!=rounds:raise RuntimeError('gradient replica history did not complete')
+                        if mirror_state['next_round']!=rounds or mirror_state['records']!=rounds-base_round:raise RuntimeError('gradient replica history did not complete')
                         mirror_states.append(mirror_state)
                 return dict(workers=outputs,state=final,loss_history=histories,final_journal_receipts=receipts,gradient_replicas=mirror_states)
             final=step('final_model',finish)
@@ -392,6 +451,10 @@ def execute(fleet, run, out, fault=None, on_checkpoint=None, on_fault=None, *, e
                     from training_source_export import save_checkpoint
                     return save_checkpoint(command,settings,workers,final['workers'],out/'source-generation'/'checkpoint')
                 step('source_checkpoint',export)
+            if datasets is not None:
+                from training_source_export import save_checkpoint
+                step('job_checkpoint', lambda: save_checkpoint(command, settings, active_workers,
+                     final['workers'], pathlib.Path(workload['checkpoint_root']) / run))
             terminal=True
             result=dict(run=run,fault=fault,recovered=observed['recovery'],generation=generation,model=final,steps=saved['steps'],phase_seconds=saved.get('phase_seconds',{}),hardware=hardware,mirror_worker_journals=mirror_enabled,workload=dict(rows=rows,dimension=dimension,rounds=rounds,hidden=hidden,inspected_rows=len(inspect_keys)))
         finally:

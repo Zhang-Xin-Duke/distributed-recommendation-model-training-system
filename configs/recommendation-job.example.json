@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "movielens",
+  "groups": 2,
+  "data": {
+    "root": "/shared/movielens",
+    "version": "COPY_FROM_PREPARED_MANIFEST"
+  },
+  "model": {
+    "embedding_dimension": 32,
+    "hidden": 32
+  },
+  "training": {
+    "batch_size": 128,
+    "rounds": 100,
+    "learning_rate": 0.002,
+    "seed": 42,
+    "checkpoint_root": "/shared/checkpoints"
+  }
+}

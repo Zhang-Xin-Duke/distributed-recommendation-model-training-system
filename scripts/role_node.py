@@ -88,6 +88,9 @@ def snapshot(path):
         p = path / (name + '.json')
         if p.exists():
             result[name] = json.loads(p.read_text())
+    progress = path / 'progress.json'
+    if progress.exists():
+        result['training_progress'] = json.loads(progress.read_text())
     result['live_wrapper'] = alive(result.get('wrapper'))
     result['live_child'] = alive(result.get('child'))
     result['state'] = 'running' if result['live_child'] else 'starting' if result['live_wrapper'] else 'exited' if 'wrapper' in result else 'not_started'
@@ -271,8 +274,39 @@ def journal_report(root,run,role):
                 loss_history=losses,record_sha256=digests,gradient_replica=mirror)
 
 
+def training_preflight(root, source, bin_dir, module_dir, revision, gpu, datasets, checkpoint_root):
+    import tempfile
+    if subprocess.check_output(['git', '-C', source, 'rev-parse', 'HEAD'], text=True, timeout=10).strip() != revision:
+        raise ValueError('node source revision differs from controller')
+    for name in ('eps_server', 'eps_replica', 'eps_cache_agent', 'eps_training_coordinator', 'eps_training_prepare'):
+        if not os.access(pathlib.Path(bin_dir) / name, os.X_OK):
+            raise ValueError('missing training executable: ' + name)
+    sys.path.insert(0, module_dir)
+    import _eps_native
+    if not hasattr(_eps_native.Backend, 'submit_synchronous'):
+        raise ValueError('native training module is incompatible')
+    for target in (root, checkpoint_root):
+        path = pathlib.Path(target)
+        path.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryFile(dir=path) as probe:
+            probe.write(b'eps-preflight')
+            probe.flush()
+            os.fsync(probe.fileno())
+    sys.path.insert(0, str(pathlib.Path(source) / 'adapters/entropy'))
+    from recommendation_input import IndexedBatches
+    for item in datasets:
+        for split in ('train', 'validation'):
+            IndexedBatches(item, split)[0]
+    if gpu:
+        import tensorflow as tf
+        if not tf.__version__.startswith('2.20.') or len(tf.config.list_physical_devices('GPU')) != 1:
+            raise ValueError('expected TensorFlow 2.20 with one visible GPU')
+        return hardware(root, 'preflight', 'allocation', True)
+    return {'ready': True}
+
+
 def dispatch(request):
-    handlers=dict(ensure=ensure,status=status,stop=stop,read=read,hardware=hardware,training_gate=training_gate,journal_report=journal_report)
+    handlers=dict(training_preflight=training_preflight,ensure=ensure,status=status,stop=stop,read=read,hardware=hardware,training_gate=training_gate,journal_report=journal_report)
     if request['op']=='role_config':
         path=directory(request['root'],request['run'],request['role'])
         with locked(path):

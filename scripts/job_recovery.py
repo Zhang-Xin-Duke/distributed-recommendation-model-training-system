@@ -58,7 +58,11 @@ def prepare(control, job):
     else:
         proposed = place(job['spec'], control.probe())
         if not proposed['feasible']:
-            control.store.update(job['id'], 'WAITING_RECOVERY_RESOURCES', waiting_reason=proposed['reason'])
+            if 'datasets' in job['spec']['workload']:
+                control.store.update(job['id'], 'CLEANUP_PENDING', terminal_target='FAILED',
+                                     error='no replacement placement: ' + proposed['reason'])
+            else:
+                control.store.update(job['id'], 'WAITING_RECOVERY_RESOURCES', waiting_reason=proposed['reason'])
             return False
         tokens = {a['node_id']: job['id'] + '-recovery-1' for a in proposed['allocations']}
         intent = dict(placement=proposed, tokens=tokens, port_base=detail['port_base'] + 4096)
@@ -67,6 +71,7 @@ def prepare(control, job):
         write(recovery_file, intent)
     replacement, ports = make_fleet(job['spec'], intent['placement'], control.inventory,
                                    job['id'], intent['tokens'], intent['port_base'])
+    control.preflight(job['spec'], intent['placement'])
     for item in intent['placement']['allocations']:
         control.node_call(item['node_id'], 'reserve', run=job['id'], token=intent['tokens'][item['node_id']],
                           request=dict(item['resources'], ports=ports[item['node_id']]))

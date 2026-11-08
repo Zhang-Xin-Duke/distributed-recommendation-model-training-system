@@ -1,0 +1,56 @@
+{
+  "manager": {
+    "bin_dir": "/srv/drmts/build-cuda",
+    "module_dir": "/srv/drmts/build-cuda/python"
+  },
+  "nodes": [
+    {
+      "source": "/srv/drmts/source",
+      "python": "/srv/drmts/environment/bin/python",
+      "bin_dir": "/srv/drmts/build-cuda",
+      "module_dir": "/srv/drmts/build-cuda/python",
+      "node_id": "gpu-1",
+      "root": "/srv/drmts",
+      "host": "gpu-1.example.invalid",
+      "port": 22,
+      "user": "trainer",
+      "gpu": true,
+      "bind_host": "10.44.0.11",
+      "service_host": "10.44.0.11",
+      "identity_file": "/path/to/ssh-key",
+      "known_hosts": "/path/to/known-hosts"
+    },
+    {
+      "source": "/srv/drmts/source",
+      "python": "/srv/drmts/environment/bin/python",
+      "bin_dir": "/srv/drmts/build-cuda",
+      "module_dir": "/srv/drmts/build-cuda/python",
+      "node_id": "gpu-2",
+      "root": "/srv/drmts",
+      "host": "gpu-2.example.invalid",
+      "port": 22,
+      "user": "trainer",
+      "gpu": true,
+      "bind_host": "10.44.0.12",
+      "service_host": "10.44.0.12",
+      "identity_file": "/path/to/ssh-key",
+      "known_hosts": "/path/to/known-hosts"
+    },
+    {
+      "source": "/srv/drmts/source",
+      "python": "/srv/drmts/environment/bin/python",
+      "bin_dir": "/srv/drmts/build-cuda",
+      "module_dir": "/srv/drmts/build-cuda/python",
+      "node_id": "gpu-3",
+      "root": "/srv/drmts",
+      "host": "gpu-3.example.invalid",
+      "port": 22,
+      "user": "trainer",
+      "gpu": true,
+      "bind_host": "10.44.0.13",
+      "service_host": "10.44.0.13",
+      "identity_file": "/path/to/ssh-key",
+      "known_hosts": "/path/to/known-hosts"
+    }
+  ]
+}

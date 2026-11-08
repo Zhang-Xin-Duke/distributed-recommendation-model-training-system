@@ -19,14 +19,14 @@ sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
 
 python3 -m venv "${dps_work}/environment"
 "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
-  'cmake==3.31.6' ninja 'cuda-toolkit[nvcc,cudart,crt,nvvm,cccl]==13.0.3'
+  'cmake==3.31.6' 'ninja==1.11.1.4' 'cuda-toolkit[nvcc,cudart,crt,nvvm,cccl]==13.0.3'
 dps_native_tf="${DPS_NATIVE_TF:-OFF}"
 dps_training_python="${DPS_TRAINING_PYTHON:-OFF}"
 dps_python_bridge=OFF
 if [[ "${dps_native_tf}" == "ON" || "${dps_training_python}" == "ON" ]]; then
   dps_python_bridge=ON
   "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
-    pybind11 'tensorflow[and-cuda]==2.20.0'
+    'pybind11==3.0.2' 'tensorflow[and-cuda]==2.20.0'
 fi
 dps_python="${dps_work}/environment/bin/python"
 dps_cmake="${dps_work}/environment/bin/cmake"

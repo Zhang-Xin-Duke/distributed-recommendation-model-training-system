@@ -98,16 +98,30 @@ void Workers(const Json& workers, std::uint64_t round, std::size_t count, const 
     const auto id = worker.at("worker").get<unsigned>();
     Require(id < count && seen.insert(id).second, "invalid or duplicate input worker");
     const auto& state = worker.at("input_state");
-    Require(state.at("kind") == "cyclic-json-batches-v1" && state.at("next_iteration") == round,
+    Require(state.at("next_iteration") == round,
             "worker input iteration mismatch");
     Require(state.at("model") == model, "worker checkpoint model mismatch");
     const auto data = state.at("dataset_json").get<std::string>();
     Digest hash; hash.Add(data.data(), data.size());
     Require(hash.End() == state.at("dataset_sha256").get<std::string>(), "worker input dataset fingerprint mismatch");
-    const auto batches = Json::parse(data);
-    Require(batches.is_array() && !batches.empty() && state.at("next_batch") == round % batches.size(),
-            "worker input cursor mismatch");
-    for (const auto& batch : batches) Require(batch.is_array() && !batch.empty(), "empty checkpoint input batch");
+    const auto input = Json::parse(data);
+    if (state.at("kind") == "indexed-recommendation-v1") {
+      const auto batches = input.at("train_batches").get<std::uint64_t>();
+      Require(input.at("kind") == state.at("kind") && input.at("worker") == id &&
+              batches > 0 && batches <= 65536 && state.at("next_batch") == round % batches &&
+              input.at("validation_batches").get<std::uint64_t>() > 0,
+              "indexed input cursor mismatch");
+      for (const auto* key : {"version", "train_sha256", "validation_sha256"}) {
+        const auto value = input.at(key).get<std::string>();
+        Require(value.size() == 64 && value.find_first_not_of("0123456789abcdef") == std::string::npos,
+                "invalid indexed input digest");
+      }
+    } else {
+      Require(state.at("kind") == "cyclic-json-batches-v1" && input.is_array() && !input.empty() &&
+              state.at("next_batch") == round % input.size(), "worker input cursor mismatch");
+      for (const auto& batch : input)
+        Require(batch.is_array() && !batch.empty(), "empty checkpoint input batch");
+    }
   }
 }
 std::uint64_t Round(const Json& progress) {

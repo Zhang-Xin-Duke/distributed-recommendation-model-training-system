@@ -6,7 +6,6 @@ the configured device executes model forward/backward. Updates use either a
 sample-weighted synchronous round or one local-batch-mean update per Worker.
 """
 import argparse
-import hashlib
 import json
 import os
 import pathlib
@@ -61,23 +60,24 @@ def main():
     start_iteration = int(config.get("start_iteration", 0))
     if not 0 <= start_iteration < (1 << 63) - iterations:
         raise ValueError("invalid input start iteration")
-    batches = config.get("batches", [config.get("samples", [])])
-    if not isinstance(batches, list) or not 1 <= len(batches) <= 65536:
+    from recommendation_input import IndexedBatches, input_identity, input_state
+    descriptor = input_identity(config)
+    indexed = "dataset" in config
+    if indexed and config["dataset"]["worker"] != config["worker"]:
+        raise ValueError("input shard belongs to another worker")
+    batches = IndexedBatches(config["dataset"], "train") if indexed else descriptor
+    if not 1 <= len(batches) <= 65536:
         raise ValueError("invalid batch sequence")
-    dataset_json = json.dumps(batches, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    dataset_hash = hashlib.sha256(dataset_json.encode()).hexdigest()
     model = dict(kind="embedding_tanh_mlp", dimension=dimension, hidden=hidden)
 
-    def input_state(iteration):
-        return dict(kind="cyclic-json-batches-v1", dataset_json=dataset_json,
-                    dataset_sha256=dataset_hash, next_iteration=iteration,
-                    next_batch=iteration % len(batches), model=model)
+    def cursor(iteration):
+        return input_state(descriptor, model, iteration)
 
     if start_iteration or "input_state" in config:
-        if config.get("input_state") != input_state(start_iteration):
+        if config.get("input_state") != cursor(start_iteration):
             raise ValueError("restored dataset, model or input cursor mismatch")
-    prepared = []
-    for samples in batches:
+
+    def prepare(samples):
         if not samples or len(samples) > 65536:
             raise ValueError("invalid local batch size")
         keys, segments = [], []
@@ -85,6 +85,8 @@ def main():
             if not example["keys"] or not 0 <= example["label"] <= 1:
                 raise ValueError("invalid training example")
             for key in example["keys"]:
+                if indexed:
+                    key += dense_rows
                 if not isinstance(key, int) or key < dense_rows or key >= (1 << 63):
                     raise ValueError("embedding IDs overlap packed MLP rows or exceed supported range")
                 keys.append(key)
@@ -98,12 +100,16 @@ def main():
         with tf.device(device):
             segment_ids = tf.constant(segments, dtype=tf.int32)
             labels = tf.constant([s["label"] for s in samples], dtype=tf.float32)
-        prepared.append((samples, features, unique_keys, inverse, segment_ids, labels))
+        return samples, features, unique_keys, inverse, segment_ids, labels
 
-    @tf.function(autograph=False)
-    def forward_backward(embedding, dense, segment_ids, labels):
-        with tf.device(device), tf.GradientTape() as tape:
-            tape.watch((embedding, dense))
+    prepared = None if indexed else [prepare(batch) for batch in batches]
+
+    def get_batch(iteration):
+        index = iteration % len(batches)
+        return prepare(batches[index]) if indexed else prepared[index]
+
+    def forward(embedding, dense, segment_ids, labels):
+        with tf.device(device):
             flat = tf.reshape(dense, [-1])
             stop = dimension * hidden
             w1 = tf.reshape(flat[:stop], [dimension, hidden])
@@ -114,6 +120,13 @@ def main():
             activations = tf.math.tanh(tf.linalg.matmul(pooled, w1) + b1)
             logits = tf.linalg.matvec(activations, w2) + b2
             loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=labels, logits=logits))
+        return loss, logits
+
+    @tf.function(autograph=False)
+    def forward_backward(embedding, dense, segment_ids, labels):
+        with tf.device(device), tf.GradientTape() as tape:
+            tape.watch((embedding, dense))
+            loss, logits = forward(embedding, dense, segment_ids, labels)
         gradients = tape.gradient(loss, (embedding, dense))
         return loss, logits, gradients[0], gradients[1]
 
@@ -155,7 +168,7 @@ def main():
             backend.restore_read_frontier(config['read_sequence'])
         batch_sizes = []
         runtime = None
-        if config.get('record_stage_times'):
+        if indexed or config.get('record_stage_times'):
             runtime = {'hostname': socket.gethostname(), 'tensorflow': tf.__version__}
             if gpu:
                 info = subprocess.check_output(
@@ -167,7 +180,7 @@ def main():
         if config.get('start_gate'):
             warmup_started=time.monotonic()
             gate = pathlib.Path(config['start_gate'])
-            warm = prepared[start_iteration % len(prepared)]
+            warm = get_batch(start_iteration)
             token, arrays = backend.pull(warm[1], True)
             backend.release(token)
             with tf.device(device):
@@ -186,8 +199,11 @@ def main():
                 if time.monotonic() > deadline:
                     raise TimeoutError('model start gate was not released')
                 time.sleep(.002)
+        run_started = time.monotonic()
+        seen_samples = 0
+        progress_path = pathlib.Path(config["progress_file"]) if config.get("progress_file") else None
         for iteration in range(start_iteration, start_iteration + iterations):
-            samples, features, unique_keys, inverse, segment_ids, labels = prepared[iteration % len(prepared)]
+            samples, features, unique_keys, inverse, segment_ids, labels = get_batch(iteration)
             started = time.monotonic()
             stages={name:0. for name in stage_times} if stage_times is not None else None
             floor = backend.begin_training(iteration)
@@ -268,13 +284,37 @@ def main():
             batch_sizes.append(len(samples))
             losses.append(value)
             times.append(time.monotonic() - started)
+            seen_samples += len(samples)
+            if progress_path:
+                progress = dict(worker=config["worker"], next_round=iteration + 1, loss=value,
+                                samples_per_second=seen_samples / (time.monotonic() - run_started),
+                                device=device, runtime=runtime)
+                pending = progress_path.with_suffix(".pending")
+                pending.write_text(json.dumps(progress))
+                pending.replace(progress_path)
+        validation = None
+        if indexed:
+            held_out = IndexedBatches(config["dataset"], "validation")
+            validation_count = validation_correct = 0
+            validation_loss = 0.
+            for i in range(len(held_out)):
+                examples, features, _, _, segments, targets = prepare(held_out[i])
+                handle, arrays = backend.pull(features, True)
+                backend.release(handle)
+                loss, logits = forward(tf.convert_to_tensor(arrays[0]), tf.convert_to_tensor(arrays[1]), segments, targets)
+                validation_count += len(examples)
+                validation_loss += float(loss.numpy()) * len(examples)
+                validation_correct += int(np.count_nonzero((logits.numpy() >= 0) == (targets.numpy() >= .5)))
+            validation = dict(samples=validation_count, loss=validation_loss / validation_count,
+                              accuracy=validation_correct / validation_count)
         backend.join()
         training_finished = time.monotonic()
         memory = tf.config.experimental.get_memory_info(device.lstrip("/")) if gpu else None
         print(json.dumps({"worker": config["worker"], "completed": iterations,
                           "model": "embedding_tanh_mlp", "dimension": dimension, "hidden": hidden,
-                          "start_iteration": start_iteration, "input_state": input_state(start_iteration + iterations),
-                          "batch_sizes": batch_sizes,
+                          "start_iteration": start_iteration, "input_state": cursor(start_iteration + iterations),
+                          "batch_sizes": batch_sizes, "validation": validation,
+                          "samples_per_second": seen_samples / sum(times),
                           "update_mode": update_mode,
                           "admission_wait_seconds": admission_wait,
                           "max_admission_lead": max_lead,

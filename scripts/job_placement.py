@@ -5,6 +5,9 @@ import re
 
 
 def job_spec(value):
+    if "schema_version" in value:
+        from recommendation_job import normalize
+        value = normalize(value)
     spec = copy.deepcopy(value)
     if not isinstance(spec.get('id'), str) or not re.fullmatch('[a-z0-9_-]{1,48}', spec['id']):
         raise ValueError('job requires a stable lowercase id')
@@ -25,7 +28,7 @@ def job_spec(value):
     dim = workload.get('table', {}).get('dimension', 8)
     hidden = workload.get('hidden', 4)
     rounds = workload.get('rounds', 8)
-    if any(type(x) is not int or x <= 0 for x in (rows, dim, hidden, rounds)) or dim > 4096 or hidden > 256 or rounds > 10000:
+    if any(type(x) is not int or x <= 0 for x in (rows, dim, hidden, rounds)) or dim > 4096 or hidden > 256 or rounds > (100000 if "datasets" in workload else 10000):
         raise ValueError('invalid model size')
     if rows <= (dim * hidden + 2 * hidden + 1 + dim - 1) // dim + 6:
         raise ValueError('table does not hold model and sparse inputs')

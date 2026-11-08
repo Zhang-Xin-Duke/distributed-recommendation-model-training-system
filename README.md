@@ -1,4 +1,4 @@
-# Distributed Training with a Sharded Parameter Server
+# Distributed Recommendation Model Training System
 
 A **C++20 distributed training system** with sharded parameter and optimizer state,
 CPU/CUDA parameter owners, training-task coordination, and checkpoint/replay recovery.
@@ -22,6 +22,14 @@ The implementation covers three connected responsibilities:
 
 [Build and run](docs/RUNNING.md) · [Training execution](docs/TRAINING_EXECUTION.md) ·
 [Validation records](docs/VALIDATION.md) · [中文架构说明](docs/ARCHITECTURE.zh-CN.md)
+
+## Standalone GPU training
+
+Use the [GPU cluster runbook](docs/RECOMMENDATION_GPU.md) to install the
+runtime, prepare recommendation data, submit a synchronous training job and
+resume from a checkpoint. The standalone job uses the repository's TensorFlow
+model and supports CSV input, configurable embeddings and MLP, and held-out
+evaluation. The original Entropy application adapter is optional.
 
 ## System architecture
 

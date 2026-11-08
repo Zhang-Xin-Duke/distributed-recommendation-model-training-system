@@ -26,12 +26,13 @@ def sync_directory(path):
 
 
 def identity(config):
-    batches = config.get('batches', [config.get('samples', [])])
+    from recommendation_input import input_identity
+    encoded = canonical(input_identity(config))
     return dict(run=config['run'], epoch=config.get('epoch', 1), worker=config['worker'],
                 workers=config['journal_workers'], shards=len(config['shards']), table=config['table'],
                 base_round=config.get('journal_base_round', 0),
                 model=dict(kind='embedding_tanh_mlp', dimension=config['dimension'], hidden=config.get('hidden', 8)),
-                dataset_json=canonical(batches).decode(), dataset_sha256=hashlib.sha256(canonical(batches)).hexdigest())
+                dataset_json=encoded.decode(), dataset_sha256=hashlib.sha256(encoded).hexdigest())
 
 
 class WorkerJournal:
