@@ -23,6 +23,38 @@ def select(pilots, target):
     return name, 'fastest_passing_pilot'
 
 
+def estimate(history, report, row, candidates):
+    """Reuse only comparable jobs that passed in every observed repetition."""
+    if not history or not history.get('complete') or history.get('topology') != report['topology']:
+        return None
+    config = report['config']
+    old = history['config']
+    if any(old.get(k) != config[k] for k in ('device', 'build', 'pilot_steps', 'target_loss', 'delay_ms', 'burst_every')):
+        return None
+    if (sorted(set(old['endpoints'])) != sorted(set(config['endpoints']))
+            or set(old['bounds']) != set(config['bounds'])
+            or (old.get('dataset') is None) != (config['dataset'] is None)):
+        return None
+    matches = [r for r in history['records'] if r['pattern'] == row['pattern']
+               and (config['dataset'] is None or r['dataset_sha256'] == row['dataset_sha256'])]
+    if len(matches) < 3 or any('auto' not in r['runs'] or not r['runs']['auto']['pilots'] for r in matches):
+        return None
+    predictions = {}
+    for name in candidates:
+        runs = [r['runs'].get(name) for r in matches]
+        if all(run is not None and run['passed'] for run in runs):
+            predictions[name] = statistics.median(run['wall_seconds'] for run in runs)
+    if not predictions:
+        return None
+    winner = min(predictions, key=lambda name: (predictions[name], name))
+    if predictions.get('sync', math.inf) <= predictions[winner] * 1.10:
+        winner = 'sync'
+    search = statistics.median(r['runs']['auto']['pilot_seconds'] for r in matches)
+    best = min(predictions.values())
+    return dict(repetitions=len(matches), fixed_seconds=predictions, pilot_seconds=search,
+                selected=winner, skip_pilots=predictions[winner] <= best + search)
+
+
 def paired_results(records, candidates):
     results = {}
     for pattern in dict.fromkeys(row['pattern'] for row in records):
@@ -60,6 +92,7 @@ def main():
     parser.add_argument('--remote-worker', nargs=4, metavar=('SSH_HOST', 'CHECKOUT', 'PYTHON', 'BUILD'),
                         help='run the second Worker on an existing SSH host')
     parser.add_argument('--model-out', type=Path, help='export inspected model state for one successful run')
+    parser.add_argument('--profile', type=Path, help='completed compare report from the same deployment')
     args = parser.parse_args()
     if args.patterns is None:
         args.patterns = list(DELAY_PATTERNS) if args.mode == 'compare' else ['balanced']
@@ -84,6 +117,7 @@ def main():
         if not (build / binary).is_file():
             parser.error(f'missing {build / binary}')
     dataset = json.loads(args.dataset.read_text()) if args.dataset else None
+    history = json.loads(args.profile.read_text()) if args.profile else None
     args.out.parent.mkdir(parents=True, exist_ok=True)
     report = dict(complete=False, config={k: str(v) if isinstance(v, Path) else v for k,v in vars(args).items()},
                   topology='two local Worker processes, two local parameter shards', records=[])
@@ -142,23 +176,35 @@ def main():
                 rng = random.Random(args.seed + repeat)
                 rng.shuffle(arms)
                 row = dict(pattern=pattern, repeat=repeat, dataset_sha256=workload_hash,
-                           delay_ms=delay, delay_every=every, slow_worker=repeat % 2, runs={})
+                           delay_ms=delay, delay_every=every, slow_worker=repeat % 2, runs={},
+                           task=dict(model='embedding_tanh_mlp', workers=2,
+                                     local_batch_size=metadata['local_batch_size'],
+                                     validation_samples=metadata['validation_samples'],
+                                     max_samples=max(endpoints)*2*metadata['local_batch_size'],
+                                     target_loss=args.target_loss, pattern=pattern))
                 for arm in arms:
                     started = time.monotonic()
                     selected, reason, pilots = arm, 'fixed', {}
+                    prediction = None
                     if arm == 'auto':
-                        order = list(candidates)
-                        rng.shuffle(order)
-                        pilots = {name: measure(name, args.pilot_steps) for name in order}
-                        selected, reason = select(pilots, args.target_loss)
-                    pilot_seconds = time.monotonic() - started if arm == 'auto' else 0.
+                        prediction = estimate(history, report, row, candidates)
+                        if prediction and prediction['skip_pilots']:
+                            selected, reason = prediction['selected'], 'matched_profile'
+                        else:
+                            order = list(candidates)
+                            rng.shuffle(order)
+                            pilots = {name: measure(name, args.pilot_steps) for name in order}
+                            selected, reason = select(pilots, args.target_loss)
+                    selection_seconds = time.monotonic() - started if arm == 'auto' else 0.
                     attempts = []
                     for steps in endpoints:
                         attempts.append(measure(selected, steps, export=args.model_out is not None))
                         if attempts[-1]['loss'] <= args.target_loss:
                             break
                     row['runs'][arm] = dict(selected=selected, reason=reason, pilots=pilots,
-                                            pilot_seconds=pilot_seconds, attempts=attempts,
+                                            pilot_seconds=selection_seconds if pilots else 0.,
+                                            selection_seconds=selection_seconds,
+                                            estimate=prediction, attempts=attempts,
                                             passed=attempts[-1]['loss'] <= args.target_loss,
                                             wall_seconds=time.monotonic()-started)
                     row['initial_parameter_sha256'] = fingerprint
