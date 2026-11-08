@@ -47,7 +47,8 @@ fi
 "${dps_nvcc}" --version
 
 dps_protobuf_flags=()
-if [[ "${dps_native_tf}" == "ON" ]]; then
+dps_protobuf_link_flags=()
+if [[ "${dps_python_bridge}" == "ON" ]]; then
   # Distribution static archives can contain non-PIC TLS relocations. Build the
   # private runtime dependency with the same protobuf version used by BRPC.
   if [[ ! -d "${dps_work}/protobuf-source/.git" ]]; then
@@ -64,8 +65,8 @@ if [[ "${dps_native_tf}" == "ON" ]]; then
     "-DProtobuf_LIBRARY_RELEASE=${dps_prefix}/lib/libprotobuf.a"
     "-DProtobuf_LIBRARY_DEBUG=${dps_prefix}/lib/libprotobuf.a"
     "-DProtobuf_PROTOC_EXECUTABLE=${dps_prefix}/bin/protoc"
-    "-DEPS_PROTOC_STATIC=${dps_prefix}/lib/libprotoc.a"
   )
+  dps_protobuf_link_flags=(-DEPS_LINK_STATIC_PROTOBUF=ON "-DEPS_PROTOC_STATIC=${dps_prefix}/lib/libprotoc.a")
 fi
 
 if [[ ! -d "${dps_work}/brpc-source/.git" ]]; then
@@ -86,7 +87,8 @@ PY
 fi
 "${dps_cmake}" -S "${dps_work}/brpc-source" -B "${dps_work}/brpc-build" \
   -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${dps_prefix}" \
-  -DBUILD_BRPC_TOOLS=OFF -DBUILD_UNIT_TESTS=OFF -DWITH_DEBUG_SYMBOLS=OFF
+  -DBUILD_BRPC_TOOLS=OFF -DBUILD_UNIT_TESTS=OFF -DWITH_DEBUG_SYMBOLS=OFF \
+  "${dps_protobuf_flags[@]}"
 "${dps_cmake}" --build "${dps_work}/brpc-build" -j 6
 "${dps_cmake}" --install "${dps_work}/brpc-build"
 
@@ -98,7 +100,7 @@ export LD_LIBRARY_PATH="${dps_prefix}/lib:${dps_prefix}/lib64:${dps_cuda}/lib:${
   -DCMAKE_CUDA_ARCHITECTURES="${DPS_CUDA_ARCHITECTURE:-89}" \
   -DEPS_BUILD_BRPC=ON -DEPS_BUILD_CUDA=ON -DEPS_BUILD_TESTS=ON -DEPS_SANITIZERS=OFF \
   -DEPS_BUILD_RUNTIME="${dps_native_tf}" -DEPS_BUILD_PYTHON="${dps_python_bridge}" \
-  -DPython3_EXECUTABLE="${dps_python}" "${dps_protobuf_flags[@]}"
+  -DPython3_EXECUTABLE="${dps_python}" "${dps_protobuf_flags[@]}" "${dps_protobuf_link_flags[@]}"
 "${dps_cmake}" --build "${dps_work}/build-cuda" -j 6
 "${dps_work}/environment/bin/ctest" --test-dir "${dps_work}/build-cuda" --output-on-failure
 cp "${dps_work}/build-cuda/Testing/Temporary/LastTest.log" "${dps_work}/results/LastTest.log"

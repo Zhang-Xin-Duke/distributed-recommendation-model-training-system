@@ -123,6 +123,8 @@ def operation(root, run, role, action, token=None, request=None, gpu=False, limi
             with contextlib.ExitStack() as sockets:
                 for port in wanted['ports']:
                     s = sockets.enter_context(socket.socket())
+                    if os.uname().sysname == 'Linux':
+                        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     s.bind((bind_host, port))
             value = dict(intent, token=token, state='reserved', roles=[], created_epoch=time.time())
             write(target, value)
