@@ -15,7 +15,7 @@ sudo -n env DEBIAN_FRONTEND=noninteractive apt-get update -qq
 sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
   build-essential git pkg-config libgflags-dev libprotobuf-dev libprotoc-dev \
   protobuf-compiler libssl-dev libleveldb-dev libsnappy-dev zlib1g-dev \
-  nlohmann-json3-dev python3-venv
+  nlohmann-json3-dev python3-dev python3-venv
 
 python3 -m venv "${dps_work}/environment"
 "${dps_work}/environment/bin/python" -m pip install --disable-pip-version-check \
