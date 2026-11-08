@@ -11,6 +11,7 @@ import statistics
 import subprocess
 import tempfile
 
+from ssh_training_worker import probe_remote
 from tensorflow_consistency_training import trial
 
 STRATEGIES = {
@@ -164,6 +165,9 @@ def main():
     parser.add_argument('--dataset', type=Path, help='JSON with batches[worker][batch][example] and validation')
     parser.add_argument('--remote-worker', nargs=4, action='append', default=[], metavar=('SSH_HOST', 'CHECKOUT', 'PYTHON', 'BUILD'),
                         help='repeat for each additional Worker host using reverse SSH forwarding')
+    parser.add_argument('--rotate-slow-worker', action='store_true',
+                        help='rotate delayed Worker across paired repeats')
+    parser.add_argument('--topology', type=Path, help='JSON deployment metadata to embed in the report')
     args = parser.parse_args()
     if any(not Path(p).is_absolute() for remote in args.remote_worker for p in remote[1:]):
         parser.error('remote checkout, Python and build paths must be absolute')
@@ -192,7 +196,7 @@ def main():
         overlaps = ('provided',)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     settings = vars(args).copy()
-    for field in ('build', 'out', 'dataset'):
+    for field in ('build', 'out', 'dataset', 'topology'):
         settings[field] = str(settings[field]) if settings[field] is not None else None
     source = Path(__file__).resolve().parents[1]
     report = {'schema': 1, 'complete': False, 'config': settings, 'platform': platform.platform(),
@@ -206,6 +210,14 @@ def main():
         report['gpu'] = subprocess.check_output(
             ['nvidia-smi', '--id=0', '--query-gpu=name,driver_version,memory.total',
              '--format=csv,noheader'], text=True, timeout=15).strip()
+    report['dataset_provenance'] = external.get('provenance') if external else None
+    report['topology'] = json.loads(args.topology.read_text()) if args.topology else None
+    report['remote_hosts'] = {}
+    for remote in args.remote_worker:
+        evidence = probe_remote(*remote)
+        if evidence['git_commit'] != report['git_commit']:
+            raise RuntimeError(f'remote checkout differs from controller: {remote[0]}')
+        report['remote_hosts'][remote[0]] = evidence
     write_report(args.out, report)
     with tempfile.TemporaryDirectory(prefix='eps-strategy-workloads-') as temp:
         for repeat in range(args.repeats):
@@ -219,6 +231,7 @@ def main():
                 initial_state = None
                 for pattern in patterns:
                     delay, every = delay_for(pattern, args.delay_ms, args.burst_every)
+                    slow_worker = (workers - 1 + repeat) % workers if args.rotate_slow_worker else workers - 1
                     for point, iterations in enumerate(endpoints):
                         strategies = list(STRATEGIES)
                         shift = (repeat + point) % len(strategies)
@@ -229,7 +242,7 @@ def main():
                             root.mkdir()
                             record = trial(build, root, policy, iterations, repeat, workers, delay, args.device,
                                            workload=workload, update_mode=mode, max_delay=args.max_delay,
-                                           delay_every=every, remote=args.remote_worker)
+                                           delay_every=every, remote=args.remote_worker, slow_worker=slow_worker)
                             if record['committed_samples'] != iterations * workers * metadata['local_batch_size']:
                                 raise RuntimeError('trial did not reach the requested sample budget')
                             if hosts and args.device == '/GPU:0':
@@ -247,7 +260,8 @@ def main():
                             for worker in record['workers_report']:
                                 worker['input_state'].pop('dataset_json', None)
                             record.update(metadata, workload=f'{pattern}-{overlap}', strategy=strategy,
-                                          initial_parameter_sha256=fingerprint)
+                                          initial_parameter_sha256=fingerprint,
+                                          slow_worker=slow_worker if delay else None)
                             report['trials'].append(record)
                             write_report(args.out, report)
                             print(json.dumps({k: record[k] for k in ('workload', 'strategy', 'repeat',

@@ -142,3 +142,10 @@ python tests/tensorflow_strategy_workloads.py --build build/5090 --device /GPU:0
 沿用上述命令，为另外四台主机各追加一次 `--remote-worker`。五个 SSH 目标使用不同宿主机，每台仅运行一个 GPU Worker。控制节点同样运行一个 GPU Worker，参数分片和协调器留在该节点。持续慢和周期突发负载均在最后一个 Worker 注入延迟。
 
 正式运行省略示例中的 `--patterns`、`--overlap`、`--iterations`、`--repeats` 参数。默认样本端点为 1536、6144、24576。结果记录各 Worker 的主机名、TensorFlow 版本、GPU UUID、驱动、显存、运行阶段耗时和传输计数。脚本要求跨机 GPU 运行中所有 Worker 的 GPU UUID 各不相同。另保存租赁宿主机 ID、地区、部署版本和网络 RTT，便于解释跨区域运行的结果。
+
+### 面试证据与执行优先级
+
+1. 先跑同一批六台 A6000 上的正式策略对照。加 `--rotate-slow-worker`，使慢节点随重复轮换，保持同一轮的各策略使用同一慢节点。将报价对应的宿主机 ID、地区、镜像与控制节点角色写入部署 JSON，通过 `--topology` 随报告保存。脚本验证远端提交并记录控制节点与各 Worker 的 SSH echo RTT 原始样本。该值包含 SSH 与远端进程开销，用于解释网络路径差异。并排报告端到端时间、准入等待、参数拉取与梯度提交的 p50/p95，保留各阶段原始数组和各组达标率。
+2. 用固定的 Criteo Click Logs TSV 前缀复核。执行 `python tests/prepare_strategy_ctr.py criteo.tsv ctr-6.json --workers 6`，再用 `--dataset ctr-6.json --patterns balanced persistent`。训练取前 24576 行，验证取紧随其后的 4096 行。只使用 26 列类别特征。保存数据版本、原始前缀 SHA256、行范围和编码规则。按固定样本预算比较验证 loss 与吞吐，CTR 的达标结果单独报告。数据源见 [Criteo Click Logs](https://ailab.criteo.com/download-criteo-1tb-click-logs-dataset/)。
+3. 如预算允许，用同一输入分别以 `--workers 2`、`--workers 4`、`--workers 6` 生成输入。取原六台的嵌套子集，保留控制节点和参数分片位置。全局 batch 固定为 192，逐规模的本地 batch 为 96、48、32，训练与验证行保持一致。运行 `--patterns balanced --iterations 128`，按策略分别报告吞吐和 24576 样本后的验证 loss。逐 Worker 更新策略的更新次数随 Worker 数改变，报告时并列展示。
+4. 总费用上限 $5。开始计费时按实际合计费率设定释放时间，预留结果复制和释放费用。先保留六机策略配对，再执行 CTR 和规模对照。预算截止后，只汇总四种策略和全部端点齐全的重复，缺失条件单列。报告附代码提交、完整命令、拓扑和原始 JSON。只有在五次配对中均达标且同向收益都达到 5% 时，才把该条件写为明确优势。

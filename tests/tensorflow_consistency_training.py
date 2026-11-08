@@ -38,7 +38,8 @@ def model_loss(state, samples, dimension, hidden):
 
 
 def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0',
-          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=()):
+          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=(), slow_worker=None):
+    slow_worker = workers - 1 if slow_worker is None else slow_worker
     dimension, hidden, count = 8, 4, 16
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
     rng = random.Random(20261104)
@@ -115,7 +116,7 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
         configs = [{**settings, 'table': table, 'worker': w, 'dimension': dimension,
                     'hidden': hidden, 'iterations': iterations, 'batches': batches[w],
                     'update_mode': update_mode, 'start_gate': str(gate),
-                    'delay_ms': delay_ms if w == workers-1 else 0, 'delay_every': delay_every,
+                    'delay_ms': delay_ms if w == slow_worker else 0, 'delay_every': delay_every,
                     'record_stage_times': workload is not None, 'device': device}
                    for w in range(workers)]
         children = []

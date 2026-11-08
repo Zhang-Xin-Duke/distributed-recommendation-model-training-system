@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import selectors
 import shlex
 import subprocess
 import sys
@@ -9,9 +10,48 @@ import tempfile
 import time
 
 
+def ssh_command():
+    return ['ssh', '-T', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10',
+            '-o', 'ExitOnForwardFailure=yes', '-o', 'ServerAliveInterval=10',
+            '-o', 'ServerAliveCountMax=2']
+
+
+def probe_remote(host, checkout, python, _build):
+    script = ('import sys; print("READY", flush=True); '
+              '[print(line.strip(), flush=True) for line in sys.stdin]')
+    command = [*ssh_command(), '--', host, shlex.join([python, '-u', '-c', script])]
+    with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                          text=True) as process, selectors.DefaultSelector() as selector:
+        selector.register(process.stdout, selectors.EVENT_READ)
+
+        def receive(expected):
+            if not selector.select(timeout=15) or process.stdout.readline().strip() != expected:
+                raise RuntimeError(f'SSH echo failed for {host}')
+
+        try:
+            receive('READY')
+            samples = []
+            for index in range(12):
+                value = str(index)
+                start = time.monotonic()
+                process.stdin.write(value + '\n')
+                process.stdin.flush()
+                receive(value)
+                samples.append(1000 * (time.monotonic() - start))
+        finally:
+            process.stdin.close()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+    commit = subprocess.check_output([*ssh_command(), '--', host, shlex.join(
+        ['git', '-C', checkout, 'rev-parse', 'HEAD'])], text=True, timeout=20).strip()
+    return {'ssh_echo_rtt_ms': samples, 'git_commit': commit}
+
+
 def worker_command(host, checkout, python, build, endpoints):
-    command = ['ssh', '-T', '-o', 'BatchMode=yes', '-o', 'ExitOnForwardFailure=yes',
-               '-o', 'ServerAliveInterval=10', '-o', 'ServerAliveCountMax=2']
+    command = ssh_command()
     for endpoint in endpoints:
         address, port = endpoint.rsplit(':', 1)
         if address != '127.0.0.1':
