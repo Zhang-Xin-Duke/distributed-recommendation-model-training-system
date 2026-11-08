@@ -17,6 +17,7 @@ import tempfile
 import time
 
 from rpc_processes import ready, stop
+from ssh_training_worker import worker_command
 
 
 def model_loss(state, samples, dimension, hidden):
@@ -37,7 +38,7 @@ def model_loss(state, samples, dimension, hidden):
 
 
 def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/CPU:0',
-          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1):
+          *, workload=None, update_mode='per_worker', max_delay=2, delay_every=1, remote=None):
     dimension, hidden, count = 8, 4, 16
     packed = (dimension * hidden + 2 * hidden + 1 + dimension - 1) // dimension
     rng = random.Random(20261104)
@@ -111,15 +112,32 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
             return json.loads(result.stdout)
 
         gate = home/'start'
-        children = [launch([sys.executable, source/'examples/tensorflow_training_worker.py'],
-            f'worker-{w}', {**settings, 'table': table, 'worker': w, 'dimension': dimension,
-                'hidden': hidden, 'iterations': iterations, 'batches': batches[w],
-                'update_mode': update_mode, 'start_gate': str(gate),
-                'delay_ms': delay_ms if w == workers-1 else 0, 'delay_every': delay_every,
-                'record_stage_times': workload is not None, 'device': device})
-                    for w in range(workers)]
+        configs = [{**settings, 'table': table, 'worker': w, 'dimension': dimension,
+                    'hidden': hidden, 'iterations': iterations, 'batches': batches[w],
+                    'update_mode': update_mode, 'start_gate': str(gate),
+                    'delay_ms': delay_ms if w == workers-1 else 0, 'delay_every': delay_every,
+                    'record_stage_times': workload is not None, 'device': device}
+                   for w in range(workers)]
+        children = []
+        for w, config in enumerate(configs):
+            if remote is not None and w == 1:
+                log = open(home/'worker-1.log', 'w+')
+                logs.append(log)
+                child = subprocess.Popen(worker_command(*remote, [*shards, coordinator]),
+                                         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                         stderr=log, text=True)
+                processes.append(child)
+                child.stdin.write(json.dumps(config) + '\n')
+                child.stdin.flush()
+            else:
+                child = launch([sys.executable, source/'examples/tensorflow_training_worker.py'],
+                               f'worker-{w}', config)
+            children.append(child)
         deadline = time.monotonic()+60
         for w, child in enumerate(children):
+            if remote is not None and w == 1:
+                assert json.loads(ready(child, timeout=60)) == dict(run=run, worker=w, warmed_model=True)
+                continue
             marker = pathlib.Path(str(gate)+f'.worker-{w}.ready')
             while not marker.exists():
                 if child.poll() is not None:
@@ -135,6 +153,10 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
         temporary = gate.with_suffix('.tmp')
         temporary.write_text('start')
         temporary.replace(gate)
+        if remote is not None:
+            children[1].stdin.write('start\n')
+            children[1].stdin.close()
+            children[1].stdin = None
         outputs = []
         for child in children:
             stdout, _ = child.communicate(timeout=120 + 2 * iterations * delay_ms / (1000 * delay_every))
@@ -142,7 +164,8 @@ def trial(build, root, policy, iterations, repeat, workers, delay_ms, device='/C
                 raise RuntimeError(f'model Worker failed: {child.returncode}')
             outputs.append(json.loads(stdout))
         process_elapsed = time.monotonic()-started
-        elapsed = max(w['training_finished_monotonic'] for w in outputs)-started
+        elapsed = (process_elapsed if remote is not None
+                   else max(w['training_finished_monotonic'] for w in outputs)-started)
         assert 0 < elapsed <= process_elapsed
         final = inspect()
         assert final['completed'] == [iterations]*workers, final

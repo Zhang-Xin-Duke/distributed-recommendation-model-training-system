@@ -124,4 +124,15 @@ python tests/tensorflow_strategy_workloads.py --build build/5090 --device /GPU:0
 
 `--dataset` 接收 JSON，其中 `batches[worker][batch][example]` 为两个 Worker 的等大小 batch 流，`validation[example]` 为独立验证集。每条样本形如 `{"keys":[11,12],"label":1}`，键需重映射至 `[11, 32768)`。复核公开数据时，另存数据来源与切分清单。
 
-此入口在单机启动两个 Worker、协调器及参数分片，两个 Worker 使用同一指定设备。跨机启动及 Push 窗口对照需要独立接入。
+默认在一台机器上启动两个 Worker、协调器及参数分片。两个 Worker 使用同一指定设备。
+
+双机运行时，在两台 Linux 主机准备同一提交、TensorFlow 和 BRPC 构建。主机 A 运行脚本、Worker 0、协调器和两个参数分片。主机 B 运行 Worker 1。先验证 A 能用非交互 SSH 登录 B，且 B 的 SSH 服务允许反向端口转发。RPC 端点只在两端回环地址监听，Worker 1 的 RPC 经 A 到 B 的 SSH 会话返回 A。
+
+```bash
+python tests/tensorflow_strategy_workloads.py --build build/5090 --device /GPU:0 \
+  --remote-worker worker-b /opt/eps /opt/eps-venv/bin/python /opt/eps/build/5090 \
+  --patterns balanced --overlap shared --iterations 4 --repeats 1 \
+  --out build/5090/results/two-host-smoke.json
+```
+
+远端四个参数依次为 A 上可用的 SSH 主机名、B 上的仓库绝对路径、Python 绝对路径和构建目录绝对路径。双机时由 A 的单一时钟计时，从放行到两个 Worker 进程退出，包含 SSH 与退出开销。保留节点、网络和 GPU 信息，并在同一拓扑上比较策略。单机和双机计时范围分别记录。Push 窗口 1 与 10 的对照仍需独立接入。

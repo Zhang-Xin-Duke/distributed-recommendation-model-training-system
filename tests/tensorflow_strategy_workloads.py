@@ -162,7 +162,11 @@ def main():
     parser.add_argument('--key-pool', type=int, default=64)
     parser.add_argument('--batch-count', type=int, default=16)
     parser.add_argument('--dataset', type=Path, help='JSON with batches[worker][batch][example] and validation')
+    parser.add_argument('--remote-worker', nargs=4, metavar=('SSH_HOST', 'CHECKOUT', 'PYTHON', 'BUILD'),
+                        help='run Worker 1 on a second host via reverse SSH port forwarding')
     args = parser.parse_args()
+    if args.remote_worker and any(not Path(p).is_absolute() for p in args.remote_worker[1:]):
+        parser.error('remote checkout, Python and build paths must be absolute')
     if (not 2 <= args.batch_size <= 1024 or args.batch_size % 2
             or not 1 <= args.bag_size <= 128 or not 2 <= args.key_pool <= 2048
             or not 1 <= args.batch_count <= 128 or not 1 <= args.repeats <= 20
@@ -191,6 +195,8 @@ def main():
               'git_commit': subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'],
                                                     text=True).strip(),
               'measurement': 'time to first passing tested endpoint after warmup on held-out validation',
+              'timing': ('controller release through process exit (includes SSH and teardown)'
+                         if args.remote_worker else 'gate release through last Worker training completion'),
               'trials': [], 'summary': []}
     if args.device == '/GPU:0':
         report['gpu'] = subprocess.check_output(
@@ -219,7 +225,7 @@ def main():
                             root.mkdir()
                             record = trial(build, root, policy, iterations, repeat, 2, delay, args.device,
                                            workload=workload, update_mode=mode, max_delay=args.max_delay,
-                                           delay_every=every)
+                                           delay_every=every, remote=args.remote_worker)
                             if record['committed_samples'] != iterations * 2 * metadata['local_batch_size']:
                                 raise RuntimeError('trial did not reach the requested sample budget')
                             initial = record.pop('initial_state')
