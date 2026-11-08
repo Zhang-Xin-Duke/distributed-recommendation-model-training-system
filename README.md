@@ -224,7 +224,7 @@ Reports and machine-readable records:
 - [Node loss](docs/PHYSICAL_NODE_RECOVERY.md) · [node-loss manifest](docs/validation/2026-11-05-provider-node-loss-recovery.json)
 - [Original application replay](docs/ORIGINAL_INPUT_CHECKPOINT.md) · [replay manifest](docs/validation/2026-11-05-original-executor-uncommitted-replay.json)
 - [Policy comparison](docs/MODEL_CONSISTENCY_POLICIES.md) · [GPU-policy manifest](docs/validation/2026-11-05-gpu-model-consistency-policies.json)
-- [DeepLOB / FI-2010 workload](docs/plans/2026-11-08-order-book-strategy-design.md) · [runnable benchmark](tests/order_book_strategy_workloads.py)
+- [DeepLOB / FI-2010 two-host results](docs/DEEPLOB_FI2010_RESULTS.md) · [experiment protocol](docs/plans/2026-11-08-order-book-quality-baseline.md) · [runnable benchmark](tests/order_book_strategy_workloads.py)
 
 ### Parameter-runtime performance
 
