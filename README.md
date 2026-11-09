@@ -62,14 +62,38 @@ for validation.
 
 ## How training works
 
-![Workers, parameter shards, and recovery state](docs/assets/distributed-training-architecture.png)
+The standalone system follows Entropy's learner and parameter-server split.
+Each worker reads its indexed batches and runs the TensorFlow model on a GPU.
+The parameter shards serve rows from CPU storage or CUDA memory.
 
-A worker fetches parameters from the shards, runs the TensorFlow forward and
-backward passes, and sends gradients back to the owning shards. In synchronous
-mode, each shard waits for every worker's gradients and applies one update per
-round. The coordinator releases the next round after all shards acknowledge
-their updates. The job controller queues jobs by priority and reserves resources
-for the whole job before launching its processes. [Training execution](docs/TRAINING_EXECUTION.md) ·
+```mermaid
+flowchart TB
+    accTitle: Standalone recommendation training architecture
+    accDescr: Indexed batches feed TensorFlow GPU workers. Workers pull parameters and push gradients to BRPC shards. The shards manage CPU and CUDA rows. Cross-node replicas and gradient mirrors retain recovery state.
+
+    Data["Indexed training batches"] --> Workers
+    Jobs["Job controller"] -.->|"Start workers"| Workers
+    Progress["Round coordinator"] <-.->|"Permits and completion"| Workers
+
+    Workers["TensorFlow GPU workers<br/>Embeddings and MLP"]
+    Workers <-->|"Pull parameters / push gradients"| Shards
+    Shards["BRPC parameter shards<br/>One update per round"]
+    Shards --> Storage
+    subgraph Storage["Parameter storage"]
+        direction LR
+        CPU["CPU rows<br/>Sum or mean pooling"] <-->|"Move row state"| GPU["CUDA rows<br/>Gather and update"]
+    end
+
+    Workers -->|"Original gradients"| Journals["Cross-node gradient mirrors"]
+    Shards -->|"Committed row state"| Replicas["Cross-node parameter replicas"]
+```
+
+Workers pull parameters and push gradients through custom TensorFlow ops. In
+synchronous mode, each shard waits for every worker's gradients before updating.
+Workers report completion after all shards acknowledge their updates. The
+coordinator then permits the next round. The job controller queues jobs by
+priority and reserves resources for the whole job before launching its processes.
+[Training execution](docs/TRAINING_EXECUTION.md) ·
 [Synchronous updates](docs/SYNCHRONOUS_GRADIENTS.md) ·
 [Job controller](docs/TRAINING_JOB_CONTROLLER.md)
 
