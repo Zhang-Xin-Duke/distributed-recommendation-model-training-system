@@ -62,7 +62,6 @@ for validation.
 
 ## How training works
 
-The standalone system follows Entropy's learner and parameter-server split.
 Each worker reads its indexed batches and runs the TensorFlow model on a GPU.
 The parameter shards serve rows from CPU storage or CUDA memory.
 
